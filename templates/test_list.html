@@ -1,0 +1,7 @@
+<style>table, th, td {border: 1px solid black; border-collapse: collapse;}</style><table>
+    <tr><th>Title</th><th>Content</th></tr>
+    {% for x in object_list %}
+        <tr><td>{{ x.employee_name }}</td><td>{{ x.employee_ID }}</td></tr>
+    {% endfor %}
+</table>
+

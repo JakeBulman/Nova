@@ -1,0 +1,16 @@
+<h1>Register</h1></br>
+
+{% if form.errors %}
+<p><font color="red">There  was an error</p></font>
+{% endif %}
+
+<form action="{% url 'register_user' %}" method=POST>
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <input type="submit" value="Submit", class="btn btn-secondary">
+
+</form>
+
