@@ -143,6 +143,14 @@ def manual_apportionment(request):
 		task_assigned_date = None,
 		task_completion_date = None
 	)
+	models.TaskManager.objects.create(
+		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
+		ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
+		task_id = 'ESMCSV',
+		task_assigned_to = None,
+		task_assigned_date = None,
+		task_completion_date = None
+	)
 
 	#complete the task
 	models.TaskManager.objects.filter(pk=apportion_task_id,task_id='MANAPP').update(task_completion_date=timezone.now())    

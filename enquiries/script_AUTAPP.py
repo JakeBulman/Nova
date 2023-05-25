@@ -47,6 +47,14 @@ def run_algo():
                 task_assigned_date = None,
                 task_completion_date = None
             )
+            TaskManager.objects.create(
+                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+                ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
+                task_id = 'ESMCSV',
+                task_assigned_to = None,
+                task_assigned_date = None,
+                task_completion_date = None
+	)
             #complete the task
             TaskManager.objects.filter(pk=task_pk,task_id='AUTAPP').update(task_completion_date=timezone.now())        
 
