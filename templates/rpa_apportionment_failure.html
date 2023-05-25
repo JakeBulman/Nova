@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center">EAR - RPA Apportionment</h1>
+    <div class="table-responsive-xl m-5">
+        <table class="table table-sm table-bordered table-hover">
+            <tr class="text-center">
+                <th>Enquiry ID</th>
+                <th>Script ID</th>
+                <th>Session Name</th>
+                <th>Batch ID</th>
+                <th>Examiner Name</th>
+                <th>RPA Failure Reason</th>
+                <th>Process Pass</th>
+            </tr>
+            {% for x in ec_queryset %}
+                {% for y in x.apportion_script.all %}
+                <tr>
+                    <td><a href='/enquiries/enquiries_detail/{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}'>{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}</a></td> 
+                    <td>{{ y.ec_sid.ec_sid }}</td>
+                    <td>{{ x.eps_ses_name }}</td>
+                    {% for s in x.script_id.all %}<td>{{ s.eb_sid.eb_sid }}</td>{% empty %}<td>None</td>{% endfor %}
+                    <td>{{ y.enpe_sid.per_sid.exm_surname|upper }} {{ y.enpe_sid.per_sid.exm_initials }}</td>
+                    {% for t in x.script_tasks.all %}{% for f in t.task_manager_task.all %}<td>{{ f.failure_reason }}</td>{% endfor %}{% endfor %}
+                    <td><form method="POST" action="{% url 'rpa_apportion_fail_pass' script_id=y.ec_sid.ec_sid %}" class="text-center">
+                        <button type="submit" title="Pass IEC" class="btn btn-outline-success" style="width:70px">Pass</button>
+                    </form></td>
+                {% endfor %}
+            {% endfor %}
+        </table>
+    </div>
+
+{% endblock %}

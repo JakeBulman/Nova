@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center">EAR - EPS BIE Confirmation</h1>
+    <div class="table-responsive-xl m-5">
+        <table class="table table-sm table-bordered table-hover">
+            <tr class="text-center">
+                <th>Enquiry ID</th>
+                <th>Service</th>
+                <th>Comp/Syll</th>
+                <th>Centre ID</th>
+                <th>Candidate No.</th>
+                <th>Syllabus & Vers</th>
+                <th>Component IDs</th>
+                <th>EPS B.I.E</th>
+                <th>Task Creation Date</th>
+                <th>Task Owner</th>
+                <th>Task Assignment Date</th>
+                <th>BIE Complete</th>
+            </tr>
+            {% for x in cer %}
+                {% for y in x.enquiries.all %}
+                <tr>
+                    <td><a href='/enquiries/enquiries_detail/{{ x.enquiry_id }}'>{{ x.enquiry_id }}</a></td> 
+                    <td>{{ y.service_code }}</td>
+                    <td>{{ y.eps_comp_ind }}</td>
+                    <td>{{ x.centre_id }}</td>
+                    <td>{{ y.eps_cand_id }}</td>
+                    <td>{{ y.eps_ass_code }}/{{ y.eps_ass_ver_no }}</td>
+                    <td>{% for z in y.enquiry_parts.all %} {{ z.eps_com_id }} {% endfor %}</td>
+                    <td>{{ y.booked_in_error_ind }}</td>
+                    {% for t in x.enquiry_tasks.all %} 
+                        {% if t.task_id == 'SETBIE' %}
+                            <td>{{ t.task_creation_date }}</td>
+                            <td>{{ t.task_assigned_to }}</td>
+                            <td>{{ t.task_assigned_date }}</td>
+                        
+                        <td><form method="POST" action="{% url 'self-assign-task' task_id=t.id %}" class="text-center">
+                            <input name="page_location" id="page_location" value="enquiries_setbie_list" type="hidden" class="form-control">
+                            {% if request.user.username == t.task_assigned_to.username %}
+                              <button disabled type="submit" class="btn btn-outline-secondary" style="width:120px">Assign to Me</button>
+                            {% else %}
+                              <button type="submit" class="btn btn-outline-primary" style="width:120px">Assign to Me</button>
+                            {% endif %}
+                        </form></td>
+                        {% endif %}
+                    {% endfor %}
+
+
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        </table>
+    </div>
+
+{% endblock %}

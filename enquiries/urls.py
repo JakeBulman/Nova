@@ -1,0 +1,79 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    #Home view for EARs
+    path('home', views.ear_home_view, name='enquiries_home'),
+
+    #Shows all tasks sets to the user
+    path('task_manager/my_tasks', views.my_tasks_view, name='my_tasks'),
+    path('task_manager/task_router', views.task_router_view, name='task-router'),
+    path('task_manager/new_task', views.new_task_view, name='new-task'),
+    path('task_manager/self_assign_task/<str:task_id>', views.self_assign_task_view, name='self-assign-task'),
+    path('task_manager/manual_apportionment_task/complete', views.manual_apportionment, name='manual-apportionment-complete'),
+    path('task_manager/manual_apportionment_task/<str:task_id>', views.manual_apportionment_task, name='manual-apportionment-task'),
+    path('task_manager/setbie_task/<str:task_id>', views.setbie_task, name='setbie-task'),
+    path('task_manager/setbie_task/<str:enquiry_id>/bie-complete/', views.complete_bie_view, name="bie-complete"),
+
+    #Shows all intial enquiry checks (IEC) that need to be actioned
+    path('enquiries_list', views.enquiries_list_view, name='enquiries_list'),
+    #Shows all intial enquiry checks (IEC) that need to be actioned
+    path('enquiries_setbie_list', views.enquiries_bie_view, name='enquiries_setbie_list'),
+    #Manual apportioment main screen
+    path('manapp_list', views.manapp_list_view, name='manapp_list'),
+
+    #enquiries handling for processing of tasks
+    
+    path('enquiries/enquiries_list/<str:enquiry_id>/iec-pass/', views.iec_pass_view, name="iec-pass"),
+    path('enquiries/enquiries_list/<str:enquiry_id>/iec-fail/', views.iec_fail_view, name="iec-fail"),
+    path('enquiries/enquiries_list/<str:enquiry_id>/pause-enquiry/', views.pause_enquiry, name="pause-enquiry"),
+    path('enquiries/enquiries_list/<str:enquiry_id>/prioritise-enquiry/', views.prioritise_enquiry, name="prioritise-enquiry"),
+    
+
+    #RPA views
+    path('rpa_apportionment', views.enquiries_rpa_apportion_view, name='rpa_apportionment'),
+    path('rpa_apportionment_failure', views.enquiries_rpa_apportion_failure_view, name='rpa_apportionment_failure'),
+    
+    path('rpa_apportionment/<str:script_id>/rpa-pass/', views.rpa_apportion_pass_view, name="rpa_apportion_pass"),
+    path('rpa_apportionment/<str:script_id>/rpa-fail/', views.rpa_apportion_fail_view, name="rpa_apportion_fail"),
+    path('rpa_apportionment/<str:script_id>/rpa-fail-pass/', views.rpa_apportion_failure_pass_view, name="rpa_apportion_fail_pass"),
+
+    #Returns blank enquiry form for search (useful only when avoiding EAR Home page but searching for specific enquiry)
+    #TODO: Add search function to this page
+    #TODO: Allow BIE tagging from this view
+    path('enquiries_detail', views.enquiries_detail, name='enquiries_detail'),
+    #Show detailed view for a specific passed enquiry
+    path('enquiries_detail/<str:enquiry_id>/', views.enquiries_detail, name='enquiries_detail'),
+    #Used as a post destination for searching enquirie
+    path('enquiries_detail_search', views.enquiries_detail_search, name='enquiries_detail_search'),
+
+    #Shows list of all assigned examiners for this series
+    path('examiner_list', views.examiner_list_view, name='examiner_list'),
+
+    #Show detailed view for a specific passed examiner
+    path('examiner_detail/<str:per_sid>/', views.examiner_detail, name='examiner_detail'),
+
+    #Examiner availability endpoints
+    path('examiner_availability/<str:per_sid>/edit', views.examiner_availability_edit_view, name='exm-avail-edit'),
+    path('examiner_availability/<str:note_id>/delete', views.examiner_availability_delete, name='exm-avail-delete'),
+    path('examiner_availability/<str:per_sid>/', views.examiner_availability_view, name='examiner_availability'),
+
+    #Examiner notes endpoints
+    path('examiner_notes/<str:per_sid>/edit', views.examiner_notes_edit_view, name='exm-notes-edit'),
+    path('examiner_notes/<str:note_id>/delete', views.examiner_notes_delete, name='exm-notes-delete'),
+    path('examiner_notes/<str:per_sid>/', views.examiner_notes_view, name='examiner_notes'),
+
+    #Examiner conflicts endpoints
+    path('examiner_conflicts/<str:per_sid>/edit', views.examiner_conflicts_edit_view, name='exm-conflicts-edit'),
+    path('examiner_conflicts/<str:per_sid>/', views.examiner_conflicts_view, name='examiner_conflicts'),
+    path('examiner_conflicts/<str:note_id>/delete', views.examiner_conflicts_delete, name='exm-conflicts-delete'),
+
+    #Examiner email update endpoints
+    path('examiner_email_update/<str:per_sid>/edit', views.examiner_email_edit_view, name='exm-email-edit'),
+    path('examiner_email_update/<str:per_sid>/', views.examiner_email_view, name='examiner_email'),
+
+
+
+
+]
+

@@ -16,23 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
-from pages.views import home_view
-from centres.views import centre_list_view
+from enquiries import views
 
 urlpatterns = [
-    #path('', home_view, name='home'),
-    path('pages/', include('pages.urls')),
+    path('', include('pages.urls')),
     path('admin/', admin.site.urls),
     path('members/', include('django.contrib.auth.urls')),
     path('members/', include('members.urls')),
-    path('centres/', include('centres.urls')),
-    path('test_app/', include('test_app.urls')),
+    path('enquiries/', include('enquiries.urls')),
 ]
-
-
-'''
-urlpatterns = [
-url(r'^$', views.home, name='home'),
-url(r'^questions/', views.get_question, name="questions_page"),
-]
-'''

@@ -12,13 +12,16 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('home')
+            if username == 'RPABOT':
+                return redirect('rpa_apportionment')
+            else:
+                return redirect('home')
         else:
             # Return an 'invalid login' error message
             messages.success(request,("There was an error logging in, please try again."))
             return redirect('login')
     else:
-        return render(request, 'authenticate/login.html', {})
+        return render(request, 'user_login.html', {})
 
 def register_user(request):
     if request.method == "POST":

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="text-center m-5">User Login</h1>
+<form method="POST">
+    <div class="containter text-center">
+        <div class="row justify-content-center">
+            <div class="col">
+                <p><strong></strong></p>
+            </div>
+            <div class="col">
+                <p><strong>Username</strong></p>
+            </div>
+            <div class="col">
+                <p><strong>Password</strong></p>
+            </div>
+            <div class="col">
+                <p><strong></strong></p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col">
+                <p><strong></strong></p>
+            </div>
+            <div class="col">
+                <input type="input" class="form-control-lg text-center" name="username" id="inputEmail" placeholder="Username" required >
+            </div>
+            <div class="col">
+                <input type="password" class="form-control-lg text-center" name="password" id="inputPass" placeholder="Password" required>
+            </div>
+            <div class="col">
+                <p><strong></strong></p>
+            </div>
+        </div>
+       
+        <div class="row">
+            <div class="col">
+                <button type="submit" style="border-radius: 25px; width: 200px; height: 50px; font-size: 30px; line-height: 0" class="btn btn-danger m-5">Login</button>
+            </div>
+        </div>
+    </div> 
+</form>
+
+{% endblock %}

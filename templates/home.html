@@ -1,19 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% load static %}
 
-<h1>EAR Template</h1>
+<div class="card m-5 shadow-lg" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/ear-icon.png' %}" alt="EAR Icon">
+    <div class="card-body">
+      <h5 class="card-title">Enquires About Results</h5>
+      <h6 class="card-subtitle mb-2 text-muted">Results</h6>
+      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+      <a href="{% url 'enquiries_home' %}" class="btn btn-primary">Go to EARs</a>
+    </div>
+  </div>
 
-<p>Template</p>
-
-<p>
-    {{ my_text }}, {{ my_number }}, {{ my_list }}
-</p>
-
-<ul>
-    {% for my_sub_item in my_list %}
-        <li>{{ my_sub_item }}</li>
-    {% endfor%}
-</ul>
 
 {% endblock %}
+

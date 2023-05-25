@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center mb-5">EAR - Initial Enquiry Check</h1>
+
+
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      <li class="page-item">
+        {% if cer.has_previous %}
+        <a class="page-link" href="?page={{cer.previous_page_number}}" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+        {% else %}
+        <a class="page-link disabled" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+        {% endif %}
+      </li>
+
+      <li class="page-item">
+        {% if cer.number == 1 %}
+        <a class="page-link disabled"aria-label="First">
+          <span aria-hidden="true">First</span>
+        </a>
+        {% else %}
+        <a class="page-link" href="?page=1" aria-label="First">
+            <span aria-hidden="true">First</span>
+        </a>
+        {% endif %}
+      </li>
+
+      <li class="page-item"><a class="page-link active"style="width: 45px; text-align:center">{{cer.number}}</a></li>
+
+      <li class="page-item">
+        {% if cer.number == cer.paginator.num_pages %}
+        <a class="page-link disabled"aria-label="Last">
+          <span aria-hidden="true">Last ({{cer.paginator.num_pages}})</span>
+        </a>
+        {% else %}
+        <a class="page-link" href="?page={{cer.paginator.num_pages}}" aria-label="Previous">
+            <span aria-hidden="true">Last ({{cer.paginator.num_pages}})</span>
+        </a>
+        {% endif %}
+      </li>
+
+      <li class="page-item">
+        {%if cer.has_next %}
+        <a class="page-link" href="?page={{cer.next_page_number}}" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+        {% else %}
+        <a class="page-link disabled" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+        {% endif %}
+      </li>
+    </ul>
+  </nav>
+
+
+    <div class="table-responsive-xl m-5">
+        <table class="table table-sm table-bordered table-hover">
+            <tr class="text-center">
+                <th>Enquiry ID</th>
+                <th>Service</th>
+                <th>Comp/Syll Ind</th>
+                <th>Centre ID</th>
+                <th>Candidate No.</th>
+                <th>Syllabus & Vers</th>
+                <th>Component IDs</th>
+                <th>Start Date</th>
+                <th>Completion Date</th>
+                <th>EPS B.I.E</th>
+                <th>IEC Pass</th>
+                <th>IEC Fail</th>
+            </tr>
+            {% for x in cer %}
+                {% for y in x.enquiries.all %}
+                    <tr>
+                        <td><a href='/enquiries/enquiries_detail/{{ x.enquiry_id }}'>{{ x.enquiry_id }}</a></td> 
+                        <td>{{ y.service_code }}</td>
+                        <td>{{ y.eps_comp_ind }}</td>
+                        <td>{{ x.centre_id }}</td>
+                        <td>{{ y.eps_cand_id }}</td>
+                        <td>{{ y.eps_ass_code }}/{{ y.eps_ass_ver_no }}</td>
+                        <td>{% for z in y.enquiry_parts.all %} {{ z.eps_com_id }} {% endfor %}</td>
+                        <td>{{ x.eps_creation_date }}</td>
+                        <td>{{ x.eps_completion_date }}</td>
+                        <td>{{ y.booked_in_error_ind }}</td>
+                        <td><form method="POST" action="{% url 'iec-pass' enquiry_id=x.enquiry_id %}" class="text-center">
+                            <button type="submit" title="Pass IEC" class="btn btn-outline-success" style="width:70px">Pass</button>
+                        </form></td>
+                        <td><form method="POST" action="{% url 'iec-fail' enquiry_id=x.enquiry_id %}" class="text-center">
+                            <input name="listed" id="listed" type="hidden" class="form-control" placeholder="Enquiry No.">
+                            <button type="submit" title="Fail IEC" class="btn btn-outline-danger" style="width:70px">Fail</button>
+                        </form></td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </table>
+    </div>
+
+
+
+
+{% endblock %}

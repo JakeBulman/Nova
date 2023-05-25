@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+
+<h1 class="display-5 text-center mb-5">EAR - My Tasks</h1>
+
+{% if tasks.count == 0 %}
+
+<div class="text-center m-5">
+<img class="rounded mx-auto d-block " src="{% static 'admin/img/empty-icon.png' %}" alt="Empty Icon">
+</div>
+
+<h5 class="display-5 text-center m-5">You currently have no tasks assigned</h5>
+
+{% else %}
+
+<div class="row ms-5">
+{% for t in tasks %}
+
+<div class="card m-3" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/placeholder-image.png' %}" alt="Placeholder Icon">
+    <div class="card-body">
+        <h5 class="card-title">{{t.task_id}}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">Enquiry: {{t.enquiry_id.enquiry_id}}</h6>
+        <h6 class="card-subtitle mb-2 text-muted">Script: {{t.ec_sid.ec_sid}}</h6>
+        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+        <form method="POST" action="{% url 'task-router' %}">
+            <input name="task_type" id="task_type" value='{{t.task_id}}' type="hidden" class="form-control">
+            <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
+            <button type="submit" class="btn btn-primary">Go to Task</button>
+        </form>
+    </div>
+</div>
+
+{% endfor %}
+</div>
+
+{% endif %}
+
+<div class="row text-center m-5">
+    {% if tasks.count > 9 %}
+        <form method="POST" action="{% url 'new-task' %}">
+            <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
+            <button disabled type="submit" title="New Task" class="btn btn-outline-secondary btn-lg my-2" style="width:500px">Too many tasks</button>
+        </form>
+    {% elif task_count == 0 %}
+    <form method="POST" action="{% url 'new-task' %}">
+        <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
+        <button disabled type="submit" title="New Task" class="btn btn-outline-secondary btn-lg my-2" style="width:500px">No tasks in queue</button>
+    </form>
+    {% else %}
+        <form method="POST" action="{% url 'new-task' %}">
+            <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
+            <button type="submit" title="New Task" class="btn btn-primary btn-lg my-2" style="width:500px">Get new task</button>
+        </form>
+    {% endif %}
+</div>
+
+
+
+
+{% endblock %}

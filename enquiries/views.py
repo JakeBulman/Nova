@@ -1,0 +1,476 @@
+from django.http import HttpResponse, HttpResponseRedirect
+from . import models
+from django.template.loader import render_to_string
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from django.core.paginator import Paginator
+from django.db.models import Q
+
+# Create your views here.
+@login_required
+def ear_home_view(request,*args, **kwargs):
+	#return HttpResponse("<h1>Hello World</h1>")
+	user = None
+	if request.user.is_authenticated:
+		user = request.user
+	
+	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
+	cer_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True)
+	bie_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True)
+	bie_count_assigned = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	manapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MANAPP', enquiry_tasks__task_completion_date__isnull=True)
+	manapp_count_assigned = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MANAPP', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	botapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTAPP', enquiry_tasks__task_completion_date__isnull=True)
+	botapp_fail_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTAPF', enquiry_tasks__task_completion_date__isnull=True)
+	context = {"mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, "botapp":botapp_count, "botapf":botapp_fail_count}
+	return render(request, "home_ear.html", context=context)
+
+def my_tasks_view(request):
+	#Get username to filter tasks
+	user = None
+	if request.user.is_authenticated:
+		user = request.user
+	#Get task objects for this user
+	task_queryset = models.TaskManager.objects.filter(task_assigned_to=user,task_completion_date__isnull=True)
+	task_count = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP']).count()
+	context = {"tasks": task_queryset, "task_count": task_count}
+	return render(request, "my_tasks.html", context=context)
+
+def task_router_view(request):
+	task_type = request.POST.get('task_type')
+	task_id = request.POST.get('task_id')
+	
+	if task_type == "SETBIE":
+		return redirect('setbie-task', task_id=task_id)
+	if task_type == "MANAPP":
+		return redirect('manual-apportionment-task', task_id=task_id)
+	else:
+		return redirect('my_tasks')
+	
+
+
+def new_task_view(request):
+	#Get username to filter tasks
+	username = None
+	if request.user.is_authenticated:
+		username =request.user
+	#Caclulate next task in the queue
+	try:
+		next_task_id = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP']).first().pk
+	except:
+		next_task_id = None
+	#Set the newest task to this user
+	if next_task_id is not None:
+		models.TaskManager.objects.filter(id=next_task_id).update(task_assigned_to=username)
+		models.TaskManager.objects.filter(id=next_task_id).update(task_assigned_date=timezone.now())
+	return redirect('my_tasks')
+
+def self_assign_task_view(request, task_id=None):
+	#Get username to filter tasks
+	username = None
+	if request.user.is_authenticated:
+		username =request.user
+	#Set the  task to this user
+	if task_id is not None:
+		models.TaskManager.objects.filter(id=task_id).update(task_assigned_to=username)
+		models.TaskManager.objects.filter(id=task_id).update(task_assigned_date=timezone.now())
+	redirect_address = request.POST.get('page_location')
+	return redirect(redirect_address)
+
+def setbie_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset}
+	return render(request, "enquiries_task_setbie.html", context=context)
+
+def manual_apportionment_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
+	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
+	examiner_queryset = models.EnquiryPersonnelDetails.objects.filter(ass_code = task_ass_code, com_id = task_comp_code).order_by('exm_creditor_no')
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, }
+	return render(request, "enquiries_task_manual_apportionment.html", context=context)
+
+def manual_apportionment(request):
+	apportion_enpe_sid = request.POST.get('enpe_sid')
+	apportion_script_id = request.POST.get('script_id')
+	apportion_task_id = request.POST.get('task_id')
+	apportion_enquiry_id = request.POST.get('enquiry_id')
+
+	examiner_obj = models.EnquiryPersonnel.objects.get(enpe_sid=apportion_enpe_sid)
+	script_obj = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id)
+
+	models.ScriptApportionment.objects.create(
+		enpe_sid = examiner_obj,
+		ec_sid =  script_obj
+		#script_marked is default to 0
+	)
+
+	models.TaskManager.objects.create(
+		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
+		ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
+		task_id = 'BOTAPP',
+		task_assigned_to = None,
+		task_assigned_date = None,
+		task_completion_date = None
+	)
+	models.TaskManager.objects.create(
+		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
+		ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
+		task_id = 'NEWMIS',
+		task_assigned_to = None,
+		task_assigned_date = None,
+		task_completion_date = None
+	)
+
+	#complete the task
+	models.TaskManager.objects.filter(pk=apportion_task_id,task_id='MANAPP').update(task_completion_date=timezone.now())    
+
+	return redirect('my_tasks')
+
+def complete_bie_view(request, enquiry_id=None):
+	if enquiry_id is not None and request.method == 'GET':
+		t_check = models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='SETBIE').update(task_completion_date=timezone.now())
+		print(t_check)
+	return redirect('my_tasks')
+
+def enquiries_detail(request, enquiry_id=None):
+	cer_queryset = None
+	if enquiry_id is not None:	
+		cer_queryset = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
+		task_queryset = models.TaskManager.objects.filter(enquiry_id=enquiry_id).order_by('task_creation_date')
+		#Get task_id fpr this enquiry
+		this_task_obj = None
+		this_task_id = None
+		this_task_obj = models.TaskManager.objects.filter(task_id='SETBIE',enquiry_id=enquiry_id).first()
+		if this_task_obj is not None:
+			this_task_id = this_task_obj.task_id
+	context = {"cer": cer_queryset, "bie_status": this_task_id, "tasks":task_queryset}
+	return render(request, "enquiries_detail.html", context=context)
+
+def enquiries_detail_search(request, id=None):
+	enquiry_obj = None
+	if request.method == "POST" and 'enquiry_id' in request.POST:
+		enquiry_id = request.POST.get('enquiry_id')
+		enquiry_obj = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
+		print(enquiry_obj)
+	return redirect('enquiries_detail', enquiry_id)
+
+def enquiries_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	cer_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+	cer_queryset_paged = Paginator(cer_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = cer_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = cer_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = cer_queryset_paged.page(cer_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_list.html", context=context)
+
+def enquiries_bie_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	cer_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+	task_queryset = models.TaskManager.objects.filter(task_id='SETBIE', task_completion_date__isnull=True).order_by('enquiry_id')
+	context = {"cer": cer_queryset, "tasks":task_queryset}
+	return render(request, "enquiries_list_setbie.html", context=context)
+
+def iec_pass_view(request, enquiry_id=None):
+	if enquiry_id is not None and request.method == 'POST':
+		#Get scripts for this enquiry ID, this is a join from EC to ERP
+		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
+		print(Scripts)
+		for s in Scripts:
+			#create a new task for the next step (AUTAPP)
+			models.TaskManager.objects.create(
+            	enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+				ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+				task_id = 'MANAPP',
+				task_assigned_to = None,
+				task_assigned_date = None,
+				task_completion_date = None
+        	)
+			#complete the task
+			models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
+	return redirect('enquiries_list')
+
+def iec_fail_view(request, enquiry_id=None):
+	if enquiry_id is not None and request.method == 'POST':	
+		#Get scripts for this enquiry ID, this is a join from EC to ERP
+		#No need for script id, BIE is handled at Enquiry Level
+		#create a new task for the next step (AUTAPP)
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'SETBIE',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+		#complete the task
+		models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
+
+	if request.POST.get('page_source')=='detail':
+		return redirect('enquiries_detail', enquiry_id)
+	else:
+		return redirect('enquiries_list')
+
+def manapp_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='MANAPP', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_manual_apportionment.html", context=context)
+
+
+
+def enquiries_rpa_apportion_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTAPP', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"ec_queryset": page_obj,}
+	return render(request, 'rpa_apportionment.html', context=context)
+
+def rpa_apportion_pass_view(request, script_id=None):
+	if script_id is not None and request.method == 'POST':
+		#Mark the task with this script ID for BOTAPP as complete
+		print(script_id)
+		models.TaskManager.objects.filter(ec_sid=script_id,task_id='BOTAPP').update(task_completion_date=timezone.now())
+	return redirect('rpa_apportionment')
+
+def rpa_apportion_fail_view(request, script_id=None):
+	if script_id is not None and request.method == 'POST':	
+		#Get enquiry for this script ID
+		#create a new task for the next step (BOTAPF)
+		print(script_id)
+		this_task = models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiries__enquiry_parts__ec_sid=script_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			task_id = 'BOTAPF',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+		this_task.refresh_from_db()
+		print(this_task.pk)
+		models.RpaFailureAudit.objects.create(
+			rpa_task_key = models.TaskManager.objects.get(pk=this_task.pk),
+			failure_reason = request.POST.get('rpa_fail')
+		)
+		#complete the task
+		models.TaskManager.objects.filter(ec_sid=script_id,task_id='BOTAPP').update(task_completion_date=timezone.now())
+		return redirect('rpa_apportionment')
+
+def enquiries_rpa_apportion_failure_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTAPF', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	context = {"ec_queryset": ec_queryset,}
+	return render(request, "rpa_apportionment_failure.html", context=context)
+
+def rpa_apportion_failure_pass_view(request, script_id=None):
+	if script_id is not None and request.method == 'POST':
+		#Mark the task with this script ID for BOTAPP as complete
+		print(script_id)
+		models.TaskManager.objects.filter(ec_sid=script_id,task_id='BOTAPF').update(task_completion_date=timezone.now())
+	return redirect('rpa_apportionment_failure')
+
+#TO DO: Pause Enquiry
+def pause_enquiry(request, enquiry_id=None):
+	if enquiry_id is not None and request.method == 'POST':	
+		enquiry_obj = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
+		#enquiry_obj.initial_check_complete = True
+		#enquiry_obj.save()
+	return redirect('enquiries_detail', enquiry_id)
+
+#TO DO: Prioritise Enquiry
+def prioritise_enquiry(request, enquiry_id=None):
+	if enquiry_id is not None and request.method == 'POST':	
+		enquiry_obj = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
+		#enquiry_obj.initial_check_complete = True
+		#enquiry_obj.save()
+	return redirect('enquiries_detail', enquiry_id)
+
+def examiner_list_view(request):
+	search_q = ""
+	if request.GET.get('search_query') is not None:
+		search_q = request.GET.get('search_query')
+	split_search_q_1 = "None"
+	split_search_q_2 = "None"
+	if search_q.find("/") > -1:
+		split_search_q_1 = search_q.split("/")[0]
+		split_search_q_2 = search_q.split("/")[1]
+	ep_queryset = models.UniqueCreditor.objects.filter(Q(exm_creditor_no__icontains = search_q) | Q(exm_surname__icontains = search_q) | Q(creditors__exm_per_details__ass_code__icontains = split_search_q_1) & Q(creditors__exm_per_details__com_id__icontains = split_search_q_2)).order_by('exm_creditor_no').distinct()
+
+	ep_queryset_paged = Paginator(ep_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ep_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ep_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ep_queryset_paged.page(ep_queryset_paged.num_pages)	
+	context = {"ep": page_obj, "sq":search_q, }
+	return render(request, "enquiries_examiner_list.html", context=context)
+
+def examiner_detail(request, per_sid=None):
+	exm_queryset = None
+	if per_sid is not None:	
+		uc_queryset = models.UniqueCreditor.objects.get(per_sid=per_sid)
+		exm_queryset = models.EnquiryPersonnel.objects.filter(per_sid=per_sid)
+		exm_queryset2 = models.EnquiryPersonnelDetails.objects.filter(enpe_sid__per_sid=per_sid)
+		#examiner email override check
+		try:
+			email_new = models.ExaminerEmailOverride.objects.get(creditor__per_sid = per_sid).examiner_email_manual
+		except:
+			email_new = models.UniqueCreditor.objects.get(per_sid=per_sid).exm_email
+
+
+	context = {"uc": uc_queryset, "exm": exm_queryset, "exm2": exm_queryset2, "exm_email": email_new}
+	return render(request, 'enquiries_examiner_detail.html', context=context)
+
+def examiner_availability_view(request, per_sid=None):
+	uc_queryset = models.UniqueCreditor.objects.get(per_sid=per_sid)
+	context = {"enpe": uc_queryset,}
+	return render(request, 'enquiries_examiner_availability.html', context=context)
+
+def examiner_availability_edit_view(request, per_sid=None):
+	print(per_sid)
+	print(request.POST.get('start'))
+	if per_sid is not None and request.method == 'POST':
+		exm = models.UniqueCreditor.objects.get(per_sid=per_sid)
+		avail = models.ExaminerAvailability(
+			#ea_sid = models.EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=enpe_sid),
+			unavailability_start_date = request.POST.get('start'),
+			unavailability_end_date = request.POST.get('end'),
+			unavailable_2_flag = request.POST.get('esstwo'),
+			unavailable_5_flag = request.POST.get('essfive'),
+			unavailable_9_flag = request.POST.get('essnine'),
+		)
+		avail.save()
+		avail.creditor.add(exm)
+	return redirect('examiner_detail', per_sid)
+
+def examiner_availability_delete(request, note_id=None):
+	if note_id is not None:
+		per_sid = models.UniqueCreditor.objects.get(exm_availability__pk = note_id).per_sid
+		models.ExaminerAvailability.objects.get(id=note_id).delete()
+	return redirect('examiner_detail', per_sid)
+
+def examiner_notes_view(request, per_sid=None):
+	uc_queryset = models.UniqueCreditor.objects.get(per_sid=per_sid)
+	context = {"enpe": uc_queryset,}
+	return render(request, 'enquiries_examiner_notes.html', context=context)
+
+def examiner_notes_edit_view(request, per_sid=None):
+		#Get username to filter tasks
+	username = None
+	if request.user.is_authenticated:
+		username = request.user
+
+	if per_sid is not None and request.method == 'POST':
+		exm = models.UniqueCreditor.objects.get(per_sid=per_sid)
+		note_entry = models.ExaminerNotes(
+			examiner_notes = request.POST.get('exm_note'),
+			note_owner = username,
+		)
+		note_entry.save()
+		note_entry.creditor.add(exm)
+	return redirect('examiner_detail', per_sid)
+
+def examiner_notes_delete(request, note_id=None):
+	if note_id is not None:
+		per_sid = models.UniqueCreditor.objects.get(exm_notes__pk = note_id).per_sid
+		models.ExaminerNotes.objects.get(id=note_id).delete()
+	return redirect('examiner_detail', per_sid)
+
+def examiner_conflicts_view(request, per_sid=None):
+	uc_queryset = models.UniqueCreditor.objects.get(per_sid=per_sid)
+	context = {"enpe": uc_queryset,}
+	return render(request, 'enquiries_examiner_conflicts.html', context=context)
+
+def examiner_conflicts_edit_view(request, per_sid=None):
+	#Get username
+	username = None
+	if request.user.is_authenticated:
+		username = request.user
+
+	if per_sid is not None and request.method == 'POST':
+		exm = models.UniqueCreditor.objects.get(per_sid=per_sid)
+		#detect if note exists or not
+		try:
+			existing_note = models.ExaminerConflicts.objects.get(creditor__per_sid = per_sid).pk
+		except:
+			existing_note = None
+		#if note does not exist, create it, else update it
+		if existing_note is None:
+			conflict_entry = models.ExaminerConflicts(
+				examiner_conflicts = request.POST.get('exm_conflicts'),
+				note_owner = username,
+			)
+			conflict_entry.save()
+			conflict_entry.creditor.add(exm)
+		else:
+			models.ExaminerConflicts.objects.filter(id=existing_note).update(examiner_conflicts=request.POST.get('exm_conflicts'))
+	return redirect('examiner_detail', per_sid)
+
+def examiner_conflicts_delete(request, note_id=None):
+	if note_id is not None:
+		per_sid = models.UniqueCreditor.objects.get(exm_conflicts__pk = note_id).per_sid
+		models.ExaminerConflicts.objects.get(id=note_id).delete()
+	return redirect('examiner_detail', per_sid)
+
+def examiner_email_view(request, per_sid=None):
+	uc_queryset = models.UniqueCreditor.objects.get(per_sid=per_sid)
+	context = {"enpe": uc_queryset,}
+	return render(request, 'enquiries_examiner_email.html', context=context)
+
+def examiner_email_edit_view(request, per_sid=None):
+	#Get username
+	username = None
+	if request.user.is_authenticated:
+		username = request.user
+	print(username)
+
+	if per_sid is not None and request.method == 'POST':
+		exm = models.UniqueCreditor.objects.get(per_sid=per_sid)
+		#detect if note exists or not
+		try:
+			existing_note = models.ExaminerEmailOverride.objects.get(creditor__per_sid = per_sid).pk
+		except:
+			existing_note = None
+		#if note does not exist, create it, else update it
+		print(existing_note)
+		if existing_note is None:
+			conflict_entry = models.ExaminerEmailOverride(
+				examiner_email_manual = request.POST.get('exm_new_email'),
+			)
+			conflict_entry.save()
+			conflict_entry.creditor.add(exm)
+		else:
+			models.ExaminerEmailOverride.objects.filter(id=existing_note).update(examiner_email_manual=request.POST.get('exm_new_email'))
+	return redirect('examiner_detail', per_sid)

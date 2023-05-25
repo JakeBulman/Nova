@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+
+<h3 class="mt-3 mx-4 my-1">Tasks</h3>
+
+<div class="row mx-2">
+
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/search-icon.png' %}" alt="Search Icon">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">Enquiry Search</h5>
+      <p class="card-text">Search for specific enquiry numbers.</p>
+      <form class="row g-3  d-grid" method="POST" action='/enquiries/enquiries_detail_search'>
+        <div class="col-auto">
+          <input name="enquiry_id" id="enquiry_id" type="text" class="form-control" placeholder="Enquiry No.">
+        </div>
+        <button type="submit" class="btn btn-outline-primary">Search</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/mytask-icon.png' %}" alt="EAR Icon">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">My Tasks</h5>
+      {% if mytask.count > 0 %}<span class="badge rounded-pill bg-danger">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      <p class="card-text">A list of tasks currently assigned to me.</p>
+      <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
+    </div>
+  </div>
+  
+
+</div>
+
+<h3 class="mx-4 my-1">List Views</h3>
+
+<div class="row mx-2">
+
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/exm-avail-icon.png' %}" alt="Examiner availability Icon">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">Examiner Setup</h5>
+      <span class="badge rounded-pill bg-success"></span>
+      <p class="card-text">Add and change the availability windows for examiners.</p>
+      <a href="{% url 'examiner_list' %}" class="mt-auto btn btn-outline-primary">Go to Examiners</a>
+    </div>
+  </div>
+
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/iec-icon.png' %}" alt="IEC Icon">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">Initial Enquiry Checks</h5>
+      {% if cer.count > 0 %}<span class="badge rounded-pill bg-danger">{{ cer.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      <p class="card-text">Checks on new enquiries to confirm availability to proceed to apportionment.</p>
+      <a href="{% url 'enquiries_list' %}" class="mt-auto btn btn-outline-primary">Go to IECs</a>
+    </div>
+  </div>
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/bie-icon.png' %}" alt="EAR Icon">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">BIE Tasks</h5>
+      {% if bie.count > 0 %}<span class="badge rounded-pill bg-danger">{{ bie.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if biea.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ biea.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      <p class="card-text">Convert WebApp cancellations to EPS BIE status</p>
+      <a href="{% url 'enquiries_setbie_list' %}" class="mt-auto btn btn-outline-primary">Go to BIE Tasks</a>
+    </div>
+  </div>
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/placeholder-image.png' %}" alt="EAR Icon">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">Manual Apportionment</h5>
+      {% if manapp.count > 0 %}<span class="badge rounded-pill bg-danger">{{ manapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if manappa.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ manappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      <p class="card-text">Tasks awaiting manual apportionment.</p>
+      <a href="{% url 'manapp_list' %}" class="mt-auto btn btn-outline-primary">Go to Apportionment</a>
+    </div>
+  </div>
+
+</div>
+
+
+
+<h3 class="mx-4 my-1">RPA Views</h3>
+
+<div class="row mx-2">
+
+    <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <img class="card-img-top" src="{% static 'admin/img/placeholder-image.png' %}" alt="EAR Icon">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">RPA Apportionment</h5>
+          {% if botapp.count > 0 %}<span class="badge rounded-pill bg-danger">{{ botapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          <p class="card-text">Tasks awaiting an RPA processing run.</p>
+          <a href="{% url 'rpa_apportionment' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+        </div>
+      </div>
+  
+    <div class="card m-3 shadow-lg" style="width: 18rem; ">
+      <img class="card-img-top" src="{% static 'admin/img/placeholder-image.png' %}" alt="EAR Icon">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">RPA Apportion Failures</h5>
+        {% if botapf.count > 0 %}<span class="badge rounded-pill bg-danger">{{ botapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+        <p class="card-text">Tasks awaiting completion after a bot failed to process an apportionment.</p>
+        <a href="{% url 'rpa_apportionment_failure' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+      </div>
+    </div>
+
+{% endblock %}

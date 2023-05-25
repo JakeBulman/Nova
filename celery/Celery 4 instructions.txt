@@ -1,0 +1,4 @@
+https://www.distributedpython.com/2018/08/21/celery-4-windows/
+https://github.com/bstiel/celery-4-windows
+
+https://realpython.com/asynchronous-tasks-with-django-and-celery/

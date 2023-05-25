@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center mb-5">EAR - Examiner Availability Change - {{ enpe.exm_creditor_no }}</h1>
+<span class="m-5"></span>
+
+
+<div class="container">  
+    <div class="row">
+        <div class="col"></div>
+        <div class="col-6 border border-5 rounded-3">
+            <h3 class="m-5 text-center">Examiner Unavailability Request</h3>
+            <form method="POST" action="{% url 'exm-avail-edit' per_sid=enpe.per_sid %}" class="text-center">
+                <div class="row mb-5">
+                    <div class="col"></div>
+                    <div class="col">
+                        <label for="start">Start Date:</label>
+                        <input type="date" class="form-control-lg" id="start" name="start" required>
+                    </div>
+                    <div class="col">
+                        <label for="end">End Date:</label>
+                        <input type="date" class="form-control-lg" id="end" name="end" required>
+                    </div>
+                    <div class="col"></div>
+                </div>
+            <div class="row text-center mb-4">
+                <div class="col">
+                    <legend>Service 2 Availability</legend>
+                    <div>
+                        <input type="radio" class="btn-check" id="yes1" name="esstwo" value="Y" autocomplete="off"/>
+                        <label class ="btn btn-outline-success mb-5" for="yes1">Yes</label>
+
+                        <input type="radio" class="btn-check" id="no1" name="esstwo" value="N" autocomplete="off" checked/>
+                        <label class ="btn btn-outline-danger mb-5" for="no1">No</label>
+                    </div>
+                </div>
+                <div class="col">
+                    <legend>Service 5 Availability</legend>
+                    <div>
+                        <input type="radio" class="btn-check" id="yes2" name="essfive" value="Y" autocomplete="off"/>
+                        <label class ="btn btn-outline-success mb-5" for="yes2">Yes</label>
+
+                        <input type="radio" class="btn-check" id="no2" name="essfive" value="N" autocomplete="off" checked/>
+                        <label class ="btn btn-outline-danger mb-5" for="no2">No</label>
+                    </div>
+                </div>
+                <div class="col">
+                    <legend>Service 9 Availability</legend>
+                    <div>
+                        <input type="radio" class="btn-check" id="yes3" name="essnine" value="Y" autocomplete="off"/>
+                        <label class ="btn btn-outline-success mb-5" for="yes3">Yes</label>
+
+                        <input type="radio" class="btn-check" id="no3" name="essnine" value="N" autocomplete="off" checked/>
+                        <label class ="btn btn-outline-danger mb-5" for="no3">No</label>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" title="Complete" class="btn btn-success mb-5" style="width:500px">Complete</button>
+            </form>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+
+{% endblock %}
