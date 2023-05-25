@@ -34,7 +34,7 @@
 
 </div>
 
-<h3 class="mx-4 my-1">List Views</h3>
+<h3 class="mx-4 my-1">Batch Tasks</h3>
 
 <div class="row mx-2">
 
@@ -57,6 +57,24 @@
       <a href="{% url 'enquiries_list' %}" class="mt-auto btn btn-outline-primary">Go to IECs</a>
     </div>
   </div>
+
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/iec-icon.png' %}" alt="EAR Icon">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">ESM CSV Download</h5>
+      {% if esmcsv.count > 0 %}<span class="badge rounded-pill bg-danger">{{ esmcsv.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      <p class="card-text">Download for examiner access to RM</p>
+      <a href="{% url 'esmcsv_list' %}" class="mt-auto btn btn-outline-primary">Download File</a>
+    </div>
+  </div>
+</div>
+
+
+
+<h3 class="mx-4 my-1">List Views</h3>
+
+<div class="row mx-2">
+
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <img class="card-img-top" src="{% static 'admin/img/bie-icon.png' %}" alt="EAR Icon">
     <div class="card-body d-flex flex-column">
@@ -73,7 +91,7 @@
       <h5 class="card-title">Previous Examiner Checks</h5>
       {% if pexmch.count > 0 %}<span class="badge rounded-pill bg-danger">{{ pexmch.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       {% if pexmcha.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ pexmcha.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-      <p class="card-text">Checks on previous examiners when a Grade Review or Team Leader Adjustment has taken place.</p>
+      <p class="card-text">Checks on previous examiners when a GR or TL Adjustment has taken place.</p>
       <a href="{% url 'pexmch_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
     </div>
   </div>
@@ -94,7 +112,7 @@
       {% if misvrm.count > 0 %}<span class="badge rounded-pill bg-danger">{{ misvrm.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       {% if misvrma.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ misvrma.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Checks between returned MIS forms and RM.</p>
-      <a href="{% url 'misvrm_list' %}" class="mt-auto btn btn-outline-primary">Go to Apportionment</a>
+      <a href="{% url 'misvrm_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
     </div>
   </div>
 </div>

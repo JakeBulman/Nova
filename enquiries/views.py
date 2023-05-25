@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.db.models import Q
+import csv
 
 PageNotAnInteger = None
 EmptyPage = None
@@ -21,6 +22,7 @@ def ear_home_view(request,*args, **kwargs):
 	
 	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
 	cer_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True)
+	esmcsv_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMCSV', enquiry_tasks__task_completion_date__isnull=True)
 	bie_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True)
 	bie_count_assigned = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	manapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MANAPP', enquiry_tasks__task_completion_date__isnull=True)
@@ -35,7 +37,7 @@ def ear_home_view(request,*args, **kwargs):
 	pexmcha_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	context = {"mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
 	    "botapp":botapp_count, "botapf":botapp_fail_count, "botmar":botmar_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count,
-		"pexmch":pexmch_count, "pexmcha":pexmcha_count}
+		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "esmcsv":esmcsv_count}
 	return render(request, "home_ear.html", context=context)
 
 def my_tasks_view(request):
@@ -488,6 +490,28 @@ def pexmch_list_view(request):
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
 	return render(request, "enquiries_pexmch.html", context=context)
+
+def esmcsv_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.TaskManager.objects.filter(task_id='ESMCSV', task_completion_date__isnull=True)
+	if ec_queryset.count() > 0:
+		filename = 'Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\ESM CSV\ESM_CSV_' + timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + '.csv'
+		print(filename)
+		with open(filename, 'w', newline='') as file:
+			writer = csv.writer(file)
+			for s in ec_queryset:
+				syllcomp = s.ec_sid.eps_ass_code + "/" + s.ec_sid.eps_com_id
+				batch = models.EnquiryComponentElements.objects.get(ec_sid = s.ec_sid).eb_sid.eb_sid
+				session = s.ec_sid.eps_ses_name
+				candidate = s.ec_sid.erp_sid.eps_cand_id
+				centre = s.ec_sid.erp_sid.eps_centre_id
+				examiner_name = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_forename + " " + models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_surname
+				examiner_pos = models.EnquiryPersonnelDetails.objects.filter(enpe_sid = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid).first().exm_examiner_no
+				creditor_number = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_creditor_no
+
+				writer.writerow([syllcomp,batch,session,candidate,centre,examiner_name, examiner_pos, creditor_number, ""])
+
+	return redirect('enquiries_home')
 
 
 def enquiries_rpa_apportion_view(request):

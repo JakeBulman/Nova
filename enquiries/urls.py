@@ -5,6 +5,9 @@ urlpatterns = [
     #Home view for EARs
     path('home', views.ear_home_view, name='enquiries_home'),
 
+
+    ### Task Manager Control ###
+
     #Shows all tasks sets to the user
     path('task_manager/my_tasks', views.my_tasks_view, name='my_tasks'),
     path('task_manager/task_router', views.task_router_view, name='task-router'),
@@ -24,6 +27,8 @@ urlpatterns = [
     path('task_manager/botmaf_task/<str:task_id>', views.botmaf_task, name='botmaf-task'),  
 
 
+    ### Task List Control ###
+
     #Shows all intial enquiry checks (IEC) that need to be actioned
     path('enquiries_list', views.enquiries_list_view, name='enquiries_list'),
     #Shows all intial enquiry checks (IEC) that need to be actioned
@@ -34,60 +39,56 @@ urlpatterns = [
     path('misvrm_list', views.misvrm_list_view, name='misvrm_list'),
     #Previous Exminer Checks main screen
     path('pexmch_list', views.pexmch_list_view, name='pexmch_list'),
+    #Download ESMCSV to file location
+    path('esmcsv_list', views.esmcsv_list_view, name='esmcsv_list'),
 
-    #enquiries handling for processing of tasks
-    
+
+    ### Enquiry Detail Control ###
+
     path('enquiries/enquiries_list/<str:enquiry_id>/iec-pass/', views.iec_pass_view, name="iec-pass"),
     path('enquiries/enquiries_list/iec-pass-all/', views.iec_pass_all_view, name="iec-pass-all"),
     path('enquiries/enquiries_list/<str:enquiry_id>/iec-fail/', views.iec_fail_view, name="iec-fail"),
     path('enquiries/enquiries_list/<str:enquiry_id>/pause-enquiry/', views.pause_enquiry, name="pause-enquiry"),
     path('enquiries/enquiries_list/<str:enquiry_id>/prioritise-enquiry/', views.prioritise_enquiry, name="prioritise-enquiry"),
-    
-
-    #RPA apportionment views
-    path('rpa_apportionment', views.enquiries_rpa_apportion_view, name='rpa_apportionment'),
-    path('rpa_apportionment_failure', views.enquiries_rpa_apportion_failure_view, name='rpa_apportionment_failure'),
-    
-    path('rpa_apportionment/<str:script_id>/rpa-pass/', views.rpa_apportion_pass_view, name="rpa_apportion_pass"),
-    path('rpa_apportionment/<str:script_id>/rpa-fail/', views.rpa_apportion_fail_view, name="rpa_apportion_fail"),
-
-    #RPA marks keying views
-    path('rpa_marks_keying', views.enquiries_rpa_marks_keying_view, name='rpa_marks_keying'),
-    path('rpa_marks_keying_failure', views.enquiries_rpa_marks_keying_failure_view, name='rpa_marks_keying_failure'),
-    
-    path('rpa_marks_keying/<str:script_id>/rpa-pass/', views.rpa_marks_keying_pass_view, name="rpa_marks_keying_pass"),
-    path('rpa_marks_keying/<str:script_id>/rpa-fail/', views.rpa_marks_keying_fail_view, name="rpa_marks_keying_fail"),
-
-    #Returns blank enquiry form for search (useful only when avoiding EAR Home page but searching for specific enquiry)
-    #TODO: Add search function to this page
-    #TODO: Allow BIE tagging from this view
     path('enquiries_detail', views.enquiries_detail, name='enquiries_detail'),
     #Show detailed view for a specific passed enquiry
     path('enquiries_detail/<str:enquiry_id>/', views.enquiries_detail, name='enquiries_detail'),
     #Used as a post destination for searching enquirie
     path('enquiries_detail_search', views.enquiries_detail_search, name='enquiries_detail_search'),
 
+
+    ### RPA Control ###
+
+    #RPA apportionment views
+    path('rpa_apportionment', views.enquiries_rpa_apportion_view, name='rpa_apportionment'),
+    path('rpa_apportionment_failure', views.enquiries_rpa_apportion_failure_view, name='rpa_apportionment_failure'),
+    path('rpa_apportionment/<str:script_id>/rpa-pass/', views.rpa_apportion_pass_view, name="rpa_apportion_pass"),
+    path('rpa_apportionment/<str:script_id>/rpa-fail/', views.rpa_apportion_fail_view, name="rpa_apportion_fail"),
+    #RPA marks keying views
+    path('rpa_marks_keying', views.enquiries_rpa_marks_keying_view, name='rpa_marks_keying'),
+    path('rpa_marks_keying_failure', views.enquiries_rpa_marks_keying_failure_view, name='rpa_marks_keying_failure'),
+    path('rpa_marks_keying/<str:script_id>/rpa-pass/', views.rpa_marks_keying_pass_view, name="rpa_marks_keying_pass"),
+    path('rpa_marks_keying/<str:script_id>/rpa-fail/', views.rpa_marks_keying_fail_view, name="rpa_marks_keying_fail"),
+
+
+    ### Examiner Control ###
+
     #Shows list of all assigned examiners for this series
     path('examiner_list', views.examiner_list_view, name='examiner_list'),
-
     #Show detailed view for a specific passed examiner
     path('examiner_detail/<str:per_sid>/', views.examiner_detail, name='examiner_detail'),
-
     #Examiner availability endpoints
     path('examiner_availability/<str:per_sid>/edit', views.examiner_availability_edit_view, name='exm-avail-edit'),
     path('examiner_availability/<str:note_id>/delete', views.examiner_availability_delete, name='exm-avail-delete'),
     path('examiner_availability/<str:per_sid>/', views.examiner_availability_view, name='examiner_availability'),
-
     #Examiner notes endpoints
     path('examiner_notes/<str:per_sid>/edit', views.examiner_notes_edit_view, name='exm-notes-edit'),
     path('examiner_notes/<str:note_id>/delete', views.examiner_notes_delete, name='exm-notes-delete'),
     path('examiner_notes/<str:per_sid>/', views.examiner_notes_view, name='examiner_notes'),
-
     #Examiner conflicts endpoints
     path('examiner_conflicts/<str:per_sid>/edit', views.examiner_conflicts_edit_view, name='exm-conflicts-edit'),
     path('examiner_conflicts/<str:per_sid>/', views.examiner_conflicts_view, name='examiner_conflicts'),
     path('examiner_conflicts/<str:note_id>/delete', views.examiner_conflicts_delete, name='exm-conflicts-delete'),
-
     #Examiner email update endpoints
     path('examiner_email_update/<str:per_sid>/edit', views.examiner_email_edit_view, name='exm-email-edit'),
     path('examiner_email_update/<str:per_sid>/', views.examiner_email_view, name='examiner_email'),
