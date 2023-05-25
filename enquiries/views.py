@@ -8,6 +8,9 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from django.db.models import Q
 
+PageNotAnInteger = None
+EmptyPage = None
+
 # Create your views here.
 @login_required
 def ear_home_view(request,*args, **kwargs):
