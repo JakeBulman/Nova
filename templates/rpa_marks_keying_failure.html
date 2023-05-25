@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h1 class="display-5 text-center">EAR - RPA Apportionment</h1>
+<h1 class="display-5 text-center">EAR - RPA Marks Keying</h1>
 
 <nav aria-label="Page navigation">
     <ul class="pagination justify-content-center">
@@ -73,7 +73,7 @@
             </tr>
             {% for x in cer %}
                 {% for y in x.script_tasks.all %}
-                    {% if y.task_id == 'BOTAPF' %}
+                    {% if y.task_id == 'BOTMAF' %}
                     <tr class="text-center">
                       <td><a href='/enquiries/enquiries_detail/{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}'>{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}</a></td> 
                       <td>{{ y.ec_sid.ec_sid }}</td>
@@ -83,7 +83,7 @@
                       <td>{{ y.task_assigned_to }}</td>
                       <td>{{ y.task_assigned_date }}</td>
                       <td><form method="POST" action="{% url 'self-assign-task' task_id=y.id %}" class="text-center">
-                          <input name="page_location" id="page_location" value="rpa_apportionment_failure" type="hidden" class="form-control">
+                          <input name="page_location" id="page_location" value="rpa_marks_keying_failure" type="hidden" class="form-control">
                           {% if request.user.username == y.task_assigned_to.username %}
                             <button disabled type="submit" class="btn btn-outline-secondary" style="width:120px">Assign to Me</button>
                           {% else %}

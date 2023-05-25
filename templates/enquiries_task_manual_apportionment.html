@@ -54,6 +54,7 @@
                     
                     <th>Examiner Position</th>
                     <th>Panel Size</th>  
+                    <th>Previous Examiner</th>
                     <th>Assigned Scripts</th>          
                     
                     <th>Conflict of Interest List</th>
@@ -88,14 +89,23 @@
 
                         </table>
                     </td>
+
+                                    <td style="word-break: break-word; font-weight: bold; color: red;">
+                                        {% for appor in task.ec_sid.script_prev_exm.all %}
+                                            {% if appor.exm_position == exm.exm_examiner_no %}
+                                                -X-
+                                            {% endif %}   
+                                        {% endfor %}
+                                    </td>
+
                     <td>
                         <table class="table table-sm text-center">
 
                                 <tr>
                                     <td>
                                         {% for appor in exm.enpe_sid.apportion_examiner.all %}
-                                            {% if appor.script_marked == "0" %}
-                                                {{ appor_count|add:1 }}
+                                            {% if forloop.last %}
+                                                {{ forloop.counter }}
                                             {% endif %}
                                         {% endfor %}
                                     </td>

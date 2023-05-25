@@ -14,6 +14,15 @@ urlpatterns = [
     path('task_manager/manual_apportionment_task/<str:task_id>', views.manual_apportionment_task, name='manual-apportionment-task'),
     path('task_manager/setbie_task/<str:task_id>', views.setbie_task, name='setbie-task'),
     path('task_manager/setbie_task/<str:enquiry_id>/bie-complete/', views.complete_bie_view, name="bie-complete"),
+    path('task_manager/misvrm_task/complete', views.misvrm_task_complete, name='misvrm-complete'),
+    path('task_manager/misvrm_task/<str:task_id>', views.misvrm_task, name='misvrm-task'), 
+    path('task_manager/pexmch_task/complete', views.pexmch_task_complete, name='pexmch-complete'),
+    path('task_manager/pexmch_task/<str:task_id>', views.pexmch_task, name='pexmch-task'),  
+    path('task_manager/botapf_task/complete', views.botapf_task_complete, name='botapf-complete'),
+    path('task_manager/botapf_task/<str:task_id>', views.botapf_task, name='botapf-task'),  
+    path('task_manager/botmaf_task/complete', views.botmaf_task_complete, name='botmaf-complete'),
+    path('task_manager/botmaf_task/<str:task_id>', views.botmaf_task, name='botmaf-task'),  
+
 
     #Shows all intial enquiry checks (IEC) that need to be actioned
     path('enquiries_list', views.enquiries_list_view, name='enquiries_list'),
@@ -21,22 +30,33 @@ urlpatterns = [
     path('enquiries_setbie_list', views.enquiries_bie_view, name='enquiries_setbie_list'),
     #Manual apportioment main screen
     path('manapp_list', views.manapp_list_view, name='manapp_list'),
+    #MIS vs RM main screen
+    path('misvrm_list', views.misvrm_list_view, name='misvrm_list'),
+    #Previous Exminer Checks main screen
+    path('pexmch_list', views.pexmch_list_view, name='pexmch_list'),
 
     #enquiries handling for processing of tasks
     
     path('enquiries/enquiries_list/<str:enquiry_id>/iec-pass/', views.iec_pass_view, name="iec-pass"),
+    path('enquiries/enquiries_list/iec-pass-all/', views.iec_pass_all_view, name="iec-pass-all"),
     path('enquiries/enquiries_list/<str:enquiry_id>/iec-fail/', views.iec_fail_view, name="iec-fail"),
     path('enquiries/enquiries_list/<str:enquiry_id>/pause-enquiry/', views.pause_enquiry, name="pause-enquiry"),
     path('enquiries/enquiries_list/<str:enquiry_id>/prioritise-enquiry/', views.prioritise_enquiry, name="prioritise-enquiry"),
     
 
-    #RPA views
+    #RPA apportionment views
     path('rpa_apportionment', views.enquiries_rpa_apportion_view, name='rpa_apportionment'),
     path('rpa_apportionment_failure', views.enquiries_rpa_apportion_failure_view, name='rpa_apportionment_failure'),
     
     path('rpa_apportionment/<str:script_id>/rpa-pass/', views.rpa_apportion_pass_view, name="rpa_apportion_pass"),
     path('rpa_apportionment/<str:script_id>/rpa-fail/', views.rpa_apportion_fail_view, name="rpa_apportion_fail"),
-    path('rpa_apportionment/<str:script_id>/rpa-fail-pass/', views.rpa_apportion_failure_pass_view, name="rpa_apportion_fail_pass"),
+
+    #RPA marks keying views
+    path('rpa_marks_keying', views.enquiries_rpa_marks_keying_view, name='rpa_marks_keying'),
+    path('rpa_marks_keying_failure', views.enquiries_rpa_marks_keying_failure_view, name='rpa_marks_keying_failure'),
+    
+    path('rpa_marks_keying/<str:script_id>/rpa-pass/', views.rpa_marks_keying_pass_view, name="rpa_marks_keying_pass"),
+    path('rpa_marks_keying/<str:script_id>/rpa-fail/', views.rpa_marks_keying_fail_view, name="rpa_marks_keying_fail"),
 
     #Returns blank enquiry form for search (useful only when avoiding EAR Home page but searching for specific enquiry)
     #TODO: Add search function to this page

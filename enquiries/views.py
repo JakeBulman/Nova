@@ -24,7 +24,15 @@ def ear_home_view(request,*args, **kwargs):
 	manapp_count_assigned = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MANAPP', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	botapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTAPP', enquiry_tasks__task_completion_date__isnull=True)
 	botapp_fail_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTAPF', enquiry_tasks__task_completion_date__isnull=True)
-	context = {"mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, "botapp":botapp_count, "botapf":botapp_fail_count}
+	botmar_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTMAR', enquiry_tasks__task_completion_date__isnull=True)
+	botmar_fail_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTMAF', enquiry_tasks__task_completion_date__isnull=True)
+	misvrm_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRM', enquiry_tasks__task_completion_date__isnull=True)
+	misvrma_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRM', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	pexmch_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True)
+	pexmcha_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	context = {"mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
+	    "botapp":botapp_count, "botapf":botapp_fail_count, "botmar":botmar_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count,
+		"pexmch":pexmch_count, "pexmcha":pexmcha_count}
 	return render(request, "home_ear.html", context=context)
 
 def my_tasks_view(request):
@@ -34,7 +42,7 @@ def my_tasks_view(request):
 		user = request.user
 	#Get task objects for this user
 	task_queryset = models.TaskManager.objects.filter(task_assigned_to=user,task_completion_date__isnull=True)
-	task_count = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP']).count()
+	task_count = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','GRDNEG','ESMSCR']).count()
 	context = {"tasks": task_queryset, "task_count": task_count}
 	return render(request, "my_tasks.html", context=context)
 
@@ -46,6 +54,14 @@ def task_router_view(request):
 		return redirect('setbie-task', task_id=task_id)
 	if task_type == "MANAPP":
 		return redirect('manual-apportionment-task', task_id=task_id)
+	if task_type == "MISVRM":
+		return redirect('misvrm-task', task_id=task_id)
+	if task_type == "PEXMCH":
+		return redirect('pexmch-task', task_id=task_id)
+	if task_type == "BOTAPF":
+		return redirect('botapf-task', task_id=task_id)
+	if task_type == "BOTMAF":
+		return redirect('botmaf-task', task_id=task_id)
 	else:
 		return redirect('my_tasks')
 	
@@ -58,7 +74,7 @@ def new_task_view(request):
 		username =request.user
 	#Caclulate next task in the queue
 	try:
-		next_task_id = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP']).first().pk
+		next_task_id = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','GRDNEG','ESMSCR']).first().pk
 	except:
 		next_task_id = None
 	#Set the newest task to this user
@@ -73,6 +89,7 @@ def self_assign_task_view(request, task_id=None):
 	if request.user.is_authenticated:
 		username =request.user
 	#Set the  task to this user
+	print(task_id)
 	if task_id is not None:
 		models.TaskManager.objects.filter(id=task_id).update(task_assigned_to=username)
 		models.TaskManager.objects.filter(id=task_id).update(task_assigned_date=timezone.now())
@@ -88,7 +105,7 @@ def manual_apportionment_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
 	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
-	examiner_queryset = models.EnquiryPersonnelDetails.objects.filter(ass_code = task_ass_code, com_id = task_comp_code).order_by('exm_creditor_no')
+	examiner_queryset = models.EnquiryPersonnelDetails.objects.filter(ass_code = task_ass_code, com_id = task_comp_code).order_by('exm_examiner_no')
 	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, }
 	return render(request, "enquiries_task_manual_apportionment.html", context=context)
 
@@ -126,8 +143,135 @@ def manual_apportionment(request):
 
 	#complete the task
 	models.TaskManager.objects.filter(pk=apportion_task_id,task_id='MANAPP').update(task_completion_date=timezone.now())    
-
 	return redirect('my_tasks')
+
+
+
+def misvrm_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_misvrm.html", context=context)
+
+def misvrm_task_complete(request):
+	script_id = request.POST.get('script_id')
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	new_mark = request.POST.get('new_mark')
+	new_jc = request.POST.get('new_jc')
+	new_status = request.POST.get('new_status')
+
+	
+	misDataQC = models.MisReturnData.objects.get(ec_sid = script_id)
+
+	if new_mark is None:
+		new_mark = misDataQC.revised_mark
+		new_jc = misDataQC.justification_code
+		new_status = misDataQC.mark_status
+	
+	models.MisReturnData.objects.filter(ec_sid=script_id).update(final_mark=new_mark)
+	models.MisReturnData.objects.filter(ec_sid=script_id).update(final_justification_code=new_jc)
+	models.MisReturnData.objects.filter(ec_sid=script_id).update(final_mark_status=new_status)
+
+	models.TaskManager.objects.create(
+		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+		ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+		#change to JUSCHE once testing complete
+		task_id = 'BOTMAR',
+		task_assigned_to = None,
+		task_assigned_date = None,
+		task_completion_date = None
+	)
+
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='MISVRM').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+
+def pexmch_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_pexmch.html", context=context)
+
+def pexmch_task_complete(request):
+	script_id = request.POST.get('script_id')
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	exm_1 = request.POST.get('exm_1')
+	exm_2 = request.POST.get('exm_2')
+	exm_3 = request.POST.get('exm_3')
+	exm_4 = request.POST.get('exm_4')
+	exm_5 = request.POST.get('exm_5')
+
+	if exm_1 != "":
+		models.EnquiryComponentsPreviousExaminers.objects.create(
+			cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			exm_position = exm_1
+		)
+	if exm_2 != "":
+		models.EnquiryComponentsPreviousExaminers.objects.create(
+			cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			exm_position = exm_2
+		)
+	if exm_3 != "":
+		models.EnquiryComponentsPreviousExaminers.objects.create(
+			cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			exm_position = exm_3
+		)
+	if exm_4 != "":
+		models.EnquiryComponentsPreviousExaminers.objects.create(
+			cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			exm_position = exm_4
+		)
+	if exm_5 != "":
+		models.EnquiryComponentsPreviousExaminers.objects.create(
+			cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			exm_position = exm_5
+		)
+
+	models.TaskManager.objects.create(
+		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+		ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+		#change to JUSCHE once testing complete
+		task_id = 'MANAPP',
+		task_assigned_to = None,
+		task_assigned_date = None,
+		task_completion_date = None
+	)
+
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='PEXMCH').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+
+def botapf_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_botapf.html", context=context)
+
+def botapf_task_complete(request):
+	task_id = request.POST.get('task_id')
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='BOTAPF').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+def botmaf_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_botmaf.html", context=context)
+
+def botmaf_task_complete(request):
+	task_id = request.POST.get('task_id')
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='BOTMAF').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+
+
 
 def complete_bie_view(request, enquiry_id=None):
 	if enquiry_id is not None and request.method == 'GET':
@@ -159,7 +303,10 @@ def enquiries_detail_search(request, id=None):
 
 def enquiries_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	cer_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+	search_q = ""
+	if request.GET.get('search_query') is not None:
+		search_q = request.GET.get('search_query')
+	cer_queryset = models.CentreEnquiryRequests.objects.filter(Q(enquiry_id__icontains = search_q), enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
 	cer_queryset_paged = Paginator(cer_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -170,7 +317,7 @@ def enquiries_list_view(request):
 	except EmptyPage:
 		# if page is empty then return last page
 		page_obj = cer_queryset_paged.page(cer_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
+	context = {"cer": page_obj, "sq":search_q, }
 	return render(request, "enquiries_list.html", context=context)
 
 def enquiries_bie_view(request):
@@ -186,17 +333,79 @@ def iec_pass_view(request, enquiry_id=None):
 		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 		print(Scripts)
 		for s in Scripts:
-			#create a new task for the next step (AUTAPP)
-			models.TaskManager.objects.create(
+			if models.EnquiryComponentsExaminerChecks.objects.filter(ec_sid = s.ec_sid).count() > 0:
+				models.TaskManager.objects.create(
             	enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 				ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-				task_id = 'MANAPP',
+				task_id = 'PEXMCH',
 				task_assigned_to = None,
 				task_assigned_date = None,
 				task_completion_date = None
-        	)
-			#complete the task
-			models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
+        		)
+			else:
+			#create a new task for the next step (AUTAPP)
+				models.TaskManager.objects.create(
+					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+					task_id = 'MANAPP',
+					task_assigned_to = None,
+					task_assigned_date = None,
+					task_completion_date = None
+				)
+				models.EnquiryComponentsPreviousExaminers.objects.create(
+					cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
+					exm_position = models.EnquiryComponentsHistory.objects.get(ec_sid=s.ec_sid).exm_position
+				)
+				#Get username to filter tasks
+				username = None
+		if request.user.is_authenticated:
+			username =request.user
+			models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_assigned_to=username)
+			models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_assigned_date=timezone.now())
+		#complete the task
+		models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
+	return redirect('enquiries_list')
+
+def iec_pass_all_view(request):
+	print(request.method)
+	if request.method == 'POST':
+		#Get scripts for this enquiry ID, this is a join from EC to ERP
+		all_initch = models.TaskManager.objects.filter(task_id='INITCH',task_completion_date__isnull=True)
+		for task in all_initch:
+			enquiry_id = task.enquiry_id.enquiry_id
+					#Get scripts for this enquiry ID, this is a join from EC to ERP
+			Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
+			
+			for s in Scripts:
+				if models.EnquiryComponentsExaminerChecks.objects.filter(ec_sid = s.ec_sid).count() > 0:
+					models.TaskManager.objects.create(
+					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+					task_id = 'PEXMCH',
+					task_assigned_to = None,
+					task_assigned_date = None,
+					task_completion_date = None
+					)
+				else:
+				#create a new task for the next step (AUTAPP)
+					models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = 'MANAPP',
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+					)
+					models.EnquiryComponentsPreviousExaminers.objects.create(
+						cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
+						exm_position = models.EnquiryComponentsHistory.objects.get(ec_sid=s.ec_sid).exm_position
+					)
+				#complete the task
+				print(s.ec_sid)
+				models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
+
 	return redirect('enquiries_list')
 
 def iec_fail_view(request, enquiry_id=None):
@@ -236,6 +445,38 @@ def manapp_list_view(request):
 	context = {"cer": page_obj,}
 	return render(request, "enquiries_manual_apportionment.html", context=context)
 
+def misvrm_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='MISVRM', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_misvrm.html", context=context)
+
+
+def pexmch_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='PEXMCH', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_pexmch.html", context=context)
 
 
 def enquiries_rpa_apportion_view(request):
@@ -285,17 +526,83 @@ def rpa_apportion_fail_view(request, script_id=None):
 		return redirect('rpa_apportionment')
 
 def enquiries_rpa_apportion_failure_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
 	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTAPF', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	context = {"ec_queryset": ec_queryset,}
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
 	return render(request, "rpa_apportionment_failure.html", context=context)
 
-def rpa_apportion_failure_pass_view(request, script_id=None):
+
+def enquiries_rpa_marks_keying_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTMAR', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"ec_queryset": page_obj,}
+	return render(request, 'rpa_marks_keying.html', context=context)
+
+def rpa_marks_keying_pass_view(request, script_id=None):
 	if script_id is not None and request.method == 'POST':
-		#Mark the task with this script ID for BOTAPP as complete
+		#Mark the task with this script ID for BOTMAR as complete
 		print(script_id)
-		models.TaskManager.objects.filter(ec_sid=script_id,task_id='BOTAPF').update(task_completion_date=timezone.now())
-	return redirect('rpa_apportionment_failure')
+		models.TaskManager.objects.filter(ec_sid=script_id,task_id='BOTMAR').update(task_completion_date=timezone.now())
+	return redirect('rpa_marks_keying')
+
+def rpa_marks_keying_fail_view(request, script_id=None):
+	if script_id is not None and request.method == 'POST':	
+		#Get enquiry for this script ID
+		#create a new task for the next step (BOTMAF)
+		print(script_id)
+		this_task = models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiries__enquiry_parts__ec_sid=script_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			task_id = 'BOTMAF',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+		this_task.refresh_from_db()
+		print(this_task.pk)
+		models.RpaFailureAudit.objects.create(
+			rpa_task_key = models.TaskManager.objects.get(pk=this_task.pk),
+			failure_reason = request.POST.get('rpa_fail')
+		)
+		#complete the task
+		models.TaskManager.objects.filter(ec_sid=script_id,task_id='BOTMAR').update(task_completion_date=timezone.now())
+		return redirect('rpa_marks_keying')
+
+def enquiries_rpa_marks_keying_failure_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTMAF', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "rpa_marks_keying_failure.html", context=context)
+
 
 #TO DO: Pause Enquiry
 def pause_enquiry(request, enquiry_id=None):

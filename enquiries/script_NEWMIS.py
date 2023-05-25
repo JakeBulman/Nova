@@ -7,7 +7,7 @@ from django.utils import timezone
 sys.path.append('C:/Dev/redepplan')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 django.setup()
-from enquiries.models import TaskManager, EnquiryPersonnelDetails, ScriptApportionment, EnquiryComponentElements, CentreEnquiryRequests, EnquiryComponents
+from enquiries.models import TaskManager, EnquiryPersonnelDetails, ScriptApportionment, EnquiryComponentElements, CentreEnquiryRequests, EnquiryComponents, EnquiryComponentsHistory
 
 def run_algo():
     for app_task in TaskManager.objects.filter(task_id='NEWMIS', task_completion_date__isnull=True):
@@ -20,14 +20,15 @@ def run_algo():
         centre_no = app_task.enquiry_id.centre_id
         cand_no = app_task.ec_sid.erp_sid.eps_cand_id
         cand_name = app_task.ec_sid.erp_sid.stud_name
-        original_exm = 1 # STILL TODO
-        rev_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.get(ec_sid=script_id).enpe_sid).first().exm_examiner_no
-        original_mark = 100 # STILL TODO
-        cred_no = ScriptApportionment.objects.get(ec_sid=script_id).enpe_sid.per_sid.exm_creditor_no
+        original_exm = EnquiryComponentsHistory.objects.get(ec_sid=script_id).exm_position
+        #TODO: This is dangerous as it assumes a specific apportionemtn and is part of a wider bug on duplicates
+        rev_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.filter(ec_sid=script_id).first().enpe_sid).first().exm_examiner_no
+        original_mark = EnquiryComponentsHistory.objects.get(ec_sid=script_id).current_mark
+        cred_no = ScriptApportionment.objects.filter(ec_sid=script_id).first().enpe_sid.per_sid.exm_creditor_no
 
         #Work to be done by NEWMIS done here 
 
-        workbook = load_workbook(filename="Y:\Operations\Change Delivery Team\Project Documents\EAR Workflow\EARTemplate1.xlsx")
+        workbook = load_workbook(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\EARTemplate1.xlsx")
         sheet = workbook.active
 
         #Syll/Comp
@@ -47,7 +48,7 @@ def run_algo():
         #Scaled (prev) mark
         sheet["F4"] = original_mark
 
-        workbook.save(filename="Y:\Operations\Change Delivery Team\Project Documents\EAR Workflow\MIS Outbound\\" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
+        workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
 
         #Create next step in chain (RETMIS)
         TaskManager.objects.create(

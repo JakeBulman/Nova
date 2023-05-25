@@ -14,7 +14,7 @@ temp_filter = 1
 sys.path.append('C:/Dev/redepplan')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 django.setup()
-from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment
+from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, EnquiryComponentsPreviousExaminers, MisReturnData
 
 def clear_tables():
     CentreEnquiryRequests.objects.all().delete()
@@ -29,6 +29,10 @@ def clear_tables():
 
     TaskManager.objects.all().delete()
     ScriptApportionment.objects.all().delete()
+    EnquiryComponentsHistory.objects.all().delete()
+    EnquiryComponentsExaminerChecks.objects.all().delete()
+    EnquiryComponentsPreviousExaminers.objects.all().delete()
+    MisReturnData.objects.all().delete()
 
     print('Tables Cleared')
 
@@ -54,80 +58,39 @@ def load_core_tables():
             created_by as created_by,
             cie_direct_id as cie_direct_id
             from ar_meps_req_prd.centre_enquiry_requests
-            where ses_sid in (19646) and sid in (
-            1222128,
-            1222158,
-            1222300,
-            1222304,
-            1222322,
-            1222324,
-            1222326,
-            1222326,
-            1222338,
-            1222364,
-            1222370,
-            1222414,
-            1222414,
-            1222416,
-            1222416,
-            1222542,
-            1222588,
-            1222588,
-            1222634,
-            1222634,
-            1222636,
-            1222776,
-            1222776,
-            1222778,
-            1222778,
-            1222780,
-            1222780,
-            1222780,
-            1222782,
-            1222782,
-            1222784,
-            1222786,
-            1222798,
-            1222798,
-            1222800,
-            1222804,
-            1222808,
-            1222808,
-            1222810,
-            1222882,
-            1222882,
-            1222886,
-            1222892,
-            1222894,
-            1222894,
-            1222926,
-            1222928,
-            1222930,
-            1222930,
-            1222932,
-            1222934,
-            1222934,
-            1222934,
-            1222936,
-            1222938,
-            1222966,
-            1222972,
-            1222972,
-            1222988,
-            1222992,
-            1222992,
-            1222994,
-            1222994,
-            1223006,
-            1223006,
-            1223006,
-            1223008,
-            1223010,
-            1223018,
-            1223018,
-            1223020,
-            1223020
-            )
+            where ses_sid in (19646) 
+
+            and sid in (1210972,
+            1210994,
+            1210996,
+            1211034,
+            1211090,
+            1211106,
+            1211536,
+            1212236,
+            1212548,
+            1212930,
+            1213162,
+            1216612,
+            1216820,
+            1217734,
+            1217918,
+            1217938,
+            1217972,
+            1218112,
+            1218152,
+            1218180,
+            1218196,
+            1218228,
+            1218566,
+            1218628,
+            1218684,
+            1218796,
+            1218876,
+            1218906)
+            
+        
+            
                                 ''', conn)
 
     def insert_to_model_cer(row):
@@ -158,20 +121,23 @@ def load_core_tables():
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
         df = pd.read_sql('''
             select 
-            sid as erp_sid,
-            cer_sid as cer_sid,
-            es_service_code as service_code,
-            caom_ses_sid as eps_ses_sid,
-            caom_ass_code as eps_ass_code,
-            caom_asv_ver_no as eps_ass_ver_no,
-            caom_opt_code as eps_option_code,
-            caom_can_unique_identifier as eps_cand_unique_id,
-            caom_cand_no as eps_cand_id,
-            caom_cnu_id as eps_centre_id,
-            if(component_ind="Y","C","S") as eps_comp_ind,
-            caom_measure as eps_script_measure,
-            booked_in_error_ind as booked_in_error_ind
-            from ar_meps_req_prd.enquiry_request_parts
+            erp.sid as erp_sid,
+            erp.cer_sid as cer_sid,
+            erp.es_service_code as service_code,
+            erp.caom_ses_sid as eps_ses_sid,
+            erp.caom_ass_code as eps_ass_code,
+            erp.caom_asv_ver_no as eps_ass_ver_no,
+            erp.caom_opt_code as eps_option_code,
+            erp.caom_can_unique_identifier as eps_cand_unique_id,
+            erp.caom_cand_no as eps_cand_id,
+            erp.caom_cnu_id as eps_centre_id,
+            if(erp.component_ind="Y","C","S") as eps_comp_ind,
+            erp.caom_measure as eps_script_measure,
+            erp.booked_in_error_ind as booked_in_error_ind,
+            can.full_name as stud_name
+            from ar_meps_req_prd.enquiry_request_parts erp
+            left join cie.ca_candidates can
+            on erp.caom_can_unique_identifier = can.unique_id
             where caom_ses_sid in (19646) 
                                 ''', conn)
 
@@ -191,6 +157,7 @@ def load_core_tables():
                 eps_comp_ind = row['eps_comp_ind'],
                 eps_script_measure = row['eps_script_measure'],
                 booked_in_error_ind = row['booked_in_error_ind'],
+                stud_name = row['stud_name'],
         )
         except:
             pass
@@ -215,18 +182,17 @@ def load_core_tables():
                 prod.qualification_short_text as eps_qual_name,
                 prod.assessment_short_text as eps_ass_name,
                 prod.component_text as eps_comp_name,
-                ec.ccm_measure as ccm_measure,
-                can.stud_name as stud_name
+                ec.ccm_measure as ccm_measure
                 from ar_meps_req_prd.enquiry_components ec
+                left join ar_meps_req_prd.enquiry_request_parts erp
+                on ec.erp_sid = erp.sid
                 left join cie.ca_products prod
                 on ec.ccm_ass_code = prod.assessment
                 and ec.ccm_asv_ver_no = prod.assessment_version_no
                 and ec.ccm_com_id = prod.component
+                and erp.caom_opt_code = prod.option_code
                 left join cie.ods_sessions ses
                 on ec.ccm_ses_sid = ses.sessionid
-                left join (select distinct ses_id, cand_ses_id, stud_name from cie.ca_entries) can
-                on ec.ccm_ses_sid = can.ses_id
-                and ec.ccm_cand_no = can.cand_ses_id
                 where ccm_ses_sid in (19646) 
                                 ''', conn)
 
@@ -245,7 +211,6 @@ def load_core_tables():
                 eps_ass_name = row['eps_ass_name'],
                 eps_comp_name = row['eps_comp_name'],
                 ccm_measure = row['ccm_measure'],
-                stud_name = row['stud_name'],
             )
         except Exception:
             pass
@@ -442,7 +407,125 @@ def load_core_tables():
 
     print("EPNE2 loaded:" + str(datetime.datetime.now()))
 
+
+    # Get datalake data - ECH
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql('''
+                        SELECT distinct
+                        cer.sid as cer_sid,
+                        ec.sid as ec_sid,
+                        wrm.ses_sid as ses_sid,
+                        wrm.ass_code as ass_code,
+                        wrm.com_id as com_id,
+                        wrm.cnu_id as cnu_id,
+                        wrm.cand_no as cand_no,
+                        spp.examiner_no as exm_position,
+                        wrm.kbr_code as kbr_code,
+                        kbr.reason as kbr_reason,
+                        wrm.mark as current_mark,
+                        ec.ccm_measure as ear_mark,
+                        ec.ccm_outcome as ear_mark_alt
+                        from ar_meps_req_prd.enquiry_components ec
+                        left join ar_meps_req_prd.enquiry_request_parts erp
+                        on erp.sid = ec.erp_sid
+                        left join ar_meps_req_prd.centre_enquiry_requests cer
+                        on cer.sid = erp.cer_sid
+                        left join ar_meps_mark_prd.working_raw_marks wrm
+                        on wrm.ses_sid = ec.ccm_ses_sid
+                        and wrm.ass_code = ec.ccm_ass_code
+                        and wrm.com_id = ec.ccm_com_id
+                        and wrm.cand_no = ec.ccm_cand_no
+                        and wrm.cnu_id = ec.ccm_cnu_id
+                        left join ar_meps_pan_prd.session_panel_positions spp
+                        on wrm.spp_sid = spp.sid
+                        left join ar_meps_mark_prd.keyed_batch_reason kbr
+                        on kbr.code = wrm.kbr_code
+                        where ec.ccm_ses_sid = 19646
+
+                        ''', conn)
+
+    def insert_to_model_enpee(row):
+        try:
+            EnquiryComponentsHistory.objects.create(
+            cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
+            ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
+            eps_ses_sid = row['ses_sid'],
+            eps_ass_code = row['ass_code'],
+            eps_com_id = row['com_id'],
+            eps_cnu_id = row['cnu_id'],
+            eps_cand_no = row['cand_no'],
+            exm_position = row['exm_position'],
+            kbr_code = row['kbr_code'],
+            kbr_reason = row['kbr_reason'],
+            current_mark = row['current_mark'],
+            ear_mark = row['ear_mark'],
+            ear_mark_alt = row['ear_mark_alt'],
+            )
+        except:
+            pass
+        
+    df.apply(insert_to_model_enpee, axis=1)
+
+    print("ECH loaded:" + str(datetime.datetime.now()))
+
+
+    # Get datalake data - Enquiry Personnel - Extended
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql('''
+                    SELECT distinct
+                    cer.sid as cer_sid,
+                    ec.sid as ec_sid,
+                    wrm.ses_sid as eps_ses_id,
+                    wrm.ass_code as eps_ass_code,
+                    wrm.com_id as eps_com_id,
+                    wrm.cnu_id as eps_cnu_id,
+                    wrm.cand_no as eps_cand_no,
+                    spp.examiner_no as exm_position,
+                    wrm.kbr_code as kbr_code,
+                    kbr.reason as kbr_reason
+                    from ar_meps_req_prd.enquiry_components ec
+                    left join ar_meps_req_prd.enquiry_request_parts erp
+                    on erp.sid = ec.erp_sid
+                    left join ar_meps_req_prd.centre_enquiry_requests cer
+                    on cer.sid = erp.cer_sid
+                    left join (select ses_sid,ass_code,com_id,cnu_id,cand_no,kbr_code,mark,spp_sid from ar_meps_mark_prd.working_raw_marks where ses_sid = 19646 
+                    union select ses_sid,ass_code,com_id,cnu_id,cand_no,kbr_code,mark,spp_sid from ar_meps_mark_prd.historical_raw_marks where ses_sid = 19646) wrm
+                    on wrm.ses_sid = ec.ccm_ses_sid
+                    and wrm.ass_code = ec.ccm_ass_code
+                    and wrm.com_id = ec.ccm_com_id
+                    and wrm.cand_no = ec.ccm_cand_no
+                    and wrm.cnu_id = ec.ccm_cnu_id
+                    left join ar_meps_pan_prd.session_panel_positions spp
+                    on wrm.spp_sid = spp.sid
+                    left join ar_meps_mark_prd.keyed_batch_reason kbr
+                    on kbr.code = wrm.kbr_code
+                    where ec.ccm_ses_sid = 19646
+                    and wrm.kbr_code in ('TL','GR')
+                        ''', conn)
+
+    def insert_to_model_enpee(row):
+        try:
+            EnquiryComponentsExaminerChecks.objects.create(
+            cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
+            ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
+            eps_ses_sid = row['eps_ses_id'],
+            eps_ass_code = row['eps_ass_code'],
+            eps_com_id = row['eps_com_id'],
+            eps_cnu_id = row['eps_cnu_id'],
+            eps_cand_no = row['eps_cand_no'],
+            exm_position = row['exm_position'],
+            kbr_code = row['kbr_code'],
+            kbr_reason = row['kbr_reason'],
+            )
+        except:
+            pass
+        
+    df.apply(insert_to_model_enpee, axis=1)
+
+    print("EPNE2 loaded:" + str(datetime.datetime.now()))
+
+
     end_time = datetime.datetime.now()
-    #print(end_time - start_time)
+    print(end_time - start_time)
 
 load_core_tables()

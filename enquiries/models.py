@@ -63,6 +63,38 @@ class EnquiryComponents(models.Model):
     eps_comp_name = models.CharField(max_length=50,null=True) #from cie.ca_products
     ccm_measure = models.CharField(max_length=5,null=True)
 
+class EnquiryComponentsHistory(models.Model):
+    cer_sid = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_original_marks',null=True)
+    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, related_name='script_original_marks',null=True) 
+    eps_ses_sid = models.CharField(max_length=5,null=True)
+    eps_ass_code = models.CharField(max_length=4,null=True)
+    eps_com_id = models.CharField(max_length=2,null=True)
+    eps_cnu_id = models.CharField(max_length=5,null=True)
+    eps_cand_no = models.CharField(max_length=10,null=True)
+    exm_position = models.CharField(max_length=10,null=True)
+    kbr_code = models.CharField(max_length=4,null=True)
+    kbr_reason = models.CharField(max_length=50,null=True)
+    current_mark = models.CharField(max_length=5,null=True)
+    ear_mark = models.CharField(max_length=5,null=True)
+    ear_mark_alt =models.CharField(max_length=5,null=True)
+
+class EnquiryComponentsExaminerChecks(models.Model):
+    cer_sid = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_pexmch',null=True)
+    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, related_name='script_pexmch',null=True) 
+    eps_ses_sid = models.CharField(max_length=5,null=True)
+    eps_ass_code = models.CharField(max_length=4,null=True)
+    eps_com_id = models.CharField(max_length=2,null=True)
+    eps_cnu_id = models.CharField(max_length=5,null=True)
+    eps_cand_no = models.CharField(max_length=10,null=True)
+    exm_position = models.CharField(max_length=10,null=True)
+    kbr_code = models.CharField(max_length=4,null=True)
+    kbr_reason = models.CharField(max_length=50,null=True)
+
+class EnquiryComponentsPreviousExaminers(models.Model):
+    cer_sid = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_prev_exm',null=True)
+    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, related_name='script_prev_exm',null=True) 
+    exm_position = models.CharField(max_length=10,null=True)
+
 class TaskManager(models.Model):
     enquiry_id = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_tasks',null=True)
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, related_name='script_tasks',null=True)
@@ -163,3 +195,6 @@ class MisReturnData(models.Model):
     mark_status = models.CharField(max_length=10, null=True)
     revised_mark = models.CharField(max_length=10, null=True)
     justification_code = models.CharField(max_length=20, null=True)
+    final_mark = models.CharField(max_length=10, null=True)
+    final_justification_code = models.CharField(max_length=10, null=True)
+    final_mark_status = models.CharField(max_length=10, null=True)

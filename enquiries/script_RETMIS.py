@@ -9,23 +9,24 @@ import win32com.client as win32
 sys.path.append('C:/Dev/redepplan')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 django.setup()
-from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, EnquiryBatches, EnquiryComponentElements, MisReturnData
+from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, EnquiryBatches, EnquiryComponentElements, MisReturnData, ScriptApportionment
 
 def run_algo():
     import os
-    for file in os.listdir("Y:\Operations\Change Delivery Team\Project Documents\EAR Workflow\MIS Inbound\\"):
-        filename=os.path.join("Y:\Operations\Change Delivery Team\Project Documents\EAR Workflow\MIS Inbound\\", file)
-        new_filename=os.path.join("Y:\Operations\Change Delivery Team\Project Documents\EAR Workflow\MIS Inbound\COMPLETE\\", file)
-        error_filename=os.path.join("Y:\Operations\Change Delivery Team\Project Documents\EAR Workflow\MIS Inbound\FILE_CHECKS\\", file)
+    for file in os.listdir("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\\"):
+        filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\\", file)
+        new_filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\COMPLETE\\", file)
+        error_filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\FILE_CHECKS\\", file)
         if file.endswith(".xlsx"):
             workbook = load_workbook(filename)
             sheet = workbook.active
 
             eb_sid = sheet["I2"].value
-            ec_sid = EnquiryComponentElements.objects.get(eb_sid=eb_sid).ec_sid.ec_sid
-            task_enquiry_id = EnquiryComponentElements.objects.get(eb_sid=eb_sid).ec_sid.erp_sid.cer_sid.enquiry_id
+            ec_sid = EnquiryComponentElements.objects.filter(eb_sid=eb_sid).first().ec_sid.ec_sid
+            task_enquiry_id = EnquiryComponentElements.objects.filter(eb_sid=eb_sid).first().ec_sid.erp_sid.cer_sid.enquiry_id
 
             #TODO add safety checks on file content (or lock down file)
+            task_pk = None
 
             try:
                 task_pk = TaskManager.objects.get(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).pk
@@ -40,7 +41,8 @@ def run_algo():
                     original_mark = sheet["F4"].value,
                     mark_status = sheet["G4"].value,
                     revised_mark = sheet["H4"].value,
-                    justification_code = sheet["I4"].value
+                    justification_code = sheet["I4"].value,
+                    final_mark = None
                 )
 
                 #Move file to completed folder
@@ -57,8 +59,8 @@ def run_algo():
                 )
                 #complete the task
                 TaskManager.objects.filter(pk=task_pk,task_id='RETMIS').update(task_completion_date=timezone.now())
+                ScriptApportionment.objects.filter(ec_sid=ec_sid).update(script_marked=1)
         else:
-            print(filename)
             if file.endswith("COMPLETE") or file.endswith("FILE_CHECKS"):
                 a=1 #do nothing
             else:
