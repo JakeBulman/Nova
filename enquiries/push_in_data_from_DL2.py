@@ -14,7 +14,7 @@ temp_filter = 1
 sys.path.append('C:/Dev/redepplan')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 django.setup()
-from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, EnquiryComponentsPreviousExaminers, MisReturnData
+from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, EnquiryComponentsPreviousExaminers, MisReturnData, ScriptApportionmentExtension
 
 def clear_tables():
     CentreEnquiryRequests.objects.all().delete()
@@ -33,6 +33,7 @@ def clear_tables():
     EnquiryComponentsExaminerChecks.objects.all().delete()
     EnquiryComponentsPreviousExaminers.objects.all().delete()
     MisReturnData.objects.all().delete()
+    ScriptApportionmentExtension.objects.all().delete()
 
     print('Tables Cleared')
 
@@ -60,34 +61,27 @@ def load_core_tables():
             from ar_meps_req_prd.centre_enquiry_requests
             where ses_sid in (19646) 
 
-            and sid in (1210972,
-            1210994,
-            1210996,
-            1211034,
-            1211090,
-            1211106,
-            1211536,
-            1212236,
-            1212548,
-            1212930,
-            1213162,
-            1216612,
-            1216820,
-            1217734,
-            1217918,
-            1217938,
-            1217972,
-            1218112,
-            1218152,
-            1218180,
-            1218196,
-            1218228,
-            1218566,
-            1218628,
-            1218684,
-            1218796,
-            1218876,
-            1218906)
+            and sid in (1216612,
+1216820,
+1217734,
+1217918,
+1217918,
+1217938,
+1217938,
+1217972,
+1218112,
+1218152,
+1218180,
+1218196,
+1218228,
+1218566,
+1218628,
+1218684,
+1218796,
+1218876,
+1218906,
+1218906
+)
             
         
             

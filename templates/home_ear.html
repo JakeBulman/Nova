@@ -3,7 +3,7 @@
 {% block content %}
 {% load static %}
 
-<h3 class="mt-3 mx-4 my-1">Tasks</h3>
+<h3 class="mt-3 mx-4 my-1">My Tasks</h3>
 
 <div class="row mx-2">
 
@@ -71,7 +71,7 @@
 
 
 
-<h3 class="mx-4 my-1">List Views</h3>
+<h3 class="mx-4 my-1">Listed Tasks</h3>
 
 <div class="row mx-2">
 
@@ -115,11 +115,21 @@
       <a href="{% url 'misvrm_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
     </div>
   </div>
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/placeholder-image.png' %}" alt="EAR Icon">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">Examiner SLA Breaches</h5>
+      {% if exmsla.count > 0 %}<span class="badge rounded-pill bg-danger">{{ exmsla.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if exmslaa.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ exmslaa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      <p class="card-text">Checks on examiner breaches leading to extension of reapportionment.</p>
+      <a href="{% url 'exmsla_list' %}" class="mt-auto btn btn-outline-primary">Go to Breaches</a>
+    </div>
+  </div>
 </div>
 
 
 
-<h3 class="mx-4 my-1">RPA Views</h3>
+<h3 class="mx-4 my-1">RPA Tasks</h3>
 
 <div class="row mx-2">
 

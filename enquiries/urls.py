@@ -25,9 +25,10 @@ urlpatterns = [
     path('task_manager/botapf_task/<str:task_id>', views.botapf_task, name='botapf-task'),  
     path('task_manager/botmaf_task/complete', views.botmaf_task_complete, name='botmaf-complete'),
     path('task_manager/botmaf_task/<str:task_id>', views.botmaf_task, name='botmaf-task'),  
+    path('task_manager/exmsla_task/complete', views.exmsla_task_complete, name='exmsla-complete'),
+    path('task_manager/exmsla_task/<str:task_id>', views.exmsla_task, name='exmsla-task'), 
 
-
-    ### Task List Control ###
+    ### Task List Control ### 
 
     #Shows all intial enquiry checks (IEC) that need to be actioned
     path('enquiries_list', views.enquiries_list_view, name='enquiries_list'),
@@ -41,7 +42,8 @@ urlpatterns = [
     path('pexmch_list', views.pexmch_list_view, name='pexmch_list'),
     #Download ESMCSV to file location
     path('esmcsv_list', views.esmcsv_list_view, name='esmcsv_list'),
-
+    #Control Examiner SAL breaches
+    path('exmsla_list', views.exmsla_list_view, name='exmsla_list'),
 
     ### Enquiry Detail Control ###
 

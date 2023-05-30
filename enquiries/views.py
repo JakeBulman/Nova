@@ -35,9 +35,11 @@ def ear_home_view(request,*args, **kwargs):
 	misvrma_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRM', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	pexmch_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True)
 	pexmcha_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	exmsla_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='EXMSLA', enquiry_tasks__task_completion_date__isnull=True)
+	exmslaa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='EXMSLA', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	context = {"mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
 	    "botapp":botapp_count, "botapf":botapp_fail_count, "botmar":botmar_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count,
-		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "esmcsv":esmcsv_count}
+		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "esmcsv":esmcsv_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count}
 	return render(request, "home_ear.html", context=context)
 
 def my_tasks_view(request):
@@ -47,7 +49,7 @@ def my_tasks_view(request):
 		user = request.user
 	#Get task objects for this user
 	task_queryset = models.TaskManager.objects.filter(task_assigned_to=user,task_completion_date__isnull=True)
-	task_count = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','GRDNEG','ESMSCR']).count()
+	task_count = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','GRDNEG','ESMCSV','ESMSCR']).count()
 	context = {"tasks": task_queryset, "task_count": task_count}
 	return render(request, "my_tasks.html", context=context)
 
@@ -63,6 +65,8 @@ def task_router_view(request):
 		return redirect('misvrm-task', task_id=task_id)
 	if task_type == "PEXMCH":
 		return redirect('pexmch-task', task_id=task_id)
+	if task_type == "EXMSLA":
+		return redirect('exmsla-task', task_id=task_id)
 	if task_type == "BOTAPF":
 		return redirect('botapf-task', task_id=task_id)
 	if task_type == "BOTMAF":
@@ -79,7 +83,7 @@ def new_task_view(request):
 		username =request.user
 	#Caclulate next task in the queue
 	try:
-		next_task_id = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','GRDNEG','ESMSCR']).first().pk
+		next_task_id = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','GRDNEG','ESMCSV','ESMSCR']).first().pk
 	except:
 		next_task_id = None
 	#Set the newest task to this user
@@ -283,7 +287,42 @@ def botmaf_task_complete(request):
 	models.TaskManager.objects.filter(pk=task_id,task_id='BOTMAF').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
 
+def exmsla_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	script_id = task_queryset.ec_sid
+	extension_total = 0
+	for e in models.ScriptApportionmentExtension.objects.filter(task_id=models.TaskManager.objects.get(ec_sid=script_id,task_id='RETMIS').pk):
+		extension_total = extension_total + int(e.extenstion_days)
+	context = {"task_id":task_id, "task":task_queryset, "ext_days":extension_total }
+	return render(request, "enquiries_task_exmsla.html", context=context)
 
+ 
+def exmsla_task_complete(request):
+	script_id = request.POST.get('script_id')
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	new_sla = request.POST.get('new_sla')
+	print(new_sla)
+	if new_sla is not None:
+		models.ScriptApportionmentExtension.objects.create(
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			task_id = models.TaskManager.objects.get(id=models.TaskManager.objects.get(ec_sid=script_id,task_id='RETMIS').pk),
+			extenstion_days = new_sla
+		)	
+	else:
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			task_id = 'REMAPP',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)	
+
+
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='EXMSLA').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
 
 
 def complete_bie_view(request, enquiry_id=None):
@@ -510,8 +549,25 @@ def esmcsv_list_view(request):
 				creditor_number = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_creditor_no
 
 				writer.writerow([syllcomp,batch,session,candidate,centre,examiner_name, examiner_pos, creditor_number, ""])
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_completion_date=timezone.now())
 
 	return redirect('enquiries_home')
+
+def exmsla_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='EXMSLA', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_exmsla.html", context=context)
 
 
 def enquiries_rpa_apportion_view(request):

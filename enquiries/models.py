@@ -182,6 +182,11 @@ class ScriptApportionment(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='apportion_script')
     script_marked = models.CharField(max_length=1, default=0)
 
+class ScriptApportionmentExtension(models.Model):
+    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='script_extension')
+    task_id = models.ForeignKey(TaskManager, on_delete=models.SET_NULL, null=True, related_name='task_extension')
+    extenstion_days = models.CharField(max_length=3, default=0)
+
 class RpaFailureAudit(models.Model):
     rpa_task_key = models.ForeignKey(TaskManager, on_delete=models.CASCADE, null=True, related_name='task_manager_task')
     failure_reason = models.TextField(null=True)

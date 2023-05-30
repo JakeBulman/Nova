@@ -54,7 +54,7 @@ def run_algo():
                 task_assigned_to = None,
                 task_assigned_date = None,
                 task_completion_date = None
-	)
+	        )
             #complete the task
             TaskManager.objects.filter(pk=task_pk,task_id='AUTAPP').update(task_completion_date=timezone.now())        
 
