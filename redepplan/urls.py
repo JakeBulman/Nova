@@ -17,6 +17,8 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
 from enquiries import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', include('pages.urls')),
@@ -24,4 +26,13 @@ urlpatterns = [
     path('members/', include('django.contrib.auth.urls')),
     path('members/', include('members.urls')),
     path('enquiries/', include('enquiries.urls')),
+    path('indianexm/', include('indianexm.urls')),
+
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
+    
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL,
+                          document_root=settings.STATIC_ROOT)

@@ -42,8 +42,12 @@ urlpatterns = [
     path('pexmch_list', views.pexmch_list_view, name='pexmch_list'),
     #Download ESMCSV to file location
     path('esmcsv_list', views.esmcsv_list_view, name='esmcsv_list'),
+    path('exmsla_create', views.esmcsv_create_view, name='exmsla_create'),
+    path('exmsla_download/<str:download_id>', views.esmcsv_download_view, name='exmsla_download'),
     #Control Examiner SAL breaches
     path('exmsla_list', views.exmsla_list_view, name='exmsla_list'),
+    #Re-do Examiner SAL breaches
+    path('remapp_list', views.remapp_list_view, name='remapp_list'),
 
     ### Enquiry Detail Control ###
 

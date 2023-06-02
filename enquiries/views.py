@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import FileResponse
 from . import models
 from django.template.loader import render_to_string
 from django.shortcuts import render, get_object_or_404, redirect
@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.db.models import Q
-import csv
+from django.conf import settings
+import csv, os, pathlib
 
 PageNotAnInteger = None
 EmptyPage = None
@@ -37,10 +38,14 @@ def ear_home_view(request,*args, **kwargs):
 	pexmcha_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	exmsla_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='EXMSLA', enquiry_tasks__task_completion_date__isnull=True)
 	exmslaa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='EXMSLA', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	remapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='REMAPP', enquiry_tasks__task_completion_date__isnull=True)
+	remappa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='REMAPP', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+
 	context = {"mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
 	    "botapp":botapp_count, "botapf":botapp_fail_count, "botmar":botmar_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count,
-		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "esmcsv":esmcsv_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count}
-	return render(request, "home_ear.html", context=context)
+		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "esmcsv":esmcsv_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count,
+		}
+	return render(request, "home_ear.html", context=context, )
 
 def my_tasks_view(request):
 	#Get username to filter tasks
@@ -531,12 +536,28 @@ def pexmch_list_view(request):
 	return render(request, "enquiries_pexmch.html", context=context)
 
 def esmcsv_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EsmcsvDownloads.objects.order_by('-uploaded_at')
+	ec_queryset_paged = Paginator(ec_queryset,20,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_esmcsv.html", context=context)
+
+def esmcsv_create_view(request):
 	ec_queryset = models.TaskManager.objects.filter(task_id='ESMCSV', task_completion_date__isnull=True)
 	if ec_queryset.count() > 0:
-		filename = 'Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\ESM CSV\ESM_CSV_' + timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + '.csv'
-		print(filename)
-		with open(filename, 'w', newline='') as file:
+		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
+		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
+		print(file_location)		
+		with open(file_location, 'w', newline='') as file:
+			file.truncate()
 			writer = csv.writer(file)
 			for s in ec_queryset:
 				syllcomp = s.ec_sid.eps_ass_code + "/" + s.ec_sid.eps_com_id
@@ -549,9 +570,28 @@ def esmcsv_list_view(request):
 				creditor_number = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_creditor_no
 
 				writer.writerow([syllcomp,batch,session,candidate,centre,examiner_name, examiner_pos, creditor_number, ""])
-				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_completion_date=timezone.now())
 
-	return redirect('enquiries_home')
+		models.EsmcsvDownloads.objects.create(
+			document = file_location,
+			file_name = file_timestamp,
+			download_count = 0,
+			archive_count = 0
+			)
+		
+		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_completion_date=timezone.now())
+
+	return redirect('esmcsv_list')
+
+def esmcsv_download_view(request, download_id=None):
+	# 
+	document = models.EsmcsvDownloads.objects.get(pk=download_id).document
+	downloads = int(models.EsmcsvDownloads.objects.get(pk=download_id).download_count) + 1
+	models.EsmcsvDownloads.objects.filter(pk=download_id).update(download_count = str(downloads))
+
+	return FileResponse(document, as_attachment=True)
+	
+
+	return redirect('esmcsv_list')
 
 def exmsla_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -569,6 +609,21 @@ def exmsla_list_view(request):
 	context = {"cer": page_obj,}
 	return render(request, "enquiries_exmsla.html", context=context)
 
+def remapp_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='REMAPP', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_remapp.html", context=context)
 
 def enquiries_rpa_apportion_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.

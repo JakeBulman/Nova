@@ -203,3 +203,10 @@ class MisReturnData(models.Model):
     final_mark = models.CharField(max_length=10, null=True)
     final_justification_code = models.CharField(max_length=10, null=True)
     final_mark_status = models.CharField(max_length=10, null=True)
+
+class EsmcsvDownloads(models.Model):
+    document = models.FileField(upload_to='documents/')
+    file_name = models.CharField(max_length=50, null=True)
+    download_count = models.CharField(max_length=3, null=True)
+    archive_count = models.CharField(max_length=3, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
