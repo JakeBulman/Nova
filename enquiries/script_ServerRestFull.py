@@ -14,7 +14,7 @@ temp_filter = 1
 sys.path.append('C:/Dev/redepplan')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 django.setup()
-from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, EnquiryComponentsPreviousExaminers, MisReturnData, ScriptApportionmentExtension
+from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, EnquiryComponentsPreviousExaminers, MisReturnData, ScriptApportionmentExtension, EsmcsvDownloads
 
 def clear_tables():
     CentreEnquiryRequests.objects.all().delete()
@@ -34,6 +34,7 @@ def clear_tables():
     EnquiryComponentsPreviousExaminers.objects.all().delete()
     MisReturnData.objects.all().delete()
     ScriptApportionmentExtension.objects.all().delete()
+    EsmcsvDownloads.objects.all().delete()
 
     print('Tables Cleared')
 
@@ -60,32 +61,29 @@ def load_core_tables():
             cie_direct_id as cie_direct_id
             from ar_meps_req_prd.centre_enquiry_requests
             where ses_sid in (19646) 
-
-            and sid in (1216612,
-1216820,
-1217734,
-1217918,
-1217918,
-1217938,
-1217938,
-1217972,
-1218112,
-1218152,
-1218180,
-1218196,
-1218228,
-1218566,
-1218628,
-1218684,
-1218796,
-1218876,
-1218906,
-1218906
-)
-            
-        
-            
                                 ''', conn)
+        
+    
+#             and sid in (1216612,
+# 1216820,
+# 1217734,
+# 1217918,
+# 1217918,
+# 1217938,
+# 1217938,
+# 1217972,
+# 1218112,
+# 1218152,
+# 1218180,
+# 1218196,
+# 1218228,
+# 1218566,
+# 1218628,
+# 1218684,
+# 1218796,
+# 1218876,
+# 1218906,
+# 1218906)
 
     def insert_to_model_cer(row):
         CentreEnquiryRequests.objects.create(

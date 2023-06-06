@@ -259,7 +259,7 @@ def pexmch_task_complete(request):
 		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 		ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
 		#change to JUSCHE once testing complete
-		task_id = 'MANAPP',
+		task_id = 'AUTAPP',
 		task_assigned_to = None,
 		task_assigned_date = None,
 		task_completion_date = None
@@ -404,7 +404,7 @@ def iec_pass_view(request, enquiry_id=None):
 				models.TaskManager.objects.create(
 					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-					task_id = 'MANAPP',
+					task_id = 'AUTAPP',
 					task_assigned_to = None,
 					task_assigned_date = None,
 					task_completion_date = None
@@ -425,7 +425,6 @@ def iec_pass_view(request, enquiry_id=None):
 	return redirect('enquiries_list')
 
 def iec_pass_all_view(request):
-	print(request.method)
 	if request.method == 'POST':
 		#Get scripts for this enquiry ID, this is a join from EC to ERP
 		all_initch = models.TaskManager.objects.filter(task_id='INITCH',task_completion_date__isnull=True)
@@ -449,7 +448,7 @@ def iec_pass_all_view(request):
 					models.TaskManager.objects.create(
 						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-						task_id = 'MANAPP',
+						task_id = 'AUTAPP',
 						task_assigned_to = None,
 						task_assigned_date = None,
 						task_completion_date = None
@@ -460,7 +459,6 @@ def iec_pass_all_view(request):
 						exm_position = models.EnquiryComponentsHistory.objects.get(ec_sid=s.ec_sid).exm_position
 					)
 				#complete the task
-				print(s.ec_sid)
 				models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
 
 	return redirect('enquiries_list')
@@ -589,9 +587,7 @@ def esmcsv_download_view(request, download_id=None):
 	models.EsmcsvDownloads.objects.filter(pk=download_id).update(download_count = str(downloads))
 
 	return FileResponse(document, as_attachment=True)
-	
 
-	return redirect('esmcsv_list')
 
 def exmsla_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
