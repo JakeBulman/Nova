@@ -36,8 +36,6 @@ def clear_tables():
 
     print('Tables Cleared')
 
-clear_tables()
-
 def load_core_tables():
 
     start_time = datetime.datetime.now()
@@ -47,8 +45,9 @@ def load_core_tables():
     session_id = EarServerSettings.objects.first().session_id_list
     enquiry_id_list = EarServerSettings.objects.first().enquiry_id_list
     if enquiry_id_list != '':
-        enquiry_id_list = ' and sid not in (' + enquiry_id_list + ')'
+        enquiry_id_list = ' and sid in (' + enquiry_id_list + ')'
 
+    print(enquiry_id_list)
 
     # # Get datalake data - Centre Enquiry Requests
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
@@ -502,5 +501,3 @@ def load_core_tables():
 
     end_time = datetime.datetime.now()
     print(end_time - start_time)
-
-load_core_tables()

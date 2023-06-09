@@ -11,6 +11,7 @@ from django.db.models import Sum
 
 #special imports
 from . import script_ServerResetShort as srs
+from . import script_ServerResetFull as srf
 
 PageNotAnInteger = None
 EmptyPage = None
@@ -78,6 +79,8 @@ def server_short_reset_view(request):
 	return render(request, "enquiries_server_options.html", context=context)
 
 def server_long_reset_view(request):
+	srf.clear_tables()
+	srf.load_core_tables()
 	context = {}
 	return render(request, "enquiries_server_options.html", context=context)
 
