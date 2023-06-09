@@ -59,7 +59,7 @@ def run_algo():
                 )
                 #complete the task
                 TaskManager.objects.filter(pk=task_pk,task_id='RETMIS').update(task_completion_date=timezone.now())
-                ScriptApportionment.objects.filter(ec_sid=ec_sid).update(script_marked=1)
+                ScriptApportionment.objects.filter(ec_sid=ec_sid).update(script_marked=0)
         else:
             if file.endswith("COMPLETE") or file.endswith("FILE_CHECKS"):
                 a=1 #do nothing

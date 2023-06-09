@@ -7,14 +7,12 @@ import django
 import datetime
 from django.utils import timezone
 
-#Limits enquiries to only non-completed
-temp_filter = 1
 
 
 sys.path.append('C:/Dev/redepplan')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 django.setup()
-from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, EnquiryComponentsPreviousExaminers, MisReturnData, ScriptApportionmentExtension, EsmcsvDownloads
+from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, EnquiryComponentsPreviousExaminers, MisReturnData, ScriptApportionmentExtension, EsmcsvDownloads, EarServerSettings
 
 def clear_tables():
     CentreEnquiryRequests.objects.all().delete()
@@ -45,10 +43,16 @@ def load_core_tables():
     start_time = datetime.datetime.now()
     print("Start Time:" + str(datetime.datetime.now()))
 
+    #Limits enquiries to only non-completed
+    session_id = EarServerSettings.objects.first().session_id_list
+    enquiry_id_list = EarServerSettings.objects.first().enquiry_id_list
+    if enquiry_id_list != '':
+        enquiry_id_list = ' and sid not in (' + enquiry_id_list + ')'
+
 
     # # Get datalake data - Centre Enquiry Requests
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-        df = pd.read_sql('''
+        df = pd.read_sql(f'''
             select 
             sid as enquiry_id,
             status as enquiry_status,
@@ -60,31 +64,11 @@ def load_core_tables():
             created_by as created_by,
             cie_direct_id as cie_direct_id
             from ar_meps_req_prd.centre_enquiry_requests
-            where ses_sid in (19646) 
+            where ses_sid in ({session_id}) 
+            {enquiry_id_list}
                                 ''', conn)
         
     
-#             and sid in (1216612,
-# 1216820,
-# 1217734,
-# 1217918,
-# 1217918,
-# 1217938,
-# 1217938,
-# 1217972,
-# 1218112,
-# 1218152,
-# 1218180,
-# 1218196,
-# 1218228,
-# 1218566,
-# 1218628,
-# 1218684,
-# 1218796,
-# 1218876,
-# 1218906,
-# 1218906)
-
     def insert_to_model_cer(row):
         CentreEnquiryRequests.objects.create(
             enquiry_id = row['enquiry_id'],
@@ -111,7 +95,7 @@ def load_core_tables():
 
     # # Get datalake data - Enquiry Request Parts
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-        df = pd.read_sql('''
+        df = pd.read_sql(f'''
             select 
             erp.sid as erp_sid,
             erp.cer_sid as cer_sid,
@@ -130,7 +114,7 @@ def load_core_tables():
             from ar_meps_req_prd.enquiry_request_parts erp
             left join cie.ca_candidates can
             on erp.caom_can_unique_identifier = can.unique_id
-            where caom_ses_sid in (19646) 
+            where caom_ses_sid in ({session_id}) 
                                 ''', conn)
 
     def insert_to_model_erp(row):
@@ -161,7 +145,7 @@ def load_core_tables():
 
     # # Get datalake data - Enquiry Components
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-        df = pd.read_sql('''
+        df = pd.read_sql(f'''
                 select distinct
                 ec.sid as ec_sid,
                 ec.erp_sid as erp_sid,
@@ -185,7 +169,7 @@ def load_core_tables():
                 and erp.caom_opt_code = prod.option_code
                 left join cie.ods_sessions ses
                 on ec.ccm_ses_sid = ses.sessionid
-                where ccm_ses_sid in (19646) 
+                where ccm_ses_sid in ({session_id}) 
                                 ''', conn)
 
     def insert_to_model_ec(row):
@@ -213,7 +197,7 @@ def load_core_tables():
 
     # # Get datalake data - Enquiry Batches
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-        df = pd.read_sql('''
+        df = pd.read_sql(f'''
             select distinct
             sb.sid as eb_sid,
             sb.created_date as created_date,
@@ -223,7 +207,7 @@ def load_core_tables():
             on sb.sid = ece.eb_sid
             left join ar_meps_req_prd.enquiry_components ec
             on ec.sid = ece.ec_sid
-            where ec.ccm_ses_sid in (19646) 
+            where ec.ccm_ses_sid in ({session_id}) 
                                 ''', conn)
 
     def insert_to_model_eb(row):
@@ -238,7 +222,7 @@ def load_core_tables():
 
     #Get datalake data - Enquiry Components
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-        df = pd.read_sql('''
+        df = pd.read_sql(f'''
             select distinct
             ece.ec_sid as ec_sid,
             ece.status as ece_status,
@@ -249,7 +233,7 @@ def load_core_tables():
             from  ar_meps_req_prd.enquiry_component_elements ece
             left join ar_meps_req_prd.enquiry_components ec
             on ece.ec_sid = ec.sid
-            where ec.ccm_ses_sid in (19646) 
+            where ec.ccm_ses_sid in ({session_id}) 
                                 ''', conn)
 
     def insert_to_model_ec(row):
@@ -275,7 +259,7 @@ def load_core_tables():
 
     # Get datalake data - Unique Creditors
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-        df = pd.read_sql('''
+        df = pd.read_sql(f'''
             select distinct
             spp.creditor_no as exm_creditor_no,
             per.sid as per_sid,
@@ -293,7 +277,7 @@ def load_core_tables():
             on spp.per_sid = per.sid
             left join ar_meps_pan_prd.session_panels sp
             on sp.sid = enpe.pan_sid
-            where sp.ses_sid in (19646) 
+            where sp.ses_sid in ({session_id}) 
                                 ''', conn)
 
     def insert_to_model_enpe(row):
@@ -314,7 +298,7 @@ def load_core_tables():
 
     # Get datalake data - Enquiry Personnel
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-        df = pd.read_sql('''
+        df = pd.read_sql(f'''
             select distinct 
             enpe.sid as enpe_sid,
             enpe.pan_sid as sp_sid,
@@ -322,7 +306,7 @@ def load_core_tables():
             from ar_meps_req_prd.enquiry_personnel enpe
             left join ar_meps_pan_prd.session_panels sp
             on sp.sid = enpe.pan_sid
-            where sp.ses_sid in (19646) 
+            where sp.ses_sid in ({session_id}) 
                                 ''', conn)
 
     def insert_to_model_enpe(row):
@@ -342,7 +326,7 @@ def load_core_tables():
 
     # Get datalake data - Enquiry Personnel - Extended
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-        df = pd.read_sql('''
+        df = pd.read_sql(f'''
                 select distinct
                 enpe.sid as enpe_sid,
                 sp.sid as sp_sid,
@@ -372,7 +356,7 @@ def load_core_tables():
                 left join ar_meps_ord_prd.centre_sess_comp_entries csce
                 on sp.sid = csce.pan_sid
                 where 
-                sp.ses_sid in (19646) 
+                sp.ses_sid in({session_id}) 
                                 ''', conn)
 
     def insert_to_model_enpee(row):
@@ -402,7 +386,7 @@ def load_core_tables():
 
     # Get datalake data - ECH
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-        df = pd.read_sql('''
+        df = pd.read_sql(f'''
                         SELECT distinct
                         cer.sid as cer_sid,
                         ec.sid as ec_sid,
@@ -432,9 +416,8 @@ def load_core_tables():
                         on wrm.spp_sid = spp.sid
                         left join ar_meps_mark_prd.keyed_batch_reason kbr
                         on kbr.code = wrm.kbr_code
-                        where ec.ccm_ses_sid = 19646
-
-                        ''', conn)
+                        where ec.ccm_ses_sid in ({session_id}) 
+                                ''', conn)
 
     def insert_to_model_enpee(row):
         try:
@@ -463,7 +446,7 @@ def load_core_tables():
 
     # Get datalake data - Enquiry Personnel - Extended
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-        df = pd.read_sql('''
+        df = pd.read_sql(f'''
                     SELECT distinct
                     cer.sid as cer_sid,
                     ec.sid as ec_sid,
@@ -480,8 +463,8 @@ def load_core_tables():
                     on erp.sid = ec.erp_sid
                     left join ar_meps_req_prd.centre_enquiry_requests cer
                     on cer.sid = erp.cer_sid
-                    left join (select ses_sid,ass_code,com_id,cnu_id,cand_no,kbr_code,mark,spp_sid from ar_meps_mark_prd.working_raw_marks where ses_sid = 19646 
-                    union select ses_sid,ass_code,com_id,cnu_id,cand_no,kbr_code,mark,spp_sid from ar_meps_mark_prd.historical_raw_marks where ses_sid = 19646) wrm
+                    left join (select ses_sid,ass_code,com_id,cnu_id,cand_no,kbr_code,mark,spp_sid from ar_meps_mark_prd.working_raw_marks where ses_sid in ({session_id}) 
+                    union select ses_sid,ass_code,com_id,cnu_id,cand_no,kbr_code,mark,spp_sid from ar_meps_mark_prd.historical_raw_marks where ses_sid in ({session_id})) wrm
                     on wrm.ses_sid = ec.ccm_ses_sid
                     and wrm.ass_code = ec.ccm_ass_code
                     and wrm.com_id = ec.ccm_com_id
@@ -491,9 +474,9 @@ def load_core_tables():
                     on wrm.spp_sid = spp.sid
                     left join ar_meps_mark_prd.keyed_batch_reason kbr
                     on kbr.code = wrm.kbr_code
-                    where ec.ccm_ses_sid = 19646
-                    and wrm.kbr_code in ('TL','GR')
-                        ''', conn)
+                    where wrm.kbr_code in ('TL','GR')
+                    and ec.ccm_ses_sid in ({session_id}) 
+                                ''', conn)
 
     def insert_to_model_enpee(row):
         try:

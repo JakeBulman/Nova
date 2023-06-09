@@ -7,6 +7,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 django.setup()
 from enquiries.models import TaskManager, EnquiryComponents, EnquiryComponentsPreviousExaminers, EnquiryPersonnel, EnquiryPersonnelDetails, ScriptApportionment, CentreEnquiryRequests, ExaminerConflicts, ExaminerAvailability
 from django.utils import timezone
+from django.db.models import Sum
 
 # Create your views here.
 def run_algo():
@@ -14,6 +15,7 @@ def run_algo():
     print("Start Time:" + str(datetime.datetime.now()))
 
     for app_task in TaskManager.objects.filter(task_id='AUTAPP', task_completion_date__isnull=True):
+    #for app_task in TaskManager.objects.filter(task_id='AUTAPP', task_completion_date__isnull=True):
         task_pk = app_task.pk
         script_id = app_task.ec_sid.ec_sid
         task_enquiry_id = app_task.enquiry_id.enquiry_id
@@ -75,13 +77,17 @@ def run_algo():
                 #check for script overloading
                 scripts = 0
                 scripts_qc = ScriptApportionment.objects.filter(enpe_sid__per_sid__exm_creditor_no = exm_creditor_no).all()
-                scripts = scripts_qc.count()
+                scripts_dict = scripts_qc.aggregate(Sum('script_marked'))
+                print(scripts_dict)
+                if scripts_dict['script_marked__sum'] is not None:
+                    scripts = scripts_dict['script_marked__sum']
                 #print(scripts)
 
                 if scripts > 19:
                     exm['rank'] = 4 #mark as non-viable
                 exm['scripts'] = scripts
 
+            #print(exms_list)
             exms_list_filtered = []
             exms_list_filtered[:] = [d for d in exms_list if d.get('rank') != 4]
             #sort final list - this is a rank order 
@@ -92,12 +98,12 @@ def run_algo():
             
             #get "best" examiner for apportionment
 
-            print(sorted_exms_list_rank)
-            print(script_obj.ec_sid)
+            #print(sorted_exms_list_rank)
+            #print(script_obj.ec_sid)
             #print(exms_list)
-        if sorted_exms_list_rank:
-            chosen_exm = sorted_exms_list_rank[0]['creditor']
-            print(chosen_exm)
+        if sorted_exms_list_robin:
+            chosen_exm = sorted_exms_list_robin[0]['creditor']
+            #print(chosen_exm)
             
             if chosen_exm is not None:
                 
@@ -153,8 +159,8 @@ def run_algo():
                 task_assigned_date = None,
                 task_completion_date = None
             )      
-    #complete the task
-    TaskManager.objects.filter(pk=task_pk,task_id='AUTAPP').update(task_completion_date=timezone.now())  
+        #complete the task
+        TaskManager.objects.filter(pk=task_pk,task_id='AUTAPP').update(task_completion_date=timezone.now())  
 
     end_time = datetime.datetime.now()
     print(end_time - start_time)      

@@ -1,14 +1,16 @@
 from django.http import FileResponse
 from . import models
-from django.template.loader import render_to_string
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.conf import settings
-import csv, os, pathlib
+import csv, os
+from django.db.models import Sum
+
+#special imports
+from . import script_ServerResetShort as srs
 
 PageNotAnInteger = None
 EmptyPage = None
@@ -46,6 +48,38 @@ def ear_home_view(request,*args, **kwargs):
 		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "esmcsv":esmcsv_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count,
 		}
 	return render(request, "home_ear.html", context=context, )
+
+def server_options_view(request):
+	context = {}
+	return render(request, "enquiries_server_options.html", context=context)
+
+def server_settings_view(request):
+	serv = models.EarServerSettings.objects.first()
+	context = {"serv":serv}
+	return render(request, "enquiries_server_settings.html", context=context)
+
+def server_settings_update_view(request):
+	sessions = request.POST.get('session_id_list')
+	enquiries = request.POST.get('enquiry_id_list')
+	serv = models.EarServerSettings.objects.first()
+	models.EarServerSettings.objects.filter(id=serv.pk).update(session_id_list=sessions,enquiry_id_list=enquiries)
+	# models.EarServerSettings.objects.create(
+	# 	session_id_list=sessions,
+	# 	enquiry_id_list=enquiries
+	# )
+	serv = models.EarServerSettings.objects.all().first()
+	context = {"serv":serv}
+	return render(request, "enquiries_server_settings.html", context=context)
+
+def server_short_reset_view(request):
+	srs.clear_tables()
+	srs.load_core_tables()
+	context = {}
+	return render(request, "enquiries_server_options.html", context=context)
+
+def server_long_reset_view(request):
+	context = {}
+	return render(request, "enquiries_server_options.html", context=context)
 
 def my_tasks_view(request):
 	#Get username to filter tasks
@@ -119,7 +153,8 @@ def manual_apportionment_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
 	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
-	examiner_queryset = models.EnquiryPersonnelDetails.objects.filter(ass_code = task_ass_code, com_id = task_comp_code).order_by('exm_examiner_no')
+	#scripts = models.UniqueCreditor.objects.annotate(script_count=Count("creditors__exm_per_details__enpe_sid__apportion_examiner",distinct=True))
+	examiner_queryset = models.UniqueCreditor.objects.annotate(script_count=Sum("creditors__apportion_examiner__script_marked",distinct=True)).filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no')
 	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, }
 	return render(request, "enquiries_task_manual_apportionment.html", context=context)
 
@@ -135,7 +170,7 @@ def manual_apportionment(request):
 	models.ScriptApportionment.objects.create(
 		enpe_sid = examiner_obj,
 		ec_sid =  script_obj
-		#script_marked is default to 0
+		#script_marked is default to 1
 	)
 
 	models.TaskManager.objects.create(
@@ -549,7 +584,7 @@ def esmcsv_list_view(request):
 	return render(request, "enquiries_esmcsv.html", context=context)
 
 def esmcsv_create_view(request):
-	ec_queryset = models.TaskManager.objects.filter(task_id='ESMCSV', task_completion_date__isnull=True)
+	ec_queryset = models.TaskManager.objects.filter(task_id='ESMCSV', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__eb_sid__isnull=False)
 	if ec_queryset.count() > 0:
 		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
 		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')

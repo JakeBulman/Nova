@@ -1,15 +1,7 @@
-import pandas as pd
-import pyodbc
-
 import sys
 import os
 import django
 import datetime
-from django.utils import timezone
-
-#Limits enquiries to only non-completed
-temp_filter = 1
-
 
 sys.path.append('C:/Dev/redepplan')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
@@ -25,8 +17,6 @@ def clear_tables():
     EsmcsvDownloads.objects.all().delete()
 
     print('Tables Cleared')
-
-clear_tables()
 
 def load_core_tables():
 
@@ -51,4 +41,3 @@ def load_core_tables():
     end_time = datetime.datetime.now()
     print(end_time - start_time)
 
-load_core_tables()

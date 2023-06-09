@@ -180,7 +180,7 @@ class ExaminerEmailOverride(models.Model):
 class ScriptApportionment(models.Model):
     enpe_sid = models.ForeignKey(EnquiryPersonnel, to_field='enpe_sid', on_delete=models.SET_NULL, null=True, related_name='apportion_examiner')
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='apportion_script')
-    script_marked = models.CharField(max_length=1, default=0)
+    script_marked = models.IntegerField(default=1)
 
 class ScriptApportionmentExtension(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='script_extension')
@@ -209,4 +209,9 @@ class EsmcsvDownloads(models.Model):
     file_name = models.CharField(max_length=50, null=True)
     download_count = models.CharField(max_length=3, null=True)
     archive_count = models.CharField(max_length=3, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+class EarServerSettings(models.Model):
+    session_id_list = models.TextField()
+    enquiry_id_list = models.TextField()
     uploaded_at = models.DateTimeField(auto_now_add=True)

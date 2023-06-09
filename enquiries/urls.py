@@ -5,6 +5,13 @@ urlpatterns = [
     #Home view for EARs
     path('home', views.ear_home_view, name='enquiries_home'),
 
+    #Server reset hidden options
+    path('server_options', views.server_options_view, name='server_options'),
+    path('server_settings', views.server_settings_view, name='server_settings'),
+    path('server_settings_update', views.server_settings_update_view, name='server_settings_update'),
+    path('server_short_reset', views.server_short_reset_view, name='server_short_reset'),
+    path('server_long_reset', views.server_long_reset_view, name='server_long_reset'), 
+    
 
     ### Task Manager Control ###
 
