@@ -15,8 +15,7 @@ def run_algo():
         exmsla_count = TaskManager.objects.filter(task_id='EXMSLA', ec_sid=task.ec_sid.ec_sid, task_completion_date__isnull=True).count()
         for e in ScriptApportionmentExtension.objects.filter(task_id=TaskManager.objects.get(ec_sid=task.ec_sid,task_id='RETMIS').pk):
             extension_total = int(e.extenstion_days) + extension_total
-        #TODO:Change the 0 value in the delta to SLA days needed
-        slaDate = task.task_creation_date + datetime.timedelta(days=0) + datetime.timedelta(days=extension_total)
+        slaDate = task.task_creation_date + datetime.timedelta(days=5) + datetime.timedelta(days=extension_total)
         if (slaDate < timezone.now()) and (exmsla_count == 0):
             TaskManager.objects.create(
                 enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
@@ -26,5 +25,6 @@ def run_algo():
                 task_assigned_date = None,
                 task_completion_date = None
             )
+            #TODO: Close RETMIS task, it will be recreated by the EXMSLA task
 
 run_algo()

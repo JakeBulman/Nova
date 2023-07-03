@@ -4,10 +4,12 @@ import os
 import django
 from django.utils import timezone
 
+
 sys.path.append('C:/Dev/redepplan')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 django.setup()
 from enquiries.models import TaskManager, EnquiryPersonnelDetails, ScriptApportionment, EnquiryComponentElements, CentreEnquiryRequests, EnquiryComponents, EnquiryComponentsHistory
+from django.contrib.auth.models import User
 
 def run_algo():
     for app_task in TaskManager.objects.filter(task_id='NEWMIS', task_completion_date__isnull=True):
@@ -48,15 +50,17 @@ def run_algo():
         #Scaled (prev) mark
         sheet["F4"] = original_mark
 
-        workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
+        #Examiners-956955_BATCH_836680_MIS
+
+        workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\Examiners-" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
 
         #Create next step in chain (RETMIS)
         TaskManager.objects.create(
             enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
             ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
             task_id = 'RETMIS',
-            task_assigned_to = None,
-            task_assigned_date = None,
+            task_assigned_to = User.objects.get(id=33),
+            task_assigned_date = timezone.now(),
             task_completion_date = None
         )
         #complete the task

@@ -8,6 +8,7 @@ django.setup()
 from enquiries.models import TaskManager, EnquiryComponents, EnquiryComponentsPreviousExaminers, EnquiryPersonnel, EnquiryPersonnelDetails, ScriptApportionment, CentreEnquiryRequests, ExaminerConflicts, ExaminerAvailability
 from django.utils import timezone
 from django.db.models import Sum
+from django.contrib.auth.models import User
 
 # Create your views here.
 def run_algo():
@@ -119,8 +120,8 @@ def run_algo():
                     enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
                     ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
                     task_id = 'BOTAPP',
-                    task_assigned_to = None,
-                    task_assigned_date = None,
+                    task_assigned_to = User.objects.get(id=14),
+                    task_assigned_date = timezone.now(),
                     task_completion_date = None
                 )
                 TaskManager.objects.create(

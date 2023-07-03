@@ -47,7 +47,7 @@ def load_core_tables():
     session_id = EarServerSettings.objects.first().session_id_list
     enquiry_id_list = EarServerSettings.objects.first().enquiry_id_list
     if enquiry_id_list != '':
-        enquiry_id_list = ' and sid not in (' + enquiry_id_list + ')'
+        enquiry_id_list = ' and sid in (' + enquiry_id_list + ')'
 
 
     # # Get datalake data - Centre Enquiry Requests

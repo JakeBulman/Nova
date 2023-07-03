@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.conf import settings
 import csv, os
 from django.db.models import Sum
+from django.contrib.auth.models import User
 
 #special imports
 from . import script_ServerResetShort as srs
@@ -177,16 +178,16 @@ def manual_apportionment(request):
 		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
 		ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
 		task_id = 'BOTAPP',
-		task_assigned_to = None,
-		task_assigned_date = None,
+		task_assigned_to = User.objects.get(id=14),
+		task_assigned_date = timezone.now(),
 		task_completion_date = None
 	)
 	models.TaskManager.objects.create(
 		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
 		ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
 		task_id = 'NEWMIS',
-		task_assigned_to = None,
-		task_assigned_date = None,
+		task_assigned_to = User.objects.get(id=33),
+		task_assigned_date = timezone.now(),
 		task_completion_date = None
 	)
 	models.TaskManager.objects.create(
@@ -232,10 +233,9 @@ def misvrm_task_complete(request):
 	models.TaskManager.objects.create(
 		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 		ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
-		#change to JUSCHE once testing complete
-		task_id = 'BOTMAR',
-		task_assigned_to = None,
-		task_assigned_date = None,
+		task_id = 'JUSCHE',
+		task_assigned_to = User.objects.get(id=33),
+		task_assigned_date = timezone.now(),
 		task_completion_date = None
 	)
 
@@ -294,7 +294,7 @@ def pexmch_task_complete(request):
 		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 		ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
 		#change to JUSCHE once testing complete
-		task_id = 'AUTAPP',
+		task_id = 'MANAPP',
 		task_assigned_to = None,
 		task_assigned_date = None,
 		task_completion_date = None
@@ -349,6 +349,7 @@ def exmsla_task_complete(request):
 			task_id = models.TaskManager.objects.get(id=models.TaskManager.objects.get(ec_sid=script_id,task_id='RETMIS').pk),
 			extenstion_days = new_sla
 		)	
+		#TODO: Recreate RETMIS task (or set to not complete)
 	else:
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
@@ -439,7 +440,7 @@ def iec_pass_view(request, enquiry_id=None):
 				models.TaskManager.objects.create(
 					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-					task_id = 'AUTAPP',
+					task_id = 'MANAPP',
 					task_assigned_to = None,
 					task_assigned_date = None,
 					task_completion_date = None
@@ -483,7 +484,7 @@ def iec_pass_all_view(request):
 					models.TaskManager.objects.create(
 						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-						task_id = 'AUTAPP',
+						task_id = 'MANAPP',
 						task_assigned_to = None,
 						task_assigned_date = None,
 						task_completion_date = None
@@ -494,7 +495,12 @@ def iec_pass_all_view(request):
 						exm_position = models.EnquiryComponentsHistory.objects.get(ec_sid=s.ec_sid).exm_position
 					)
 				#complete the task
-				models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
+			if request.user.is_authenticated:
+				username =request.user
+				models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_assigned_to=username)
+				models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_assigned_date=timezone.now())
+			#complete the task
+			models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
 
 	return redirect('enquiries_list')
 
@@ -611,7 +617,14 @@ def esmcsv_create_view(request):
 			archive_count = 0
 			)
 		
+			#Get username to filter tasks
+		username = None
+		if request.user.is_authenticated:
+			username =request.user
+		
 		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_completion_date=timezone.now())
+		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_assigned_date=timezone.now())
+		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_assigned_to=username)
 
 	return redirect('esmcsv_list')
 
@@ -655,6 +668,66 @@ def remapp_list_view(request):
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
 	return render(request, "enquiries_remapp.html", context=context)
+
+
+
+
+def grdrel_list_view(request):
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='GRDREL', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_grdrel.html", context=context)
+
+def grdrel_create_view(request):
+	ec_queryset = models.TaskManager.objects.filter(task_id='ESMCSV', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__eb_sid__isnull=False)
+	if ec_queryset.count() > 0:
+		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
+		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
+		print(file_location)		
+		with open(file_location, 'w', newline='') as file:
+			file.truncate()
+			writer = csv.writer(file)
+			for s in ec_queryset:
+				syllcomp = s.ec_sid.eps_ass_code + "/" + s.ec_sid.eps_com_id
+				batch = models.EnquiryComponentElements.objects.get(ec_sid = s.ec_sid).eb_sid.eb_sid
+				session = s.ec_sid.eps_ses_name
+				candidate = s.ec_sid.erp_sid.eps_cand_id
+				centre = s.ec_sid.erp_sid.eps_centre_id
+				examiner_name = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_forename + " " + models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_surname
+				examiner_pos = models.EnquiryPersonnelDetails.objects.filter(enpe_sid = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid).first().exm_examiner_no
+				creditor_number = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_creditor_no
+
+				writer.writerow([syllcomp,batch,session,candidate,centre,examiner_name, examiner_pos, creditor_number, ""])
+
+		models.EsmcsvDownloads.objects.create(
+			document = file_location,
+			file_name = file_timestamp,
+			download_count = 0,
+			archive_count = 0
+			)
+		
+			#Get username to filter tasks
+		username = None
+		if request.user.is_authenticated:
+			username =request.user
+		
+		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_completion_date=timezone.now())
+		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_assigned_date=timezone.now())
+		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_assigned_to=username)
+
+	return redirect('esmcsv_list')
+
+
+
 
 def enquiries_rpa_apportion_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -736,6 +809,14 @@ def enquiries_rpa_marks_keying_view(request):
 
 def rpa_marks_keying_pass_view(request, script_id=None):
 	if script_id is not None and request.method == 'POST':
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiries__enquiry_parts__ec_sid=script_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			task_id = 'GRDREL',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
 		#Mark the task with this script ID for BOTMAR as complete
 		print(script_id)
 		models.TaskManager.objects.filter(ec_sid=script_id,task_id='BOTMAR').update(task_completion_date=timezone.now())
@@ -755,7 +836,6 @@ def rpa_marks_keying_fail_view(request, script_id=None):
 			task_completion_date = None
 		)
 		this_task.refresh_from_db()
-		print(this_task.pk)
 		models.RpaFailureAudit.objects.create(
 			rpa_task_key = models.TaskManager.objects.get(pk=this_task.pk),
 			failure_reason = request.POST.get('rpa_fail')
