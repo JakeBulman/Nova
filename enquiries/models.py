@@ -205,6 +205,8 @@ class MisReturnData(models.Model):
     final_mark_status = models.CharField(max_length=10, null=True)
     selected_justification_code = models.CharField(max_length=1, null=True)
     keying_required = models.CharField(max_length=1, null=True)
+    remark_reason = models.TextField(null=True)
+    remark_concern_reason = models.TextField(null=True)
 
 class EsmcsvDownloads(models.Model):
     document = models.FileField(upload_to='documents/')

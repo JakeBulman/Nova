@@ -42,7 +42,8 @@ def run_algo():
                     mark_status = sheet["G4"].value,
                     revised_mark = sheet["H4"].value,
                     justification_code = sheet["I4"].value,
-                    final_mark = None
+                    remark_reason = sheet["B40"].value,
+                    remark_concern_reason = sheet["B50"].value
                 )
 
                 #Move file to completed folder

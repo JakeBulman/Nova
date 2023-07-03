@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 
 #special imports
 from . import script_ServerResetShort as srs
-from . import script_ServerResetFull as srf
+#from . import script_ServerResetFull as srf
 
 PageNotAnInteger = None
 EmptyPage = None
@@ -80,10 +80,10 @@ def server_short_reset_view(request):
 	return render(request, "enquiries_server_options.html", context=context)
 
 def server_long_reset_view(request):
-	srf.clear_tables()
-	srf.load_core_tables()
-	context = {}
-	return render(request, "enquiries_server_options.html", context=context)
+# 	srf.clear_tables()
+# 	srf.load_core_tables()
+		context = {}
+		return render(request, "enquiries_server_options.html", context=context)
 
 def my_tasks_view(request):
 	#Get username to filter tasks

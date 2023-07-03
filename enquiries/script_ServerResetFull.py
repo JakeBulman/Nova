@@ -1,11 +1,9 @@
-import pandas as pd
-import pyodbc
-
 import sys
 import os
 import django
 import datetime
-from django.utils import timezone
+import pyodbc
+import pandas as pd
 
 
 
