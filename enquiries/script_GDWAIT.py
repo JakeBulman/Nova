@@ -34,8 +34,8 @@ def run_algo():
                 enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
                 ec_sid = None,
                 task_id = 'GRDREL',
-                task_assigned_to = User.objects.get(id=33),
-                task_assigned_date = timezone.now(),
+                task_assigned_to = None,
+                task_assigned_date = None,
                 task_completion_date = None
             )
                 

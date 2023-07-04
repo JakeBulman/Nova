@@ -74,7 +74,7 @@
       <h5 class="card-title">Grade Release</h5>
       {% if grdrel.count > 0 %}<span class="badge rounded-pill bg-danger">{{ grdrel.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       <p class="card-text">Release calculated grades after marks keying</p>
-      <a href="{% url 'grdrel_list' %}" class="mt-auto btn btn-outline-primary">Release Grades</a>
+      <a href="{% url 'grdrel_create' %}" class="mt-auto btn btn-outline-primary">Release Grades</a>
     </div>
   </div>
 </div>

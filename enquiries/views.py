@@ -929,7 +929,7 @@ def remapp_list_view(request):
 
 
 def grdrel_list_view(request):
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='GRDREL', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDREL', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -944,43 +944,29 @@ def grdrel_list_view(request):
 	return render(request, "enquiries_grdrel.html", context=context)
 
 def grdrel_create_view(request):
-	ec_queryset = models.TaskManager.objects.filter(task_id='ESMCSV', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__eb_sid__isnull=False)
-	if ec_queryset.count() > 0:
-		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
-		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
-		print(file_location)		
-		with open(file_location, 'w', newline='') as file:
-			file.truncate()
-			writer = csv.writer(file)
-			for s in ec_queryset:
-				syllcomp = s.ec_sid.eps_ass_code + "/" + s.ec_sid.eps_com_id
-				batch = models.EnquiryComponentElements.objects.get(ec_sid = s.ec_sid).eb_sid.eb_sid
-				session = s.ec_sid.eps_ses_name
-				candidate = s.ec_sid.erp_sid.eps_cand_id
-				centre = s.ec_sid.erp_sid.eps_centre_id
-				examiner_name = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_forename + " " + models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_surname
-				examiner_pos = models.EnquiryPersonnelDetails.objects.filter(enpe_sid = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid).first().exm_examiner_no
-				creditor_number = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_creditor_no
+	task_queryset = models.TaskManager.objects.filter(task_id='GRDREL', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__eb_sid__isnull=False)
+	if task_queryset.count() > 0:
+		for t in task_queryset:
+			enquiry_id = t.enquiry_id.enquiry_id
+			models.TaskManager.objects.create(
+                enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                ec_sid = None,
+                task_id = 'GRDMAT',
+                task_assigned_to = User.objects.get(id=33),
+                task_assigned_date = timezone.now(),
+                task_completion_date = None
+            )
 
-				writer.writerow([syllcomp,batch,session,candidate,centre,examiner_name, examiner_pos, creditor_number, ""])
-
-		models.EsmcsvDownloads.objects.create(
-			document = file_location,
-			file_name = file_timestamp,
-			download_count = 0,
-			archive_count = 0
-			)
-		
 			#Get username to filter tasks
-		username = None
-		if request.user.is_authenticated:
-			username =request.user
-		
-		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_completion_date=timezone.now())
-		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_assigned_date=timezone.now())
-		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_assigned_to=username)
+			username = None
+			if request.user.is_authenticated:
+				username =request.user
+			
+			models.TaskManager.objects.filter(ec_sid=t.ec_sid.ec_sid,task_id='GRDREL').update(task_completion_date=timezone.now())
+			models.TaskManager.objects.filter(ec_sid=t.ec_sid.ec_sid,task_id='GRDREL').update(task_assigned_date=timezone.now())
+			models.TaskManager.objects.filter(ec_sid=t.ec_sid.ec_sid,task_id='GRDREL').update(task_assigned_to=username)
 
-	return redirect('esmcsv_list')
+	return redirect('enquiries_home')
 
 
 
