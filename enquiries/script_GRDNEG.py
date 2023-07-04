@@ -12,7 +12,7 @@ from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryReques
 from django.contrib.auth.models import User
 
 def run_algo():
-    for task in TaskManager.objects.filter(task_id='GRDNEG', task_completion_date__isnull=False):
+    for task in TaskManager.objects.filter(task_id='GRDNEG', task_completion_date__isnull=True):
         # TODO: actually check if grade is negative...
         enquiry_id = task.enquiry_id.enquiry_id
 

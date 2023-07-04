@@ -398,14 +398,19 @@ def exmsla_task_complete(request):
 	task_id = request.POST.get('task_id')
 	enquiry_id = request.POST.get('enquiry_id')
 	new_sla = request.POST.get('new_sla')
-	print(new_sla)
 	if new_sla is not None:
+
 		models.ScriptApportionmentExtension.objects.create(
 			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
 			task_id = models.TaskManager.objects.get(id=models.TaskManager.objects.get(ec_sid=script_id,task_id='RETMIS').pk),
 			extenstion_days = new_sla
 		)	
-		#TODO: Recreate RETMIS task (or set to not complete)
+		#Recreate RETMIS task (or set to not complete)
+		models.TaskManager.objects.filter(pk=models.TaskManager.objects.get(ec_sid=script_id,task_id='RETMIS').pk,task_id='RETMIS').update(
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
 	else:
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
@@ -428,8 +433,8 @@ def negcon_task(request, task_id=None):
 
 def negcon_task_complete(request):
 	task_id = request.POST.get('task_id')
-	enquiry_id = request.POST.get('enquiry_id')
 	task_status = request.POST.get('task_status')
+	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
 	if task_status == "Pass":
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
@@ -459,8 +464,8 @@ def pdacon_task(request, task_id=None):
 
 def pdacon_task_complete(request):
 	task_id = request.POST.get('task_id')
-	enquiry_id = request.POST.get('enquiry_id')
 	task_status = request.POST.get('task_status')
+	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
 	if task_status == "Pass":
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
@@ -490,8 +495,8 @@ def peacon_task(request, task_id=None):
 
 def peacon_task_complete(request):
 	task_id = request.POST.get('task_id')
-	enquiry_id = request.POST.get('enquiry_id')
 	task_status = request.POST.get('task_status')
+	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
 	if task_status == "Pass":
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
@@ -521,8 +526,8 @@ def pumcon_task(request, task_id=None):
 
 def pumcon_task_complete(request):
 	task_id = request.POST.get('task_id')
-	enquiry_id = request.POST.get('enquiry_id')
 	task_status = request.POST.get('task_status')
+	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
 	if task_status == "Pass":
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
@@ -542,7 +547,7 @@ def pumcon_task_complete(request):
 			task_completion_date = None
 		)	
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='PUUMCON').update(task_completion_date=timezone.now())    
+	models.TaskManager.objects.filter(pk=task_id,task_id='PUMCON').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
 
 def grdrej_task(request, task_id=None):
@@ -552,8 +557,8 @@ def grdrej_task(request, task_id=None):
 
 def grdrej_task_complete(request):
 	task_id = request.POST.get('task_id')
-	enquiry_id = request.POST.get('enquiry_id')
 	task_status = request.POST.get('task_status')
+	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
 	if task_status == "Pass":
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
@@ -574,6 +579,8 @@ def mrkamd_task(request, task_id=None):
 
 def mrkamd_task_complete(request):
 	task_id = request.POST.get('task_id')
+	task_status = request.POST.get('task_status')
+	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='MRKAMD').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
@@ -585,8 +592,8 @@ def grdcon_task(request, task_id=None):
 
 def grdcon_task_complete(request):
 	task_id = request.POST.get('task_id')
-	enquiry_id = request.POST.get('enquiry_id')
 	task_status = request.POST.get('task_status')
+	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
 	if task_status == "Pass":
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
@@ -607,8 +614,8 @@ def grdchg_task(request, task_id=None):
 
 def grdchg_task_complete(request):
 	task_id = request.POST.get('task_id')
-	enquiry_id = request.POST.get('enquiry_id')
 	task_status = request.POST.get('task_status')
+	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
 	if task_status == "Pass":
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
@@ -944,7 +951,7 @@ def grdrel_list_view(request):
 	return render(request, "enquiries_grdrel.html", context=context)
 
 def grdrel_create_view(request):
-	task_queryset = models.TaskManager.objects.filter(task_id='GRDREL', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__eb_sid__isnull=False)
+	task_queryset = models.TaskManager.objects.filter(task_id='GRDREL', task_completion_date__isnull=True)
 	if task_queryset.count() > 0:
 		for t in task_queryset:
 			enquiry_id = t.enquiry_id.enquiry_id
@@ -962,9 +969,9 @@ def grdrel_create_view(request):
 			if request.user.is_authenticated:
 				username =request.user
 			
-			models.TaskManager.objects.filter(ec_sid=t.ec_sid.ec_sid,task_id='GRDREL').update(task_completion_date=timezone.now())
-			models.TaskManager.objects.filter(ec_sid=t.ec_sid.ec_sid,task_id='GRDREL').update(task_assigned_date=timezone.now())
-			models.TaskManager.objects.filter(ec_sid=t.ec_sid.ec_sid,task_id='GRDREL').update(task_assigned_to=username)
+			models.TaskManager.objects.filter(enquiry_id=t.enquiry_id.enquiry_id,task_id='GRDREL').update(task_completion_date=timezone.now())
+			models.TaskManager.objects.filter(enquiry_id=t.enquiry_id.enquiry_id,task_id='GRDREL').update(task_assigned_date=timezone.now())
+			models.TaskManager.objects.filter(enquiry_id=t.enquiry_id.enquiry_id,task_id='GRDREL').update(task_assigned_to=username)
 
 	return redirect('enquiries_home')
 

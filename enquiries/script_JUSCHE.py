@@ -17,7 +17,6 @@ def run_algo():
         #TODO: JUSCHE logic goes here
         mis_data = MisReturnData.objects.filter(ec_sid=task.ec_sid.ec_sid).first()
         justification_string = mis_data.final_justification_code
-        print(justification_string)
         if '4' in justification_string:
             mis_data.selected_justification_code = '4'
             mis_data.keying_required = 'Y'

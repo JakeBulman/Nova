@@ -82,7 +82,7 @@
                     {% for s in x.script_id.all %}<td>{{ s.eb_sid.eb_sid }}</td>{% empty %}<td>None</td>{% endfor %}
                     {% for m in x.script_mis.all %}<td>{{ m.final_mark_status }}</td>{% empty %}<td>None</td>{% endfor %}
                     {% for m in x.script_mis.all %}<td>{{ m.final_mark }}</td>{% empty %}<td>None</td>{% endfor %}
-                    {% for m in x.script_mis.all %}<td>{{ m.final_justification_code }}</td>{% empty %}<td>None</td>{% endfor %}
+                    {% for m in x.script_mis.all %}<td>{{ m.selected_justification_code }}</td>{% empty %}<td>None</td>{% endfor %}
                     <td><form method="POST" action="{% url 'rpa_marks_keying_pass' script_id=y.ec_sid.ec_sid %}" class="text-center">
                         <button type="submit" title="Pass" class="btn btn-outline-success" style="width:70px">Pass</button>
                     </form></td>

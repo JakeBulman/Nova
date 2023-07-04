@@ -12,7 +12,7 @@ from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryReques
 from django.contrib.auth.models import User
 
 def run_algo():
-    for task in TaskManager.objects.filter(task_id='GRDMAT', task_completion_date__isnull=False):
+    for task in TaskManager.objects.filter(task_id='GRDMAT', task_completion_date__isnull=True):
         # TODO: actually check if grades exist...
         enquiry_id = task.enquiry_id.enquiry_id
         grade_exists = True
@@ -23,8 +23,8 @@ def run_algo():
                     enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
                     ec_sid = None,
                     task_id = 'GRDNEG',
-                    task_assigned_to = None,
-                    task_assigned_date = None,
+                    task_assigned_to = User.objects.get(id=33),
+                    task_assigned_date = timezone.now(),
                     task_completion_date = None
                 )
             else:
