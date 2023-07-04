@@ -499,3 +499,6 @@ def load_core_tables():
 
     end_time = datetime.datetime.now()
     print(end_time - start_time)
+
+clear_tables()
+load_core_tables()

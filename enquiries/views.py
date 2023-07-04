@@ -42,12 +42,34 @@ def ear_home_view(request,*args, **kwargs):
 	pexmcha_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	exmsla_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='EXMSLA', enquiry_tasks__task_completion_date__isnull=True)
 	exmslaa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='EXMSLA', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	grdrel_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDREL', enquiry_tasks__task_completion_date__isnull=True)
+	grdrela_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDREL', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	remapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='REMAPP', enquiry_tasks__task_completion_date__isnull=True)
 	remappa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='REMAPP', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	negcon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NEGCON', enquiry_tasks__task_completion_date__isnull=True)
+	negcona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NEGCON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	pdacon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PDACON', enquiry_tasks__task_completion_date__isnull=True)
+	pdacona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PDACON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	peacon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEACON', enquiry_tasks__task_completion_date__isnull=True)
+	peacona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEACON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	pumcon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PUMCON', enquiry_tasks__task_completion_date__isnull=True)
+	pumcona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PUMCON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	grdrej_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDREJ', enquiry_tasks__task_completion_date__isnull=True)
+	grdreja_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDREJ', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	mrkamd_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MRKAMD', enquiry_tasks__task_completion_date__isnull=True)
+	mrkamda_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MRKAMD', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	grdcon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDCON', enquiry_tasks__task_completion_date__isnull=True)
+	grdcona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDCON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	grdchg_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDCHG', enquiry_tasks__task_completion_date__isnull=True)
+	grdchga_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDCHG', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+
 
 	context = {"mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
 	    "botapp":botapp_count, "botapf":botapp_fail_count, "botmar":botmar_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count,
 		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "esmcsv":esmcsv_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count,
+		"grdrel":grdrel_count, "grdrela":grdrela_count, "negcon":negcon_count, "negcona":negcona_count, "pdacon":pdacon_count, "pdacona":pdacona_count, 
+		"peacon":peacon_count, "peacon":peacona_count, "pumcon":pumcon_count, "pumcona":pumcona_count, "grdrej":grdrej_count, "grdreja":grdreja_count, "mrkamd":mrkamd_count, 
+		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count, 
 		}
 	return render(request, "home_ear.html", context=context, )
 
@@ -114,6 +136,22 @@ def task_router_view(request):
 		return redirect('botapf-task', task_id=task_id)
 	if task_type == "BOTMAF":
 		return redirect('botmaf-task', task_id=task_id)
+	if task_type == "NEGCON":
+		return redirect('negcon-task', task_id=task_id)
+	if task_type == "PDACON":
+		return redirect('pdacon-task', task_id=task_id)
+	if task_type == "PEACON":
+		return redirect('peacon-task', task_id=task_id)
+	if task_type == "PUMCON":
+		return redirect('pumcon-task', task_id=task_id)
+	if task_type == "GRDREJ":
+		return redirect('grdrej-task', task_id=task_id)
+	if task_type == "MRKAMD":
+		return redirect('mrkamd-task', task_id=task_id)
+	if task_type == "GRDCON":
+		return redirect('grdcon-task', task_id=task_id)
+	if task_type == "GRDCHG":
+		return redirect('grdchg-task', task_id=task_id)
 	else:
 		return redirect('my_tasks')
 	
@@ -326,6 +364,21 @@ def botmaf_task(request, task_id=None):
 
 def botmaf_task_complete(request):
 	task_id = request.POST.get('task_id')
+	if task_id is not None and request.method == 'POST':
+		enquiry_id = models.TaskManager.objects.get(pk=task_id,task_id='BOTMAF').enquiry_id.enquiry_id
+
+		#check if this enquiry already exists at GDWAIT
+		gdwait_task = 0
+		gdwait_task = models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='GDWAIT').count()
+		if gdwait_task == 0:
+			models.TaskManager.objects.create(
+				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+				ec_sid = None,
+				task_id = 'GDWAIT',
+                task_assigned_to = User.objects.get(id=33),
+                task_assigned_date = timezone.now(),
+                task_completion_date = None
+			)
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='BOTMAF').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
@@ -368,6 +421,206 @@ def exmsla_task_complete(request):
 	models.TaskManager.objects.filter(pk=task_id,task_id='EXMSLA').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
 
+def negcon_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_negcon.html", context=context)
+
+def negcon_task_complete(request):
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	task_status = request.POST.get('task_status')
+	if task_status == "Pass":
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'PDACON',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+	else:
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'GRDREJ',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)		
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='NEGCON').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+def pdacon_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_pdacon.html", context=context)
+
+def pdacon_task_complete(request):
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	task_status = request.POST.get('task_status')
+	if task_status == "Pass":
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'PEACON',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+	else:
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'GRDREJ',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)	
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='PDACON').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+def peacon_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_peacon.html", context=context)
+
+def peacon_task_complete(request):
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	task_status = request.POST.get('task_status')
+	if task_status == "Pass":
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'PUMCON',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+	else:
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'GRDREJ',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)	
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='PEACON').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+def pumcon_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_pumcon.html", context=context)
+
+def pumcon_task_complete(request):
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	task_status = request.POST.get('task_status')
+	if task_status == "Pass":
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'GRDCHG',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+	else:
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'GRDREJ',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)	
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='PUUMCON').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+def grdrej_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_grdrej.html", context=context)
+
+def grdrej_task_complete(request):
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	task_status = request.POST.get('task_status')
+	if task_status == "Pass":
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'MRKAMD',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='GRDREJ').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+def mrkamd_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_mrkamd.html", context=context)
+
+def mrkamd_task_complete(request):
+	task_id = request.POST.get('task_id')
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='MRKAMD').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+def grdcon_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_grdcon.html", context=context)
+
+def grdcon_task_complete(request):
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	task_status = request.POST.get('task_status')
+	if task_status == "Pass":
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'ESMSCR',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='GRDCON').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+def grdchg_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_grdchg.html", context=context)
+
+def grdchg_task_complete(request):
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	task_status = request.POST.get('task_status')
+	if task_status == "Pass":
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'ESMSCR',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='GRDCHG').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
 
 def complete_bie_view(request, enquiry_id=None):
 	if enquiry_id is not None and request.method == 'GET':
@@ -812,16 +1065,20 @@ def enquiries_rpa_marks_keying_view(request):
 
 def rpa_marks_keying_pass_view(request, script_id=None):
 	if script_id is not None and request.method == 'POST':
-		models.TaskManager.objects.create(
-			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiries__enquiry_parts__ec_sid=script_id),
-			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
-			task_id = 'GRDREL',
-			task_assigned_to = None,
-			task_assigned_date = None,
-			task_completion_date = None
-		)
+		enquiry_id = models.TaskManager.objects.filter(ec_sid=script_id,task_id='BOTMAR').first().enquiry_id.enquiry_id
+		#check if this enquiry already exists at GDWAIT
+		gdwait_task = 0
+		gdwait_task = models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='GDWAIT').count()
+		if gdwait_task == 0:
+			models.TaskManager.objects.create(
+				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+				ec_sid = None,
+				task_id = 'GDWAIT',
+                task_assigned_to = User.objects.get(id=33),
+                task_assigned_date = timezone.now(),
+                task_completion_date = None
+			)
 		#Mark the task with this script ID for BOTMAR as complete
-		print(script_id)
 		models.TaskManager.objects.filter(ec_sid=script_id,task_id='BOTMAR').update(task_completion_date=timezone.now())
 	return redirect('rpa_marks_keying')
 

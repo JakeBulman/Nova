@@ -44,14 +44,14 @@ def run_algo():
             mis_data.keying_required = 'Y'
         mis_data.save()
 
-        # TaskManager.objects.create(
-        #     enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
-        #     ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
-        #     task_id = 'MKWAIT',
-        #     task_assigned_to = User.objects.get(id=33),
-        #     task_assigned_date = timezone.now(),
-        #     task_completion_date = None
-        # )
-        #TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())       
+        TaskManager.objects.create(
+            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+            ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+            task_id = 'MKWAIT',
+            task_assigned_to = User.objects.get(id=33),
+            task_assigned_date = timezone.now(),
+            task_completion_date = None
+        )
+        TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())       
 
 run_algo()

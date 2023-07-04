@@ -34,6 +34,23 @@ urlpatterns = [
     path('task_manager/botmaf_task/<str:task_id>', views.botmaf_task, name='botmaf-task'),  
     path('task_manager/exmsla_task/complete', views.exmsla_task_complete, name='exmsla-complete'),
     path('task_manager/exmsla_task/<str:task_id>', views.exmsla_task, name='exmsla-task'), 
+    path('task_manager/negcon_task/complete', views.negcon_task_complete, name='negcon-complete'),
+    path('task_manager/negcon_task/<str:task_id>', views.negcon_task, name='negcon-task'), 
+    path('task_manager/pdacon_task/complete', views.pdacon_task_complete, name='pdacon-complete'),
+    path('task_manager/pdacon_task/<str:task_id>', views.pdacon_task, name='pdacon-task'), 
+    path('task_manager/peacon_task/complete', views.peacon_task_complete, name='peacon-complete'),
+    path('task_manager/peacon_task/<str:task_id>', views.peacon_task, name='peacon-task'), 
+    path('task_manager/pumcon_task/complete', views.pumcon_task_complete, name='pumcon-complete'),
+    path('task_manager/pumcon_task/<str:task_id>', views.pumcon_task, name='pumcon-task'), 
+    path('task_manager/grdrej_task/complete', views.grdrej_task_complete, name='grdrej-complete'),
+    path('task_manager/grdrej_task/<str:task_id>', views.grdrej_task, name='grdrej-task'), 
+    path('task_manager/mrkamd_task/complete', views.mrkamd_task_complete, name='mrkamd-complete'),
+    path('task_manager/mrkamd_task/<str:task_id>', views.mrkamd_task, name='mrkamd-task'), 
+    path('task_manager/grdcon_task/complete', views.grdcon_task_complete, name='grdcon-complete'),
+    path('task_manager/grdcon_task/<str:task_id>', views.grdcon_task, name='grdcon-task'), 
+    path('task_manager/grdchg_task/complete', views.grdchg_task_complete, name='grdchg-complete'),
+    path('task_manager/grdchg_task/<str:task_id>', views.grdchg_task, name='grdchg-task'),  
+
 
     ### Task List Control ### 
 
@@ -55,6 +72,9 @@ urlpatterns = [
     path('exmsla_list', views.exmsla_list_view, name='exmsla_list'),
     #Re-do Examiner SAL breaches
     path('remapp_list', views.remapp_list_view, name='remapp_list'),
+    #Release for GRDREL to file location
+    path('grdrel_list', views.grdrel_list_view, name='grdrel_list'),
+    path('grdrel_create', views.grdrel_create_view, name='grdrel_create'),
 
     ### Enquiry Detail Control ###
 
