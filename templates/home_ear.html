@@ -77,6 +77,16 @@
       <a href="{% url 'grdrel_create' %}" class="mt-auto btn btn-outline-primary">Release Grades</a>
     </div>
   </div>
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/iec-icon.png' %}" alt="EAR Icon">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">Grade Confirmations</h5>
+      {% if grdcon.count > 0 %}<span class="badge rounded-pill bg-danger">{{ grdcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      <p class="card-text">Mark confirmed grades as complete after updating EPS</p>
+      <a href="{% url 'grdcon-complete' %}" class="mt-auto btn btn-outline-primary">Confirm Grades</a>
+    </div>
+  </div>
+  </div>
 </div>
 
 
@@ -224,16 +234,6 @@
       {% if grdchga.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ grdchga.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Action a grade change.</p>
       <a href="{% url 'exmsla_list' %}" class="mt-auto btn btn-outline-primary">Go to Changes</a>
-    </div>
-  </div>
-  <div class="card m-3 shadow-lg" style="width: 18rem; ">
-    <img class="card-img-top" src="{% static 'admin/img/placeholder-image.png' %}" alt="EAR Icon">
-    <div class="card-body d-flex flex-column">
-      <h5 class="card-title">Grade Confirmations</h5>
-      {% if grdcon.count > 0 %}<span class="badge rounded-pill bg-danger">{{ grdcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if grdcona.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ grdcona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-      <p class="card-text">Action a grade confirmation.</p>
-      <a href="{% url 'exmsla_list' %}" class="mt-auto btn btn-outline-primary">Go to Confirmations</a>
     </div>
   </div>
 </div>

@@ -480,37 +480,6 @@ def negcon_task_complete(request):
 	models.TaskManager.objects.filter(pk=task_id,task_id='NEGCON').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
 
-def pdacon_task(request, task_id=None):
-	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
-	return render(request, "enquiries_task_pdacon.html", context=context)
-
-def pdacon_task_complete(request):
-	task_id = request.POST.get('task_id')
-	task_status = request.POST.get('task_status')
-	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
-	if task_status == "Pass":
-		models.TaskManager.objects.create(
-			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-			ec_sid = None,
-			task_id = 'PEACON',
-			task_assigned_to = None,
-			task_assigned_date = None,
-			task_completion_date = None
-		)
-	else:
-		models.TaskManager.objects.create(
-			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-			ec_sid = None,
-			task_id = 'GRDREJ',
-			task_assigned_to = None,
-			task_assigned_date = None,
-			task_completion_date = None
-		)	
-	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='PDACON').update(task_completion_date=timezone.now())    
-	return redirect('my_tasks')
-
 def peacon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	context = {"task_id":task_id, "task":task_queryset, }
@@ -524,7 +493,7 @@ def peacon_task_complete(request):
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 			ec_sid = None,
-			task_id = 'PUMCON',
+			task_id = 'PDACON',
 			task_assigned_to = None,
 			task_assigned_date = None,
 			task_completion_date = None
@@ -542,12 +511,12 @@ def peacon_task_complete(request):
 	models.TaskManager.objects.filter(pk=task_id,task_id='PEACON').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
 
-def pumcon_task(request, task_id=None):
+def pdacon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	context = {"task_id":task_id, "task":task_queryset, }
-	return render(request, "enquiries_task_pumcon.html", context=context)
+	return render(request, "enquiries_task_pdacon.html", context=context)
 
-def pumcon_task_complete(request):
+def pdacon_task_complete(request):
 	task_id = request.POST.get('task_id')
 	task_status = request.POST.get('task_status')
 	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
@@ -570,6 +539,28 @@ def pumcon_task_complete(request):
 			task_completion_date = None
 		)	
 	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='PDACON').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+def pumcon_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_pumcon.html", context=context)
+
+def pumcon_task_complete(request):
+	task_id = request.POST.get('task_id')
+	task_status = request.POST.get('task_status')
+	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
+	if task_status == "Pass":
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'COMPLT',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='PUMCON').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
 
@@ -587,6 +578,14 @@ def grdrej_task_complete(request):
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 			ec_sid = None,
 			task_id = 'MRKAMD',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = 'ESMSCR',
 			task_assigned_to = None,
 			task_assigned_date = None,
 			task_completion_date = None
@@ -614,21 +613,29 @@ def grdcon_task(request, task_id=None):
 	return render(request, "enquiries_task_grdcon.html", context=context)
 
 def grdcon_task_complete(request):
-	task_id = request.POST.get('task_id')
-	task_status = request.POST.get('task_status')
-	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
-	if task_status == "Pass":
-		models.TaskManager.objects.create(
-			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-			ec_sid = None,
-			task_id = 'ESMSCR',
-			task_assigned_to = None,
-			task_assigned_date = None,
-			task_completion_date = None
-		)
-	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='GRDCON').update(task_completion_date=timezone.now())    
-	return redirect('my_tasks')
+	task_queryset = models.TaskManager.objects.filter(task_id='GRDCON', task_completion_date__isnull=True)
+	if task_queryset.count() > 0:
+		for t in task_queryset:
+			enquiry_id = t.enquiry_id.enquiry_id
+			models.TaskManager.objects.create(
+                enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                ec_sid = None,
+                task_id = 'ESMSCR',
+                task_assigned_to = User.objects.get(id=33),
+                task_assigned_date = timezone.now(),
+                task_completion_date = None
+            )
+
+			#Get username to filter tasks
+			username = None
+			if request.user.is_authenticated:
+				username =request.user
+			
+			models.TaskManager.objects.filter(enquiry_id=t.enquiry_id.enquiry_id,task_id='GRDCON').update(task_completion_date=timezone.now())
+			models.TaskManager.objects.filter(enquiry_id=t.enquiry_id.enquiry_id,task_id='GRDCON').update(task_assigned_date=timezone.now())
+			models.TaskManager.objects.filter(enquiry_id=t.enquiry_id.enquiry_id,task_id='GRDCON').update(task_assigned_to=username)
+
+	return redirect('enquiries_home')
 
 def grdchg_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
