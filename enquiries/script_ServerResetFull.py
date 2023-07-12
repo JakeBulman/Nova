@@ -4,7 +4,7 @@ import django
 import datetime
 import pyodbc
 import pandas as pd
-
+from openpyxl import load_workbook
 
 
 sys.path.append('C:/Dev/redepplan')
@@ -45,7 +45,7 @@ def load_core_tables():
     if enquiry_id_list != '':
         enquiry_id_list = ' and sid in (' + enquiry_id_list + ')'
 
-    print(enquiry_id_list)
+    print("ENQ:" + enquiry_id_list)
 
     # # Get datalake data - Centre Enquiry Requests
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
@@ -189,6 +189,18 @@ def load_core_tables():
             pass
     
     df.apply(insert_to_model_ec, axis=1)
+
+    filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Type Of Script.xlsx")
+    workbook = load_workbook(filename)
+    sheet = workbook.active
+
+    for row in sheet.iter_rows():
+        ass_code = str(row[0].value).zfill(4)
+        comp_id = row[2].value
+        script_type = row[5].value
+
+        EnquiryComponents.objects.filter(eps_ass_code=ass_code,eps_com_id=comp_id).update(script_type=script_type)
+
 
     print("EC loaded:" + str(datetime.datetime.now()))
 

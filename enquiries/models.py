@@ -62,6 +62,7 @@ class EnquiryComponents(models.Model):
     eps_ass_name = models.CharField(max_length=50,null=True) #from cie.ca_products
     eps_comp_name = models.CharField(max_length=50,null=True) #from cie.ca_products
     ccm_measure = models.CharField(max_length=5,null=True)
+    script_type = models.CharField(max_length=50,null=True)
 
 class EnquiryComponentsHistory(models.Model):
     cer_sid = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_original_marks',null=True)

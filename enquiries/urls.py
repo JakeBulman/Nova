@@ -24,6 +24,8 @@ urlpatterns = [
     path('task_manager/manual_apportionment_task/<str:task_id>', views.manual_apportionment_task, name='manual-apportionment-task'),
     path('task_manager/setbie_task/<str:task_id>', views.setbie_task, name='setbie-task'),
     path('task_manager/setbie_task/<str:enquiry_id>/bie-complete/', views.complete_bie_view, name="bie-complete"),
+    path('task_manager/nrmacc_task/complete', views.nrmacc_task_complete, name='nrmacc-complete'),
+    path('task_manager/nrmacc_task/<str:task_id>', views.nrmacc_task, name='nrmacc-task'), 
     path('task_manager/misvrm_task/complete', views.misvrm_task_complete, name='misvrm-complete'),
     path('task_manager/misvrm_task/<str:task_id>', views.misvrm_task, name='misvrm-task'), 
     path('task_manager/pexmch_task/complete', views.pexmch_task_complete, name='pexmch-complete'),
@@ -60,6 +62,8 @@ urlpatterns = [
     path('enquiries_setbie_list', views.enquiries_bie_view, name='enquiries_setbie_list'),
     #Manual apportioment main screen
     path('manapp_list', views.manapp_list_view, name='manapp_list'),
+    #Non-RM main screen
+    path('nrmacc_list', views.nrmacc_list_view, name='nrmacc_list'),
     #MIS vs RM main screen
     path('misvrm_list', views.misvrm_list_view, name='misvrm_list'),
     #Previous Exminer Checks main screen

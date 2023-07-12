@@ -17,31 +17,32 @@ def run_algo():
         #TODO: JUSCHE logic goes here
         mis_data = MisReturnData.objects.filter(ec_sid=task.ec_sid.ec_sid).first()
         justification_string = mis_data.final_justification_code
-        if '4' in justification_string:
-            mis_data.selected_justification_code = '4'
-            mis_data.keying_required = 'Y'
-        elif '2' in justification_string:
-            mis_data.selected_justification_code = '2'
-            mis_data.keying_required = 'Y'
-        elif '3' in justification_string:
-            mis_data.selected_justification_code = '3'
-            mis_data.keying_required = 'Y'
-        elif '1' in justification_string:
-            mis_data.selected_justification_code = '1'
-            mis_data.keying_required = 'Y'
-        elif '5' in justification_string:
-            mis_data.selected_justification_code = '5'
-            mis_data.keying_required = 'N'
-        elif '6' in justification_string:
-            mis_data.selected_justification_code = '6'
-            mis_data.keying_required = 'Y'
-        elif '7' in justification_string:
-            mis_data.selected_justification_code = '7'
-            mis_data.keying_required = 'N'
-        elif '8' in justification_string:
-            mis_data.selected_justification_code = '8'
-            mis_data.keying_required = 'Y'
-        mis_data.save()
+        if justification_string is not None:
+            if '4' in justification_string:
+                mis_data.selected_justification_code = '4'
+                mis_data.keying_required = 'Y'
+            elif '2' in justification_string:
+                mis_data.selected_justification_code = '2'
+                mis_data.keying_required = 'Y'
+            elif '3' in justification_string:
+                mis_data.selected_justification_code = '3'
+                mis_data.keying_required = 'Y'
+            elif '1' in justification_string:
+                mis_data.selected_justification_code = '1'
+                mis_data.keying_required = 'Y'
+            elif '5' in justification_string:
+                mis_data.selected_justification_code = '5'
+                mis_data.keying_required = 'N'
+            elif '6' in justification_string:
+                mis_data.selected_justification_code = '6'
+                mis_data.keying_required = 'Y'
+            elif '7' in justification_string:
+                mis_data.selected_justification_code = '7'
+                mis_data.keying_required = 'N'
+            elif '8' in justification_string:
+                mis_data.selected_justification_code = '8'
+                mis_data.keying_required = 'Y'
+            mis_data.save()
 
         TaskManager.objects.create(
             enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),

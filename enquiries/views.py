@@ -38,6 +38,8 @@ def ear_home_view(request,*args, **kwargs):
 	botmar_fail_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTMAF', enquiry_tasks__task_completion_date__isnull=True)
 	misvrm_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRM', enquiry_tasks__task_completion_date__isnull=True)
 	misvrma_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRM', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	nrmacc_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NRMACC', enquiry_tasks__task_completion_date__isnull=True)
+	nrmacca_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NRMACC', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	pexmch_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True)
 	pexmcha_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	exmsla_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='EXMSLA', enquiry_tasks__task_completion_date__isnull=True)
@@ -69,7 +71,7 @@ def ear_home_view(request,*args, **kwargs):
 		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "esmcsv":esmcsv_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count,
 		"grdrel":grdrel_count, "grdrela":grdrela_count, "negcon":negcon_count, "negcona":negcona_count, "pdacon":pdacon_count, "pdacona":pdacona_count, 
 		"peacon":peacon_count, "peacon":peacona_count, "pumcon":pumcon_count, "pumcona":pumcona_count, "grdrej":grdrej_count, "grdreja":grdreja_count, "mrkamd":mrkamd_count, 
-		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count, 
+		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count, "nrmacc":nrmacc_count, "nrmacca":nrmacca_count
 		}
 	return render(request, "home_ear.html", context=context, )
 
@@ -126,6 +128,8 @@ def task_router_view(request):
 		return redirect('setbie-task', task_id=task_id)
 	if task_type == "MANAPP":
 		return redirect('manual-apportionment-task', task_id=task_id)
+	if task_type == "NRMACC":
+		return redirect('nrmacc-task', task_id=task_id)
 	if task_type == "MISVRM":
 		return redirect('misvrm-task', task_id=task_id)
 	if task_type == "PEXMCH":
@@ -231,20 +235,39 @@ def manual_apportionment(request):
 		task_assigned_date = timezone.now(),
 		task_completion_date = None
 	)
-	models.TaskManager.objects.create(
-		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
-		ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
-		task_id = 'ESMCSV',
-		task_assigned_to = None,
-		task_assigned_date = None,
-		task_completion_date = None
-	)
+	if models.EnquiryComponents.objects.get(ec_sid=apportion_script_id).script_type == "RM Assessor":
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
+			task_id = 'ESMCSV',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+	else:
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
+			task_id = 'NRMACC',
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)		
 
 	#complete the task
 	models.TaskManager.objects.filter(pk=apportion_task_id,task_id='MANAPP').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
 
+def nrmacc_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	context = {"task_id":task_id, "task":task_queryset, }
+	return render(request, "enquiries_task_nrmacc.html", context=context)
 
+def nrmacc_task_complete(request):
+	task_id = request.POST.get('task_id')
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='NRMACC').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
 
 def misvrm_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
@@ -804,6 +827,22 @@ def manapp_list_view(request):
 	context = {"cer": page_obj,}
 	return render(request, "enquiries_manual_apportionment.html", context=context)
 
+def nrmacc_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='NRMACC', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_nrmacc.html", context=context)
+
 def misvrm_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='MISVRM', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
@@ -857,7 +896,10 @@ def esmcsv_create_view(request):
 	if ec_queryset.count() > 0:
 		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
 		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
-		print(file_location)		
+		print(file_location)
+		username = None
+		if request.user.is_authenticated:
+			username =request.user		
 		with open(file_location, 'w', newline='') as file:
 			file.truncate()
 			writer = csv.writer(file)
@@ -872,6 +914,9 @@ def esmcsv_create_view(request):
 				creditor_number = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_creditor_no
 
 				writer.writerow([syllcomp,batch,session,candidate,centre,examiner_name, examiner_pos, creditor_number, ""])
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_completion_date=timezone.now())
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_assigned_date=timezone.now())
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_assigned_to=username)
 
 		models.EsmcsvDownloads.objects.create(
 			document = file_location,
@@ -881,13 +926,9 @@ def esmcsv_create_view(request):
 			)
 		
 			#Get username to filter tasks
-		username = None
-		if request.user.is_authenticated:
-			username =request.user
+
 		
-		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_completion_date=timezone.now())
-		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_assigned_date=timezone.now())
-		models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_assigned_to=username)
+
 
 	return redirect('esmcsv_list')
 
