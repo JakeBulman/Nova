@@ -4,10 +4,16 @@ import os
 import django
 from django.utils import timezone
 
+if os.getenv('DJANGO_DEVELOPMENT') == 'true':
+    path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
+    sys.path.append(path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+else:
+    sys.path.append('C:/Dev/redepplan')
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 
-sys.path.append('C:/Dev/redepplan')
-os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 django.setup()
+
 from enquiries.models import TaskManager, EnquiryPersonnelDetails, ScriptApportionment, EnquiryComponentElements, CentreEnquiryRequests, EnquiryComponents, EnquiryComponentsHistory
 from django.contrib.auth.models import User
 

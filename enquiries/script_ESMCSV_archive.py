@@ -2,9 +2,16 @@ import sys
 import os
 import django
 
-sys.path.append('C:/Dev/redepplan')
-os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
+if os.getenv('DJANGO_DEVELOPMENT') == 'true':
+    path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
+    sys.path.append(path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+else:
+    sys.path.append('C:/Dev/redepplan')
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
+
 django.setup()
+
 from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, ScriptApportionmentExtension, EsmcsvDownloads
 
 def run_algo():

@@ -3,9 +3,16 @@ import os
 import django
 import datetime
 
-sys.path.append('C:/Dev/redepplan')
-os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
+if os.getenv('DJANGO_DEVELOPMENT') == 'true':
+    path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
+    sys.path.append(path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+else:
+    sys.path.append('C:/Dev/redepplan')
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
+
 django.setup()
+
 from enquiries.models import CentreEnquiryRequests, TaskManager, ScriptApportionment, EnquiryComponentsPreviousExaminers, MisReturnData, ScriptApportionmentExtension, EsmcsvDownloads
 
 def clear_tables():
