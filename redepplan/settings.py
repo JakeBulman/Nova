@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-2__1mxyi+oga6whbk^wi-+=-c_ao80da)vjie#-s$lqcgi+xj-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost','*']
@@ -148,6 +148,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Override production variables if DJANGO_DEVELOPMENT env variable is true
-if os.getenv('DJANGO_DEVELOPMENT') == 'true':
-    from settings_dev import *  # or specific overrides

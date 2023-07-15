@@ -8,9 +8,19 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 """
 
 import os
-
+import sys
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'redepplan.settings_dev')
+if os.getenv('DJANGO_DEVELOPMENT') == 'true':
+    path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
+    sys.path.append(path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'redepplan.settings_dev')
+else:
+    sys.path.append('C:/Dev/redepplan')
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'redepplan.settings')
+
+
 
 application = get_asgi_application()
