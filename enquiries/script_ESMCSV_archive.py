@@ -1,8 +1,6 @@
 import sys
 import os
 import django
-from django.utils import timezone
-import datetime
 
 sys.path.append('C:/Dev/redepplan')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'

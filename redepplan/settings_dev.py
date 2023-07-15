@@ -86,7 +86,6 @@ WSGI_APPLICATION = 'redepplan.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -147,7 +146,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Override production variables if DJANGO_DEVELOPMENT env variable is true
-if os.getenv('DJANGO_DEVELOPMENT') == 'true':
-    from settings_dev import *  # or specific overrides

@@ -2,10 +2,21 @@ import sys
 import os
 import django
 import datetime
-sys.path.append('C:/Dev/redepplan')
+
+
+if os.getenv('DJANGO_DEVELOPMENT') == 'true':
+    path = os.path.join('C:\\Users\\bulmaj\\')
+    path = os.path.join(path,'OneDrive - ')
+    path = os.path.join(path,'Cambridge\\Desktop\Dev\\nova')
+    print(path)
+    sys.path.append(path)
+else:
+    sys.path.append('C:/Dev/redepplan')
+
+print(sys.path)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 django.setup()
-from enquiries.models import TaskManager, EnquiryComponents, EnquiryComponentsPreviousExaminers, EnquiryPersonnel, EnquiryPersonnelDetails, ScriptApportionment, CentreEnquiryRequests, ExaminerConflicts, ExaminerAvailability
+from enquiries.models import TaskManager, EnquiryComponents, EnquiryComponentsPreviousExaminers, EnquiryPersonnelDetails, ScriptApportionment, CentreEnquiryRequests, ExaminerConflicts, ExaminerAvailability
 from django.utils import timezone
 from django.db.models import Sum
 from django.contrib.auth.models import User

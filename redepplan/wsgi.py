@@ -1,12 +1,12 @@
-activate_this = 'C:/Users/bulmaj/Envs/redepplan/Scripts/activate_this.py'
-exec(open(activate_this).read(),dict(__file__=activate_this))
+# activate_this = 'C:/Users/bulmaj/Envs/redepplan/Scripts/activate_this.py'
+# exec(open(activate_this).read(),dict(__file__=activate_this))
 
 import os
 import sys
 import site
 
 # Add the site-packages of the chosen virtualenv to work with
-site.addsitedir('C:/Users/bulmaj/Envs/redepplan/Lib/site-packages')
+# site.addsitedir('C:/Users/bulmaj/Envs/redepplan/Lib/site-packages')
 
 # Add the app's directory to the PYTHONPATH
 sys.path.append('C:/Dev/redepplan')
