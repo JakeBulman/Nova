@@ -22,6 +22,13 @@ def run_algo():
         # TODO: actually check if grades exist...
         enquiry_id = task.enquiry_id.enquiry_id
         grade_exists = True
+
+        
+
+
+
+
+
         if grade_exists:
             grade_change_check = True
             if grade_change_check:

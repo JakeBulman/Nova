@@ -310,7 +310,11 @@ def misvrm_task_complete(request):
 
 def pexmch_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
+	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
+	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
+	#scripts = models.UniqueCreditor.objects.annotate(script_count=Count("creditors__exm_per_details__enpe_sid__apportion_examiner",distinct=True))
+	examiner_queryset = models.UniqueCreditor.objects.filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no')
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, }
 	return render(request, "enquiries_task_pexmch.html", context=context)
 
 def pexmch_task_complete(request):

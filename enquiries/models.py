@@ -122,6 +122,15 @@ class EnquiryComponentElements(models.Model):
     mark_after_enquiry = models.CharField(max_length=5, null=True)
     justification_code = models.CharField(max_length=5, null=True)
 
+class EnquiryGrades(models.Model):
+    enquiry_id = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_grades',null=True)
+    eps_ass_code = models.CharField(max_length=4,null=True)
+    eps_cand_no = models.CharField(max_length=10,null=True)
+    previous_grade = models.CharField(max_length=4,null=True)
+    previous_seq = models.CharField(max_length=4,null=True)
+    new_grade = models.CharField(max_length=4,null=True)
+    new_seq = models.CharField(max_length=4,null=True)
+
 class UniqueCreditor(models.Model):
     exm_creditor_no = models.CharField(max_length=8, unique=True, default=0)
     per_sid = models.CharField(max_length=8, unique=True, default=0)
