@@ -232,15 +232,15 @@ def manual_apportionment(request):
 		task_assigned_date = timezone.now(),
 		task_completion_date = None
 	)
-	models.TaskManager.objects.create(
-		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
-		ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
-		task_id = 'NEWMIS',
-		task_assigned_to = User.objects.get(username='NovaServer'),
-		task_assigned_date = timezone.now(),
-		task_completion_date = None
-	)
 	if models.EnquiryComponents.objects.get(ec_sid=apportion_script_id).script_type == "RM Assessor":
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
+			task_id = 'NEWMIS',
+			task_assigned_to = User.objects.get(username='NovaServer'),
+			task_assigned_date = timezone.now(),
+			task_completion_date = None
+		)
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
 			ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
@@ -270,6 +270,15 @@ def nrmacc_task(request, task_id=None):
 
 def nrmacc_task_complete(request):
 	task_id = request.POST.get('task_id')
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	models.TaskManager.objects.create(
+		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=task_queryset.enquiry_id),
+		ec_sid = models.EnquiryComponents.objects.get(ec_sid=task_queryset.ec_sid),
+		task_id = 'NEWMIS',
+		task_assigned_to = User.objects.get(username='NovaServer'),
+		task_assigned_date = timezone.now(),
+		task_completion_date = None
+	)
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='NRMACC').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
