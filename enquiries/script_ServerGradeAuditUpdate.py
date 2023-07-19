@@ -57,7 +57,7 @@ def load_core_tables():
             on erp.qgr_qgs_sid = qgrn.qgs_sid and qgrn.seq_no = ac.new_value
             where ac.record_type = "CAOM"
             --and ac.confirmation_status = "UNC"
-            and ac.field_name = "QGR_SEQ_NO_DERIVED"
+            and ac.field_name in ("QGR_SEQ_NO_DERIVED","QGR_SEQ_NO_MANUAL")
             and ac.ses_sid in ({session_id}) 
                                 ''', conn)
 

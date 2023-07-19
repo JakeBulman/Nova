@@ -33,7 +33,7 @@ def run_algo():
                 task_assigned_date = None,
                 task_completion_date = None
             )
-            TaskManager.objects.filter(pk=task.pk,task_id='RETMIS').update(task_assigned_to = User.objects.get(id=33),
+            TaskManager.objects.filter(pk=task.pk,task_id='RETMIS').update(task_assigned_to = User.objects.get(username='NovaServer'),
             task_assigned_date = timezone.now(),
 			task_completion_date = None
             )  

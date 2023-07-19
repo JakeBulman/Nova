@@ -223,7 +223,7 @@ def manual_apportionment(request):
 		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
 		ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
 		task_id = 'BOTAPP',
-		task_assigned_to = User.objects.get(id=14),
+		task_assigned_to = User.objects.get(username='RPABOT'),
 		task_assigned_date = timezone.now(),
 		task_completion_date = None
 	)
@@ -231,7 +231,7 @@ def manual_apportionment(request):
 		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
 		ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
 		task_id = 'NEWMIS',
-		task_assigned_to = User.objects.get(id=33),
+		task_assigned_to = User.objects.get(username='NovaServer'),
 		task_assigned_date = timezone.now(),
 		task_completion_date = None
 	)
@@ -298,7 +298,7 @@ def misvrm_task_complete(request):
 		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 		ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
 		task_id = 'JUSCHE',
-		task_assigned_to = User.objects.get(id=33),
+		task_assigned_to = User.objects.get(username='NovaServer'),
 		task_assigned_date = timezone.now(),
 		task_completion_date = None
 	)
@@ -402,7 +402,7 @@ def botmaf_task_complete(request):
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = None,
 				task_id = 'GDWAIT',
-                task_assigned_to = User.objects.get(id=33),
+                task_assigned_to = User.objects.get(username='NovaServer'),
                 task_assigned_date = timezone.now(),
                 task_completion_date = None
 			)
@@ -625,7 +625,7 @@ def grdcon_task_complete(request):
                 enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
                 ec_sid = None,
                 task_id = 'ESMSCR',
-                task_assigned_to = User.objects.get(id=33),
+                task_assigned_to = User.objects.get(username='NovaServer'),
                 task_assigned_date = timezone.now(),
                 task_completion_date = None
             )
@@ -1011,7 +1011,7 @@ def grdrel_create_view(request):
                 enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
                 ec_sid = None,
                 task_id = 'GRDMAT',
-                task_assigned_to = User.objects.get(id=33),
+                task_assigned_to = User.objects.get(username='NovaServer'),
                 task_assigned_date = timezone.now(),
                 task_completion_date = None
             )
@@ -1119,7 +1119,7 @@ def rpa_marks_keying_pass_view(request, script_id=None):
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = None,
 				task_id = 'GDWAIT',
-                task_assigned_to = User.objects.get(id=33),
+                task_assigned_to = User.objects.get(username='NovaServer'),
                 task_assigned_date = timezone.now(),
                 task_completion_date = None
 			)
