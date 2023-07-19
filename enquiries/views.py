@@ -805,14 +805,19 @@ def iec_fail_view(request, enquiry_id=None):
 	if enquiry_id is not None and request.method == 'POST':	
 		#Get scripts for this enquiry ID, this is a join from EC to ERP
 		#No need for script id, BIE is handled at Enquiry Level
-		#create a new task for the next step (AUTAPP)
-		models.TaskManager.objects.create(
+		this_task = models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 			ec_sid = None,
 			task_id = 'SETBIE',
 			task_assigned_to = None,
 			task_assigned_date = None,
 			task_completion_date = None
+		)
+		this_task.refresh_from_db()
+		print(this_task.pk)
+		models.SetBIEAudit.objects.create(
+			rpa_task_key = models.TaskManager.objects.get(pk=this_task.pk),
+			failure_reason = request.POST.get('rpa_fail')
 		)
 		#complete the task
 		models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())

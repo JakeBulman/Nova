@@ -24,10 +24,34 @@
             <form method="POST" action="{% url 'pause-enquiry' enquiry_id=cer.enquiry_id %}">
                 <button type="submit" title="Pause Enquiry" class="btn btn-outline-warning my-2" style="width:1000px">Pause Enquiry</button>
             </form>
-            <form method="POST" action="{% url 'iec-fail' enquiry_id=cer.enquiry_id %}">
+            <div class="text-center">
+                    <button type="submit" title="Fail" class="btn btn-outline-danger text-center" style="width:1000px"
+                    data-bs-toggle="modal" data-bs-target="#exampleModal{{cer.enquiry_id}}">Cancel Enquiry</button>
+            </div>
+
+    <div class="modal fade" id="exampleModal{{cer.enquiry_id}}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Set BIE Reason - {{cer.enquiry_id}}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form method="POST" action="{% url 'iec-fail' enquiry_id=cer.enquiry_id %}">
+                <input name="rpa_fail" id="listed" type="hidden" class="form-control" placeholder="Enquiry No.">
+                <div class="mb-3">
+                  <label for="message-text" class="col-form-label">Failure Reason:</label>
+                  <textarea class="form-control" id="message-text" name="rpa_fail"></textarea>
+                </div>
+                <button type="submit" title="Pass" class="btn btn-outline-primary" style="width:150px" data-bs-dismiss="modal">Continue</button>
                 <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
-                <button type="submit" title="Cancel Enquiry" class="btn btn-outline-danger my-2" style="width:1000px">Cancel Enquiry</button>
-            </form>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
             {% else %}
             <form method="POST" action="{% url 'prioritise-enquiry' enquiry_id=cer.enquiry_id %}">
                 <button disabled type="submit" title="Pause Enquiry" class="btn btn-outline-secondary my-2" style="width:1000px">Prioritise Enquiry</button>
