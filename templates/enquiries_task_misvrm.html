@@ -64,6 +64,8 @@
         <div>Please check the data returned on the MIS above for this script against the values in RM</div>
     </div>
 
+    {% if issue_reason %}<h2 class="text-center text-primary">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
+
     <div class="row text-center mt-5">
         <form method="POST" action="{% url 'misvrm-complete' %}" class="text-center">
         <input name="script_id" id="script_id" value={{task.ec_sid.ec_sid}} type="hidden" class="form-control">

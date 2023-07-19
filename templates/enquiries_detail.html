@@ -17,6 +17,9 @@
             {% else %}
             <h2 style="opacity: 0.0;" class="text-center text-danger">THIS ENQUIRY IS CANCELLED</h2>
             {% endif %}
+
+            {% if issue_reason %}<h2 class="text-center text-primary">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
+
             {% if bie_status != 'SETBIE' %}
             <form method="POST" action="{% url 'prioritise-enquiry' enquiry_id=cer.enquiry_id %}">
                 <button type="submit" title="Pause Enquiry" class="btn btn-outline-success my-2" style="width:1000px">Prioritise Enquiry</button>
@@ -24,7 +27,7 @@
             <form method="POST" action="{% url 'pause-enquiry' enquiry_id=cer.enquiry_id %}">
                 <button type="submit" title="Pause Enquiry" class="btn btn-outline-warning my-2" style="width:1000px">Pause Enquiry</button>
             </form>
-            <div class="text-center">
+            <div class="text-center mt-2">
                     <button type="submit" title="Fail" class="btn btn-outline-danger text-center" style="width:1000px"
                     data-bs-toggle="modal" data-bs-target="#exampleModal{{cer.enquiry_id}}">Cancel Enquiry</button>
             </div>

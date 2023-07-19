@@ -205,6 +205,11 @@ class SetBIEAudit(models.Model):
     rpa_task_key = models.ForeignKey(TaskManager, on_delete=models.CASCADE, null=True, related_name='task_bie_reason')
     failure_reason = models.TextField(null=True)
 
+class SetIssueAudit(models.Model):
+    enquiry_id = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.CASCADE, related_name='enquiry_issues')
+    issue_flag = models.IntegerField(default=1)
+    issue_reason = models.TextField(null=True)
+
 class MisReturnData(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, related_name='script_mis',null=True)
     eb_sid = models.ForeignKey(EnquiryBatches, to_field='eb_sid', on_delete=models.SET_NULL, related_name='batch_mis', null=True)
