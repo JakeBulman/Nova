@@ -35,10 +35,8 @@ def run_algo():
             #TODO add safety checks on file content (or lock down file)
             task_pk = None
 
-            try:
+            if TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).exists():
                 task_pk = TaskManager.objects.get(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).pk
-            except:
-                pass
             if task_pk is not None:
                 MisReturnData.objects.create(
                     eb_sid = EnquiryBatches.objects.get(eb_sid=eb_sid),

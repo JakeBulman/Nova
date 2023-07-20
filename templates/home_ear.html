@@ -162,7 +162,7 @@
       {% if remapp.count > 0 %}<span class="badge rounded-pill bg-danger">{{ remapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       {% if remappa.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ remappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Reapportionment when an examiner SLA is breached.</p>
-      <a href="{% url 'exmsla_list' %}" class="mt-auto btn btn-outline-primary">Go to Breaches</a>
+      <a href="{% url 'remapp_list' %}" class="mt-auto btn btn-outline-primary">Go to Breaches</a>
     </div>
   </div>
 
