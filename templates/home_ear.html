@@ -145,7 +145,7 @@
       {% if nrmacc.count > 0 %}<span class="badge rounded-pill bg-danger">{{ nrmacc.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       {% if nrmacca.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ nrmacca.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Scripts awaiting manual apportionment.</p>
-      <a href="{% url 'nrmacc_list' %}" class="mt-auto btn btn-outline-primary">Go to Apportionment</a>
+      <a href="{% url 'nrmacc_list' %}" class="mt-auto btn btn-outline-primary">Go to Scripts</a>
     </div>
   </div>  
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
@@ -173,6 +173,15 @@
       {% if remappa.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ remappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Reapportionment when an examiner SLA is breached.</p>
       <a href="{% url 'remapp_list' %}" class="mt-auto btn btn-outline-primary">Go to Breaches</a>
+    </div>
+  </div>
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">EPS Reapportionment</h5>
+      {% if remapf.count > 0 %}<span class="badge rounded-pill bg-danger">{{ remapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if remapfa.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ remapfa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      <p class="card-text">Reapportionment when an examiner SLA is breached.</p>
+      <a href="{% url 'remapf_list' %}" class="mt-auto btn btn-outline-primary">Go to Apportionment</a>
     </div>
   </div>
 

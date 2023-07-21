@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center mb-5">EAR Task - EPS Reapportionment</h1>
+
+<div class="container">
+    <div class="row text-center">
+        <a class="btn btn-secondary btn-lg my-2" href='/enquiries/task_manager/my_tasks'>Back to My Tasks</a>
+    </div>
+    <div class="row text-center my-3">
+        <h5>Task Summary</h5>
+        <table class="table table-sm table-bordered table-hover text-center">
+            <tr class="text-center">
+                <th>Task ID</th>
+                <td>{{ task.id }}</td>
+            </tr>
+            <tr class="text-center">
+                <th>Enquiry ID</th>
+                <td><a href='/enquiries/enquiries_detail/{{ task.enquiry_id.enquiry_id }}'>{{ task.enquiry_id.enquiry_id }}</a></td>
+            </tr>
+        </table>
+        <h5>Task Instruction</h5>
+        <div>Please reapportion this script in EPS</div>
+
+        <h5 class="my-3">Error Reason</h5>
+    </div>
+    <div class="row text-center m-5">
+        <div class="col-lg-3 align-self-center"></div>
+        <div class="col-lg-6 align-self-center">
+            <form method="POST" action="{% url 'remapf-complete' %}" class="text-center">
+                <input name="script_id" id="script_id" value={{task.ec_sid.ec_sid}} type="hidden" class="form-control">
+                <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                <input name="enquiry_id" id="enquiry_id" value={{task.enquiry_id.enquiry_id}} type="hidden" class="form-control">
+                <button type="submit" class="btn btn-success btn-lg my-4" style="width:300px">Complete Task</button>
+            </form>
+        </div>
+        <div class="col-lg-3 align-self-center"></div>
+        </div>  
+
+</div>
+
+
+
+{% endblock %}

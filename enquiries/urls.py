@@ -38,6 +38,8 @@ urlpatterns = [
     path('task_manager/exmsla_task/<str:task_id>', views.exmsla_task, name='exmsla-task'), 
     path('task_manager/remapp_task/complete', views.remapp_task_complete, name='remapp-complete'),
     path('task_manager/remapp_task/<str:task_id>', views.remapp_task, name='remapp-task'), 
+    path('task_manager/remapf_task/complete', views.remapf_task_complete, name='remapf-complete'),
+    path('task_manager/remapf_task/<str:task_id>', views.remapf_task, name='remapf-task'), 
     path('task_manager/negcon_task/complete', views.negcon_task_complete, name='negcon-complete'),
     path('task_manager/negcon_task/<str:task_id>', views.negcon_task, name='negcon-task'), 
     path('task_manager/pdacon_task/complete', views.pdacon_task_complete, name='pdacon-complete'),
@@ -78,6 +80,8 @@ urlpatterns = [
     path('exmsla_list', views.exmsla_list_view, name='exmsla_list'),
     #Re-do Examiner SAL breaches
     path('remapp_list', views.remapp_list_view, name='remapp_list'),
+    #Re-do Examiner SAL breaches - EPS Pickup
+    path('remapf_list', views.remapf_list_view, name='remapf_list'),
     #Release for GRDREL to file location
     path('grdrel_list', views.grdrel_list_view, name='grdrel_list'),
     path('grdrel_create', views.grdrel_create_view, name='grdrel_create'),
