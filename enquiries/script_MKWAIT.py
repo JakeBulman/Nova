@@ -22,14 +22,14 @@ def run_algo():
 
         app_complete_check = None
         #check if completed apportion task is available
-        app_complete_check = TaskManager.objects.filter(enquiry_id=task.enquiry_id.enquiry_id,task_id='BOTAPP', task_completion_date__isnull=False).update(task_completion_date=timezone.now())
+        app_complete_check = TaskManager.objects.filter(enquiry_id=task.enquiry_id.enquiry_id,task_id='BOTAPP', task_completion_date__isnull=False)
 
         if app_complete_check:
             TaskManager.objects.create(
                 enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
                 ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
                 task_id = 'BOTMAR',
-                task_assigned_to = User.objects.get(id=21),
+                task_assigned_to = User.objects.get(username='RPABOT2'),
                 task_assigned_date = timezone.now(),
                 task_completion_date = None
             )

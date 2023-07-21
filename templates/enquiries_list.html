@@ -93,9 +93,9 @@
                 <th>Syllabus & Vers</th>
                 <th>Component IDs</th>
                 <th>Start Date</th>
-                <th>Completion Date</th>
                 <th>EPS B.I.E</th>
                 <th>IEC Pass</th>
+                <th>IEC Issue</th>
                 <th>IEC Fail</th>
             </tr>
             {% for x in cer %}
@@ -109,16 +109,69 @@
                         <td>{{ y.eps_ass_code }}/{{ y.eps_ass_ver_no }}</td>
                         <td>{% for z in y.enquiry_parts.all %} {{ z.eps_com_id }} {% endfor %}</td>
                         <td>{{ x.eps_creation_date }}</td>
-                        <td>{{ x.eps_completion_date }}</td>
                         <td>{{ y.booked_in_error_ind }}</td>
                         <td><form method="POST" action="{% url 'iec-pass' enquiry_id=x.enquiry_id %}" class="text-center">
                             <button type="submit" title="Pass IEC" class="btn btn-outline-success" style="width:70px">Pass</button>
                         </form></td>
-                        <td><form method="POST" action="{% url 'iec-fail' enquiry_id=x.enquiry_id %}" class="text-center">
-                            <input name="listed" id="listed" type="hidden" class="form-control" placeholder="Enquiry No.">
-                            <button type="submit" title="Fail IEC" class="btn btn-outline-danger" style="width:70px">Fail</button>
-                        </form></td>
+                        <td>
+                            <div class="text-center">
+                            <button type="submit" title="Issue" class="btn btn-outline-primary text-center" style="width:70px"
+                            data-bs-toggle="modal" data-bs-target="#issueModal{{x.enquiry_id}}">Issue</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-center">
+                            <button type="submit" title="Fail" class="btn btn-outline-danger text-center" style="width:70px"
+                            data-bs-toggle="modal" data-bs-target="#exampleModal{{x.enquiry_id}}">Fail</button>
+                            </div>
+                        </td>
                     </tr>
+
+
+
+
+                <div class="modal fade" id="issueModal{{x.enquiry_id}}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="issueModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Set Issue Reason - {{x.enquiry_id}}</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <form method="POST" action="{% url 'iec-issue' enquiry_id=x.enquiry_id %}">
+                            <input name="rpa_fail" id="listed" type="hidden" class="form-control" placeholder="Enquiry No.">
+                            <div class="mb-3">
+                              <label for="message-text" class="col-form-label">Issue Reason:</label>
+                              <textarea class="form-control" id="message-text" name="rpa_fail"></textarea>
+                            </div>
+                            <button type="submit" title="Pass" class="btn btn-outline-primary" style="width:150px" data-bs-dismiss="modal">Continue</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="modal fade" id="exampleModal{{x.enquiry_id}}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Set BIE Reason - {{x.enquiry_id}}</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <form method="POST" action="{% url 'iec-fail' enquiry_id=x.enquiry_id %}">
+                            <input name="rpa_fail" id="listed" type="hidden" class="form-control" placeholder="Enquiry No.">
+                            <div class="mb-3">
+                              <label for="message-text" class="col-form-label">Failure Reason:</label>
+                              <textarea class="form-control" id="message-text" name="rpa_fail"></textarea>
+                            </div>
+                            <button type="submit" title="Pass" class="btn btn-outline-primary" style="width:150px" data-bs-dismiss="modal">Continue</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                 {% endfor %}
             {% endfor %}
         </table>

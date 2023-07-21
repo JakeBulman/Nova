@@ -65,7 +65,7 @@ def run_algo():
             enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
             ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
             task_id = 'RETMIS',
-            task_assigned_to = User.objects.get(id=33),
+            task_assigned_to = User.objects.get(username='NovaServer'),
             task_assigned_date = timezone.now(),
             task_completion_date = None
         )

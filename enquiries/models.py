@@ -191,6 +191,7 @@ class ScriptApportionment(models.Model):
     enpe_sid = models.ForeignKey(EnquiryPersonnel, to_field='enpe_sid', on_delete=models.SET_NULL, null=True, related_name='apportion_examiner')
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='apportion_script')
     script_marked = models.IntegerField(default=1)
+    apportionment_invalidated = models.IntegerField(default=0)
 
 class ScriptApportionmentExtension(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='script_extension')
@@ -200,6 +201,15 @@ class ScriptApportionmentExtension(models.Model):
 class RpaFailureAudit(models.Model):
     rpa_task_key = models.ForeignKey(TaskManager, on_delete=models.CASCADE, null=True, related_name='task_manager_task')
     failure_reason = models.TextField(null=True)
+
+class SetBIEAudit(models.Model):
+    rpa_task_key = models.ForeignKey(TaskManager, on_delete=models.CASCADE, null=True, related_name='task_bie_reason')
+    failure_reason = models.TextField(null=True)
+
+class SetIssueAudit(models.Model):
+    enquiry_id = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.CASCADE, related_name='enquiry_issues')
+    issue_flag = models.IntegerField(default=1)
+    issue_reason = models.TextField(null=True)
 
 class MisReturnData(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, related_name='script_mis',null=True)
