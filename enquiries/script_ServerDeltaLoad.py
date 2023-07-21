@@ -130,22 +130,25 @@ def load_core_tables():
                 stud_name = row['stud_name'],
         )
         else:
-            EnquiryRequestParts.objects.create(
-                erp_sid = row['erp_sid'],
-                cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
-                service_code = row['service_code'],
-                eps_ses_sid = row['eps_ses_sid'],
-                eps_ass_code = row['eps_ass_code'],
-                eps_ass_ver_no = row['eps_ass_ver_no'],
-                eps_option_code = row['eps_option_code'],
-                eps_cand_unique_id = row['eps_cand_unique_id'],
-                eps_cand_id = row['eps_cand_id'],
-                eps_centre_id = row['eps_centre_id'],
-                eps_comp_ind = row['eps_comp_ind'],
-                eps_script_measure = row['eps_script_measure'],
-                booked_in_error_ind = row['booked_in_error_ind'],
-                stud_name = row['stud_name'],
-        )
+            try:
+                EnquiryRequestParts.objects.create(
+                    erp_sid = row['erp_sid'],
+                    cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
+                    service_code = row['service_code'],
+                    eps_ses_sid = row['eps_ses_sid'],
+                    eps_ass_code = row['eps_ass_code'],
+                    eps_ass_ver_no = row['eps_ass_ver_no'],
+                    eps_option_code = row['eps_option_code'],
+                    eps_cand_unique_id = row['eps_cand_unique_id'],
+                    eps_cand_id = row['eps_cand_id'],
+                    eps_centre_id = row['eps_centre_id'],
+                    eps_comp_ind = row['eps_comp_ind'],
+                    eps_script_measure = row['eps_script_measure'],
+                    booked_in_error_ind = row['booked_in_error_ind'],
+                    stud_name = row['stud_name'],
+                )
+            except:
+                pass
 
     df.apply(insert_to_model_erp, axis=1)
 
@@ -198,20 +201,23 @@ def load_core_tables():
                 ccm_measure = row['ccm_measure'],
             )
         else:
-            EnquiryComponents.objects.create(
-                ec_sid = row['ec_sid'],
-                erp_sid = EnquiryRequestParts.objects.only('erp_sid').get(erp_sid=row['erp_sid']),
-                eps_ses_sid = row['eps_ses_sid'],
-                eps_ses_name = row['eps_ses_name'],
-                eps_ass_code = row['eps_ass_code'],
-                eps_ass_ver_no = row['eps_ass_ver_no'],
-                eps_com_id = row['eps_com_id'],
-                eps_qual_id = row['eps_qual_id'],
-                eps_qual_name = row['eps_qual_name'],
-                eps_ass_name = row['eps_ass_name'],
-                eps_comp_name = row['eps_comp_name'],
-                ccm_measure = row['ccm_measure'],
-            )
+            try:
+                EnquiryComponents.objects.create(
+                    ec_sid = row['ec_sid'],
+                    erp_sid = EnquiryRequestParts.objects.only('erp_sid').get(erp_sid=row['erp_sid']),
+                    eps_ses_sid = row['eps_ses_sid'],
+                    eps_ses_name = row['eps_ses_name'],
+                    eps_ass_code = row['eps_ass_code'],
+                    eps_ass_ver_no = row['eps_ass_ver_no'],
+                    eps_com_id = row['eps_com_id'],
+                    eps_qual_id = row['eps_qual_id'],
+                    eps_qual_name = row['eps_qual_name'],
+                    eps_ass_name = row['eps_ass_name'],
+                    eps_comp_name = row['eps_comp_name'],
+                    ccm_measure = row['ccm_measure'],
+                )
+            except:
+                pass
     
     df.apply(insert_to_model_ec, axis=1)
 
@@ -252,11 +258,14 @@ def load_core_tables():
                 enpe_eper_per_sid = row['eper_per_sid'],
             )
         else:
-            EnquiryBatches.objects.create(
-                eb_sid = row['eb_sid'],
-                created_date = row['created_date'],
-                enpe_eper_per_sid = row['eper_per_sid'],
-            )
+            try:
+                EnquiryBatches.objects.create(
+                    eb_sid = row['eb_sid'],
+                    created_date = row['created_date'],
+                    enpe_eper_per_sid = row['eper_per_sid'],
+                )
+            except:
+                pass
 
     df.apply(insert_to_model_eb, axis=1)
     print("EB loaded:" + str(datetime.datetime.now()))
@@ -288,14 +297,17 @@ def load_core_tables():
                 justification_code = row['justification_code'],
             )   
         else:
-            EnquiryComponentElements.objects.create(
-                ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
-                ece_status = row['ece_status'],
-                eb_sid = EnquiryBatches.objects.only('eb_sid').filter(eb_sid=row['eb_sid']).first(),
-                clerical_mark = row['clerical_mark'],
-                mark_after_enquiry = row['mark_after_enquiry'],
-                justification_code = row['justification_code'],
-            )   
+            try:
+                EnquiryComponentElements.objects.create(
+                    ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
+                    ece_status = row['ece_status'],
+                    eb_sid = EnquiryBatches.objects.only('eb_sid').filter(eb_sid=row['eb_sid']).first(),
+                    clerical_mark = row['clerical_mark'],
+                    mark_after_enquiry = row['mark_after_enquiry'],
+                    justification_code = row['justification_code'],
+                )   
+            except:
+                pass
 
 
     df.apply(insert_to_model_ec, axis=1)
@@ -376,11 +388,14 @@ def load_core_tables():
                 per_sid = UniqueCreditor.objects.only('per_sid').get(per_sid=row['per_sid']),
             )
         else:
-            EnquiryPersonnel.objects.create(
-                enpe_sid = row['enpe_sid'],
-                sp_sid = row['sp_sid'],
-                per_sid = UniqueCreditor.objects.only('per_sid').get(per_sid=row['per_sid']),
-            )
+            try:
+                EnquiryPersonnel.objects.create(
+                    enpe_sid = row['enpe_sid'],
+                    sp_sid = row['sp_sid'],
+                    per_sid = UniqueCreditor.objects.only('per_sid').get(per_sid=row['per_sid']),
+                )
+            except:
+                pass
     
     df.apply(insert_to_model_enpe, axis=1)
 
@@ -440,21 +455,24 @@ def load_core_tables():
                 panel_size = row['panel_size'],
             )
         else:
-            EnquiryPersonnelDetails.objects.create(
-                enpe_sid = EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=row['enpe_sid']),
-                sp_sid = row['sp_sid'],
-                ass_code = row['ass_code'],
-                com_id = row['com_id'],
-                sp_name = row['sp_name'],
-                sp_ses_sid = row['sp_ses_sid'],
-                sp_use_esm_ind = row['sp_use_esm_ind'],
-                session = row['session'],
-                exm_creditor_no = row['exm_creditor_no'],
-                exm_examiner_no = row['exm_examiner_no'],
-                spp_sid = row['spp_sid'],
-                ear_approval_ind = row['ear_approval_ind'],
-                panel_size = row['panel_size'],
-            )
+            try:
+                EnquiryPersonnelDetails.objects.create(
+                    enpe_sid = EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=row['enpe_sid']),
+                    sp_sid = row['sp_sid'],
+                    ass_code = row['ass_code'],
+                    com_id = row['com_id'],
+                    sp_name = row['sp_name'],
+                    sp_ses_sid = row['sp_ses_sid'],
+                    sp_use_esm_ind = row['sp_use_esm_ind'],
+                    session = row['session'],
+                    exm_creditor_no = row['exm_creditor_no'],
+                    exm_examiner_no = row['exm_examiner_no'],
+                    spp_sid = row['spp_sid'],
+                    ear_approval_ind = row['ear_approval_ind'],
+                    panel_size = row['panel_size'],
+                )
+            except:
+                pass
     
     df.apply(insert_to_model_enpee, axis=1)
 
@@ -515,21 +533,24 @@ def load_core_tables():
             )
 
         else:
-            EnquiryComponentsHistory.objects.create(
-            cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
-            ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
-            eps_ses_sid = row['ses_sid'],
-            eps_ass_code = row['ass_code'],
-            eps_com_id = row['com_id'],
-            eps_cnu_id = row['cnu_id'],
-            eps_cand_no = row['cand_no'],
-            exm_position = row['exm_position'],
-            kbr_code = row['kbr_code'],
-            kbr_reason = row['kbr_reason'],
-            current_mark = row['current_mark'],
-            ear_mark = row['ear_mark'],
-            ear_mark_alt = row['ear_mark_alt'],
-            )
+            try:
+                EnquiryComponentsHistory.objects.create(
+                cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
+                ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
+                eps_ses_sid = row['ses_sid'],
+                eps_ass_code = row['ass_code'],
+                eps_com_id = row['com_id'],
+                eps_cnu_id = row['cnu_id'],
+                eps_cand_no = row['cand_no'],
+                exm_position = row['exm_position'],
+                kbr_code = row['kbr_code'],
+                kbr_reason = row['kbr_reason'],
+                current_mark = row['current_mark'],
+                ear_mark = row['ear_mark'],
+                ear_mark_alt = row['ear_mark_alt'],
+                )
+            except:
+                pass
         
     df.apply(insert_to_model_enpee, axis=1)
 
@@ -586,18 +607,21 @@ def load_core_tables():
             )
 
         else:
-            EnquiryComponentsExaminerChecks.objects.create(
-            cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
-            ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
-            eps_ses_sid = row['eps_ses_id'],
-            eps_ass_code = row['eps_ass_code'],
-            eps_com_id = row['eps_com_id'],
-            eps_cnu_id = row['eps_cnu_id'],
-            eps_cand_no = row['eps_cand_no'],
-            exm_position = row['exm_position'],
-            kbr_code = row['kbr_code'],
-            kbr_reason = row['kbr_reason'],
-            )
+            try:
+                EnquiryComponentsExaminerChecks.objects.create(
+                cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
+                ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
+                eps_ses_sid = row['eps_ses_id'],
+                eps_ass_code = row['eps_ass_code'],
+                eps_com_id = row['eps_com_id'],
+                eps_cnu_id = row['eps_cnu_id'],
+                eps_cand_no = row['eps_cand_no'],
+                exm_position = row['exm_position'],
+                kbr_code = row['kbr_code'],
+                kbr_reason = row['kbr_reason'],
+                )
+            except:
+                pass
         
     df.apply(insert_to_model_enpee, axis=1)
 

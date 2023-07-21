@@ -162,6 +162,7 @@ cython_debug/
 #.idea/
 enquiries/__pycache__/views.cpython-310.pyc
 enquiries/__pycache__/
+redepplan/__pycache__/
 redepplan/.bashrc
 redepplan/wsgi.py
 
