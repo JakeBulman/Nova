@@ -547,7 +547,7 @@ def remapp_task_complete(request):
 		)		
 
 	#complete the task
-	models.TaskManager.objects.filter(pk=apportion_task_id,task_id='MANAPP').update(task_completion_date=timezone.now())    
+	models.TaskManager.objects.filter(pk=apportion_task_id,task_id='REMAPP').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
 
 
