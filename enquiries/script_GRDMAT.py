@@ -42,7 +42,9 @@ def run_algo():
             print('OUTCON')
         else:
             #check if valid grade change value exists, else do nothing
+            print("grdcon check 1")
             if EnquiryGrades.objects.filter(enquiry_id=enquiry_id).exists():
+                print("grdcon check 2")
                 previous_grade = EnquiryGrades.objects.get(enquiry_id=enquiry_id).previous_grade
                 new_grade = EnquiryGrades.objects.get(enquiry_id=enquiry_id).new_grade
                 if previous_grade == new_grade:

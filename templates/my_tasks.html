@@ -19,7 +19,6 @@
 {% for t in tasks %}
 
 <div class="card m-3" style="width: 18rem; ">
-    <img class="card-img-top" src="{% static 'admin/img/placeholder-image.png' %}" alt="Placeholder Icon">
     <div class="card-body">
         <h5 class="card-title">{{t.task_id}}</h5>
         <h6 class="card-subtitle mb-2 text-muted">Enquiry: {{t.enquiry_id.enquiry_id}}</h6>

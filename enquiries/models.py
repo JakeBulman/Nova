@@ -105,9 +105,22 @@ class TaskManager(models.Model):
     task_assigned_date = models.DateTimeField(null=True) 
     task_completion_date = models.DateTimeField(null=True)    
 
+class TaskTeams(models.Model):
+    team_name = models.CharField(max_length=20, unique=True, default='')
+
 class TaskTypes(models.Model):
     task_id = models.CharField(max_length=5, unique=True, default='')
     task_description = models.TextField
+    task_team = models.ForeignKey(TaskTeams, on_delete=models.SET_NULL, null=True)
+
+class TaskUserPrimary(models.Model):
+    task_user  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    primary_team = models.ForeignKey(TaskTeams, on_delete=models.SET_NULL, null=True)
+    primary_status = models.CharField(max_length=2, unique=True, default='')
+
+class TaskUserSecondary(models.Model):
+    task_user  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    secondary_team = models.ForeignKey(TaskTeams, on_delete=models.SET_NULL, null=True)
 
 class EnquiryBatches(models.Model):   
     eb_sid = models.CharField(max_length=8, unique=True, default=0)

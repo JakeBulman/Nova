@@ -55,8 +55,7 @@ urlpatterns = [
     path('task_manager/grdcon_task/complete', views.grdcon_task_complete, name='grdcon-complete'),
     path('task_manager/grdcon_task/<str:task_id>', views.grdcon_task, name='grdcon-task'), 
     path('task_manager/grdchg_task/complete', views.grdchg_task_complete, name='grdchg-complete'),
-    path('task_manager/grdchg_task/<str:task_id>', views.grdchg_task, name='grdchg-task'),  
-
+    path('task_manager/grdchg_task/<str:task_id>', views.grdchg_task, name='grdchg-task'),   
 
     ### Task List Control ### 
 
@@ -82,9 +81,16 @@ urlpatterns = [
     path('remapp_list', views.remapp_list_view, name='remapp_list'),
     #Re-do Examiner SAL breaches - EPS Pickup
     path('remapf_list', views.remapf_list_view, name='remapf_list'),
-    #Release for GRDREL to file location
-    path('grdrel_list', views.grdrel_list_view, name='grdrel_list'),
+    #Release for GRDREL 
     path('grdrel_create', views.grdrel_create_view, name='grdrel_create'),
+    #Previous Exminer Checks main screen
+    path('negcon_list', views.negcon_list_view, name='negcon_list'),
+    #Previous Exminer Checks main screen
+    path('peacon_list', views.peacon_list_view, name='peacon_list'),
+    #Previous Exminer Checks main screen
+    path('pdacon_list', views.pdacon_list_view, name='pdacon_list'),
+    #Release for OUTCON
+    path('outcon_create', views.outcon_create_view, name='outcon_create'),
 
     ### Enquiry Detail Control ###
 

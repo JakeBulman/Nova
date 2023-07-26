@@ -135,23 +135,23 @@ def run_algo():
                         #script_marked is default to 0
                     )
 
-                    TaskManager.objects.create(
-                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                        ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                        task_id = 'BOTAPP',
-                        task_assigned_to = User.objects.get(username='RPABOT'),
-                        task_assigned_date = timezone.now(),
-                        task_completion_date = None
-                    )
-                    TaskManager.objects.create(
-                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                        ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                        task_id = 'NEWMIS',
-                        task_assigned_to = None,
-                        task_assigned_date = None,
-                        task_completion_date = None
-                    )
                     if EnquiryComponents.objects.get(ec_sid=script_id).script_type == "RM Assessor":
+                        TaskManager.objects.create(
+                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+                            ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
+                            task_id = 'BOTAPP',
+                            task_assigned_to = User.objects.get(username='RPABOT'),
+                            task_assigned_date = timezone.now(),
+                            task_completion_date = None
+                        )
+                        TaskManager.objects.create(
+                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+                            ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
+                            task_id = 'NEWMIS',
+                            task_assigned_to = User.objects.get(username='NovaServer'),
+                            task_assigned_date = timezone.now(),
+                            task_completion_date = None
+                        )
                         TaskManager.objects.create(
                             enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
@@ -168,7 +168,7 @@ def run_algo():
                             task_assigned_to = None,
                             task_assigned_date = None,
                             task_completion_date = None
-                        )	
+                        )		
                 else:
                     #AUTAPP not successful, send to manual apportionement
                     TaskManager.objects.create(

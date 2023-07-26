@@ -66,6 +66,9 @@ def ear_home_view(request,*args, **kwargs):
 	grdcona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDCON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	grdchg_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDCHG', enquiry_tasks__task_completion_date__isnull=True)
 	grdchga_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDCHG', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	outcon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True)
+	outcona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+
 
 
 	context = {"mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
@@ -74,6 +77,7 @@ def ear_home_view(request,*args, **kwargs):
 		"grdrel":grdrel_count, "grdrela":grdrela_count, "negcon":negcon_count, "negcona":negcona_count, "pdacon":pdacon_count, "pdacona":pdacona_count, 
 		"peacon":peacon_count, "peacon":peacona_count, "pumcon":pumcon_count, "pumcona":pumcona_count, "grdrej":grdrej_count, "grdreja":grdreja_count, "mrkamd":mrkamd_count, 
 		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count, "nrmacc":nrmacc_count, "nrmacca":nrmacca_count
+		, "outcon":outcon_count, "outcona":outcona_count
 		}
 	return render(request, "home_ear.html", context=context, )
 
@@ -118,7 +122,7 @@ def my_tasks_view(request):
 		user = request.user
 	#Get task objects for this user
 	task_queryset = models.TaskManager.objects.filter(task_assigned_to=user,task_completion_date__isnull=True)
-	task_count = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','GRDNEG','ESMCSV','ESMSCR']).count()
+	task_count = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','GRDNEG','ESMCSV','ESMSCR','GRDREL','OUTCON']).count()
 	context = {"tasks": task_queryset, "task_count": task_count}
 	return render(request, "my_tasks.html", context=context)
 
@@ -174,7 +178,7 @@ def new_task_view(request):
 		username =request.user
 	#Caclulate next task in the queue
 	try:
-		next_task_id = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','GRDNEG','ESMCSV','ESMSCR']).first().pk
+		next_task_id = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON']).first().pk
 	except:
 		next_task_id = None
 	#Set the newest task to this user
@@ -230,15 +234,15 @@ def manual_apportionment(request):
 		#script_marked is default to 1
 	)
 
-	models.TaskManager.objects.create(
-		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
-		ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
-		task_id = 'BOTAPP',
-		task_assigned_to = User.objects.get(username='RPABOT'),
-		task_assigned_date = timezone.now(),
-		task_completion_date = None
-	)
 	if models.EnquiryComponents.objects.get(ec_sid=apportion_script_id).script_type == "RM Assessor":
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
+			task_id = 'BOTAPP',
+			task_assigned_to = User.objects.get(username='RPABOT'),
+			task_assigned_date = timezone.now(),
+			task_completion_date = None
+		)
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
 			ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
@@ -278,8 +282,8 @@ def nrmacc_task_complete(request):
 	task_id = request.POST.get('task_id')
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	models.TaskManager.objects.create(
-		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=task_queryset.enquiry_id),
-		ec_sid = models.EnquiryComponents.objects.get(ec_sid=task_queryset.ec_sid),
+		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=task_queryset.enquiry_id.enquiry_id),
+		ec_sid = models.EnquiryComponents.objects.get(ec_sid=task_queryset.ec_sid.ec_sid),
 		task_id = 'NEWMIS',
 		task_assigned_to = User.objects.get(username='NovaServer'),
 		task_assigned_date = timezone.now(),
@@ -699,23 +703,23 @@ def grdrej_task_complete(request):
 	task_id = request.POST.get('task_id')
 	task_status = request.POST.get('task_status')
 	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
-	if task_status == "Pass":
-		models.TaskManager.objects.create(
-			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-			ec_sid = None,
-			task_id = 'MRKAMD',
-			task_assigned_to = None,
-			task_assigned_date = None,
-			task_completion_date = None
-		)
-		models.TaskManager.objects.create(
-			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-			ec_sid = None,
-			task_id = 'ESMSCR',
-			task_assigned_to = None,
-			task_assigned_date = None,
-			task_completion_date = None
-		)
+	# if task_status == "Pass":
+	models.TaskManager.objects.create(
+		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+		ec_sid = None,
+		task_id = 'MRKAMD',
+		task_assigned_to = None,
+		task_assigned_date = None,
+		task_completion_date = None
+	)
+		# models.TaskManager.objects.create(
+		# 	enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+		# 	ec_sid = None,
+		# 	task_id = 'ESMSCR',
+		# 	task_assigned_to = None,
+		# 	task_assigned_date = None,
+		# 	task_completion_date = None
+		# )
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='GRDREJ').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
@@ -729,6 +733,14 @@ def mrkamd_task_complete(request):
 	task_id = request.POST.get('task_id')
 	task_status = request.POST.get('task_status')
 	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
+	models.TaskManager.objects.create(
+		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+		ec_sid = None,
+		task_id = 'PUMMAT',
+		task_assigned_to = None,
+		task_assigned_date = None,
+		task_completion_date = None
+	)
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='MRKAMD').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
@@ -746,7 +758,7 @@ def grdcon_task_complete(request):
 			models.TaskManager.objects.create(
                 enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
                 ec_sid = None,
-                task_id = 'ESMSCR',
+                task_id = 'OUTCON',
                 task_assigned_to = User.objects.get(username='NovaServer'),
                 task_assigned_date = timezone.now(),
                 task_completion_date = None
@@ -776,7 +788,7 @@ def grdchg_task_complete(request):
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 			ec_sid = None,
-			task_id = 'ESMSCR',
+			task_id = 'OUTCON',
 			task_assigned_to = None,
 			task_assigned_date = None,
 			task_completion_date = None
@@ -784,6 +796,31 @@ def grdchg_task_complete(request):
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='GRDCHG').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
+
+def outcon_create_view(request):
+	task_queryset = models.TaskManager.objects.filter(task_id='OUTCON', task_completion_date__isnull=True)
+	if task_queryset.count() > 0:
+		for t in task_queryset:
+			enquiry_id = t.enquiry_id.enquiry_id
+			models.TaskManager.objects.create(
+                enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                ec_sid = None,
+                task_id = 'PUMMAT',
+                task_assigned_to = User.objects.get(username='NovaServer'),
+                task_assigned_date = timezone.now(),
+                task_completion_date = None
+            )
+
+			#Get username to filter tasks
+			username = None
+			if request.user.is_authenticated:
+				username =request.user
+			
+			models.TaskManager.objects.filter(enquiry_id=t.enquiry_id.enquiry_id,task_id='OUTCON').update(task_completion_date=timezone.now())
+			models.TaskManager.objects.filter(enquiry_id=t.enquiry_id.enquiry_id,task_id='OUTCON').update(task_assigned_date=timezone.now())
+			models.TaskManager.objects.filter(enquiry_id=t.enquiry_id.enquiry_id,task_id='OUTCON').update(task_assigned_to=username)
+
+	return redirect('enquiries_home')
 
 def complete_bie_view(request, enquiry_id=None):
 	if enquiry_id is not None and request.method == 'GET':
@@ -1177,21 +1214,6 @@ def remapf_list_view(request):
 	return render(request, "enquiries_remapf.html", context=context)
 
 
-def grdrel_list_view(request):
-	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDREL', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries_grdrel.html", context=context)
-
 def grdrel_create_view(request):
 	task_queryset = models.TaskManager.objects.filter(task_id='GRDREL', task_completion_date__isnull=True)
 	if task_queryset.count() > 0:
@@ -1217,8 +1239,53 @@ def grdrel_create_view(request):
 
 	return redirect('enquiries_home')
 
+def negcon_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NEGCON', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_negcon.html", context=context)
 
+def pdacon_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PDACON', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_peacon.html", context=context)
 
+def peacon_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEACON', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_peacon.html", context=context)
 
 def enquiries_rpa_apportion_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
