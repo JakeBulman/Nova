@@ -2,6 +2,8 @@
 
 {% block content %}
 
+{% load mathfilters %}
+
 <h1 class="display-5 text-center mb-5">EAR Task - Mark Amendment</h1>
 
 <div class="container">
@@ -26,10 +28,8 @@
             <tr class="text-center">
                 <th>Syllabus</th>
                 <td>{% for ec in task.enquiry_id.enquiries.all %}{{ ec.eps_ass_code }}{% endfor %}</td>
-                <th>Components</th>
-                <td>{% for ec in task.enquiry_id.enquiries.all %}
-                    {% for ec2 in ec.enquiry_parts.all %}{{ ec2.eps_com_id }},{% endfor %}
-                    {% endfor %}</td>
+                <th></th>
+                <td></td>
             </tr>
         </table>
         <h5>Task Instruction</h5>
@@ -37,13 +37,49 @@
 
         <table class="table table-sm table-bordered table-hover text-center mt-3">
             <tr class="text-center">
-                <th>Previous Grade</th>
-                <td>TEST OLD GRADE</td>
+                <th>Original Grade</th>
                 <th>New Grade</th>
-                <td>TEST NEW GRADE</td>
-                <th>Rejection Reason</th>
-                <td>TEST REJECT REASON</td>
+                <th>Grade Change</th>
             </tr>
+            <tr class="text-center">    
+                <td>{% for eg in task.enquiry_id.enquiry_grades.all %}{{ eg.previous_grade }}{% endfor %}</td>
+                <td>{% for eg in task.enquiry_id.enquiry_grades.all %}{{ eg.new_grade }}{% endfor %}</td>
+                <td>{% for eg in task.enquiry_id.enquiry_grades.all %}
+                    {% if eg.previous_seq|sub:eg.new_seq < 0 %}
+                    <a style="word-break: break-word; font-weight: bold; color: red;">{{ eg.previous_seq|sub:eg.new_seq }}
+                    {% else %}
+                    {{ eg.previous_seq|sub:eg.new_seq }}
+                    {% endif %}
+                {% endfor %}</td>
+            </tr>
+        </table>
+        <table class="table table-sm table-bordered table-hover text-center mt-3">            
+            <tr class="text-center">
+                <th>Components</th>
+                <th>Original Marks</th>
+                <th>New Marks</th>
+                <th>Marks Difference</th>
+            </tr>
+            
+            {% for ec in task.enquiry_id.enquiries.all %}
+            {% for ec2 in ec.enquiry_parts.all %}
+            {% for ec3 in ec2.script_mis.all %}
+            <tr class="text-center">
+            <td>{{ ec2.eps_com_id }}</td>
+            <td>{{ ec3.original_mark }}</td>
+            <td>{{ ec3.final_mark }}</td>
+            <td>
+                {% if ec3.final_mark|sub:ec3.original_mark < 0 %}
+            <a style="word-break: break-word; font-weight: bold; color: red;">{{ ec3.final_mark|sub:ec3.original_mark }}
+                {% else %}
+                {{ ec3.final_mark|sub:ec3.original_mark }}
+                {% endif %}
+            </td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+            {% endfor %}
+            
         </table>
     </div>
 

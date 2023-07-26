@@ -2,6 +2,8 @@
 
 {% block content %}
 
+{% load mathfilters %}
+
 <h1 class="display-5 text-center mb-5">EAR Task - Negative Grade Check</h1>
 
 <div class="container">
@@ -26,10 +28,8 @@
             <tr class="text-center">
                 <th>Syllabus</th>
                 <td>{% for ec in task.enquiry_id.enquiries.all %}{{ ec.eps_ass_code }}{% endfor %}</td>
-                <th>Components</th>
-                <td>{% for ec in task.enquiry_id.enquiries.all %}
-                    {% for ec2 in ec.enquiry_parts.all %}{{ ec2.eps_com_id }},{% endfor %}
-                    {% endfor %}</td>
+                <th></th>
+                <td></td>
             </tr>
         </table>
         <h5>Task Instruction</h5>
@@ -37,31 +37,97 @@
 
         <table class="table table-sm table-bordered table-hover text-center mt-3">
             <tr class="text-center">
-                <th>Previous Grade</th>
-                <td>TEST OLD GRADE</td>
+                <th>Original Grade</th>
                 <th>New Grade</th>
-                <td>TEST NEW GRADE</td>
+                <th>Grade Change</th>
+            </tr>
+            <tr class="text-center">    
+                <td>{% for eg in task.enquiry_id.enquiry_grades.all %}{{ eg.previous_grade }}{% endfor %}</td>
+                <td>{% for eg in task.enquiry_id.enquiry_grades.all %}{{ eg.new_grade }}{% endfor %}</td>
+                <td>{% for eg in task.enquiry_id.enquiry_grades.all %}
+                    {% if eg.previous_seq|sub:eg.new_seq < 0 %}
+                    <a style="word-break: break-word; font-weight: bold; color: red;">{{ eg.previous_seq|sub:eg.new_seq }}
+                    {% else %}
+                    {{ eg.previous_seq|sub:eg.new_seq }}
+                    {% endif %}
+                {% endfor %}</td>
             </tr>
         </table>
+        <table class="table table-sm table-bordered table-hover text-center mt-3">            
+            <tr class="text-center">
+                <th>Components</th>
+                <th>Original Marks</th>
+                <th>New Marks</th>
+                <th>Marks Difference</th>
+            </tr>
+            
+            {% for ec in task.enquiry_id.enquiries.all %}
+            {% for ec2 in ec.enquiry_parts.all %}
+            {% for ec3 in ec2.script_mis.all %}
+            <tr class="text-center">
+            <td>{{ ec2.eps_com_id }}</td>
+            <td>{{ ec3.original_mark }}</td>
+            <td>{{ ec3.final_mark }}</td>
+            <td>
+                {% if ec3.final_mark|sub:ec3.original_mark < 0 %}
+            <a style="word-break: break-word; font-weight: bold; color: red;">{{ ec3.final_mark|sub:ec3.original_mark }}
+                {% else %}
+                {{ ec3.final_mark|sub:ec3.original_mark }}
+                {% endif %}
+            </td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+            {% endfor %}
+            
+        </table>
+
+        
+        <td></td>
+
     </div>
 
     <div class="row text-center mt-5">
         <form method="POST" action="{% url 'negcon-complete' %}" class="text-center">
         <input name="task_status" id="task_status" value="Pass" type="hidden" class="form-control">
         <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
-        <button type="submit" class="btn btn-success btn-lg my-2" style="width:300px">Confirm Grade Change</button>
+        <button type="submit" class="btn btn-success btn-lg my-2" style="width:300px">Progress Grade Change</button>
         </form>
     </div>  
 
     <div class="row text-center m-3">
     <div class="col-lg-3 align-self-center"></div>
     <div class="col-lg-6 align-self-center">
-        <form method="POST" action="{% url 'negcon-complete' %}" class="text-center">
-            <input name="task_status" id="task_status" value="Fail" type="hidden" class="form-control">
-            <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
-            <button type="submit" class="btn btn-danger btn-lg my-4" style="width:300px">Reject Grade Change</button>
-        </form>
+        <button type="submit" title="Fail" class="btn btn-danger btn-lg my-4" style="width:300px"
+        data-bs-toggle="modal" data-bs-target="#exampleModal{{ task.enquiry_id.enquiry_id }}">Reject Grade Change</button>
     </div>
+
+
+
+    <div class="modal fade" id="exampleModal{{ task.enquiry_id.enquiry_id }}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+    <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">Set Rejection Reason - {{ task.enquiry_id.enquiry_id }}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <form method="POST" action="{% url 'negcon-complete' %}" class="text-center">
+        <input name="task_status" id="task_status" value="Fail" type="hidden" class="form-control">
+        <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+        <div class="mb-3">
+        <label for="message-text" class="col-form-label">Failure Reason:</label>
+        <textarea class="form-control" id="message-text" name="rpa_fail"></textarea>
+        </div>
+        <button type="submit" title="Pass" class="btn btn-outline-primary" style="width:150px" data-bs-dismiss="modal">Continue</button>
+        <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
+    </form>
+    </div>
+    </div>
+    </div>
+    </div>
+
+
     <div class="col-lg-3 align-self-center"></div>
     </div>  
 

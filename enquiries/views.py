@@ -605,6 +605,10 @@ def negcon_task_complete(request):
 			task_assigned_to = None,
 			task_assigned_date = None,
 			task_completion_date = None
+		)
+		models.GradeFailureAudit.objects.create(
+			task_key = models.TaskManager.objects.get(pk=task_id),
+			failure_reason = request.POST.get('rpa_fail')
 		)		
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='NEGCON').update(task_completion_date=timezone.now())    
@@ -637,6 +641,11 @@ def peacon_task_complete(request):
 			task_assigned_date = None,
 			task_completion_date = None
 		)	
+		models.GradeFailureAudit.objects.create(
+			task_key = models.TaskManager.objects.get(pk=task_id),
+			failure_stage = models.TaskTypes.objects.get(task_id='NEGCON'),
+			failure_reason = request.POST.get('rpa_fail')
+		)
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='PEACON').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
@@ -668,6 +677,10 @@ def pdacon_task_complete(request):
 			task_assigned_date = None,
 			task_completion_date = None
 		)	
+		models.GradeFailureAudit.objects.create(
+			task_key = models.TaskManager.objects.get(pk=task_id),
+			failure_reason = request.POST.get('rpa_fail')
+		)
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='PDACON').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
@@ -975,7 +988,6 @@ def iec_fail_view(request, enquiry_id=None):
 			task_completion_date = None
 		)
 		this_task.refresh_from_db()
-		print(this_task.pk)
 		models.SetBIEAudit.objects.create(
 			rpa_task_key = models.TaskManager.objects.get(pk=this_task.pk),
 			failure_reason = request.POST.get('rpa_fail')
@@ -1269,7 +1281,7 @@ def pdacon_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_peacon.html", context=context)
+	return render(request, "enquiries_pdacon.html", context=context)
 
 def peacon_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1286,6 +1298,54 @@ def peacon_list_view(request):
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
 	return render(request, "enquiries_peacon.html", context=context)
+
+def grdchg_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDCHG', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_grdchg.html", context=context)
+
+def grdrej_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDREJ', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_grdrej.html", context=context)
+
+def mrkamd_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MRKAMD', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_mrkamd.html", context=context)
 
 def enquiries_rpa_apportion_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.

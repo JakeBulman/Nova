@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h1 class="display-5 text-center mb-5">EAR - Principal Examiner Check</h1>
+<h1 class="display-5 text-center mb-5">EAR - Grade Changes</h1>
 
 
 <nav aria-label="Page navigation">
@@ -71,14 +71,14 @@
             </tr>
             {% for x in cer %}
                 {% for y in x.enquiry_tasks.all %}
-                    {% if y.task_id == 'PEACON' %}
+                    {% if y.task_id == 'GRDCHG' %}
                     <tr class="text-center">
                       <td><a href='/enquiries/enquiries_detail/{{ y.enquiry_id.enquiry_id }}'>{{ y.enquiry_id.enquiry_id }}</a></td> 
                       <td>{{ y.task_creation_date }}</td>
                       <td>{{ y.task_assigned_to }}</td>
                       <td>{{ y.task_assigned_date }}</td>
                       <td><form method="POST" action="{% url 'self-assign-task' task_id=y.id %}" class="text-center">
-                          <input name="page_location" id="page_location" value="peacon_list" type="hidden" class="form-control">
+                          <input name="page_location" id="page_location" value="grdchg_list" type="hidden" class="form-control">
                           {% if request.user.username == y.task_assigned_to.username %}
                             <button disabled type="submit" class="btn btn-outline-secondary" style="width:120px">Assign to Me</button>
                           {% else %}

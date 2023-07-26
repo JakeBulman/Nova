@@ -89,6 +89,12 @@ urlpatterns = [
     path('peacon_list', views.peacon_list_view, name='peacon_list'),
     #Previous Exminer Checks main screen
     path('pdacon_list', views.pdacon_list_view, name='pdacon_list'),
+    #Grade Changes main screen
+    path('grdchg_list', views.grdchg_list_view, name='grdchg_list'),
+    #Grade Rejections main screen
+    path('grdrej_list', views.grdrej_list_view, name='grdrej_list'),
+    #Mark Amendments main screen
+    path('mrkamd_list', views.mrkamd_list_view, name='mrkamd_list'),
     #Release for OUTCON
     path('outcon_create', views.outcon_create_view, name='outcon_create'),
 
