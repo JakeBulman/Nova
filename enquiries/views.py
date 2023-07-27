@@ -7,7 +7,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.conf import settings
 import csv, os
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.contrib.auth.models import User
 
 #special imports
@@ -1660,3 +1660,9 @@ def examiner_email_edit_view(request, per_sid=None):
 		else:
 			models.ExaminerEmailOverride.objects.filter(id=existing_note).update(examiner_email_manual=request.POST.get('exm_new_email'))
 	return redirect('examiner_detail', per_sid)
+
+def user_panel_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	queryset = models.User.objects.all()
+	context = {"users": queryset,}
+	return render(request, "enquiries_task_user.html", context=context)

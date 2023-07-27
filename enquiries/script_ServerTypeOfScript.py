@@ -14,7 +14,7 @@ else:
 
 django.setup()
 
-from enquiries.models import EnquiryComponents
+from enquiries.models import EnquiryComponents, MarkTolerances
 
 
 
@@ -32,6 +32,24 @@ def load_core_tables():
         script_type = row[5].value
 
         EnquiryComponents.objects.filter(eps_ass_code=ass_code,eps_com_id=comp_id).update(script_type=script_type)
+
+
+    filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Tolerances.xlsx")
+    workbook = load_workbook(filename)
+    sheet = workbook.active
+
+    MarkTolerances.objects.all().delete()
+
+    for row in sheet.iter_rows():
+        ass_code = str(row[0].value).zfill(4)
+        comp_id = row[1].value
+        mark_tolerance = row[2].value
+
+        MarkTolerances.objects.create(
+            eps_ass_code = ass_code,
+            eps_com_id = comp_id,
+            mark_tolerance = mark_tolerance
+        )
 
     end_time = datetime.datetime.now()
     print(end_time - start_time)

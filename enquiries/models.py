@@ -109,14 +109,15 @@ class TaskTeams(models.Model):
     team_name = models.CharField(max_length=20, unique=True, default='')
 
 class TaskTypes(models.Model):
-    task_id = models.CharField(max_length=5, unique=True, default='')
-    task_description = models.TextField
+    task_id = models.CharField(max_length=6, unique=True)
+    task_description = models.TextField(null=True)
     task_team = models.ForeignKey(TaskTeams, on_delete=models.SET_NULL, null=True)
+    task_rank = models.IntegerField(default=0)
 
 class TaskUserPrimary(models.Model):
     task_user  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     primary_team = models.ForeignKey(TaskTeams, on_delete=models.SET_NULL, null=True)
-    primary_status = models.CharField(max_length=2, unique=True, default='')
+    primary_status = models.CharField(max_length=2, default='')
 
 class TaskUserSecondary(models.Model):
     task_user  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -143,6 +144,11 @@ class EnquiryGrades(models.Model):
     previous_seq = models.CharField(max_length=4,null=True)
     new_grade = models.CharField(max_length=4,null=True)
     new_seq = models.CharField(max_length=4,null=True)
+
+class MarkTolerances(models.Model):
+    eps_ass_code = models.CharField(max_length=4,null=True)
+    eps_com_id = models.CharField(max_length=2,null=True)
+    mark_tolerance = models.CharField(max_length=4,null=True)
 
 class UniqueCreditor(models.Model):
     exm_creditor_no = models.CharField(max_length=8, unique=True, default=0)

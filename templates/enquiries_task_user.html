@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center mb-5">EAR Users - Task Control</h1>
+
+
+<div class="table-responsive-xl m-5">
+    <table class="table table-sm table-bordered table-hover">
+        <tr class="text-center">
+          <th>Username</th>
+          <th>Username</th>
+
+        </tr>
+        {% for x in users %}
+                <tr class="text-center">
+                  <td>{{ x.username }}</td> 
+                </tr>
+        {% endfor %}
+    </table>
+</div>
+
+</div>
+
+
+
+{% endblock %}

@@ -150,7 +150,8 @@ urlpatterns = [
     path('examiner_email_update/<str:per_sid>/', views.examiner_email_view, name='examiner_email'),
 
 
-
-
+    ### Admin ###
+    #Shows list of all assigned tasks fo users
+    path('user_panel', views.user_panel_view, name='user_panel'),
 ]
 
