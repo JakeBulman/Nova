@@ -41,6 +41,10 @@
                     <th>Session Name</th>
                     <td>{{ task.ec_sid.eps_ses_name }}</td>
                 </tr>
+                <tr class="text-center">
+                    <th>Script Type</th>
+                    <td>{{ task.ec_sid.script_type }}</td>
+                </tr>
             </table>
         </div>
 
@@ -111,7 +115,7 @@
 
                         <td>
                             <table class="table table-sm text-center">
-                                {% for conf in exm.enpe_sid.per_sid.exm_conflicts.all %}
+                                {% for conf in exm.exm_conflicts.all %}
                                     {% if task.ec_sid.erp_sid.eps_centre_id in conf.examiner_conflicts %}
                                         <tr>
                                             <td style="word-break: break-word; font-weight: bold; color: red;">{{ conf.examiner_conflicts }}</td>
@@ -127,7 +131,7 @@
 
                         <td>
                             <table class="table table-sm text-center">
-                                {% for noted in exm.enpe_sid.per_sid.exm_notes.all %}
+                                {% for noted in exm.exm_notes.all %}
                                     <tr>
                                         <td style="word-break: break-word;">{{ noted.examiner_notes }}</td>
                                     </tr>
@@ -137,7 +141,7 @@
                         
                         <td>
                             <table class="table table-sm text-center">
-                                {% for avail in exm.enpe_sid.per_sid.exm_availability.all %}
+                                {% for avail in exm.exm_availability.all %}
                                     {% now "d/m/y" as todays_date %}
                                     {% if todays_date >= avail.unavailability_start_date|date:"d/m/y" and todays_date < avail.unavailability_end_date|date:"d/m/y" %}
                                         <tr>

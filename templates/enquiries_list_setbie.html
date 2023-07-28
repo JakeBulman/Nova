@@ -31,7 +31,7 @@
                     <td>{% for z in y.enquiry_parts.all %} {{ z.eps_com_id }} {% endfor %}</td>
                     <td>{{ y.booked_in_error_ind }}</td>
                     {% for t in x.enquiry_tasks.all %} 
-                        {% if t.task_id == 'SETBIE' %}
+                        {% if t.task_id == 'SETBIE' and y.task_completion_date == None %}
                             <td>{{ t.task_creation_date }}</td>
                             <td>{{ t.task_assigned_to }}</td>
                             <td>{{ t.task_assigned_date }}</td>

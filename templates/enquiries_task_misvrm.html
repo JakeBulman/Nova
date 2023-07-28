@@ -48,8 +48,8 @@
                 <td>{% for mis in task.ec_sid.script_mis.all %}{{ mis.revised_mark }}{% endfor %}</td>
             </tr>
             <tr class="text-center">
-                <th></th>
-                <td></td>
+                <th>Script Type</th>
+                <td>{{ task.ec_sid.script_type }}</td>
                 <th>Mark Status</th>
                 <td>{% for mis in task.ec_sid.script_mis.all %}{{ mis.mark_status }}{% endfor %}</td>
             </tr>

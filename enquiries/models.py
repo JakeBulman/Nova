@@ -210,6 +210,7 @@ class ScriptApportionment(models.Model):
     enpe_sid = models.ForeignKey(EnquiryPersonnel, to_field='enpe_sid', on_delete=models.SET_NULL, null=True, related_name='apportion_examiner')
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='apportion_script')
     script_marked = models.IntegerField(default=1)
+    script_mark_entered = models.IntegerField(default=1)
     apportionment_invalidated = models.IntegerField(default=0)
 
 class ScriptApportionmentExtension(models.Model):

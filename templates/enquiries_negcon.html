@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h1 class="display-5 text-center mb-5">EAR - Negative Mark Check</h1>
+<h1 class="display-5 text-center mb-5">EAR - Immediate Rejections Check</h1>
 
 
 <nav aria-label="Page navigation">
@@ -71,7 +71,7 @@
             </tr>
             {% for x in cer %}
                 {% for y in x.enquiry_tasks.all %}
-                    {% if y.task_id == 'NEGCON' %}
+                    {% if y.task_id == 'NEGCON' and y.task_completion_date == None %}
                     <tr class="text-center">
                       <td><a href='/enquiries/enquiries_detail/{{ y.enquiry_id.enquiry_id }}'>{{ y.enquiry_id.enquiry_id }}</a></td> 
                       <td>{{ y.task_creation_date }}</td>

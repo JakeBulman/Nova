@@ -133,6 +133,8 @@ urlpatterns = [
     path('examiner_list', views.examiner_list_view, name='examiner_list'),
     #Show detailed view for a specific passed examiner
     path('examiner_detail/<str:per_sid>/', views.examiner_detail, name='examiner_detail'),
+    #Show detailed view for a specific passed examiner scripts
+    path('examiner_scripts/<str:per_sid>/', views.examiner_scripts_view, name='examiner_scripts'),
     #Examiner availability endpoints
     path('examiner_availability/<str:per_sid>/edit', views.examiner_availability_edit_view, name='exm-avail-edit'),
     path('examiner_availability/<str:note_id>/delete', views.examiner_availability_delete, name='exm-avail-delete'),

@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h1 class="display-5 text-center mb-5">EAR - Examiner Scripts - {{ enpe.per_sid.exm_creditor_no }}</h1>
+
+    <div class="container">
+        <div class="row text-center">
+            <a class="btn btn-secondary btn-lg mb-5" href='/enquiries/examiner_detail/{{ enpe.per_sid.per_sid }}'>Back to Examiner Details - {{ enpe.per_sid.exm_creditor_no }}</a>
+        </div>
+    </div>
+
+    <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+    <li class="page-item">
+        {% if cer.has_previous %}
+        <a class="page-link" href="?page={{cer.previous_page_number}}&search_query={{sq}}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+        </a>
+        {% else %}
+        <a class="page-link disabled" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+        {% endif %}
+    </li>
+
+    <li class="page-item">
+        {% if cer.number == 1 %}
+        <a class="page-link disabled"aria-label="First">
+        <span aria-hidden="true">First</span>
+        </a>
+        {% else %}
+        <a class="page-link" href="?page=1&search_query={{sq}}" aria-label="First">
+            <span aria-hidden="true">First</span>
+        </a>
+        {% endif %}
+    </li>
+
+    <li class="page-item"><a class="page-link active"style="width: 45px; text-align:center">{{cer.number}}</a></li>
+
+    <li class="page-item">
+        {% if cer.number == cer.paginator.num_pages %}
+        <a class="page-link disabled"aria-label="Last">
+        <span aria-hidden="true">Last ({{cer.paginator.num_pages}})</span>
+        </a>
+        {% else %}
+        <a class="page-link" href="?page={{cer.paginator.num_pages}}&search_query={{sq}}" aria-label="Previous">
+            <span aria-hidden="true">Last ({{cer.paginator.num_pages}})</span>
+        </a>
+        {% endif %}
+    </li>
+
+    <li class="page-item">
+        {%if cer.has_next %}
+        <a class="page-link" href="?page={{cer.next_page_number}}&search_query={{sq}}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+        </a>
+        {% else %}
+        <a class="page-link disabled" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+        {% endif %}
+    </li>
+    </ul>
+    </nav>
+
+    <div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-auto">
+            <form class="text-center" style="width:500px" method="GET" action='/enquiries/enquiries_list'>
+                <div>
+                <input name="search_query" id="search_query" type="text" class="form-control mb-1" placeholder="Enquiry Number" value={{sq}}>
+                </div>
+                <button type="submit" class="btn btn-outline-primary text-center" style="width:200px">Search</button>
+            </form>
+        </div>
+    </div>
+    </div>
+
+
+    <div class="table-responsive-xl m-4">
+        <table class="table table-sm table-bordered table-hover">
+            <tr class="text-center">
+                <th>Enquiry ID</th>
+                <th>Script ID</th>
+                <th>MIS Returned</th>
+                <th>Mark Entering Completed</th>
+                <th>Force Reapportionment</th>
+            </tr>
+            {% for x in cer %}
+                    <tr>
+                        <td><a href='/enquiries/enquiries_detail/{{ x.ec_sid.erp_sid.cer_sid.enquiry_id }}'>{{ x.ec_sid.erp_sid.cer_sid.enquiry_id }}</a></td> 
+                        <td>{{ x.ec_sid.ec_sid }}</td>
+                        <td>{%if x.script_marked == 1 %} No {% else %} Yes {% endif %}</td>
+                        <td>{%if x.script_mark_entered == 1 %} No {% else %} Yes {% endif %}</td>
+
+                        <td>   
+                            {%if x.script_mark_entered == 1 %} 
+                            <form method="POST" action="{% url 'exmsla-complete' %}" class="text-center">
+                            <input name="script_id" id="script_id" value={{x.ec_sid.ec_sid}} type="hidden" class="form-control">
+                            <input name="enquiry_id" id="enquiry_id" value={{x.ec_sid.erp_sid.cer_sid.enquiry_id}} type="hidden" class="form-control">
+                            <input name="per_sid" id="per_sid" value={{x.enpe_sid.per_sid.per_sid}} type="hidden" class="form-control">
+                            <div class="text-center"><button type="submit" class="btn btn-danger" style="width:200px">Reapportion Script</button></div>
+                            </form>
+                            {% else %}
+                            <form method="POST" action="{% url 'exmsla-complete' %}" class="text-center">
+                            <input name="script_id" id="script_id" value={{x.ec_sid.ec_sid}} type="hidden" class="form-control">
+                            <input name="enquiry_id" id="enquiry_id" value={{x.ec_sid.erp_sid.cer_sid.enquiry_id}} type="hidden" class="form-control">
+                            <input name="per_sid" id="per_sid" value={{x.enpe_sid.per_sid.per_sid}} type="hidden" class="form-control">
+                            <div class="text-center"><button disabled type="submit" class="btn btn-danger" style="width:200px">Reapportion Script</button></div>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+
+
+
+{% endblock %}

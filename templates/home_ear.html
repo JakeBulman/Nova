@@ -60,7 +60,7 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <img class="card-img-top" src="{% static 'admin/img/exm-avail-icon.png' %}" alt="Examiner availability Icon">
     <div class="card-body d-flex flex-column">
-      <h5 class="card-title">Examiner Setup</h5>
+      <h5 class="card-title">Examiner Details</h5>
       <span class="badge rounded-pill bg-success"></span>
       <p class="card-text">Add and change the availability windows for examiners.</p>
       <a href="{% url 'examiner_list' %}" class="mt-auto btn btn-outline-primary">Go to Examiners</a>
@@ -200,7 +200,7 @@
 
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
-      <h5 class="card-title">Negative Grade Checks</h5>
+      <h5 class="card-title">Immediate Rejections Checks</h5>
       {% if negcon.count > 0 %}<span class="badge rounded-pill bg-danger">{{ negcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       {% if negcona.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ negcona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Confirm a negative has not occured.</p>

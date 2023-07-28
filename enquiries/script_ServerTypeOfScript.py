@@ -33,6 +33,7 @@ def load_core_tables():
 
         EnquiryComponents.objects.filter(eps_ass_code=ass_code,eps_com_id=comp_id).update(script_type=script_type)
 
+    EnquiryComponents.objects.filter(script_type=None).update(script_type='Unknown')
 
     filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Tolerances.xlsx")
     workbook = load_workbook(filename)

@@ -275,23 +275,41 @@ def manual_apportionment(request):
 
 def nrmacc_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
+	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
+	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
+	examiner_queryset = models.UniqueCreditor.objects.annotate(script_count=Sum("creditors__apportion_examiner__script_marked",distinct=True)).filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no')
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset,}
 	return render(request, "enquiries_task_nrmacc.html", context=context)
 
 def nrmacc_task_complete(request):
 	task_id = request.POST.get('task_id')
+
+	apportion_enpe_sid = request.POST.get('enpe_sid')
+	apportion_script_id = request.POST.get('script_id')
+
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	models.TaskManager.objects.create(
-		enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=task_queryset.enquiry_id.enquiry_id),
-		ec_sid = models.EnquiryComponents.objects.get(ec_sid=task_queryset.ec_sid.ec_sid),
-		task_id = 'NEWMIS',
-		task_assigned_to = User.objects.get(username='NovaServer'),
-		task_assigned_date = timezone.now(),
-		task_completion_date = None
-	)
-	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='NRMACC').update(task_completion_date=timezone.now())    
-	return redirect('my_tasks')
+
+	if apportion_enpe_sid:
+		examiner_obj = models.EnquiryPersonnel.objects.get(enpe_sid=apportion_enpe_sid)
+		script_obj = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id)
+
+		models.ScriptApportionment.objects.filter(ec_sid=script_obj).update(
+			enpe_sid = examiner_obj,
+		)
+		return redirect('nrmacc-task',task_id=task_id)
+
+	else:
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=task_queryset.enquiry_id.enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=task_queryset.ec_sid.ec_sid),
+			task_id = 'NEWMIS',
+			task_assigned_to = User.objects.get(username='NovaServer'),
+			task_assigned_date = timezone.now(),
+			task_completion_date = None
+		)
+		#complete the task
+		models.TaskManager.objects.filter(pk=task_id,task_id='NRMACC').update(task_completion_date=timezone.now())    
+		return redirect('my_tasks')
 
 def misvrm_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
@@ -422,6 +440,7 @@ def botmaf_task(request, task_id=None):
 
 def botmaf_task_complete(request):
 	task_id = request.POST.get('task_id')
+	script_id = models.TaskManager.objects.get(pk=task_id,task_id='BOTMAF').ec_sid.ec_sid
 	if task_id is not None and request.method == 'POST':
 		enquiry_id = models.TaskManager.objects.get(pk=task_id,task_id='BOTMAF').enquiry_id.enquiry_id
 
@@ -439,6 +458,7 @@ def botmaf_task_complete(request):
 			)
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='BOTMAF').update(task_completion_date=timezone.now())    
+	models.ScriptApportionment.objects.filter(ec_sid=script_id,script_marked=0,apportionment_invalidated=0).update(script_mark_entered=0)
 	return redirect('my_tasks')
 
 def exmsla_task(request, task_id=None):
@@ -456,7 +476,8 @@ def exmsla_task_complete(request):
 	task_id = request.POST.get('task_id')
 	enquiry_id = request.POST.get('enquiry_id')
 	new_sla = request.POST.get('new_sla')
-	if new_sla is not None:
+	per_sid = request.POST.get('per_sid')
+	if new_sla:
 
 		models.ScriptApportionmentExtension.objects.create(
 			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
@@ -467,21 +488,36 @@ def exmsla_task_complete(request):
 		models.TaskManager.objects.filter(pk=models.TaskManager.objects.get(ec_sid=script_id,task_id='RETMIS').pk,task_id='RETMIS').update(
 			task_completion_date = None
 		)
+		models.TaskManager.objects.filter(pk=task_id,task_id='EXMSLA').update(task_completion_date=timezone.now())   
 	else:
-		models.TaskManager.objects.create(
-			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
-			task_id = 'REMAPP',
-			task_assigned_to = None,
-			task_assigned_date = None,
-			task_completion_date = None
-		)
-		#invalidate current apportionement
-		models.ScriptApportionment.objects.filter(ec_sid=script_id).update(apportionment_invalidated=1)
-
-
-	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='EXMSLA').update(task_completion_date=timezone.now())    
+		if task_id:
+			models.TaskManager.objects.create(
+				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+				task_id = 'REMAPP',
+				task_assigned_to = None,
+				task_assigned_date = None,
+				task_completion_date = None
+			)
+			#invalidate current apportionement
+			models.ScriptApportionment.objects.filter(ec_sid=script_id).update(apportionment_invalidated=1)
+			models.TaskManager.objects.filter(pk=task_id,task_id='EXMSLA').update(task_completion_date=timezone.now())   
+		else:
+			#this is for forced reapportionments
+			#close all outstanding tasks
+			models.TaskManager.objects.filter(ec_sid=models.EnquiryComponents.objects.get(ec_sid=script_id),task_id__in=['REMAPP','REMAPF','BOTAPP','ESMCSV','NRMACC','EXMSLA','NEWMIS','RETMIS','MISVRM','JUSCHE','MKWAIT','BOTMAR'],task_completion_date=None).update(task_completion_date=timezone.now())
+			models.ScriptApportionment.objects.filter(ec_sid=script_id).update(apportionment_invalidated=1)
+			#CHECK IF REMAPP ALREADY EXISTS
+			models.TaskManager.objects.create(
+				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+				task_id = 'REMAPP',
+				task_assigned_to = None,
+				task_assigned_date = None,
+				task_completion_date = None
+			)
+		return redirect('examiner_scripts',per_sid=per_sid)
+			
 	return redirect('my_tasks')
 
 
@@ -1442,6 +1478,7 @@ def rpa_marks_keying_pass_view(request, script_id=None):
 			)
 		#Mark the task with this script ID for BOTMAR as complete
 		models.TaskManager.objects.filter(ec_sid=script_id,task_id='BOTMAR').update(task_completion_date=timezone.now())
+		models.ScriptApportionment.objects.filter(ec_sid=script_id,script_marked=0,apportionment_invalidated=0).update(script_mark_entered=0)
 	return redirect('rpa_marks_keying')
 
 def rpa_marks_keying_fail_view(request, script_id=None):
@@ -1538,6 +1575,23 @@ def examiner_detail(request, per_sid=None):
 
 	context = {"uc": uc_queryset, "exm": exm_queryset, "exm2": exm_queryset2, "exm_email": email_new}
 	return render(request, 'enquiries_examiner_detail.html', context=context)
+
+def examiner_scripts_view(request, per_sid=None):
+	enpe_queryset = models.EnquiryPersonnel.objects.filter(per_sid=per_sid).first()
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.ScriptApportionment.objects.filter(enpe_sid=enpe_queryset.enpe_sid,apportionment_invalidated=0).order_by(-'script_marked',-'script_mark_entered','ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,"enpe": enpe_queryset}
+	return render(request, "enquiries_examiner_scripts.html", context=context)
 
 def examiner_availability_view(request, per_sid=None):
 	uc_queryset = models.UniqueCreditor.objects.get(per_sid=per_sid)
