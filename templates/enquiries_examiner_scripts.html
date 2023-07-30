@@ -83,35 +83,45 @@
             <tr class="text-center">
                 <th>Enquiry ID</th>
                 <th>Script ID</th>
+                <th>Batch ID</th>
+                <th>Service Type</th>
+                <th>Syll/Comp</th>
+                <th>Enquiry Creation Date</th>
+                <th>Days Since Creation</th>
                 <th>MIS Returned</th>
                 <th>Mark Entering Completed</th>
                 <th>Force Reapportionment</th>
             </tr>
             {% for x in cer %}
-                    <tr>
-                        <td><a href='/enquiries/enquiries_detail/{{ x.ec_sid.erp_sid.cer_sid.enquiry_id }}'>{{ x.ec_sid.erp_sid.cer_sid.enquiry_id }}</a></td> 
-                        <td>{{ x.ec_sid.ec_sid }}</td>
-                        <td>{%if x.script_marked == 1 %} No {% else %} Yes {% endif %}</td>
-                        <td>{%if x.script_mark_entered == 1 %} No {% else %} Yes {% endif %}</td>
+                <tr class="text-center">
+                    <td><a href='/enquiries/enquiries_detail/{{ x.ec_sid.erp_sid.cer_sid.enquiry_id }}'>{{ x.ec_sid.erp_sid.cer_sid.enquiry_id }}</a></td> 
+                    <td>{{ x.ec_sid.ec_sid }}</td>
+                    <td>{% for b in x.ec_sid.script_id.all %}{{ b.eb_sid.eb_sid }}{% endfor %}</td>
+                    <td>{{ x.ec_sid.erp_sid.service_code }}</td>
+                    <td>{{ x.ec_sid.eps_ass_code }}/{{ x.ec_sid.eps_com_id }}</td>
+                    <td>{{ x.ec_sid.erp_sid.cer_sid.eps_creation_date|date:"d/m/y H:i" }}</td>
+                    <td>{{ x.ec_sid.erp_sid.cer_sid.eps_creation_date|timesince }}</td>
+                    <td>{%if x.script_marked == 1 %} No {% else %} Yes {% endif %}</td>
+                    <td>{%if x.script_mark_entered == 1 %} No {% else %} Yes {% endif %}</td>
 
-                        <td>   
-                            {%if x.script_mark_entered == 1 %} 
-                            <form method="POST" action="{% url 'exmsla-complete' %}" class="text-center">
-                            <input name="script_id" id="script_id" value={{x.ec_sid.ec_sid}} type="hidden" class="form-control">
-                            <input name="enquiry_id" id="enquiry_id" value={{x.ec_sid.erp_sid.cer_sid.enquiry_id}} type="hidden" class="form-control">
-                            <input name="per_sid" id="per_sid" value={{x.enpe_sid.per_sid.per_sid}} type="hidden" class="form-control">
-                            <div class="text-center"><button type="submit" class="btn btn-danger" style="width:200px">Reapportion Script</button></div>
-                            </form>
-                            {% else %}
-                            <form method="POST" action="{% url 'exmsla-complete' %}" class="text-center">
-                            <input name="script_id" id="script_id" value={{x.ec_sid.ec_sid}} type="hidden" class="form-control">
-                            <input name="enquiry_id" id="enquiry_id" value={{x.ec_sid.erp_sid.cer_sid.enquiry_id}} type="hidden" class="form-control">
-                            <input name="per_sid" id="per_sid" value={{x.enpe_sid.per_sid.per_sid}} type="hidden" class="form-control">
-                            <div class="text-center"><button disabled type="submit" class="btn btn-danger" style="width:200px">Reapportion Script</button></div>
-                            </form>
-                            {% endif %}
-                        </td>
-                    </tr>
+                    <td>   
+                        {%if x.script_mark_entered == 1 %} 
+                        <form method="POST" action="{% url 'exmsla-complete' %}" class="text-center">
+                        <input name="script_id" id="script_id" value={{x.ec_sid.ec_sid}} type="hidden" class="form-control">
+                        <input name="enquiry_id" id="enquiry_id" value={{x.ec_sid.erp_sid.cer_sid.enquiry_id}} type="hidden" class="form-control">
+                        <input name="per_sid" id="per_sid" value={{x.enpe_sid.per_sid.per_sid}} type="hidden" class="form-control">
+                        <div class="text-center"><button type="submit" class="btn btn-danger" style="width:200px">Reapportion Script</button></div>
+                        </form>
+                        {% else %}
+                        <form method="POST" action="{% url 'exmsla-complete' %}" class="text-center">
+                        <input name="script_id" id="script_id" value={{x.ec_sid.ec_sid}} type="hidden" class="form-control">
+                        <input name="enquiry_id" id="enquiry_id" value={{x.ec_sid.erp_sid.cer_sid.enquiry_id}} type="hidden" class="form-control">
+                        <input name="per_sid" id="per_sid" value={{x.enpe_sid.per_sid.per_sid}} type="hidden" class="form-control">
+                        <div class="text-center"><button disabled type="submit" class="btn btn-danger" style="width:200px">Reapportion Script</button></div>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
             {% endfor %}
         </table>
     </div>

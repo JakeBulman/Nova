@@ -30,9 +30,9 @@ def run_algo():
         cand_name = app_task.ec_sid.erp_sid.stud_name
         original_exm = EnquiryComponentsHistory.objects.get(ec_sid=script_id).exm_position
         #TODO: This is dangerous as it assumes a specific apportionemtn and is part of a wider bug on duplicates
-        rev_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.filter(ec_sid=script_id).first().enpe_sid).first().exm_examiner_no
+        rev_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid).first().exm_examiner_no
         original_mark = EnquiryComponentsHistory.objects.get(ec_sid=script_id).current_mark
-        cred_no = ScriptApportionment.objects.filter(ec_sid=script_id).first().enpe_sid.per_sid.exm_creditor_no
+        cred_no = ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid.per_sid.exm_creditor_no
 
         #Work to be done by NEWMIS done here 
 

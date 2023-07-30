@@ -38,7 +38,7 @@
             <tr class="text-center">
                 <th>Remark Examiner</th>
                 <td>{% for t in task.ec_sid.apportion_script.all %}{% for e in t.enpe_sid.exm_per_details.all %}
-                        {% if forloop.last %}
+                        {% if t.apportionment_invalidated %}
                             {{ e.exm_examiner_no }}
                         {% endif %}
                     {% endfor %}{% endfor %}</td>
@@ -47,7 +47,7 @@
             </tr>
             <tr class="text-center">
                 <th>Remark Examiner Email</th>
-                <td>{% for t in task.ec_sid.apportion_script.all %}{{ t.enpe_sid.per_sid.exm_email }}{% endfor %}</td>
+                <td>{% for t in task.ec_sid.apportion_script.all %}{% if t.apportionment_invalidated %}{{ t.enpe_sid.per_sid.exm_email }}{% endif %}{% endfor %}</td>
                 <th>Previous SLA extensions</th>
                 <td>{% if ext_days > 0 %}
                         {{ ext_days }} Days

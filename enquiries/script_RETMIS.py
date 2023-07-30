@@ -16,7 +16,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, EnquiryBatches, EnquiryComponentElements, MisReturnData, ScriptApportionment
+from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, EnquiryBatches, EnquiryComponentElements, MisReturnData, ScriptApportionment, EnquiryPersonnelDetails
 
 def run_algo():
     import os
@@ -39,7 +39,8 @@ def run_algo():
 
             if TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).exists():
                 task_pk = TaskManager.objects.get(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).pk
-            if task_pk is not None:
+                expected_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.get(ec_sid=ec_sid, apportionment_invalidated=0).enpe_sid).first()
+            if task_pk is not None and expected_exm.exm_examiner_no==sheet["E4"].value:
                 MisReturnData.objects.create(
                     eb_sid = EnquiryBatches.objects.get(eb_sid=eb_sid),
                     ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
@@ -70,6 +71,14 @@ def run_algo():
                 ScriptApportionment.objects.filter(ec_sid=ec_sid).update(script_marked=0)
             else:
                 print('FAILED:' + eb_sid)
+                if expected_exm!=sheet["E4"].value:
+                    shutil.move(filename, error_filename)
+                    outlook = win32.Dispatch('outlook.application')
+                    mail = outlook.CreateItem(0)
+                    mail.To = 'jacob.bulman@cambridge.org'
+                    mail.Subject = 'EAR MIS File In Error Folder'
+                    mail.Body = 'The file ' + file + ' has a mismatched examiner for its batch: ' + sheet["E4"].value + " / " + expected_exm.exm_examiner_no
+                    mail.Send()
         else:
             if file.endswith("COMPLETE") or file.endswith("FILE_CHECKS"):
                 a=1 #do nothing

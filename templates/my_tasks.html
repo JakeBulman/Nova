@@ -1,7 +1,24 @@
-{% extends 'base.html' %}
-
-{% block content %}
 {% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        function preventBack() {
+            window.history.forward(); 
+        }
+          
+        setTimeout("preventBack()", 0);
+          
+        window.onunload = function () { null };
+    </script>
+    <title>Nova</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
+</head>
+<body style="background-color:#ffffff;" onload="javascript:setTimeout(function(){ location.reload(); },15000);">
+{% include 'base_navbar.html' %}
+
 
 <h1 class="display-5 text-center mb-5">EAR - My Tasks</h1>
 
@@ -55,8 +72,3 @@
         </form>
     {% endif %}
 </div>
-
-
-
-
-{% endblock %}
