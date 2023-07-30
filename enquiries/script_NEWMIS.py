@@ -14,7 +14,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, EnquiryPersonnelDetails, ScriptApportionment, EnquiryComponentElements, CentreEnquiryRequests, EnquiryComponents, EnquiryComponentsHistory
+from enquiries.models import TaskManager, EnquiryPersonnelDetails, ScriptApportionment, EnquiryComponentElements, CentreEnquiryRequests, EnquiryComponents, EnquiryComponentsHistory, TaskTypes
 from django.contrib.auth.models import User
 
 def run_algo():
@@ -64,7 +64,7 @@ def run_algo():
         TaskManager.objects.create(
             enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
             ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-            task_id = 'RETMIS',
+            task_id = TaskTypes.objects.get(task_id = 'RETMIS'),
             task_assigned_to = User.objects.get(username='NovaServer'),
             task_assigned_date = timezone.now(),
             task_completion_date = None

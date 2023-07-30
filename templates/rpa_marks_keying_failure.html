@@ -73,7 +73,7 @@
             </tr>
             {% for x in cer %}
                 {% for y in x.script_tasks.all %}
-                    {% if y.task_id == 'BOTMAF' %}
+                    {% if y.task_id.task_id == 'BOTMAF' %}
                     <tr class="text-center">
                       <td><a href='/enquiries/enquiries_detail/{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}'>{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}</a></td> 
                       <td>{{ y.ec_sid.ec_sid }}</td>
