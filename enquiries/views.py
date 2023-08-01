@@ -71,8 +71,6 @@ def ear_home_view(request,*args, **kwargs):
 	outcon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True)
 	outcona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 
-
-
 	context = {"mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
 	    "botapp":botapp_count, "botapf":botapp_fail_count, "botmar":botmar_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count,
 		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "cleric":cleric_count, "clerica":clerica_count, "esmcsv":esmcsv_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, "remapf":remapf_count, "remapfa":remapfa_count,
@@ -81,7 +79,18 @@ def ear_home_view(request,*args, **kwargs):
 		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count, "nrmacc":nrmacc_count, "nrmacca":nrmacca_count
 		, "outcon":outcon_count, "outcona":outcona_count
 		}
-	return render(request, "home_ear.html", context=context, )
+	#Get username to filter tasks
+	user = None
+	if request.user.is_authenticated:
+		user = request.user
+	try:
+		user_status = models.TaskUserPrimary.objects.get(task_user_id=user).primary_status
+		if user_status == 'TL':
+			return render(request, "home_ear.html", context=context, )
+		elif user_status == 'AD':
+			return render(request, "home_ear_admin.html", context=context, )
+	except:
+		return render(request, "home_ear_restricted.html", context=context, )
 
 def server_options_view(request):
 	context = {}
@@ -1830,6 +1839,15 @@ def examiner_email_edit_view(request, per_sid=None):
 
 def user_panel_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	queryset = models.User.objects.all()
+	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True))
+
 	context = {"users": queryset,}
 	return render(request, "enquiries_task_user.html", context=context)
+
+def user_remove_tasks_view(request):
+	username = request.POST.get('username')
+	print(username)
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	models.TaskManager.objects.filter(task_assigned_to=models.User.objects.get(username=username)).update(task_assigned_to=None, task_assigned_date=None)
+
+	return redirect("user_panel")

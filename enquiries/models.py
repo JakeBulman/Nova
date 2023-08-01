@@ -110,12 +110,12 @@ class TaskManager(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, related_name='script_tasks',null=True)
     task_id = models.ForeignKey(TaskTypes, to_field='task_id', on_delete=models.SET_NULL, related_name='all_tasks',null=True)
     task_creation_date = models.DateTimeField(auto_now_add=True)
-    task_assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True) #Have to user proper user model here instead of strings
+    task_assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='assigned_tasks',) #Have to use proper user model here instead of strings
     task_assigned_date = models.DateTimeField(null=True) 
     task_completion_date = models.DateTimeField(null=True)   
 
 class TaskUserPrimary(models.Model):
-    task_user  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    task_user  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='user_primary')
     primary_team = models.ForeignKey(TaskTeams, on_delete=models.SET_NULL, null=True)
     primary_status = models.CharField(max_length=2, default='')
 
