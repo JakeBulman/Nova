@@ -30,6 +30,8 @@ urlpatterns = [
     path('task_manager/misvrm_task/<str:task_id>', views.misvrm_task, name='misvrm-task'), 
     path('task_manager/pexmch_task/complete', views.pexmch_task_complete, name='pexmch-complete'),
     path('task_manager/pexmch_task/<str:task_id>', views.pexmch_task, name='pexmch-task'),  
+    path('task_manager/cleric_task/complete', views.cleric_task_complete, name='cleric-complete'),
+    path('task_manager/cleric_task/<str:task_id>', views.cleric_task, name='cleric-task'), 
     path('task_manager/botapf_task/complete', views.botapf_task_complete, name='botapf-complete'),
     path('task_manager/botapf_task/<str:task_id>', views.botapf_task, name='botapf-task'),  
     path('task_manager/botmaf_task/complete', views.botmaf_task_complete, name='botmaf-complete'),
@@ -71,6 +73,8 @@ urlpatterns = [
     path('misvrm_list', views.misvrm_list_view, name='misvrm_list'),
     #Previous Exminer Checks main screen
     path('pexmch_list', views.pexmch_list_view, name='pexmch_list'),
+    #Clerical Checks main screen
+    path('cleric_list', views.cleric_list_view, name='cleric_list'),
     #Download ESMCSV to file location
     path('esmcsv_list', views.esmcsv_list_view, name='esmcsv_list'),
     path('exmsla_create', views.esmcsv_create_view, name='exmsla_create'),
@@ -155,5 +159,6 @@ urlpatterns = [
     ### Admin ###
     #Shows list of all assigned tasks fo users
     path('user_panel', views.user_panel_view, name='user_panel'),
+    path('user_remove_tasks', views.user_remove_tasks_view, name='user_remove_tasks'),
 ]
 

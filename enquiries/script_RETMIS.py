@@ -16,7 +16,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, EnquiryBatches, EnquiryComponentElements, MisReturnData, ScriptApportionment, EnquiryPersonnelDetails
+from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, EnquiryBatches, EnquiryComponentElements, MisReturnData, ScriptApportionment, EnquiryPersonnelDetails, TaskTypes
 
 def run_algo():
     import os
@@ -36,7 +36,7 @@ def run_algo():
 
             #TODO add safety checks on file content (or lock down file)
             task_pk = None
-
+            print(ec_sid)
             if TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).exists():
                 task_pk = TaskManager.objects.get(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).pk
                 expected_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.get(ec_sid=ec_sid, apportionment_invalidated=0).enpe_sid).first()
@@ -61,7 +61,7 @@ def run_algo():
                 TaskManager.objects.create(
                     enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
                     ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
-                    task_id = 'MISVRM',
+                    task_id = TaskTypes.objects.get(task_id = 'MISVRM'),
                     task_assigned_to = None,
                     task_assigned_date = None,
                     task_completion_date = None

@@ -13,7 +13,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, EnquiryComponents, EnquiryComponentsPreviousExaminers, EnquiryPersonnelDetails, ScriptApportionment, CentreEnquiryRequests, ExaminerConflicts, ExaminerAvailability, SetIssueAudit
+from enquiries.models import TaskManager, EnquiryComponents, EnquiryComponentsPreviousExaminers, EnquiryPersonnelDetails, ScriptApportionment, CentreEnquiryRequests, ExaminerConflicts, ExaminerAvailability, SetIssueAudit, TaskTypes
 from django.utils import timezone
 from django.db.models import Sum
 from django.contrib.auth.models import User
@@ -35,7 +35,7 @@ def run_algo():
             TaskManager.objects.create(
                 enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
                 ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                task_id = 'MANAPP',
+                task_id = TaskTypes.objects.get(task_id = 'MANAPP'),
                 task_assigned_to = None,
                 task_assigned_date = None,
                 task_completion_date = None
@@ -139,7 +139,7 @@ def run_algo():
                         TaskManager.objects.create(
                             enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                            task_id = 'BOTAPP',
+                            task_id = TaskTypes.objects.get(task_id = 'MRKAMD'),
                             task_assigned_to = User.objects.get(username='RPABOT'),
                             task_assigned_date = timezone.now(),
                             task_completion_date = None
@@ -147,7 +147,7 @@ def run_algo():
                         TaskManager.objects.create(
                             enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                            task_id = 'NEWMIS',
+                            task_id = TaskTypes.objects.get(task_id = 'NEWMIS'),
                             task_assigned_to = User.objects.get(username='NovaServer'),
                             task_assigned_date = timezone.now(),
                             task_completion_date = None
@@ -155,7 +155,7 @@ def run_algo():
                         TaskManager.objects.create(
                             enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                            task_id = 'ESMCSV',
+                            task_id = TaskTypes.objects.get(task_id = 'ESMCSV'),
                             task_assigned_to = None,
                             task_assigned_date = None,
                             task_completion_date = None
@@ -164,7 +164,7 @@ def run_algo():
                         TaskManager.objects.create(
                             enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                            task_id = 'NRMACC',
+                            task_id = TaskTypes.objects.get(task_id = 'NRMACC'),
                             task_assigned_to = None,
                             task_assigned_date = None,
                             task_completion_date = None
@@ -174,7 +174,7 @@ def run_algo():
                     TaskManager.objects.create(
                         enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
                         ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                        task_id = 'MANAPP',
+                        task_id = TaskTypes.objects.get(task_id = 'MANAPP'),
                         task_assigned_to = None,
                         task_assigned_date = None,
                         task_completion_date = None
@@ -184,7 +184,7 @@ def run_algo():
                 TaskManager.objects.create(
                     enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
                     ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                    task_id = 'MANAPP',
+                    task_id = TaskTypes.objects.get(task_id = 'MANAPP'),
                     task_assigned_to = None,
                     task_assigned_date = None,
                     task_completion_date = None

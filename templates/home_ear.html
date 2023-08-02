@@ -136,6 +136,15 @@
   </div>
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
+      <h5 class="card-title">Clerical Checks</h5>
+      {% if cleric.count > 0 %}<span class="badge rounded-pill bg-danger">{{ cleric.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if clerica.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ clerica.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      <p class="card-text">Checks on previous examiners when a GR or TL Adjustment has taken place.</p>
+      <a href="{% url 'cleric_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+    </div>
+  </div>
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <div class="card-body d-flex flex-column">
       <h5 class="card-title">Previous Examiner Checks</h5>
       {% if pexmch.count > 0 %}<span class="badge rounded-pill bg-danger">{{ pexmch.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       {% if pexmcha.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ pexmcha.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
@@ -313,8 +322,8 @@
 
     <div class="card m-3 shadow-lg" style="width: 18rem; ">
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">User Overview</h5>
-          <p class="card-text">User and associated task control.</p>
+          <h5 class="card-title">User Task Control</h5>
+          <p class="card-text">User task control.</p>
           <a href="{% url 'user_panel' %}" class="mt-auto btn btn-outline-primary">Go to Panel</a>
         </div>
       </div>

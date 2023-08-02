@@ -37,12 +37,12 @@
 
 <div class="card m-3" style="width: 18rem; ">
     <div class="card-body">
-        <h5 class="card-title">{{t.task_id}}</h5>
+        <h5 class="card-title">{{t.task_id.task_id}}</h5>
         <h6 class="card-subtitle mb-2 text-muted">Enquiry: {{t.enquiry_id.enquiry_id}}</h6>
         <h6 class="card-subtitle mb-2 text-muted">Script: {{t.ec_sid.ec_sid}}</h6>
         <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
         <form method="POST" action="{% url 'task-router' %}">
-            <input name="task_type" id="task_type" value='{{t.task_id}}' type="hidden" class="form-control">
+            <input name="task_type" id="task_type" value='{{t.task_id.task_id}}' type="hidden" class="form-control">
             <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
             <button type="submit" class="btn btn-primary">Go to Task</button>
         </form>

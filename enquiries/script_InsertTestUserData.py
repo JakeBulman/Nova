@@ -47,12 +47,18 @@ def load_core_tables():
         taskteam = str(row[2].value)
         taskrank = str(row[3].value)
 
-        TaskTypes.objects.create(
-            task_id = taskid,
-            task_description = taskdesc,
-            task_team = TaskTeams.objects.get(team_name=taskteam),
-            task_rank = taskrank
-        )
+        try:
+            TaskTypes.objects.create(
+                task_id = taskid,
+                task_description = taskdesc,
+                task_team = TaskTeams.objects.get(team_name=taskteam),
+                task_rank = taskrank
+            )
+        except:
+            pass
+
+        
+
 
 
     filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Test Users\\TestUsers.xlsx")

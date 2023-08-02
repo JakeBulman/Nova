@@ -54,7 +54,7 @@
             <tr class="text-center">
                 <th>Examiner Name</th>
                 <td>{% for y in task.ec_sid.apportion_script.all %}
-                    {% if y.apportionment_invalidated %}
+                    {% if y.apportionment_invalidated == 0 %}
                     {{ y.enpe_sid.per_sid.exm_title }} {{ y.enpe_sid.per_sid.exm_initials }} ({{ y.enpe_sid.per_sid.exm_forename }}) {{ y.enpe_sid.per_sid.exm_surname }}
                     {% endif %}
                     {% endfor %}

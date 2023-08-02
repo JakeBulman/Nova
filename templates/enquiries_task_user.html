@@ -9,19 +9,25 @@
     <table class="table table-sm table-bordered table-hover">
         <tr class="text-center">
           <th>Username</th>
-          <th>Username</th>
-
+          <th>Team</th>
+          <th>Access Level</th>
+          <th>Tasks Assigned</th>
+          <th>Remove Tasks</th>
         </tr>
         {% for x in users %}
-                <tr class="text-center">
-                  <td>{{ x.username }}</td> 
-                </tr>
+          <tr class="text-center">
+            <td>{{ x.username }}</td> 
+            <td>{% for y in x.user_primary.all %}{{ y.primary_team.team_name }}{% endfor %}</td>
+            <td>{% for y in x.user_primary.all %}{{ y.primary_status }}{% endfor %}</td>
+            <td>{{ x.task_count }}</td>
+            <td><form method="POST" action="{% url 'user_remove_tasks' %}" class="text-center">
+              <input name="username" id="username" value="{{ x.username }}" type="hidden" class="form-control">
+              <button type="submit" class="btn btn-outline-danger" style="width:300px">Remove All Tasks</button>
+            </form></td>
+          </tr>
         {% endfor %}
+        
     </table>
 </div>
-
-</div>
-
-
 
 {% endblock %}

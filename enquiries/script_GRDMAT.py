@@ -14,7 +14,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, MisReturnData, CentreEnquiryRequests, EnquiryGrades
+from enquiries.models import TaskManager, MisReturnData, CentreEnquiryRequests, EnquiryGrades, TaskTypes
 from django.contrib.auth.models import User
 
 def run_algo():
@@ -34,7 +34,7 @@ def run_algo():
             TaskManager.objects.create(
                 enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
                 ec_sid = None,
-                task_id = 'OUTCON',
+                task_id = TaskTypes.objects.get(task_id = 'OUTCON'),
                 task_assigned_to = None,
                 task_assigned_date = None,
                 task_completion_date = None
@@ -52,7 +52,7 @@ def run_algo():
                     TaskManager.objects.create(
                         enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
                         ec_sid = None,
-                        task_id = 'GRDCON',
+                        task_id = TaskTypes.objects.get(task_id = 'GRDCON'),
                         task_assigned_to = User.objects.get(username='NovaServer'),
                         task_assigned_date = timezone.now(),
                         task_completion_date = None
@@ -63,7 +63,7 @@ def run_algo():
                     TaskManager.objects.create(
                         enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
                         ec_sid = None,
-                        task_id = 'GRDNEG',
+                        task_id = TaskTypes.objects.get(task_id = 'GRDNEG'),
                         task_assigned_to = None,
                         task_assigned_date = None,
                         task_completion_date = None
@@ -71,6 +71,6 @@ def run_algo():
                     print('GRDNEG')
             else:
                 print('no grade avail')
-    #TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())   
+    TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())   
 
 run_algo()
