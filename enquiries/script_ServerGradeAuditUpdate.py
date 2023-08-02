@@ -80,20 +80,23 @@ def load_core_tables():
                 new_seq = row['new_seq']
             )
         else:
-            EnquiryGrades.objects.create(
-                enquiry_id = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['enquiry_id']),
-                eps_ass_code = row['eps_ass_code'],
-                eps_cand_no = row['eps_cand_no'],
-                previous_grade = row['previous_grade'],
-                previous_seq = row['previous_seq'],
-                new_grade = row['new_grade'],
-                new_seq = row['new_seq']
-        )
+            try:
+                EnquiryGrades.objects.create(
+                    enquiry_id = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['enquiry_id']),
+                    eps_ass_code = row['eps_ass_code'],
+                    eps_cand_no = row['eps_cand_no'],
+                    previous_grade = row['previous_grade'],
+                    previous_seq = row['previous_seq'],
+                    new_grade = row['new_grade'],
+                    new_seq = row['new_seq']
+                )
+            except:
+                pass
 
 
     df.apply(insert_to_model_erp, axis=1)
 
 
-    print("ERP loaded:" + str(datetime.datetime.now()))
+    print("EG loaded:" + str(datetime.datetime.now()))
 
 load_core_tables()

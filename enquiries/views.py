@@ -1840,14 +1840,39 @@ def examiner_email_edit_view(request, per_sid=None):
 def user_panel_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True))
-
-	context = {"users": queryset,}
+	teams = models.TaskTeams.objects.all().order_by('id')
+	context = {"users": queryset, "teams":teams}
 	return render(request, "enquiries_task_user.html", context=context)
+
+def create_user_view(request):
+	username = request.POST.get('username')
+	password = request.POST.get('password')
+	email = request.POST.get('email')
+	pteam = request.POST.get('pteam')
+	access = request.POST.get('access')
+
+	new_user = User.objects.create_user(username=username,
+							email=email,
+							password=password)
+	
+	models.TaskUserPrimary.objects.create(
+		task_user = new_user,
+		primary_team = models.TaskTeams.objects.get(team_name=pteam),
+		primary_status = access
+	)
+
+	print(username + password + email + pteam + access)
+
+	return redirect("user_panel")
 
 def user_remove_tasks_view(request):
 	username = request.POST.get('username')
 	print(username)
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	models.TaskManager.objects.filter(task_assigned_to=models.User.objects.get(username=username)).update(task_assigned_to=None, task_assigned_date=None)
+	
 
 	return redirect("user_panel")
+
+# def edit_user_view(request, username=None):
+	

@@ -157,8 +157,11 @@ urlpatterns = [
 
 
     ### Admin ###
+
     #Shows list of all assigned tasks fo users
     path('user_panel', views.user_panel_view, name='user_panel'),
     path('user_remove_tasks', views.user_remove_tasks_view, name='user_remove_tasks'),
+    path('create_user', views.create_user_view, name='create_user'),
+    path('edit_user/<str:username>/', views.edit_user_view, name='edit_user'),
 ]
 
