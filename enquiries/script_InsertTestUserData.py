@@ -32,10 +32,10 @@ def load_core_tables():
         taskteam = str(row[0].value)
         print(taskteam)
 
-        if not TaskTeams.objects.filter(team_name=taskteam).exists:
-            TaskTeams.objects.create(
-                team_name=taskteam,
-            )
+
+        TaskTeams.objects.create(
+            team_name=taskteam,
+        )
 
     filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Test Users\\TaskTypes.xlsx")
     workbook = load_workbook(filename)
@@ -47,16 +47,12 @@ def load_core_tables():
         taskteam = str(row[2].value)
         taskrank = str(row[3].value)
 
-        try:
-            if not TaskTypes.objects.filter(task_id=taskid).exists:
-                TaskTypes.objects.create(
-                    task_id = taskid,
-                    task_description = taskdesc,
-                    task_team = TaskTeams.objects.get(team_name=taskteam),
-                    task_rank = taskrank
-                )
-        except:
-            pass
+        TaskTypes.objects.create(
+            task_id = taskid,
+            task_description = taskdesc,
+            task_team = TaskTeams.objects.get(team_name=taskteam),
+            task_rank = taskrank
+        )
 
 
     filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Test Users\\TestUsers.xlsx")
@@ -67,10 +63,9 @@ def load_core_tables():
         username = str(row[0].value)
         password = str(row[1].value)
 
-        if not User.objects.filter(username=username).exists:
-            User.objects.create_user(username=username,
-            email='',
-            password=password)
+        User.objects.create_user(username=username,
+        email='',
+        password=password)
 
     filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Test Users\\PrimaryTeams.xlsx")
     workbook = load_workbook(filename)
