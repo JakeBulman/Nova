@@ -167,3 +167,4 @@ redepplan/.bashrc
 redepplan/wsgi.py
 
 *.pyc
+members/migrations/__pycache__/__init__.cpython-310.pyc
