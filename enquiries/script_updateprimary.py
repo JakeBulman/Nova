@@ -23,15 +23,20 @@ def load_core_tables():
 
     start_time = datetime.datetime.now()
     print("Start Time:" + str(datetime.datetime.now()))
-
-    username = 'NovaServer'
+    username = 'JakeBulman'
     teamname = 'Server'
     status = 'TL'
-    TaskUserPrimary.objects.create(
-        task_user = User.objects.get(username=username),
-        primary_team = TaskTeams.objects.get(team_name=teamname),
-        primary_status = status
-    )
+    print(str(TaskUserPrimary.objects.filter(task_user_id=User.objects.get(username=username).pk).exists()))
+    if TaskUserPrimary.objects.filter(task_user_id=User.objects.get(username=username).pk).exists():
+        TaskUserPrimary.objects.filter(task_user_id=User.objects.get(username=username).pk).update(            
+            primary_team = TaskTeams.objects.get(team_name=teamname),
+            primary_status = status)
+    else:
+        TaskUserPrimary.objects.create(
+            task_user = User.objects.get(username=username),
+            primary_team = TaskTeams.objects.get(team_name=teamname),
+            primary_status = status
+        )
 
     end_time = datetime.datetime.now()
     print(end_time - start_time)
