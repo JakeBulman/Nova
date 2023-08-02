@@ -9,11 +9,22 @@ import site
 # site.addsitedir('C:/Users/bulmaj/Envs/redepplan/Lib/site-packages')
 
 # Add the app's directory to the PYTHONPATH
-sys.path.append('C:/Dev/redepplan')
-sys.path.append('C:/Dev/redepplan/redepplan')
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "redepplan.settings")
+if os.getenv('DJANGO_DEVELOPMENT') == 'true':
+    print('DEV')
+elif os.getenv('DJANGO_PRODUCTION') == 'true':
+    print('PROD')
+    sys.path.append('C:/Dev/nova')
+    sys.path.append('C:/Dev/nova/redepplan')
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "redepplan.settings_prod")
+else:
+    print('UAT')
+    sys.path.append('C:/Dev/redepplan')
+    sys.path.append('C:/Dev/redepplan/redepplan')
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "redepplan.settings")
+
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
