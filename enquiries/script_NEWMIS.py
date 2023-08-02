@@ -58,7 +58,7 @@ def run_algo():
 
         #Examiners-956955_BATCH_836680_MIS
 
-        workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\Examiners-" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
+        workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\Examiner-" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
 
         #Create next step in chain (RETMIS)
         TaskManager.objects.create(
