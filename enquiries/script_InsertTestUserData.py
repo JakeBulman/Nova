@@ -5,10 +5,17 @@ import django
 import datetime
 
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
+    print('DEV')
     path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+elif os.getenv('DJANGO_PRODUCTION') == 'true':
+    print('PROD')
+    path = os.path.join('C:\\Dev\\Nova')
+    sys.path.append(path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
 else:
+    print('UAT')
     sys.path.append('C:/Dev/redepplan')
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 
@@ -32,7 +39,7 @@ def load_core_tables():
         taskteam = str(row[0].value)
         print(taskteam)
 
-        if not TaskTeams.objects.filter(team_name=taskteam).exists:
+        if not TaskTeams.objects.filter(team_name=taskteam).exists():
             TaskTeams.objects.create(
                 team_name=taskteam,
             )
@@ -61,37 +68,37 @@ def load_core_tables():
 
 
 
-    filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Test Users\\TestUsers.xlsx")
-    workbook = load_workbook(filename)
-    sheet = workbook.active
+    # filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Test Users\\TestUsers.xlsx")
+    # workbook = load_workbook(filename)
+    # sheet = workbook.active
 
-    for row in sheet.iter_rows():
-        username = str(row[0].value)
-        password = str(row[1].value)
+    # for row in sheet.iter_rows():
+    #     username = str(row[0].value)
+    #     password = str(row[1].value)
 
-        if not User.objects.filter(username=username).exists:
-            User.objects.create_user(username=username,
-            email='',
-            password=password)
+    #     if not User.objects.filter(username=username).exists:
+    #         User.objects.create_user(username=username,
+    #         email='',
+    #         password=password)
 
-    filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Test Users\\PrimaryTeams.xlsx")
-    workbook = load_workbook(filename)
-    sheet = workbook.active
+    # filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Test Users\\PrimaryTeams.xlsx")
+    # workbook = load_workbook(filename)
+    # sheet = workbook.active
 
-    for row in sheet.iter_rows():
-        username = str(row[0].value)
-        teamname = str(row[1].value)
-        status = str(row[2].value)
+    # for row in sheet.iter_rows():
+    #     username = str(row[0].value)
+    #     teamname = str(row[1].value)
+    #     status = str(row[2].value)
 
-        # try:
-        #if not TaskUserPrimary.objects.filter(task_user=User.objects.get(username=username)).exists:
-        TaskUserPrimary.objects.create(
-            task_user = User.objects.get(username=username),
-            primary_team = TaskTeams.objects.get(team_name=teamname),
-            primary_status = status
-        )
-        # except:
-        #     pass
+    #     # try:
+    #     #if not TaskUserPrimary.objects.filter(task_user=User.objects.get(username=username)).exists:
+    #     TaskUserPrimary.objects.create(
+    #         task_user = User.objects.get(username=username),
+    #         primary_team = TaskTeams.objects.get(team_name=teamname),
+    #         primary_status = status
+    #     )
+    #     # except:
+    #     #     pass
 
     end_time = datetime.datetime.now()
     print(end_time - start_time)
