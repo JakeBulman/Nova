@@ -261,6 +261,7 @@ class EsmcsvDownloads(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class EarServerSettings(models.Model):
-    session_id_list = models.TextField()
-    enquiry_id_list = models.TextField()
+    session_id_list = models.TextField(default='')
+    enquiry_id_list = models.TextField(default='')
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    session_description = models.TextField(default='')

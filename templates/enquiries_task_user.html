@@ -56,7 +56,7 @@
 
 
   <div class="col-lg-3 align-self-center"></div>
-  </div>  
+</div>  
 
 
 <div class="table-responsive-xl m-5">
@@ -70,7 +70,7 @@
         </tr>
         {% for x in users %}
           <tr class="text-center">
-            <td class="text-center"><a class="btn btn-primary" style="width:200px" href='/enquiries/edit_user/{{ x.username }}'>{{ x.username }}</a></td>
+            <td class="text-center"><a class="btn btn-primary" style="width:200px" href='/enquiries/edit_user/{{ x.id }}'>{{ x.username }}</a></td>
             <td>{% for y in x.user_primary.all %}{{ y.primary_team.team_name }}{% endfor %}</td>
             <td>{% for y in x.user_primary.all %}{{ y.primary_status }}{% endfor %}</td>
             <td>{{ x.task_count }}</td>

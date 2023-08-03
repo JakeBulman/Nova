@@ -30,7 +30,7 @@ def load_core_tables():
 
     start_time = datetime.datetime.now()
     print("Start Time:" + str(datetime.datetime.now()))
-    username = 'JakeBulman'
+    username = 'admin'
     teamname = 'Server'
     status = 'CO'
     print(str(TaskUserPrimary.objects.filter(task_user_id=User.objects.get(username=username).pk).exists()))

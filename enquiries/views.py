@@ -71,7 +71,8 @@ def ear_home_view(request,*args, **kwargs):
 	outcon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True)
 	outcona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 
-	context = {"mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
+	session_desc = models.EarServerSettings.objects.first().session_description
+	context = {"session_desc":session_desc, "mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
 	    "botapp":botapp_count, "botapf":botapp_fail_count, "botmar":botmar_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count,
 		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "cleric":cleric_count, "clerica":clerica_count, "esmcsv":esmcsv_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, "remapf":remapf_count, "remapfa":remapfa_count,
 		"grdrel":grdrel_count, "grdrela":grdrela_count, "negcon":negcon_count, "negcona":negcona_count, "pdacon":pdacon_count, "pdacona":pdacona_count, 
@@ -85,7 +86,7 @@ def ear_home_view(request,*args, **kwargs):
 		user = request.user
 
 	user_status = models.TaskUserPrimary.objects.get(task_user_id=user).primary_status
-	print("." + user_status + ".")
+
 	if user_status == 'CO':
 		return render(request, "home_ear_coordinator.html", context=context, )
 	elif user_status == 'TL':
@@ -107,8 +108,10 @@ def server_settings_view(request):
 def server_settings_update_view(request):
 	sessions = request.POST.get('session_id_list')
 	enquiries = request.POST.get('enquiry_id_list')
+	session_desc = request.POST.get('session_desc')
+	
 	serv = models.EarServerSettings.objects.first()
-	models.EarServerSettings.objects.filter(id=serv.pk).update(session_id_list=sessions,enquiry_id_list=enquiries)
+	models.EarServerSettings.objects.filter(id=serv.pk).update(session_id_list=sessions,enquiry_id_list=enquiries,session_description=session_desc)
 	# models.EarServerSettings.objects.create(
 	# 	session_id_list=sessions,
 	# 	enquiry_id_list=enquiries
@@ -1864,18 +1867,63 @@ def create_user_view(request):
 		primary_status = access
 	)
 
-	print(username + password + email + pteam + access)
-
 	return redirect("user_panel")
+
+def update_user_view(request):
+	username = request.POST.get('username')
+	pteam = request.POST.get('pteam')
+	access = request.POST.get('access')
+
+	this_user = User.objects.get(username=username)
+	
+	models.TaskUserPrimary.objects.filter(task_user = this_user).update(
+		primary_team = models.TaskTeams.objects.get(team_name=pteam),
+		primary_status = access
+	)
+
+	if models.TaskUserSecondary.objects.filter(task_user=this_user,secondary_team=models.TaskTeams.objects.get(team_name=pteam)).exists():
+		models.TaskUserSecondary.objects.filter(task_user=this_user,
+		secondary_team=models.TaskTeams.objects.get(team_name=pteam)).delete()
+	
+
+	return redirect("edit_user", this_user.pk)
 
 def user_remove_tasks_view(request):
 	username = request.POST.get('username')
-	print(username)
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	models.TaskManager.objects.filter(task_assigned_to=models.User.objects.get(username=username)).update(task_assigned_to=None, task_assigned_date=None)
 	
 
 	return redirect("user_panel")
 
-# def edit_user_view(request, username=None):
-	
+def edit_user_view(request, userid=None):
+	teams = models.TaskTeams.objects.all().order_by('team_name')
+	user = User.objects.get(id=userid)
+
+	team_list = []
+	for team in models.TaskUserSecondary.objects.filter(task_user=user):
+		team_list.append(team.secondary_team.team_name)
+
+	primary_team = models.TaskUserPrimary.objects.get(task_user=user).primary_team.team_name
+
+	context = {"teams":teams, "user":user, "team_list":team_list, "primary_team":primary_team}
+	return render(request, "enquiries_task_user_detail.html", context=context) 
+
+def user_change_secondary(request):
+	userid = request.POST.get('userid')
+	sec_team = request.POST.get('sec_team')
+	type = request.POST.get('type')
+
+	if type == 'enroll':
+		models.TaskUserSecondary.objects.create(
+			task_user = User.objects.get(id=userid),
+			secondary_team = models.TaskTeams.objects.get(team_name=sec_team)
+		)
+	else:
+		models.TaskUserSecondary.objects.filter(
+			task_user=User.objects.get(id=userid),
+			secondary_team = models.TaskTeams.objects.get(team_name=sec_team)
+		).delete()
+
+
+	return redirect('edit_user', userid)

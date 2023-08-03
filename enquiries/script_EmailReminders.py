@@ -1,34 +1,8 @@
 
-# from email.message import EmailMessage
-# import smtplib
+from email.message import EmailMessage
+import smtplib
 
-# sender = "sender@outlook.com"
-# recipient = "recipient@example.com"
-# message = "Hello world!"
-
-# email = EmailMessage()
-# email["From"] = sender
-# email["To"] = recipient
-# email["Subject"] = "Test Email"
-# email.set_content(message)
-
-# smtp = smtplib.SMTP("smtp-mail.outlook.com", port=587)
-# smtp.starttls()
-# smtp.login(sender, "my_outlook_password_123")
-# smtp.sendmail(sender, recipient, email.as_string())
-# smtp.quit()
-
-
-
-
-import win32com.client as win32
-
-outlook = win32.Dispatch('outlook.application')
-
-mail = outlook.CreateItem(0)
-mail.To = 'jacob.bulman@cambridge.org'
-mail.Subject = 'Enquiry About Results – Review of Marking Worklist '
-mail.HtmlBody = """
+HtmlBody = """
 
 <style>
 #customers {
@@ -131,4 +105,19 @@ Email: results.enquiries@cambridge.org</p>
 <p><b>Cambridge Assessment International Education</b> prepares school students for life, helping them develop an informed curiosity and a lasting passion for learning. We are part of the University of Cambridge. </p>
 </body>
  """
-mail.Send()
+
+sender = "results.enquiries@cambridge.org"
+recipient = "jacob.bulman@cambridge.org"
+
+email = EmailMessage()
+email["From"] = sender
+email["To"] = recipient
+email["Subject"] = "Enquiry About Results – Review of Marking Worklist"
+email.set_content(HtmlBody, subtype='html')
+
+smtp = smtplib.SMTP("eu-smtp-inbound-1.mimecast.com", port=587)
+smtp.starttls()
+smtp.login(sender, "NwvEm&Z17b5dBNy@02T2XzHV")
+smtp.sendmail(sender, recipient, email.as_string())
+smtp.quit()
+

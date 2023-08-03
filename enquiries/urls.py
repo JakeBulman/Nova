@@ -162,6 +162,7 @@ urlpatterns = [
     path('user_panel', views.user_panel_view, name='user_panel'),
     path('user_remove_tasks', views.user_remove_tasks_view, name='user_remove_tasks'),
     path('create_user', views.create_user_view, name='create_user'),
-    # path('edit_user/<str:username>/', views.edit_user_view, name='edit_user'),
+    path('edit_user/<str:userid>/', views.edit_user_view, name='edit_user'),
+    path('update_user', views.update_user_view, name='update_user'),
+    path('user_change_secondary', views.user_change_secondary, name='user_change_secondary')
 ]
-
