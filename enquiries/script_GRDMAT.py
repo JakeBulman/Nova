@@ -26,7 +26,6 @@ from django.contrib.auth.models import User
 
 def run_algo():
     for task in TaskManager.objects.filter(task_id='GRDMAT', task_completion_date__isnull=True):
-
         enquiry_id = task.enquiry_id.enquiry_id
 
         #check if grade confirmed, if so skip checks
@@ -78,6 +77,6 @@ def run_algo():
                     print('GRDNEG')
             else:
                 print('no grade avail')
-    TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())   
+        TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())   
 
 run_algo()

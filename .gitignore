@@ -168,3 +168,11 @@ redepplan/wsgi.py
 
 *.pyc
 members/migrations/__pycache__/__init__.cpython-310.pyc
+celery/esmcsv_arc.bat
+celery/gdwait.bat
+celery/grdmat.bat
+celery/grdneg.bat
+celery/jusche.bat
+celery/mkwait.bat
+celery/newmis.bat
+celery/retmis.bat
