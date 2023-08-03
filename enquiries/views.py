@@ -83,14 +83,17 @@ def ear_home_view(request,*args, **kwargs):
 	user = None
 	if request.user.is_authenticated:
 		user = request.user
-	try:
-		user_status = models.TaskUserPrimary.objects.get(task_user_id=user).primary_status
-		if user_status == 'TL':
-			return render(request, "home_ear.html", context=context, )
-		elif user_status == 'AD':
-			return render(request, "home_ear_admin.html", context=context, )
-	except:
-		return render(request, "home_ear_restricted.html", context=context, )
+
+	user_status = models.TaskUserPrimary.objects.get(task_user_id=user).primary_status
+	print("." + user_status + ".")
+	if user_status == 'CO':
+		return render(request, "home_ear_coordinator.html", context=context, )
+	elif user_status == 'TL':
+		return render(request, "home_ear.html", context=context, )
+	elif user_status == 'AD':
+		return render(request, "home_ear_admin.html", context=context, )
+
+	return render(request, "home_ear_restricted.html", context=context, )
 
 def server_options_view(request):
 	context = {}

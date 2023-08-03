@@ -32,7 +32,7 @@ def load_core_tables():
     print("Start Time:" + str(datetime.datetime.now()))
     username = 'JakeBulman'
     teamname = 'Server'
-    status = 'TL'
+    status = 'CO'
     print(str(TaskUserPrimary.objects.filter(task_user_id=User.objects.get(username=username).pk).exists()))
     if TaskUserPrimary.objects.filter(task_user_id=User.objects.get(username=username).pk).exists():
         TaskUserPrimary.objects.filter(task_user_id=User.objects.get(username=username).pk).update(            
