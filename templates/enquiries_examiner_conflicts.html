@@ -15,16 +15,24 @@
                 <div class="row mb-5">
                     <div class="col"></div>
                     <div class="col">
-                        <label for="exm_note">New Note:</label>
-                        <input type="text" class="form-control" name="exm_conflicts" id ="exm_conflicts" style="width:500px"/>
+                        <div>Existing Conflicts:</div>
+                        <div style="word-break: break-word; font-weight: bold; color: red;">{{ current_conflict.examiner_conflicts }}</div>
+                        <div>Note: Please retain the existing conflicts if they are still required.</div>
+                        <br>
+                        <label for="exm_note">Full Conflict list:</label>
+                        <input type="text" class="form-control" name="exm_conflicts" id="exm_conflicts" value="{{ current_conflict.examiner_conflicts }}" style="width:500px"/>
                     </div>
                     <div class="col"></div>
                 </div>
-             <button type="submit" title="Add Note" class="btn btn-success mb-5" style="width:500px">Add and Update Conflicts</button>
+             <button type="submit" title="Add Note" class="btn btn-success mb-3" style="width:500px">Add and Update Conflicts</button>
             </form>
+            <div class="text-center">
+                <a class="btn btn-secondary btn mb-5" href='/enquiries/examiner_detail/{{ enpe.per_sid }}' style="width:500px">Back to Examiner Overview (No Changes)</a>
+            </div>
         </div>
         <div class="col"></div>
     </div>
 </div>
 
 {% endblock %}
+

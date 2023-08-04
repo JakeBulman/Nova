@@ -1778,7 +1778,11 @@ def examiner_notes_delete(request, note_id=None):
 
 def examiner_conflicts_view(request, per_sid=None):
 	uc_queryset = models.UniqueCreditor.objects.get(per_sid=per_sid)
-	context = {"enpe": uc_queryset,}
+	if models.ExaminerConflicts.objects.filter(creditor=uc_queryset).exists():
+		current_conflict = models.ExaminerConflicts.objects.get(creditor=uc_queryset)
+	else:
+		current_conflict = None
+	context = {"enpe": uc_queryset, "current_conflict":current_conflict}
 	return render(request, 'enquiries_examiner_conflicts.html', context=context)
 
 def examiner_conflicts_edit_view(request, per_sid=None):
@@ -1845,7 +1849,7 @@ def examiner_email_edit_view(request, per_sid=None):
 
 def user_panel_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True))
+	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
 	teams = models.TaskTeams.objects.all().order_by('id')
 	context = {"users": queryset, "teams":teams}
 	return render(request, "enquiries_task_user.html", context=context)
