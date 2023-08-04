@@ -947,16 +947,76 @@ def enquiries_detail(request, enquiry_id=None):
 	if enquiry_id is not None:	
 		cer_queryset = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
 		task_queryset = models.TaskManager.objects.filter(enquiry_id=enquiry_id).order_by('task_creation_date')
+
 		#Get task_id for this enquiry if it has SETBIE
 		bie_task_id = None
 		if models.TaskManager.objects.filter(task_id='SETBIE',enquiry_id=enquiry_id).exists():
-			bie_task_id = models.TaskManager.objects.filter(task_id='SETBIE',enquiry_id=enquiry_id).first().task_id
-		#Get task_id for this enquiry if it has SETBIE
+			bie_task_id = models.TaskManager.objects.filter(task_id='SETBIE',enquiry_id=enquiry_id).first().task_id.task_id
+
+		#Get task_id for this enquiry if it is PAUSED
+		enquiry_paused = None
+		if models.PausedEnquiry.objects.filter(enquiry_id=enquiry_id).exists():
+			enquiry_paused = models.PausedEnquiry.objects.get(enquiry_id=enquiry_id)
+
+		#Get task_id for this enquiry if it is PRIORITISED
+		enquiry_prioritised = None
+		if models.PriorityEnquiry.objects.filter(enquiry_id=enquiry_id).exists():
+			enquiry_prioritised = models.PriorityEnquiry.objects.get(enquiry_id=enquiry_id)
+
+		#Get task_id for this enquiry if it has ISSUE
 		issue_reason = None
 		if models.SetIssueAudit.objects.filter(enquiry_id=enquiry_id).exists():
 			issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=enquiry_id).first().issue_reason
-	context = {"cer": cer_queryset, "bie_status": bie_task_id, "issue_reason":issue_reason, "tasks":task_queryset}
+
+	context = {"cer": cer_queryset, "bie_status": bie_task_id, "enquiry_paused":enquiry_paused, "enquiry_prioritised":enquiry_prioritised, "issue_reason":issue_reason, "tasks":task_queryset}
 	return render(request, "enquiries_detail.html", context=context)
+
+
+#TO DO: Pause Enquiry
+def pause_enquiry(request, enquiry_id=None):
+	if enquiry_id is not None and request.method == 'POST':	
+		pause_status = request.POST.get('pause_status')
+		pause_reason = request.POST.get('pause_reason')
+		if pause_status == 'pause':
+			models.PausedEnquiry.objects.create(
+				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+				pause_reason = pause_reason
+			)
+			models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_completion_date=None).update(task_assigned_to=User.objects.get(username='PausedEnquiry'),task_completion_date=timezone.now(),task_assigned_date=timezone.now())
+		else:
+			models.PausedEnquiry.objects.filter(enquiry_id=enquiry_id).delete()
+			models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_assigned_to=User.objects.get(username='PausedEnquiry')).update(task_assigned_date=None,task_assigned_to=None,task_completion_date=None)
+
+	return redirect('enquiries_detail', enquiry_id)
+
+#TO DO: Prioritise Enquiry
+def prioritise_enquiry(request, enquiry_id=None):
+	if enquiry_id is not None and request.method == 'POST':	
+		priority_status = request.POST.get('priority_status')
+		priority_reason = request.POST.get('priority_reason')
+		print(priority_status)
+		print(priority_reason)
+		if priority_status == 'prioritise':
+			models.PriorityEnquiry.objects.create(
+				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+				priority_reason = priority_reason
+			)
+		else:
+			models.PriorityEnquiry.objects.filter(enquiry_id=enquiry_id).delete()
+
+	return redirect('enquiries_detail', enquiry_id)
+
+def set_issue_enquiry(request, enquiry_id=None):
+	if not models.SetIssueAudit.objects.filter(enquiry_id=enquiry_id).exists():
+		models.SetIssueAudit.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+			issue_reason = request.POST.get('rpa_fail')
+		)
+	else:
+		models.SetIssueAudit.objects.filter(enquiry_id=enquiry_id).update(
+			issue_reason = request.POST.get('rpa_fail')
+		)
+	return redirect('enquiries_detail', enquiry_id)
 
 def enquiries_detail_search(request, id=None):
 	enquiry_obj = None
@@ -1111,7 +1171,8 @@ def iec_pass_all_view(request):
 
 def iec_fail_view(request, enquiry_id=None):
 	if enquiry_id is not None and request.method == 'POST':	
-		#Get scripts for this enquiry ID, this is a join from EC to ERP
+		#complete the tasks
+		models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_completion_date=None).update(task_assigned_to=User.objects.get(username='NovaServer'),task_completion_date=timezone.now(),task_assigned_date=timezone.now())
 		#No need for script id, BIE is handled at Enquiry Level
 		if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='SETBIE',task_completion_date = None).exists():
 			this_task = models.TaskManager.objects.create(
@@ -1127,8 +1188,7 @@ def iec_fail_view(request, enquiry_id=None):
 				rpa_task_key = models.TaskManager.objects.get(pk=this_task.pk),
 				failure_reason = request.POST.get('rpa_fail')
 			)
-		#complete the task
-		models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
+		
 
 	if request.POST.get('page_source')=='detail':
 		return redirect('enquiries_detail', enquiry_id)
@@ -1647,22 +1707,6 @@ def enquiries_rpa_marks_keying_failure_view(request):
 	context = {"cer": page_obj,}
 	return render(request, "rpa_marks_keying_failure.html", context=context)
 
-
-#TO DO: Pause Enquiry
-def pause_enquiry(request, enquiry_id=None):
-	if enquiry_id is not None and request.method == 'POST':	
-		enquiry_obj = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
-		#enquiry_obj.initial_check_complete = True
-		#enquiry_obj.save()
-	return redirect('enquiries_detail', enquiry_id)
-
-#TO DO: Prioritise Enquiry
-def prioritise_enquiry(request, enquiry_id=None):
-	if enquiry_id is not None and request.method == 'POST':	
-		enquiry_obj = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
-		#enquiry_obj.initial_check_complete = True
-		#enquiry_obj.save()
-	return redirect('enquiries_detail', enquiry_id)
 
 def examiner_list_view(request):
 	search_q = ""

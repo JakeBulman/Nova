@@ -109,6 +109,7 @@ urlpatterns = [
     path('enquiries/enquiries_list/<str:enquiry_id>/iec-fail/', views.iec_fail_view, name="iec-fail"),
     path('enquiries/enquiries_list/<str:enquiry_id>/iec-issue/', views.iec_issue_view, name="iec-issue"),
     path('enquiries/enquiries_list/<str:enquiry_id>/pause-enquiry/', views.pause_enquiry, name="pause-enquiry"),
+    path('enquiries/enquiries_list/<str:enquiry_id>/set-issue/', views.set_issue_enquiry, name="set-issue"),
     path('enquiries/enquiries_list/<str:enquiry_id>/prioritise-enquiry/', views.prioritise_enquiry, name="prioritise-enquiry"),
     path('enquiries_detail', views.enquiries_detail, name='enquiries_detail'),
     #Show detailed view for a specific passed enquiry

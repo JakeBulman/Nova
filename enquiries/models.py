@@ -265,3 +265,11 @@ class EarServerSettings(models.Model):
     enquiry_id_list = models.TextField(default='')
     uploaded_at = models.DateTimeField(auto_now_add=True)
     session_description = models.TextField(default='')
+
+class PausedEnquiry(models.Model):
+    enquiry_id = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.CASCADE, related_name='paused_enquiries')
+    pause_reason = models.TextField(default='')
+
+class PriorityEnquiry(models.Model):
+    enquiry_id = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.CASCADE, related_name='priority_enquiries')
+    priority_reason = models.TextField(default='')
