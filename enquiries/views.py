@@ -396,44 +396,15 @@ def pexmch_task_complete(request):
 	script_id = request.POST.get('script_id')
 	task_id = request.POST.get('task_id')
 	enquiry_id = request.POST.get('enquiry_id')
-	exm_1 = request.POST.get('exm_1')
-	exm_2 = request.POST.get('exm_2')
-	exm_3 = request.POST.get('exm_3')
-	exm_4 = request.POST.get('exm_4')
-	exm_5 = request.POST.get('exm_5')
-
 	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='MANAPP',task_completion_date = None).exists():
-		if exm_1 != "":
-			models.EnquiryComponentsPreviousExaminers.objects.create(
-				cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
-				exm_position = exm_1
-			)
-		if exm_2 != "":
-			models.EnquiryComponentsPreviousExaminers.objects.create(
-				cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
-				exm_position = exm_2
-			)
-		if exm_3 != "":
-			models.EnquiryComponentsPreviousExaminers.objects.create(
-				cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
-				exm_position = exm_3
-			)
-		if exm_4 != "":
-			models.EnquiryComponentsPreviousExaminers.objects.create(
-				cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
-				exm_position = exm_4
-			)
-		if exm_5 != "":
-			models.EnquiryComponentsPreviousExaminers.objects.create(
-				cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
-				exm_position = exm_5
-			)
-
+		for i in range(1,50):
+			pexmch = request.POST.get('pexmch'+str(i))
+			if pexmch:
+				check = models.EnquiryComponentsPreviousExaminers.objects.create(
+					cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+					exm_position = pexmch
+				)
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
@@ -444,8 +415,8 @@ def pexmch_task_complete(request):
 			task_completion_date = None
 		)
 
-	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='PEXMCH').update(task_completion_date=timezone.now())    
+		#complete the task
+		models.TaskManager.objects.filter(pk=task_id,task_id='PEXMCH').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
 
 

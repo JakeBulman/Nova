@@ -29,7 +29,8 @@ def run_algo():
 
         app_complete_check = None
         #check if completed apportion task is available
-        app_complete_check = TaskManager.objects.filter(enquiry_id=task.enquiry_id.enquiry_id,task_id='BOTAPP', task_completion_date__isnull=False)
+        task_list = ['BOTAPP','NRMACC']
+        app_complete_check = TaskManager.objects.filter(enquiry_id=task.enquiry_id.enquiry_id,task_id__in=task_list, task_completion_date__isnull=False)
 
         if app_complete_check:
             TaskManager.objects.create(

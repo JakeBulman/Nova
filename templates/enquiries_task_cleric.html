@@ -2,8 +2,8 @@
 
 {% block content %}
 
-<h1 class="display-5 text-center mb-5">EAR Task - Clerical Checks</h1>
-
+<h1 class="display-5 text-center mb-5">EAR Task - Clerical Re-Checks</h1>
+<h3 class="text-center mb-5">Service 1 and 1S only</h3>
 
 <div class="container">
     <div class="row text-center">
@@ -53,6 +53,11 @@
         </div>
 
         {% if issue_reason %}<h2 class="text-center text-primary mb-3">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
+
+        <div class="row text-center">
+        <h5>Task Instruction</h5>
+        <div>Perform a clerical re-check of a candidate’s script as part of EAR Service 1 or 1S, and confirm or change the marks in EPS.</div>
+        </div>
 
         <form method="POST" action="{% url 'cleric-complete' %}" class="text-center">
             <input name="script_id" id="script_id" value={{task.ec_sid.ec_sid}} type="hidden" class="form-control">
