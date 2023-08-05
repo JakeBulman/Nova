@@ -78,7 +78,7 @@ def run_algo():
                 ScriptApportionment.objects.filter(ec_sid=ec_sid).update(script_marked=0)
             else:
                 print('FAILED:' + eb_sid)
-                if expected_exm!=sheet["E4"].value:
+                if expected_exm.exm_examiner_no!=sheet["E4"].value:
                     shutil.move(filename, error_filename)
                     outlook = win32.Dispatch('outlook.application')
                     mail = outlook.CreateItem(0)
