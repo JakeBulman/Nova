@@ -273,3 +273,8 @@ class PausedEnquiry(models.Model):
 class PriorityEnquiry(models.Model):
     enquiry_id = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.CASCADE, related_name='priority_enquiries')
     priority_reason = models.TextField(default='')
+
+class EnquiryDeadline(models.Model):
+    enquiry_id = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.CASCADE, related_name='enquiry_deadline')
+    enquiry_deadline = models.DateTimeField(null=True) 
+    original_enquiry_deadline = models.DateTimeField(null=True) 

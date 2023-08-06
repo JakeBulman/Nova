@@ -145,13 +145,9 @@ def my_tasks_view(request):
 	secondary_teams = []
 	for team in secondary_team_set:
 		secondary_teams.append(team.secondary_team)
-
-	print(primary_team)
-	print(secondary_teams)
-
 	#Get task objects for this user
-	task_queryset = models.TaskManager.objects.filter(task_assigned_to=user,task_completion_date__isnull=True)
-	task_count = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team=primary_team).exclude(task_id__in=excluded_task_list).count() + models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team__in=secondary_teams).exclude(task_id__in=excluded_task_list).count() 
+	task_queryset = models.TaskManager.objects.filter(task_assigned_to=user,task_completion_date__isnull=True).order_by('enquiry_id__enquiry_deadline__enquiry_deadline')
+	task_count = models.TaskManager.objects.filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team=primary_team).exclude(task_id__in=excluded_task_list).count() + models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team__in=secondary_teams).exclude(task_id__in=excluded_task_list).count() 
 	context = {"tasks": task_queryset, "task_count": task_count}
 	return render(request, "my_tasks.html", context=context)
 
@@ -200,8 +196,6 @@ def task_router_view(request):
 	else:
 		return redirect('my_tasks')
 	
-
-
 def new_task_view(request):
 	#Get username to filter tasks
 	username = None
@@ -213,17 +207,13 @@ def new_task_view(request):
 	secondary_teams = []
 	for team in secondary_team_set:
 		secondary_teams.append(team.secondary_team)
-
-	print(primary_team)
-	print(secondary_teams)
-
 	#Caclulate next task in the queue
 	if models.TaskManager.objects.filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team=primary_team).exclude(task_id__in=excluded_task_list).exists():
 		print('primary')
-		next_task_id = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team=primary_team).exclude(task_id__in=excluded_task_list).first().pk
+		next_task_id = models.TaskManager.objects.order_by('enquiry_id__enquiry_deadline__enquiry_deadline').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team=primary_team).exclude(task_id__in=excluded_task_list).first().pk
 	elif models.TaskManager.objects.filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team__in=secondary_teams).exclude(task_id__in=excluded_task_list).exists():
 		print('secondary')
-		next_task_id = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team__in=secondary_teams).exclude(task_id__in=excluded_task_list).first().pk
+		next_task_id = models.TaskManager.objects.order_by('enquiry_id__enquiry_deadline__enquiry_deadline').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team__in=secondary_teams).exclude(task_id__in=excluded_task_list).first().pk
 	else:
 		print('none')
 		next_task_id = None
@@ -414,7 +404,6 @@ def pexmch_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
 	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
-	#scripts = models.UniqueCreditor.objects.annotate(script_count=Count("creditors__exm_per_details__enpe_sid__apportion_examiner",distinct=True))
 	examiner_queryset = models.UniqueCreditor.objects.filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no')
 	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, }
 	return render(request, "enquiries_task_pexmch.html", context=context)
@@ -969,8 +958,6 @@ def enquiries_detail(request, enquiry_id=None):
 	context = {"cer": cer_queryset, "bie_status": bie_task_id, "enquiry_paused":enquiry_paused, "enquiry_prioritised":enquiry_prioritised, "issue_reason":issue_reason, "tasks":task_queryset}
 	return render(request, "enquiries_detail.html", context=context)
 
-
-#TO DO: Pause Enquiry
 def pause_enquiry(request, enquiry_id=None):
 	if enquiry_id is not None and request.method == 'POST':	
 		pause_status = request.POST.get('pause_status')
@@ -987,7 +974,6 @@ def pause_enquiry(request, enquiry_id=None):
 
 	return redirect('enquiries_detail', enquiry_id)
 
-#TO DO: Prioritise Enquiry
 def prioritise_enquiry(request, enquiry_id=None):
 	if enquiry_id is not None and request.method == 'POST':	
 		priority_status = request.POST.get('priority_status')
@@ -999,8 +985,11 @@ def prioritise_enquiry(request, enquiry_id=None):
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				priority_reason = priority_reason
 			)
+			models.EnquiryDeadline.objects.filter(enquiry_id=enquiry_id).update(enquiry_deadline=timezone.now())
 		else:
 			models.PriorityEnquiry.objects.filter(enquiry_id=enquiry_id).delete()
+			original_enquiry_deadline = models.EnquiryDeadline.objects.get(enquiry_id=enquiry_id).original_enquiry_deadline
+			models.EnquiryDeadline.objects.filter(enquiry_id=enquiry_id).update(enquiry_deadline=original_enquiry_deadline)
 
 	return redirect('enquiries_detail', enquiry_id)
 
