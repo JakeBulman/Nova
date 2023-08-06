@@ -134,13 +134,24 @@ def server_long_reset_view(request):
 		return render(request, "enquiries_server_options.html", context=context)
 
 def my_tasks_view(request):
-	#Get username to filter tasks
+		#Get username to filter tasks
 	user = None
 	if request.user.is_authenticated:
 		user = request.user
+
+	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON']
+	primary_team = models.TaskUserPrimary.objects.get(task_user=user).primary_team
+	secondary_team_set = models.TaskUserSecondary.objects.filter(task_user=user)
+	secondary_teams = []
+	for team in secondary_team_set:
+		secondary_teams.append(team.secondary_team)
+
+	print(primary_team)
+	print(secondary_teams)
+
 	#Get task objects for this user
 	task_queryset = models.TaskManager.objects.filter(task_assigned_to=user,task_completion_date__isnull=True)
-	task_count = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','GRDNEG','ESMCSV','ESMSCR','GRDREL','OUTCON']).count()
+	task_count = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team=primary_team).exclude(task_id__in=excluded_task_list).count() + models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team__in=secondary_teams).exclude(task_id__in=excluded_task_list).count() 
 	context = {"tasks": task_queryset, "task_count": task_count}
 	return render(request, "my_tasks.html", context=context)
 
@@ -196,10 +207,25 @@ def new_task_view(request):
 	username = None
 	if request.user.is_authenticated:
 		username =request.user
+	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON']
+	primary_team = models.TaskUserPrimary.objects.get(task_user=username).primary_team
+	secondary_team_set = models.TaskUserSecondary.objects.filter(task_user=username)
+	secondary_teams = []
+	for team in secondary_team_set:
+		secondary_teams.append(team.secondary_team)
+
+	print(primary_team)
+	print(secondary_teams)
+
 	#Caclulate next task in the queue
-	try:
-		next_task_id = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exclude(task_id__in=['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON']).first().pk
-	except:
+	if models.TaskManager.objects.filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team=primary_team).exclude(task_id__in=excluded_task_list).exists():
+		print('primary')
+		next_task_id = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team=primary_team).exclude(task_id__in=excluded_task_list).first().pk
+	elif models.TaskManager.objects.filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team__in=secondary_teams).exclude(task_id__in=excluded_task_list).exists():
+		print('secondary')
+		next_task_id = models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team__in=secondary_teams).exclude(task_id__in=excluded_task_list).first().pk
+	else:
+		print('none')
 		next_task_id = None
 	#Set the newest task to this user
 	if next_task_id is not None:
