@@ -23,7 +23,7 @@ else:
 
 django.setup()
 
-from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, EnquiryComponentsPreviousExaminers, MisReturnData, ScriptApportionmentExtension, EsmcsvDownloads, EarServerSettings, TaskTypes, EnquiryGrades, EnquiryDeadline
+from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, EnquiryComponentsPreviousExaminers, MisReturnData, ScriptApportionmentExtension, EsmcsvDownloads, EarServerSettings, TaskTypes, EnquiryGrades, EnquiryDeadline, ExaminerPanels
 
 def clear_tables():
     CentreEnquiryRequests.objects.all().delete()
@@ -33,6 +33,7 @@ def clear_tables():
 
     EnquiryBatches.objects.all().delete()
 
+    ExaminerPanels.objects.all().delete()
     UniqueCreditor.objects.all().delete()
     #Cascades to EnquiryPersonnel, EnquiryPersonnelDetails
 
@@ -276,7 +277,50 @@ def load_core_tables():
 
     print("ECE loaded:" + str(datetime.datetime.now()))
 
+   # Get datalake data - Enquiry Personnel - Extended
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql(f'''
+                select distinct
+                csce.ass_code as ass_code,
+                csce.com_id as com_id,
+                sp.name as sp_name,
+                sp.ses_sid as sp_ses_sid,
+                sdc.panel_size as panel_size
+                from ar_meps_req_prd.enquiry_personnel enpe
+                left join ar_meps_pan_prd.session_panel_positions spp
+                on enpe.eper_per_sid = spp.per_sid and enpe.pan_sid = spp.stm_pan_sid
+                inner join (select z.stm_pan_sid, z.creditor_no, max(z.load_date) as max_date from ar_meps_pan_prd.session_panel_positions z group by z.stm_pan_sid, z.creditor_no) mld
+                on spp.stm_pan_sid = mld.stm_pan_sid and spp.creditor_no = mld.creditor_no and spp.load_date = mld.max_date
+                left join  ar_meps_pan_prd.session_panels sp
+                on sp.sid = spp.stm_pan_sid
+                left join (select stm_pan_sid, count(*) as panel_size from ar_meps_pan_prd.session_panel_positions spp where spp.creditor_no is not null
+                group by stm_pan_sid) sdc
+                on sdc.stm_pan_sid = spp.stm_pan_sid
+                inner join (select z.sid, max(z.load_date) as max_date from ar_meps_pan_prd.session_panels z group by z.sid) mld2
+                on sp.sid = mld2.sid and sp.load_date = mld2.max_date
+                left join ar_meps_ord_prd.centre_sess_comp_entries csce
+                on sp.sid = csce.pan_sid
+                where 
+                sp.ses_sid in({session_id}) 
+                                ''', conn)
 
+    def insert_to_model_enpee(row):
+        try:
+            ExaminerPanels.objects.create(
+                ses_sid = row['sp_ses_sid'],
+                ass_code = row['ass_code'],
+                com_id = row['com_id'],
+                panel_name = row['sp_name'],
+                panel_size = row['panel_size'],
+                #manual_apportionment = USE DEFAULT
+                panel_notes = None
+            )
+        except:
+            pass
+    
+    df.apply(insert_to_model_enpee, axis=1)
+
+    print("ECM_PAN loaded:" + str(datetime.datetime.now()))
 
 
     # Get datalake data - Unique Creditors
@@ -397,6 +441,7 @@ def load_core_tables():
                 spp_sid = row['spp_sid'],
                 ear_approval_ind = row['ear_approval_ind'],
                 panel_size = row['panel_size'],
+                panel_id = ExaminerPanels.objects.get(ass_code=row['ass_code'],com_id=row['com_id'])
             )
         except:
             pass

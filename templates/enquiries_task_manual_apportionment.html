@@ -50,9 +50,15 @@
 
         {% if issue_reason %}<h2 class="text-center text-primary mb-3">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
 
+        
+
         <div class="row text-center my-5">
             <h5>Task Instruction</h5>
             <div>Please apportion to an available examiner (01.01 in the first instance) with no COI and ensure they are not the previous examiner. Please raise with TL if you have any issues.</div>
+        </div>
+        <div class="row text-center my-5">
+            <h5>Panel Notes</h5>
+            <div>{{panel_notes}}</div>
         </div>
         <div class="row text-center">
             <h5>Available Examiner List</h5>

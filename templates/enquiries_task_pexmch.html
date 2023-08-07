@@ -47,6 +47,14 @@
                 <th>Review Reason</th>
                 <td>{% for exm in task.ec_sid.script_pexmch.all %}{{ exm.kbr_reason }}{% endfor %}</td>
             </tr>
+            <tr class="text-center">
+                <th>Script Type</th>
+                <td>{{ task.ec_sid.script_type }}</td></td>
+                <th></th>
+                <td></td>
+            </tr>
+
+
         </table>
         <h5>Task Instruction</h5>
         <div>Please check RM and indicate which examiners have seen this script previously.</div>

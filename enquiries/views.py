@@ -246,13 +246,13 @@ def manual_apportionment_task(request, task_id=None):
 	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
 	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
 	examiner_queryset = models.UniqueCreditor.objects.annotate(script_count=Sum("creditors__apportion_examiner__script_marked",distinct=True)).annotate(rank_order1=Cast(Substr("creditors__exm_per_details__exm_examiner_no",1,2), IntegerField())).annotate(rank_order2=Cast(Substr("creditors__exm_per_details__exm_examiner_no",4,2), IntegerField())).filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('rank_order2','rank_order1')
-
+	panel_notes = models.ExaminerPanels.objects.get(ass_code=task_ass_code,com_id=task_comp_code).panel_notes
 	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
 
-	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, "issue_reason":issue_reason}
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, "issue_reason":issue_reason, "panel_notes":panel_notes}
 	return render(request, "enquiries_task_manual_apportionment.html", context=context)
 
 def manual_apportionment(request):
@@ -319,7 +319,8 @@ def nrmacc_task(request, task_id=None):
 	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
 	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
 	examiner_queryset = models.UniqueCreditor.objects.annotate(script_count=Sum("creditors__apportion_examiner__script_marked",distinct=True)).filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no')
-	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset,}
+	panel_notes = models.ExaminerPanels.objects.get(ass_code=task_ass_code,com_id=task_comp_code).panel_notes
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "panel_notes":panel_notes}
 	return render(request, "enquiries_task_nrmacc.html", context=context)
 
 def nrmacc_task_complete(request):
@@ -515,7 +516,7 @@ def exmsla_task(request, task_id=None):
 	script_id = task_queryset.ec_sid
 	extension_total = 0
 	for e in models.ScriptApportionmentExtension.objects.filter(task_id=models.TaskManager.objects.get(ec_sid=script_id,task_id='RETMIS').pk):
-		extension_total = extension_total + int(e.extenstion_days)
+		extension_total = extension_total + int(e.extension_days)
 	context = {"task_id":task_id, "task":task_queryset, "ext_days":extension_total }
 	return render(request, "enquiries_task_exmsla.html", context=context)
 
@@ -531,7 +532,7 @@ def exmsla_task_complete(request):
 			models.ScriptApportionmentExtension.objects.create(
 				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
 				task_id = models.TaskManager.objects.get(id=models.TaskManager.objects.get(ec_sid=script_id,task_id='RETMIS').pk),
-				extenstion_days = new_sla
+				extension_days = new_sla
 			)	
 			#Recreate RETMIS task (or set to not complete)
 			models.TaskManager.objects.filter(pk=models.TaskManager.objects.get(ec_sid=script_id,task_id='RETMIS').pk,task_id='RETMIS').update(
@@ -577,13 +578,13 @@ def remapp_task(request, task_id=None):
 	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
 	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
 	examiner_queryset = models.UniqueCreditor.objects.annotate(script_count=Sum("creditors__apportion_examiner__script_marked",distinct=True)).filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no').exclude(creditors__exm_per_details__enpe_sid__apportion_examiner__apportionment_invalidated=1)
-
+	panel_notes = models.ExaminerPanels.objects.get(ass_code=task_ass_code,com_id=task_comp_code).panel_notes
 	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
 
-	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, "issue_reason":issue_reason}
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, "issue_reason":issue_reason, "panel_notes":panel_notes}
 	return render(request, "enquiries_task_remapp.html", context=context)
 
 def remapp_task_complete(request):
@@ -1877,6 +1878,42 @@ def examiner_email_edit_view(request, per_sid=None):
 		else:
 			models.ExaminerEmailOverride.objects.filter(id=existing_note).update(examiner_email_manual=request.POST.get('exm_new_email'))
 	return redirect('examiner_detail', per_sid)
+
+def panel_list_view(request):
+	search_q = ""
+	if request.GET.get('search_query') is not None:
+		search_q = request.GET.get('search_query')
+	split_search_q_1 = "None"
+	split_search_q_2 = "None"
+	if search_q.find("/") > -1:
+		split_search_q_1 = search_q.split("/")[0]
+		split_search_q_2 = search_q.split("/")[1]
+		ep_queryset = models.ExaminerPanels.objects.filter(Q(ass_code__icontains = split_search_q_1) & Q(com_id__icontains = split_search_q_2)).order_by('ass_code','com_id')
+	else:
+		ep_queryset = models.ExaminerPanels.objects.all().annotate(exm_count=Count("panel_creditors",distinct=True)).order_by('ass_code','com_id')
+	ep_queryset_paged = Paginator(ep_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ep_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ep_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ep_queryset_paged.page(ep_queryset_paged.num_pages)	
+	context = {"ep": page_obj, "sq":search_q, }
+	return render(request, "enquiries_panel_list.html", context=context)
+
+def panel_set_manual_view(request):
+	panel_id = request.POST.get('panel_id')
+	models.ExaminerPanels.objects.filter(pk=panel_id).update(manual_apportionment=not models.ExaminerPanels.objects.get(pk=panel_id).manual_apportionment)
+	return redirect('panel_list')
+
+def panel_update_note_view(request):
+	panel_id = request.POST.get('panel_id')
+	panel_notes = request.POST.get('panel_notes')
+	models.ExaminerPanels.objects.filter(pk=panel_id).update(panel_notes=panel_notes)
+	return redirect('panel_list')
 
 def user_panel_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.

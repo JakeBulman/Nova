@@ -20,7 +20,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, EnquiryComponents, EnquiryComponentsPreviousExaminers, EnquiryPersonnelDetails, ScriptApportionment, CentreEnquiryRequests, ExaminerConflicts, ExaminerAvailability, SetIssueAudit, TaskTypes
+from enquiries.models import TaskManager, EnquiryComponents, EnquiryComponentsPreviousExaminers, EnquiryPersonnelDetails, ScriptApportionment, CentreEnquiryRequests, ExaminerConflicts, ExaminerAvailability, SetIssueAudit, TaskTypes, ExaminerPanels
 from django.utils import timezone
 from django.db.models import Sum
 from django.contrib.auth.models import User
@@ -37,8 +37,10 @@ def run_algo():
         task_enquiry_id = app_task.enquiry_id.enquiry_id
         script_obj = EnquiryComponents.objects.get(ec_sid=script_id)
         conflicts = ExaminerConflicts.objects.all()
-        if SetIssueAudit.objects.filter(enquiry_id=task_enquiry_id).exists():
-            #AUTAPP not successful, send to manual apportionement - because there is an issue tagged to the enquiry
+        panel_manapp_flag = ExaminerPanels.objects.get(ass_code=script_obj.eps_ass_code,com_id=script_obj.eps_com_id).manual_apportionment
+        script_obj.eps_ass_code
+        if SetIssueAudit.objects.filter(enquiry_id=task_enquiry_id).exists() or panel_manapp_flag:
+            #AUTAPP not successful, send to manual apportionement - because there is an issue tagged to the enquiry or the panel is set to manual
             TaskManager.objects.create(
                 enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
                 ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),

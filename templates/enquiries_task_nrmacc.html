@@ -71,9 +71,11 @@
         <div>1. Please request the hard copy script for the above enquiry.</div>
         <div>2. Please complete the EPS apportionment process for the above enquiry.</div>
         <div>3. Please send the hard copy script for the above enquiry to the examiner. If the examiner is no longer available, see below before completing the task.</div>
-
     </div>
-
+    <div class="row text-center my-5">
+        <h5>Panel Notes</h5>
+        <div>{{panel_notes}}</div>
+    </div>
     <div class="row text-center mt-5">
         <form method="POST" action="{% url 'nrmacc-complete' %}" class="text-center">
         <input name="task_status" id="task_status" value="Pass" type="hidden" class="form-control">

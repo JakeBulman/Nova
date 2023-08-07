@@ -156,6 +156,12 @@ urlpatterns = [
     path('examiner_email_update/<str:per_sid>/edit', views.examiner_email_edit_view, name='exm-email-edit'),
     path('examiner_email_update/<str:per_sid>/', views.examiner_email_view, name='examiner_email'),
 
+    ### Panel Control ###
+
+    #Shows list of all panels for this series
+    path('panel_list', views.panel_list_view, name='panel_list'),
+    path('panel_set_manual', views.panel_set_manual_view, name='panel_set_manual'),
+    path('panel_update_note', views.panel_update_note_view, name='panel_update_note'),
 
     ### Admin ###
 

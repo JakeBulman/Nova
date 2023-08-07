@@ -150,6 +150,15 @@ class MarkTolerances(models.Model):
     eps_com_id = models.CharField(max_length=2,null=True)
     mark_tolerance = models.CharField(max_length=4,null=True)
 
+class ExaminerPanels(models.Model):
+    ses_sid = models.CharField(max_length=8, null=True)
+    ass_code = models.CharField(max_length=8, null=True)
+    com_id = models.CharField(max_length=8, null=True)
+    panel_name = models.TextField(null=True)
+    panel_size = models.CharField(max_length=8, null=True)
+    manual_apportionment=models.BooleanField(default=False)
+    panel_notes = models.TextField(null=True)
+
 class UniqueCreditor(models.Model):
     exm_creditor_no = models.CharField(max_length=8, unique=True, default=0)
     per_sid = models.CharField(max_length=8, unique=True, default=0)
@@ -178,6 +187,7 @@ class EnquiryPersonnelDetails(models.Model):
     spp_sid = models.CharField(max_length=8, null=True)
     ear_approval_ind = models.CharField(max_length=1, null=True)
     panel_size = models.CharField(max_length=8, null=True)
+    panel_id = models.ForeignKey(ExaminerPanels, on_delete=models.SET_NULL, related_name='panel_creditors',null=True)
 
 class ExaminerAvailability(models.Model):
     creditor = models.ManyToManyField(UniqueCreditor, related_name='exm_availability')
@@ -216,7 +226,7 @@ class ScriptApportionment(models.Model):
 class ScriptApportionmentExtension(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='script_extension')
     task_id = models.ForeignKey(TaskManager, on_delete=models.SET_NULL, null=True, related_name='task_extension')
-    extenstion_days = models.CharField(max_length=3, default=0)
+    extension_days = models.CharField(max_length=3, default=0)
 
 class RpaFailureAudit(models.Model):
     rpa_task_key = models.ForeignKey(TaskManager, on_delete=models.CASCADE, null=True, related_name='task_manager_task')
