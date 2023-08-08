@@ -23,7 +23,7 @@ else:
 
 django.setup()
 
-from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, TaskTypes, EarServerSettings, EnquiryGrades, EnquiryDeadline, ExaminerPanels
+from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, TaskTypes, EarServerSettings, EnquiryGrades, EnquiryDeadline, ExaminerPanels, MarkTolerances
 
 def load_core_tables():
 
@@ -777,6 +777,24 @@ def load_core_tables():
             )
 
     print("ED loaded:" + str(datetime.datetime.now()))
+
+
+    filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Tolerances.xlsx")
+    workbook = load_workbook(filename)
+    sheet = workbook.active
+
+    # Iterating through All rows with all columns...
+    for i in range(1, sheet.max_row+1):
+        row = [cell.value for cell in sheet[i]] # sheet[n] gives nth row (list of cells)
+        if MarkTolerances.objects.filter(eps_ass_code = row[0],eps_com_id = row[1]).exists():
+            MarkTolerances.objects.filter(eps_ass_code = row[0],eps_com_id = row[1]).update(mark_tolerance = row[2])
+        else: 
+            MarkTolerances.objects.create(
+                eps_ass_code = row[0],
+                eps_com_id = row[1],
+                mark_tolerance = row[2]
+            )
+
 
     end_time = datetime.datetime.now()
     print(end_time - start_time)

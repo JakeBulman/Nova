@@ -44,8 +44,12 @@
             <tr class="text-center">
                 <th>Original Mark</th>
                 <td>{% for mis in task.ec_sid.script_mis.all %}{{ mis.original_mark }}{% endfor %}</td>
-                <th>Revised Mark</th>
-                <td>{% for mis in task.ec_sid.script_mis.all %}{{ mis.revised_mark }}{% endfor %}</td>
+                <th>Remark Creditor Number</th>
+                <td>{% for mis in task.ec_sid.script_mis.all %}
+                    {% for exm in mis.ec_sid.apportion_script.all %}
+                    {{ exm.enpe_sid.per_sid.exm_creditor_no }}
+                    {% endfor %}
+                    {% endfor %}</td>
             </tr>
             <tr class="text-center">
                 <th>Script Type</th>
@@ -54,10 +58,16 @@
                 <td>{% for mis in task.ec_sid.script_mis.all %}{{ mis.mark_status }}{% endfor %}</td>
             </tr>
             <tr class="text-center">
-                <th></th>
-                <td></td>                
                 <th>Justification Code</th>
-                <td>{% for mis in task.ec_sid.script_mis.all %}{{ mis.justification_code }}{% endfor %}</td>
+                <td>{% for mis in task.ec_sid.script_mis.all %}{{ mis.justification_code }}{% endfor %}</td>             
+                <th>Revised Mark</th>
+                <td>{% for mis in task.ec_sid.script_mis.all %}{{ mis.revised_mark }}{% endfor %}</td>
+            </tr>
+        </table>
+        <table class="table table-sm table-bordered table-hover text-center">
+            <tr class="text-center">
+                <th>JC4 Remark Reason</th>
+                <td>{% for mis in task.ec_sid.script_mis.all %}{{ mis.justification_code }}{% endfor %}</td>             
             </tr>
         </table>
         <h5>Task Instruction</h5>

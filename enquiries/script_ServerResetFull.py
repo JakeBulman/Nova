@@ -23,7 +23,7 @@ else:
 
 django.setup()
 
-from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, EnquiryComponentsPreviousExaminers, MisReturnData, ScriptApportionmentExtension, EsmcsvDownloads, EarServerSettings, TaskTypes, EnquiryGrades, EnquiryDeadline, ExaminerPanels
+from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, EnquiryComponentsPreviousExaminers, MisReturnData, ScriptApportionmentExtension, EsmcsvDownloads, EarServerSettings, TaskTypes, EnquiryGrades, EnquiryDeadline, ExaminerPanels, MarkTolerances
 
 def clear_tables():
     CentreEnquiryRequests.objects.all().delete()
@@ -45,6 +45,7 @@ def clear_tables():
     MisReturnData.objects.all().delete()
     ScriptApportionmentExtension.objects.all().delete()
     EsmcsvDownloads.objects.all().delete()
+    MarkTolerances.objects.all().delete()
 
     print('Tables Cleared')
 
