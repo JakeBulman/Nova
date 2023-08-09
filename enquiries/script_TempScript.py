@@ -46,6 +46,8 @@ for row in sheet.iter_rows():
     conflict = str(row[8].value)
     notes = str(row[9].value)
 
+    print(creditor, avail_ind, str(avail_string))
+
     if UniqueCreditor.objects.filter(exm_creditor_no=creditor).exists():
         if notes != 'None':
             exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
@@ -105,6 +107,7 @@ for row in sheet.iter_rows():
             avail.save()
             avail.creditor.add(exm)
     else:
-        print(creditor)
+        a=1
+        #print(creditor)
 
 print("EC loaded:" + str(datetime.datetime.now()))

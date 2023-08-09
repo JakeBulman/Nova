@@ -14,7 +14,7 @@ def login_user(request):
             login(request, user)
             if username == 'RPABOT':
                 return redirect('rpa_apportionment')
-            elif username == 'RPABOT2':
+            elif username == 'RPABOT2' or username == 'RPABOT3':
                 return redirect('rpa_marks_keying')
             else:
                 return redirect('home')
