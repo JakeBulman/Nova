@@ -80,23 +80,24 @@ def run_algo():
                 print('FAILED:' + eb_sid)
                 if expected_exm.exm_examiner_no!=sheet["E4"].value:
                     shutil.move(filename, error_filename)
-                    outlook = win32.Dispatch('outlook.application')
-                    mail = outlook.CreateItem(0)
-                    mail.To = 'jacob.bulman@cambridge.org'
-                    mail.Subject = 'EAR MIS File In Error Folder'
-                    mail.Body = 'The file ' + file + ' has a mismatched examiner for its batch: ' + sheet["E4"].value + " / " + expected_exm.exm_examiner_no
-                    mail.Send()
+                    # outlook = win32.Dispatch('outlook.application')
+                    # mail = outlook.CreateItem(0)
+                    # mail.To = 'jacob.bulman@cambridge.org'
+                    # mail.Subject = 'EAR MIS File In Error Folder'
+                    # mail.Body = 'The file ' + file + ' has a mismatched examiner for its batch: ' + sheet["E4"].value + " / " + expected_exm.exm_examiner_no
+                    # mail.Send()
         else:
             if file.endswith("COMPLETE") or file.endswith("FILE_CHECKS"):
                 a=1 #do nothing
             else:
+
                 #Move file to error handling folder
                 shutil.move(filename, error_filename)
-                outlook = win32.Dispatch('outlook.application')
-                mail = outlook.CreateItem(0)
-                mail.To = 'jacob.bulman@cambridge.org'
-                mail.Subject = 'EAR MIS File In Error Folder'
-                mail.Body = 'The file ' + file + ' was not of type .xlsx and was quarantined in the FILE_CHECKS FOLDER'
-                mail.Send()
+                # outlook = win32.Dispatch('outlook.application')
+                # mail = outlook.CreateItem(0)
+                # mail.To = 'jacob.bulman@cambridge.org'
+                # mail.Subject = 'EAR MIS File In Error Folder'
+                # mail.Body = 'The file ' + file + ' was not of type .xlsx and was quarantined in the FILE_CHECKS FOLDER'
+                # mail.Send()
 
 run_algo()
