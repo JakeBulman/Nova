@@ -37,7 +37,6 @@ def load_core_tables():
     start_time = datetime.datetime.now()
     print("Start Time:" + str(datetime.datetime.now()))
 
-    #TODO: Set up initch for each CER
     def insert_to_model():
         queryset = CentreEnquiryRequests.objects.all()
         for e in queryset:        
