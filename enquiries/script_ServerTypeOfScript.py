@@ -35,12 +35,13 @@ def load_core_tables():
 
     for row in sheet.iter_rows():
         ass_code = str(row[0].value).zfill(4)
-        comp_id = row[2].value
+        comp_id = str(row[2].value).zfill(2)
         script_type = row[5].value
 
-        EnquiryComponents.objects.filter(eps_ass_code=ass_code,eps_com_id=comp_id).update(script_type=script_type)
-
-    EnquiryComponents.objects.filter(script_type=None).update(script_type='Unknown')
+        print(ass_code + comp_id + script_type)
+        a = EnquiryComponents.objects.filter(eps_ass_code=ass_code,eps_com_id=comp_id).update(script_type=script_type)
+        print(a)
+    #EnquiryComponents.objects.filter(script_type=None).update(script_type='Unknown')
 
     filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Tolerances.xlsx")
     workbook = load_workbook(filename)

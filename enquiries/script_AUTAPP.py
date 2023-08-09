@@ -75,9 +75,10 @@ def run_algo():
                     prev_exm = None
                     exm_creditor_position = exm.get('position')
                     try:
-                        prev_exm = EnquiryComponentsPreviousExaminers.objects.get(exm_creditor_position = exm_creditor_position, ec_sid = script_id)
+                        prev_exm = EnquiryComponentsPreviousExaminers.objects.get(exm_position = exm_creditor_position, ec_sid = script_id)
                     except:
-                        pass
+                         pass
+                    print('PREV EXM' + exm_creditor_position + str(prev_exm))
                     if prev_exm is not None:
                         exm['rank'] = 4 #mark as non-viable
 
@@ -132,7 +133,7 @@ def run_algo():
                 #print(exms_list)
             if sorted_exms_list_robin:
                 chosen_exm = sorted_exms_list_robin[0]['creditor']
-                #print(chosen_exm)
+                print(str(script_id) + chosen_exm)
                 
                 if chosen_exm is not None:
                     
@@ -148,7 +149,7 @@ def run_algo():
                         TaskManager.objects.create(
                             enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                            task_id = TaskTypes.objects.get(task_id = 'MRKAMD'),
+                            task_id = TaskTypes.objects.get(task_id = 'BOTAPP'),
                             task_assigned_to = User.objects.get(username='RPABOT'),
                             task_assigned_date = timezone.now(),
                             task_completion_date = None

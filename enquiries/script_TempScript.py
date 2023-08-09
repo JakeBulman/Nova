@@ -111,6 +111,7 @@ for row in sheet.iter_rows():
         #     avail.save()
         #     avail.creditor.add(exm)
     else:
-        print(creditor)
+        a=1
+        #print(creditor)
 
 print("EC loaded:" + str(datetime.datetime.now()))
