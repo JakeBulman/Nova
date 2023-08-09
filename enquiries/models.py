@@ -150,6 +150,18 @@ class MarkTolerances(models.Model):
     eps_com_id = models.CharField(max_length=2,null=True)
     mark_tolerance = models.CharField(max_length=4,null=True)
 
+class ScaledMarks(models.Model):
+    eps_ass_code = models.CharField(max_length=4,null=True)
+    eps_com_id = models.CharField(max_length=2,null=True) 
+    eps_cnu_id = models.CharField(max_length=10,null=True)
+    eps_cand_no = models.CharField(max_length=10,null=True)
+    raw_mark = models.CharField(max_length=10,null=True)
+    assessor_mark  = models.CharField(max_length=10,null=True)
+    final_mark = models.CharField(max_length=10,null=True)
+    exm_examiner_no = models.CharField(max_length=8, null=True)
+    scaled_mark = models.CharField(max_length=10,null=True)
+    original_exm_scaled = models.CharField(max_length=10,null=True)
+
 class ExaminerPanels(models.Model):
     ses_sid = models.CharField(max_length=8, null=True)
     ass_code = models.CharField(max_length=8, null=True)
