@@ -4,6 +4,7 @@ import django
 import datetime
 import pyodbc
 import pandas as pd
+from openpyxl import load_workbook
 
 
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
@@ -23,7 +24,8 @@ else:
 
 django.setup()
 
-from enquiries.models import CentreEnquiryRequests, EnquiryDeadline, ExaminerPanels, UniqueCreditor, EarServerSettings, ScaledMarks
+from enquiries.models import CentreEnquiryRequests, EnquiryDeadline, ExaminerPanels, UniqueCreditor, EarServerSettings, ScaledMarks, UniqueCreditor, ExaminerAvailability, ExaminerNotes, ExaminerConflicts
+from django.contrib.auth.models import User
 
 #Limits enquiries to session or enquiry list
 session_id = EarServerSettings.objects.first().session_id_list
@@ -32,59 +34,77 @@ if enquiry_id_list != '':
     enquiry_id_list = ' and sid in (' + enquiry_id_list + ')'
 
 print("ENQ:" + enquiry_id_list)
-# # Get datalake data - Enquiry Request Parts
-with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-    df = pd.read_sql(f'''
-      select 
-        c.sessionassessmentcomponentid,
-        a.assessmentcode as eps_ass_code,
-        a.componentid as eps_com_id,
-        c.centrenumber as eps_cnu_id,
-        c.candidatenumber as eps_cand_no,
-        c.mark as raw_mark,
-        c.assessormark as assessor_mark,
-        c.finalmark as final_mark,
-        c.examinernumber as exm_examiner_no,
-        case
-          when c.assessormark is not null then assessormark 
-          else c.mark
-        end as scaled_mark,
-        case
-          when assessormark is not null then "Scaled" 
-          when assessormark is null then "No scaling"
-        end as original_exm_scaled
-      from cie.ods_CandidateMarkElementMarks as c
-      left join cie.ods_sessionassessmentcomponents as s
-      on c.sessionassessmentcomponentid=s.sessionassessmentcomponentid
-      and c.sessionpartitionkey=s.sessionpartitionkey
-      left join cie.ods_assessmentcomponents as a
-      on s.assessmentcomponentid=a.assessmentcomponentid
-      where c.businessstreamid='02'
-        and s.isdeletedfromsource!=1
-        and c.isdeletedfromsource!=1
-        and a.isdeletedfromsource!=1
-        and c.examinernumber!=''
-        and s.sessionid in ({session_id}) 
-                            ''', conn)
 
-def insert_to_model_erp(row):
-    try:
-        ScaledMarks.objects.create(
-            eps_ass_code = row['eps_ass_code'],
-            eps_com_id = row['eps_com_id'],
-            eps_cnu_id = row['eps_cnu_id'],
-            eps_cand_no = row['eps_cand_no'],
-            raw_mark = row['raw_mark'],
-            assessor_mark  = row['assessor_mark'],
-            final_mark = row['final_mark'],
-            exm_examiner_no = row['exm_examiner_no'],
-            scaled_mark = row['scaled_mark'],
-            original_exm_scaled = row['original_exm_scaled'],
+filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\exm_avail.xlsx")
+workbook = load_workbook(filename)
+sheet = workbook.active
+
+for row in sheet.iter_rows():
+    creditor = str(row[3].value)
+    avail_ind = str(row[6].value)
+    avail_string = str(row[7].value).split(',')
+    conflict = str(row[8].value)
+    notes = str(row[9].value)
+
+    if UniqueCreditor.objects.filter(exm_creditor_no=creditor).exists():
+        if notes != 'None':
+            exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
+            note_entry = ExaminerNotes(
+                examiner_notes = notes,
+                note_owner = User.objects.get(username='NovaServer'),
             )
-    except:
-        pass
+            note_entry.save()
+            note_entry.creditor.add(exm)
 
-df.apply(insert_to_model_erp, axis=1)
+        if conflict != 'No Conflict of Interest':
+            conflict_entry = ExaminerConflicts(
+            examiner_conflicts = conflict,
+            note_owner = User.objects.get(username='NovaServer'),
+            )
+            conflict_entry.save()
+            conflict_entry.creditor.add(exm)
 
+        if avail_ind == 'Partly Available':
+            for ava in avail_string:
+                ava = str(ava).strip()
+                ava_final = ava.split('-')
+                ava_start = ava_final[0]
+                ava_finish = 'None'
+                if ava_start != 'None':
+                    s = ava_final[0]
+                    ava_start = '2023'+'-'+s[3:]+'-'+s[:2]
+                    try:
+                        s = ava_final[1]
+                        ava_finish = '2023'+'-'+s[3:]+'-'+s[:2]
+                    except IndexError:
+                        ava_finish = ava_start
+                        pass
 
-print("ERP loaded:" + str(datetime.datetime.now()))
+                    exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
+                    avail = ExaminerAvailability(
+                    #ea_sid = models.EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=enpe_sid),
+                    unavailability_start_date = ava_start,
+                    unavailability_end_date = ava_finish,
+                    unavailable_2_flag = 'N',
+                    unavailable_5_flag = 'N',
+                    unavailable_9_flag = 'N',
+                    )
+                    avail.save()
+                    avail.creditor.add(exm)
+
+        elif avail_ind == 'Not Available':
+            exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
+            avail = ExaminerAvailability(
+            #ea_sid = models.EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=enpe_sid),
+            unavailability_start_date = '2023-08-10',
+            unavailability_end_date = '2023-10-20',
+            unavailable_2_flag = 'N',
+            unavailable_5_flag = 'N',
+            unavailable_9_flag = 'N',
+            )
+            avail.save()
+            avail.creditor.add(exm)
+    else:
+        print(creditor)
+
+print("EC loaded:" + str(datetime.datetime.now()))
