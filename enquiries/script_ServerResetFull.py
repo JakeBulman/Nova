@@ -681,6 +681,20 @@ def load_core_tables():
         and c.sessionpartitionkey=s.sessionpartitionkey
         left join cie.ods_assessmentcomponents as a
         on s.assessmentcomponentid=a.assessmentcomponentid
+        
+        inner join 
+        (select * from ar_meps_req_prd.centre_enquiry_requests cer
+        left join ar_meps_req_prd.enquiry_request_parts erp
+        on cer.sid=erp.cer_sid
+        left join ar_meps_req_prd.enquiry_components ec
+        on erp.sid=ec.erp_sid
+        ) req
+        on req.cnu_id = c.centrenumber
+        and req.ccm_ass_code = a.assessmentcode
+        and req.ccm_com_id = a.componentid
+        and req.caom_cand_no = c.candidatenumber
+        and req.ses_sid = s.sessionid
+        
         where c.businessstreamid='02'
             and s.isdeletedfromsource!=1
             and c.isdeletedfromsource!=1

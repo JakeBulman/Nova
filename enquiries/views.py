@@ -431,8 +431,8 @@ def pexmch_task_complete(request):
 			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
 			#change to AUTAPP once testing complete
 			task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
-			task_assigned_to = None,
-			task_assigned_date = None,
+			task_assigned_to = User.objects.get(username='NovaServer'),
+			task_assigned_date = timezone.now(),
 			task_completion_date = None
 		)
 
@@ -1088,8 +1088,8 @@ def iec_pass_view(request, enquiry_id=None):
 							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
 							task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
-							task_assigned_to = None,
-							task_assigned_date = None,
+							task_assigned_to = User.objects.get(username='NovaServer'),
+							task_assigned_date = timezone.now(),
 							task_completion_date = None
 						)
 						models.EnquiryComponentsPreviousExaminers.objects.create(
@@ -1144,8 +1144,8 @@ def iec_pass_all_view(request):
 								enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 								ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
 								task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
-								task_assigned_to = None,
-								task_assigned_date = None,
+								task_assigned_to = User.objects.get(username='NovaServer'),
+								task_assigned_date = timezone.now(),
 								task_completion_date = None
 							)
 							models.EnquiryComponentsPreviousExaminers.objects.create(
@@ -1222,8 +1222,8 @@ def iec_issue_view(request, enquiry_id=None):
 							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
 							task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
-							task_assigned_to = None,
-							task_assigned_date = None,
+							task_assigned_to = User.objects.get(username='NovaServer'),
+							task_assigned_date = timezone.now(),
 							task_completion_date = None
 						)
 						models.EnquiryComponentsPreviousExaminers.objects.create(
