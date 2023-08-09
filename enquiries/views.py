@@ -417,7 +417,7 @@ def pexmch_task_complete(request):
 	script_id = request.POST.get('script_id')
 	task_id = request.POST.get('task_id')
 	enquiry_id = request.POST.get('enquiry_id')
-	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='MANAPP',task_completion_date = None).exists():
+	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='AUTAPP',task_completion_date = None).exists():
 		for i in range(1,50):
 			pexmch = request.POST.get('pexmch'+str(i))
 			if pexmch:
@@ -430,7 +430,7 @@ def pexmch_task_complete(request):
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
 			#change to AUTAPP once testing complete
-			task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+			task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
 			task_assigned_to = None,
 			task_assigned_date = None,
 			task_completion_date = None
@@ -1083,11 +1083,11 @@ def iec_pass_view(request, enquiry_id=None):
 						)
 				else:
 				#create a new task for the next step (AUTAPP)
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='AUTAPP',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
 							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-							task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+							task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
 							task_assigned_to = None,
 							task_assigned_date = None,
 							task_completion_date = None
@@ -1139,11 +1139,11 @@ def iec_pass_all_view(request):
 							)
 					else:
 					#create a new task for the next step (AUTAPP)
-						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='AUTAPP',task_completion_date = None).exists():
 							models.TaskManager.objects.create(
 								enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 								ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-								task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+								task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
 								task_assigned_to = None,
 								task_assigned_date = None,
 								task_completion_date = None
@@ -1217,11 +1217,11 @@ def iec_issue_view(request, enquiry_id=None):
 						)
 				else:
 				#create a new task for the next step (AUTAPP)
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='AUTAPP',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
 							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-							task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+							task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
 							task_assigned_to = None,
 							task_assigned_date = None,
 							task_completion_date = None

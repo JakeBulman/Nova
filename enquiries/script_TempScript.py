@@ -39,6 +39,8 @@ filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nov
 workbook = load_workbook(filename)
 sheet = workbook.active
 
+ExaminerConflicts.objects.all().delete()
+
 for row in sheet.iter_rows():
     creditor = str(row[3].value)
     avail_ind = str(row[6].value)
@@ -46,17 +48,21 @@ for row in sheet.iter_rows():
     conflict = str(row[8].value)
     notes = str(row[9].value)
 
+    
+
     if UniqueCreditor.objects.filter(exm_creditor_no=creditor).exists():
-        if notes != 'None':
-            exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
-            note_entry = ExaminerNotes(
-                examiner_notes = notes,
-                note_owner = User.objects.get(username='NovaServer'),
-            )
-            note_entry.save()
-            note_entry.creditor.add(exm)
+    #     if notes != 'None':
+    #         exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
+    #         note_entry = ExaminerNotes(
+    #             examiner_notes = notes,
+    #             note_owner = User.objects.get(username='NovaServer'),
+    #         )
+    #         note_entry.save()
+    #         note_entry.creditor.add(exm)
 
         if conflict != 'No Conflict of Interest':
+            print(notes)
+            exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
             conflict_entry = ExaminerConflicts(
             examiner_conflicts = conflict,
             note_owner = User.objects.get(username='NovaServer'),
@@ -64,46 +70,46 @@ for row in sheet.iter_rows():
             conflict_entry.save()
             conflict_entry.creditor.add(exm)
 
-        if avail_ind == 'Partly Available':
-            for ava in avail_string:
-                ava = str(ava).strip()
-                ava_final = ava.split('-')
-                ava_start = ava_final[0]
-                ava_finish = 'None'
-                if ava_start != 'None':
-                    s = ava_final[0]
-                    ava_start = '2023'+'-'+s[3:]+'-'+s[:2]
-                    try:
-                        s = ava_final[1]
-                        ava_finish = '2023'+'-'+s[3:]+'-'+s[:2]
-                    except IndexError:
-                        ava_finish = ava_start
-                        pass
+        # if avail_ind == 'Partly Available':
+        #     for ava in avail_string:
+        #         ava = str(ava).strip()
+        #         ava_final = ava.split('-')
+        #         ava_start = ava_final[0]
+        #         ava_finish = 'None'
+        #         if ava_start != 'None':
+        #             s = ava_final[0]
+        #             ava_start = '2023'+'-'+s[3:]+'-'+s[:2]
+        #             try:
+        #                 s = ava_final[1]
+        #                 ava_finish = '2023'+'-'+s[3:]+'-'+s[:2]
+        #             except IndexError:
+        #                 ava_finish = ava_start
+        #                 pass
 
-                    exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
-                    avail = ExaminerAvailability(
-                    #ea_sid = models.EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=enpe_sid),
-                    unavailability_start_date = ava_start,
-                    unavailability_end_date = ava_finish,
-                    unavailable_2_flag = 'N',
-                    unavailable_5_flag = 'N',
-                    unavailable_9_flag = 'N',
-                    )
-                    avail.save()
-                    avail.creditor.add(exm)
+        #             exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
+        #             avail = ExaminerAvailability(
+        #             #ea_sid = models.EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=enpe_sid),
+        #             unavailability_start_date = ava_start,
+        #             unavailability_end_date = ava_finish,
+        #             unavailable_2_flag = 'N',
+        #             unavailable_5_flag = 'N',
+        #             unavailable_9_flag = 'N',
+        #             )
+        #             avail.save()
+        #             avail.creditor.add(exm)
 
-        elif avail_ind == 'Not Available':
-            exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
-            avail = ExaminerAvailability(
-            #ea_sid = models.EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=enpe_sid),
-            unavailability_start_date = '2023-08-10',
-            unavailability_end_date = '2023-10-20',
-            unavailable_2_flag = 'N',
-            unavailable_5_flag = 'N',
-            unavailable_9_flag = 'N',
-            )
-            avail.save()
-            avail.creditor.add(exm)
+        # elif avail_ind == 'Not Available':
+        #     exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
+        #     avail = ExaminerAvailability(
+        #     #ea_sid = models.EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=enpe_sid),
+        #     unavailability_start_date = '2023-08-10',
+        #     unavailability_end_date = '2023-10-20',
+        #     unavailable_2_flag = 'N',
+        #     unavailable_5_flag = 'N',
+        #     unavailable_9_flag = 'N',
+        #     )
+        #     avail.save()
+        #     avail.creditor.add(exm)
     else:
         print(creditor)
 
