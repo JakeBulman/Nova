@@ -138,7 +138,7 @@ def run_algo():
                 if chosen_exm is not None:
                     
                     #per_sid = UniqueCreditor.objects.get(exm_creditor_no=chosen_exm).per_sid
-                    this_exm = EnquiryPersonnelDetails.objects.get(exm_creditor_no=chosen_exm,ass_code=script_obj.eps_ass_code,com_id=script_obj.eps_com_id).enpe_sid
+                    this_exm = EnquiryPersonnelDetails.objects.filter(exm_creditor_no=chosen_exm,ass_code=script_obj.eps_ass_code,com_id=script_obj.eps_com_id).first().enpe_sid
                     ScriptApportionment.objects.create(
                         enpe_sid = this_exm,
                         ec_sid =  script_obj
