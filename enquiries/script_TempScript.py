@@ -24,7 +24,7 @@ else:
 
 django.setup()
 
-from enquiries.models import CentreEnquiryRequests, EnquiryDeadline, ExaminerPanels, UniqueCreditor, EarServerSettings, ScaledMarks, UniqueCreditor, ExaminerAvailability, ExaminerNotes, ExaminerConflicts
+from enquiries.models import EnquiryPersonnelDetails, EnquiryPersonnel, ExaminerPanels, UniqueCreditor, EarServerSettings, ScaledMarks, UniqueCreditor, ExaminerAvailability, ExaminerNotes, ExaminerConflicts
 from django.contrib.auth.models import User
 
 #Limits enquiries to session or enquiry list
@@ -35,83 +35,83 @@ if enquiry_id_list != '':
 
 print("ENQ:" + enquiry_id_list)
 
-filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\exm_avail.xlsx")
-workbook = load_workbook(filename)
-sheet = workbook.active
 
-ExaminerConflicts.objects.all().delete()
 
-for row in sheet.iter_rows():
-    creditor = str(row[3].value)
-    avail_ind = str(row[6].value)
-    avail_string = str(row[7].value).split(',')
-    conflict = str(row[8].value)
-    notes = str(row[9].value)
-
+# Get datalake data - Enquiry Personnel - Extended
+with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+    df = pd.read_sql(f'''
+            select distinct
+            enpe.sid as enpe_sid,
+            sp.sid as sp_sid,
+            csce.ass_code as ass_code,
+            csce.com_id as com_id,
+            sp.name as sp_name,
+            sp.ses_sid as sp_ses_sid,
+            sp.use_esm_ind as sp_use_esm_ind,
+            sp.ses_sid as session,
+            spp.creditor_no as exm_creditor_no,
+            spp.examiner_no as exm_examiner_no,
+            spp.sid as spp_sid,
+            enpe.approval_ind as ear_approval_ind,
+            sdc.panel_size as panel_size
+            from ar_meps_req_prd.enquiry_personnel enpe
+            left join ar_meps_pan_prd.session_panel_positions spp
+            on enpe.eper_per_sid = spp.per_sid and enpe.pan_sid = spp.stm_pan_sid
+            inner join (select z.stm_pan_sid, z.creditor_no, max(z.load_date) as max_date from ar_meps_pan_prd.session_panel_positions z group by z.stm_pan_sid, z.creditor_no) mld
+            on spp.stm_pan_sid = mld.stm_pan_sid and spp.creditor_no = mld.creditor_no and spp.load_date = mld.max_date
+            left join  ar_meps_pan_prd.session_panels sp
+            on sp.sid = spp.stm_pan_sid
+            left join (select stm_pan_sid, count(*) as panel_size from ar_meps_pan_prd.session_panel_positions spp where spp.creditor_no is not null
+            group by stm_pan_sid) sdc
+            on sdc.stm_pan_sid = spp.stm_pan_sid
+            inner join (select z.sid, max(z.load_date) as max_date from ar_meps_pan_prd.session_panels z group by z.sid) mld2
+            on sp.sid = mld2.sid and sp.load_date = mld2.max_date
+            left join ar_meps_ord_prd.centre_sess_comp_entries csce
+            on sp.sid = csce.pan_sid
+            where 
+            sp.ses_sid in({session_id}) 
+            and csce.ass_code is not null
+                            ''', conn)
+print(df)
     
-
-    if UniqueCreditor.objects.filter(exm_creditor_no=creditor).exists():
-    #     if notes != 'None':
-    #         exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
-    #         note_entry = ExaminerNotes(
-    #             examiner_notes = notes,
-    #             note_owner = User.objects.get(username='NovaServer'),
-    #         )
-    #         note_entry.save()
-    #         note_entry.creditor.add(exm)
-
-        if conflict != 'No Conflict of Interest':
-            print(notes)
-            exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
-            conflict_entry = ExaminerConflicts(
-            examiner_conflicts = conflict,
-            note_owner = User.objects.get(username='NovaServer'),
+def insert_to_model_enpee(row):
+    print(row['ass_code'] + row['com_id'])
+    if EnquiryPersonnelDetails.objects.filter(enpe_sid=row['enpe_sid'],ass_code = row['ass_code'],com_id = row['com_id']).exists():
+        EnquiryPersonnelDetails.objects.filter(enpe_sid=row['enpe_sid'],ass_code = row['ass_code'],com_id = row['com_id']).update(
+            enpe_sid = EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=row['enpe_sid']),
+            sp_sid = row['sp_sid'],
+            ass_code = row['ass_code'],
+            com_id = row['com_id'],
+            sp_name = row['sp_name'],
+            sp_ses_sid = row['sp_ses_sid'],
+            sp_use_esm_ind = row['sp_use_esm_ind'],
+            session = row['session'],
+            exm_creditor_no = row['exm_creditor_no'],
+            exm_examiner_no = row['exm_examiner_no'],
+            spp_sid = row['spp_sid'],
+            ear_approval_ind = row['ear_approval_ind'],
+            panel_size = row['panel_size'],
+            panel_id = ExaminerPanels.objects.get(ass_code=row['ass_code'],com_id=row['com_id'])
+        )
+    else:        
+        EnquiryPersonnelDetails.objects.create(
+            enpe_sid = EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=row['enpe_sid']),
+            sp_sid = row['sp_sid'],
+            ass_code = row['ass_code'],
+            com_id = row['com_id'],
+            sp_name = row['sp_name'],
+            sp_ses_sid = row['sp_ses_sid'],
+            sp_use_esm_ind = row['sp_use_esm_ind'],
+            session = row['session'],
+            exm_creditor_no = row['exm_creditor_no'],
+            exm_examiner_no = row['exm_examiner_no'],
+            spp_sid = row['spp_sid'],
+            ear_approval_ind = row['ear_approval_ind'],
+            panel_size = row['panel_size'],
+            panel_id = ExaminerPanels.objects.get(ass_code=row['ass_code'],com_id=row['com_id'])
             )
-            conflict_entry.save()
-            conflict_entry.creditor.add(exm)
 
-        # if avail_ind == 'Partly Available':
-        #     for ava in avail_string:
-        #         ava = str(ava).strip()
-        #         ava_final = ava.split('-')
-        #         ava_start = ava_final[0]
-        #         ava_finish = 'None'
-        #         if ava_start != 'None':
-        #             s = ava_final[0]
-        #             ava_start = '2023'+'-'+s[3:]+'-'+s[:2]
-        #             try:
-        #                 s = ava_final[1]
-        #                 ava_finish = '2023'+'-'+s[3:]+'-'+s[:2]
-        #             except IndexError:
-        #                 ava_finish = ava_start
-        #                 pass
 
-        #             exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
-        #             avail = ExaminerAvailability(
-        #             #ea_sid = models.EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=enpe_sid),
-        #             unavailability_start_date = ava_start,
-        #             unavailability_end_date = ava_finish,
-        #             unavailable_2_flag = 'N',
-        #             unavailable_5_flag = 'N',
-        #             unavailable_9_flag = 'N',
-        #             )
-        #             avail.save()
-        #             avail.creditor.add(exm)
+df.apply(insert_to_model_enpee, axis=1)
 
-        # elif avail_ind == 'Not Available':
-        #     exm = UniqueCreditor.objects.get(exm_creditor_no=creditor)
-        #     avail = ExaminerAvailability(
-        #     #ea_sid = models.EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=enpe_sid),
-        #     unavailability_start_date = '2023-08-10',
-        #     unavailability_end_date = '2023-10-20',
-        #     unavailable_2_flag = 'N',
-        #     unavailable_5_flag = 'N',
-        #     unavailable_9_flag = 'N',
-        #     )
-        #     avail.save()
-        #     avail.creditor.add(exm)
-    else:
-        a=1
-        #print(creditor)
-
-print("EC loaded:" + str(datetime.datetime.now()))
+print("EPD loaded:" + str(datetime.datetime.now()))
