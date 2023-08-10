@@ -500,8 +500,9 @@ def load_core_tables():
                                 ''', conn)
 
     def insert_to_model_enpee(row):
-        if EnquiryPersonnelDetails.objects.filter(enpe_sid=row['enpe_sid']).exists():
-            EnquiryPersonnelDetails.objects.filter(enpe_sid=row['enpe_sid']).update(
+        print(row['ass_code'] + row['com_id'])
+        if EnquiryPersonnelDetails.objects.filter(enpe_sid=row['enpe_sid'],ass_code = row['ass_code'],com_id = row['com_id']).exists():
+            EnquiryPersonnelDetails.objects.filter(enpe_sid=row['enpe_sid'],ass_code = row['ass_code'],com_id = row['com_id']).update(
                 enpe_sid = EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=row['enpe_sid']),
                 sp_sid = row['sp_sid'],
                 ass_code = row['ass_code'],
@@ -517,27 +518,25 @@ def load_core_tables():
                 panel_size = row['panel_size'],
                 panel_id = ExaminerPanels.objects.get(ass_code=row['ass_code'],com_id=row['com_id'])
             )
-        else:
-            try:
-                EnquiryPersonnelDetails.objects.create(
-                    enpe_sid = EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=row['enpe_sid']),
-                    sp_sid = row['sp_sid'],
-                    ass_code = row['ass_code'],
-                    com_id = row['com_id'],
-                    sp_name = row['sp_name'],
-                    sp_ses_sid = row['sp_ses_sid'],
-                    sp_use_esm_ind = row['sp_use_esm_ind'],
-                    session = row['session'],
-                    exm_creditor_no = row['exm_creditor_no'],
-                    exm_examiner_no = row['exm_examiner_no'],
-                    spp_sid = row['spp_sid'],
-                    ear_approval_ind = row['ear_approval_ind'],
-                    panel_size = row['panel_size'],
-                    panel_id = ExaminerPanels.objects.get(ass_code=row['ass_code'],com_id=row['com_id'])
-                    )
-            except:
-                pass
-    
+        else:        
+            EnquiryPersonnelDetails.objects.create(
+                enpe_sid = EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=row['enpe_sid']),
+                sp_sid = row['sp_sid'],
+                ass_code = row['ass_code'],
+                com_id = row['com_id'],
+                sp_name = row['sp_name'],
+                sp_ses_sid = row['sp_ses_sid'],
+                sp_use_esm_ind = row['sp_use_esm_ind'],
+                session = row['session'],
+                exm_creditor_no = row['exm_creditor_no'],
+                exm_examiner_no = row['exm_examiner_no'],
+                spp_sid = row['spp_sid'],
+                ear_approval_ind = row['ear_approval_ind'],
+                panel_size = row['panel_size'],
+                panel_id = ExaminerPanels.objects.get(ass_code=row['ass_code'],com_id=row['com_id'])
+                )
+
+
     df.apply(insert_to_model_enpee, axis=1)
 
     print("EPD loaded:" + str(datetime.datetime.now()))
