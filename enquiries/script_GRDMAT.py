@@ -69,7 +69,7 @@ def run_algo():
                     TaskManager.objects.create(
                         enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
                         ec_sid = None,
-                        task_id = TaskTypes.objects.get(task_id = 'GRDNEG'),
+                        task_id = TaskTypes.objects.get(task_id = 'NEGCON'),
                         task_assigned_to = None,
                         task_assigned_date = None,
                         task_completion_date = None

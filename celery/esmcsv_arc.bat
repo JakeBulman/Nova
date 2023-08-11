@@ -1,2 +1,2 @@
 @echo off
-"C:\Users\bulmaj\AppData\Local\Programs\Python\Python310\python.exe" "C:/Dev/nova/enquiries/script_ESMCSV_archive.py"
+"C:\Program Files\Python310\python.exe" "C:/Dev/redepplan/enquiries/script_ESMCSV_archive.py"

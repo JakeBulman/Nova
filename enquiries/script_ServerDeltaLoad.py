@@ -499,8 +499,8 @@ def load_core_tables():
                 sp.ses_sid in({session_id}) 
                                 ''', conn)
 
-    
     def insert_to_model_enpee(row):
+        print(row['ass_code'] + row['com_id'])
         if EnquiryPersonnelDetails.objects.filter(enpe_sid=row['enpe_sid'],ass_code = row['ass_code'],com_id = row['com_id']).exists():
             EnquiryPersonnelDetails.objects.filter(enpe_sid=row['enpe_sid'],ass_code = row['ass_code'],com_id = row['com_id']).update(
                 enpe_sid = EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=row['enpe_sid']),
@@ -535,7 +535,8 @@ def load_core_tables():
                 panel_size = row['panel_size'],
                 panel_id = ExaminerPanels.objects.get(ass_code=row['ass_code'],com_id=row['com_id'])
                 )
-    
+
+
     df.apply(insert_to_model_enpee, axis=1)
 
     print("EPD loaded:" + str(datetime.datetime.now()))
