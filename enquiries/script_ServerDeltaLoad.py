@@ -359,7 +359,7 @@ def load_core_tables():
                     panel_name = row['sp_name'],
                     panel_size = row['panel_size'],
                     #manual_apportionment = USE DEFAULT
-                    panel_notes = None
+                    #panel_notes = None
                 )
         else:
             try:
