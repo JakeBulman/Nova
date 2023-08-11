@@ -152,17 +152,26 @@ for exm in examiner_list:
     HtmlBody_final = HtmlBody.substitute(table_entry_insert=table_entry,full_name=full_name)
 
     sender = "results.enquiries@cambridge.org"
-    recipient = uc.exm_email
+    recipient = "jacob.bulman@cambridge.org"
+    print(uc.exm_email)
 
-    email = EmailMessage()
-    email["From"] = sender
-    email["To"] = recipient
-    email["Subject"] = "Enquiry About Results – Review of Marking Worklist"
-    email.set_content(HtmlBody_final, subtype='html')
+    # email = EmailMessage()
+    # email["From"] = sender
+    # email["To"] = recipient
+    # email["Subject"] = "Enquiry About Results – Review of Marking Worklist"
+    # email.set_content(HtmlBody_final, subtype='html')
 
-    smtp = smtplib.SMTP("eu-smtp-inbound-1.mimecast.com", port=587)
-    smtp.starttls()
-    smtp.login(sender, "NwvEm&Z17b5dBNy@02T2XzHV")
-    smtp.sendmail(sender, recipient, email.as_string())
-    smtp.quit()
+    # smtp = smtplib.SMTP("eu-smtp-inbound-1.mimecast.com", port=587)
+    # smtp.starttls()
+    # smtp.login(sender, "NwvEm&Z17b5dBNy@02T2XzHV")
+    # smtp.sendmail(sender, recipient, email.as_string())
+    # smtp.quit()
 
+    import win32com.client
+    olMailItem = 0x0
+    obj = win32com.client.Dispatch("Outlook.Application")
+    newMail = obj.CreateItem(olMailItem)
+    newMail.Subject = "Enquiry About Results – Review of Marking Worklist"
+    newMail.To = recipient
+    newMail.HTMLBody  = HtmlBody_final
+    newMail.Send()
