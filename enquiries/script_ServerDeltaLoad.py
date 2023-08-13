@@ -55,7 +55,7 @@ def load_core_tables():
             left join ar_meps_req_prd.enquiry_request_parts erp
             on erp.cer_sid = cer.sid
             where ses_sid in ({session_id}) 
-            and b.service_code in ('1','1S','2','2P','2PS','2S')
+            and b.es_service_code in ('1','1S','2','2P','2PS','2S')
             {enquiry_id_list}
                                 ''', conn)
         print(df)
