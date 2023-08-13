@@ -51,8 +51,11 @@ def load_core_tables():
             cnu_id as centre_id,
             created_by as created_by,
             cie_direct_id as cie_direct_id
-            from ar_meps_req_prd.centre_enquiry_requests
+            from ar_meps_req_prd.centre_enquiry_requests cer
+            left join ar_meps_req_prd.enquiry_request_parts erp
+            on erp.cer_sid = cer.sid
             where ses_sid in ({session_id}) 
+            and b.service_code in ('1','1S','2','2P','2PS','2S')
             {enquiry_id_list}
                                 ''', conn)
         print(df)

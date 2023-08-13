@@ -581,7 +581,10 @@ def remapp_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
 	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
-	examiner_queryset = models.UniqueCreditor.objects.annotate(script_count=Sum("creditors__apportion_examiner__script_marked",distinct=True)).filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no').exclude(creditors__exm_per_details__enpe_sid__apportion_examiner__apportionment_invalidated=1)
+	examiner_queryset = models.UniqueCreditor.objects.annotate(script_count=Sum("creditors__apportion_examiner__script_marked",distinct=True)).filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no')
+	for exm in examiner_queryset:
+		enpe = models.EnquiryPersonnelDetails.objects.get(exm_creditor_no=exm.exm_creditor_no).enpe_sid.enpe_sid
+		print(exm.exm_creditor_no + ' ' + enpe)
 	panel_notes = ''
 	if models.ExaminerPanels.objects.filter(ass_code=task_ass_code,com_id=task_comp_code).exists():
 		panel_notes = models.ExaminerPanels.objects.get(ass_code=task_ass_code,com_id=task_comp_code).panel_notes
@@ -1362,9 +1365,9 @@ def esmcsv_create_view(request):
 				session = s.ec_sid.eps_ses_name
 				candidate = s.ec_sid.erp_sid.eps_cand_id
 				centre = s.ec_sid.erp_sid.eps_centre_id
-				examiner_name = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_forename + " " + models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_surname
-				examiner_pos = models.EnquiryPersonnelDetails.objects.filter(enpe_sid = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid).first().exm_examiner_no
-				creditor_number = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid).enpe_sid.per_sid.exm_creditor_no
+				examiner_name = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid, apportionment_invalidated = 0).enpe_sid.per_sid.exm_forename + " " + models.ScriptApportionment.objects.get(ec_sid = s.ec_sid, apportionment_invalidated = 0).enpe_sid.per_sid.exm_surname
+				examiner_pos = models.EnquiryPersonnelDetails.objects.filter(enpe_sid = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid, apportionment_invalidated = 0).enpe_sid).first().exm_examiner_no
+				creditor_number = models.ScriptApportionment.objects.get(ec_sid = s.ec_sid, apportionment_invalidated = 0).enpe_sid.per_sid.exm_creditor_no
 
 				writer.writerow([syllcomp,batch,session,candidate,centre,examiner_name, examiner_pos, creditor_number, ""])
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMCSV').update(task_completion_date=timezone.now())
@@ -1743,9 +1746,16 @@ def examiner_detail(request, per_sid=None):
 	return render(request, 'enquiries_examiner_detail.html', context=context)
 
 def examiner_scripts_view(request, per_sid=None):
-	enpe_queryset = models.EnquiryPersonnel.objects.filter(per_sid=per_sid).first()
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.ScriptApportionment.objects.filter(enpe_sid=enpe_queryset.enpe_sid,apportionment_invalidated=0).order_by('-script_marked','-script_mark_entered','ec_sid')
+	
+	uc = models.UniqueCreditor.objects.get(per_sid=per_sid).exm_creditor_no
+	
+	enpe_list = []
+	for exm in models.EnquiryPersonnelDetails.objects.filter(exm_creditor_no=uc):
+		if exm.enpe_sid.enpe_sid not in enpe_list:
+			enpe_list.append(exm.enpe_sid.enpe_sid)
+	# grab the model rows (ordered by id).
+	enpe_queryset = models.EnquiryPersonnel.objects.filter(enpe_sid__in=enpe_list).first()
+	ec_queryset = models.ScriptApportionment.objects.filter(enpe_sid__in=enpe_list,apportionment_invalidated=0).order_by('-script_marked','-script_mark_entered','ec_sid')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
