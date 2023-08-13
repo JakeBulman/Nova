@@ -42,20 +42,20 @@ def load_core_tables():
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
         df = pd.read_sql(f'''
             select 
-            sid as enquiry_id,
-            status as enquiry_status,
-            created_datetime as eps_creation_date,
-            completed_datetime as eps_completion_date,
-            acknowledge_letter_ind as eps_ack_letter_ind,
-            ses_sid as eps_ses_sid,
-            cnu_id as centre_id,
-            created_by as created_by,
-            cie_direct_id as cie_direct_id
+            cer.sid as enquiry_id,
+            cer.status as enquiry_status,
+            cer.created_datetime as eps_creation_date,
+            cer.completed_datetime as eps_completion_date,
+            cer.acknowledge_letter_ind as eps_ack_letter_ind,
+            cer.ses_sid as eps_ses_sid,
+            cer.cnu_id as centre_id,
+            cer.created_by as created_by,
+            cer.cie_direct_id as cie_direct_id
             from ar_meps_req_prd.centre_enquiry_requests cer
             left join ar_meps_req_prd.enquiry_request_parts erp
             on erp.cer_sid = cer.sid
-            where ses_sid in ({session_id}) 
-            and b.es_service_code in ('1','1S','2','2P','2PS','2S')
+            where ses_sid in (19818) 
+            and erp.es_service_code in ('1','1S','2','2P','2PS','2S')
             {enquiry_id_list}
                                 ''', conn)
         print(df)
