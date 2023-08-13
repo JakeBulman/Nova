@@ -54,7 +54,7 @@ def load_core_tables():
             from ar_meps_req_prd.centre_enquiry_requests cer
             left join ar_meps_req_prd.enquiry_request_parts erp
             on erp.cer_sid = cer.sid
-            where ses_sid in (19818) 
+            where ses_sid in ({session_id}) 
             and erp.es_service_code in ('1','1S','2','2P','2PS','2S')
             {enquiry_id_list}
                                 ''', conn)
