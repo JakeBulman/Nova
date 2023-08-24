@@ -33,6 +33,7 @@ class CentreEnquiryRequests(models.Model):
     created_by = models.CharField(max_length=50, null=True)
     cie_direct_id = models.CharField(max_length=7, null=True)
 
+
 class EnquiryRequestParts(models.Model):
     erp_sid = models.CharField(max_length=8, unique=True, default=0)
     cer_sid = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.CASCADE, related_name='enquiries')
@@ -272,6 +273,7 @@ class MisReturnData(models.Model):
     final_mark_status = models.CharField(max_length=10, null=True)
     selected_justification_code = models.CharField(max_length=1, null=True)
     keying_required = models.CharField(max_length=1, null=True)
+    keyed_mark_status = models.CharField(max_length=10, null=True)
     remark_reason = models.TextField(null=True)
     remark_concern_reason = models.TextField(null=True)
 
@@ -300,3 +302,49 @@ class EnquiryDeadline(models.Model):
     enquiry_id = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.CASCADE, related_name='enquiry_deadline')
     enquiry_deadline = models.DateTimeField(null=True) 
     original_enquiry_deadline = models.DateTimeField(null=True) 
+
+
+
+    ### EXTRAS FOR COUNTS
+
+class CentreEnquiryRequestsExtra(models.Model):
+    enquiry_id = models.CharField(max_length=10, unique=True)
+    enquiry_status = models.CharField(max_length=1)
+    eps_creation_date = models.DateTimeField(null=True)
+    eps_completion_date = models.DateTimeField(null=True)
+    eps_ack_letter_ind = models.CharField(max_length=1, null=True)
+    eps_ses_sid = models.CharField(max_length=5, null=True)
+    centre_id = models.CharField(max_length=5, null=True)
+    created_by = models.CharField(max_length=50, null=True)
+    cie_direct_id = models.CharField(max_length=7, null=True)
+
+class EnquiryRequestPartsExtra(models.Model):
+    erp_sid = models.CharField(max_length=8, unique=True, default=0)
+    cer_sid = models.ForeignKey(CentreEnquiryRequestsExtra, to_field='enquiry_id', on_delete=models.CASCADE, related_name='extra_erp')
+    service_code = models.CharField(max_length=5,null=True)
+    eps_ses_sid = models.CharField(max_length=5,null=True)
+    eps_ass_code = models.CharField(max_length=4,null=True)
+    eps_ass_ver_no = models.CharField(max_length=2,null=True)
+    eps_option_code = models.CharField(max_length=2,null=True)
+    eps_cand_unique_id = models.CharField(max_length=20,null=True)
+    eps_cand_id = models.CharField(max_length=10,null=True)
+    eps_centre_id = models.CharField(max_length=5,null=True)
+    eps_comp_ind = models.CharField(max_length=1,null=True)
+    eps_script_measure = models.CharField(max_length=8,null=True)
+    booked_in_error_ind = models.CharField(max_length=1,null=True)
+    stud_name = models.CharField(max_length=100,null=True)
+
+class EnquiryComponentsExtra(models.Model):
+    ec_sid = models.CharField(max_length=8, unique=True, default=0)
+    erp_sid = models.ForeignKey(EnquiryRequestPartsExtra, to_field='erp_sid', on_delete=models.CASCADE,  related_name='extra_ec')
+    eps_ses_sid = models.CharField(max_length=5,null=True)
+    eps_ses_name = models.CharField(max_length=30,null=True)
+    eps_ass_code = models.CharField(max_length=4,null=True)
+    eps_ass_ver_no = models.CharField(max_length=2,null=True)
+    eps_com_id = models.CharField(max_length=2,null=True)
+    eps_qual_id = models.CharField(max_length=5,null=True) #from cie.ca_products
+    eps_qual_name = models.CharField(max_length=50,null=True) #from cie.ca_products
+    eps_ass_name = models.CharField(max_length=50,null=True) #from cie.ca_products
+    eps_comp_name = models.CharField(max_length=50,null=True) #from cie.ca_products
+    ccm_measure = models.CharField(max_length=5,null=True)
+    script_type = models.CharField(max_length=50,null=True)

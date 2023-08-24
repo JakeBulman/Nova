@@ -33,9 +33,14 @@ def run_algo():
         error_filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\FILE_CHECKS\\", file)
         if file.endswith(".xlsx"):
             workbook = load_workbook(filename)
-            sheet = workbook.active
+            try:
+                sheet = workbook['MIS & Justifications']
+            except:
+                print("No Sheet Found")
+                continue
 
             eb_sid = sheet["I2"].value
+            print(eb_sid)
             ec_sid = None
             if EnquiryComponentElements.objects.filter(eb_sid=eb_sid).exists():
                 ec_sid = EnquiryComponentElements.objects.filter(eb_sid=eb_sid).first().ec_sid.ec_sid
@@ -46,11 +51,12 @@ def run_algo():
             print(ec_sid)
             try:
                 expected_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.get(ec_sid=ec_sid, apportionment_invalidated=0).enpe_sid).first()
+                
                 if TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).exists():
-                    task_pk = TaskManager.objects.get(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).pk
+                    task_pk = TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).first().pk
                 if task_pk is not None and expected_exm.exm_examiner_no==sheet["E4"].value:
                     if MisReturnData.objects.filter(ec_sid=ec_sid).exists():
-                        MisReturnData.objects.update(
+                        MisReturnData.objects.filter(ec_sid=ec_sid).update(
                             eb_sid = EnquiryBatches.objects.get(eb_sid=eb_sid),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
                             original_exm = sheet["D4"].value,
@@ -76,21 +82,24 @@ def run_algo():
                             remark_concern_reason = sheet["B50"].value
                         )
 
-                        #Move file to completed folder
-                        shutil.move(filename, new_filename)
+                    #Move file to completed folder
+                    shutil.move(filename, new_filename)
 
-                        #Create next step in chain (MISVRM)
-                        TaskManager.objects.create(
-                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                            ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
-                            task_id = TaskTypes.objects.get(task_id = 'MISVRM'),
-                            task_assigned_to = None,
-                            task_assigned_date = None,
-                            task_completion_date = None
-                        )
-                        #complete the task
-                        TaskManager.objects.filter(pk=task_pk,task_id='RETMIS').update(task_completion_date=timezone.now())
-                        ScriptApportionment.objects.filter(ec_sid=ec_sid).update(script_marked=0)
+                    #Create next step in chain (MISVRM)
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+                        ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
+                        task_id = TaskTypes.objects.get(task_id = 'MISVRM'),
+                        task_assigned_to = None,
+                        task_assigned_date = None,
+                        task_completion_date = None
+                    )
+                    #complete the task
+                    TaskManager.objects.filter(ec_sid=ec_sid,task_id='RETMIS').update(task_completion_date=timezone.now())
+                    ScriptApportionment.objects.filter(ec_sid=ec_sid).update(script_marked=0)
+
+                else:
+                    print("Expected:" + expected_exm.exm_examiner_no)
 
             except:
                 pass

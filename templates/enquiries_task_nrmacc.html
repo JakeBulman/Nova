@@ -32,9 +32,11 @@
             <tr class="text-center">
                 <th>Assigned Examiner Position</th>
                 <td>{% for ec in task.ec_sid.apportion_script.all %}
+                    {% if ec.apportionment_invalidated == 0 %}
                     {% for enpe in ec.enpe_sid.exm_per_details.all %}
                     {{ enpe.exm_examiner_no }}
                     {% endfor %}
+                    {% endif %}
                     {% endfor %}</td>
                 <th>Script Type</th>
                 <td>{{ task.ec_sid.script_type }}</td>
@@ -43,9 +45,11 @@
             <tr class="text-center">
                 <th>Assigned Examiner Creditor</th>
                 <td>{% for ec in task.ec_sid.apportion_script.all %}
+                    {% if ec.apportionment_invalidated == 0 %}
                     {% for enpe in ec.enpe_sid.exm_per_details.all %}
                     <a href='/enquiries/examiner_detail/{{ enpe.enpe_sid.per_sid.per_sid }}'>{{ enpe.exm_creditor_no }}</a>
                     {% endfor %}
+                    {% endif %}
                     {% endfor %}</td>
                 <th>Assigned Examiner Unavailability</th>
                 <td>{% for ec in task.ec_sid.apportion_script.all %}

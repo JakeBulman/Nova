@@ -29,7 +29,8 @@ def run_algo():
 
         app_complete_check = None
         #check if completed apportion task is available
-        task_list = ['BOTAPP','NRMACC']
+        #TODO: check if on an error path such as being reapped or bot failed
+        task_list = ['BOTAPP','NRMACC','REMAPF','BOTAPF']
         app_complete_check = TaskManager.objects.filter(enquiry_id=task.enquiry_id.enquiry_id,task_id__in=task_list, task_completion_date__isnull=False)
 
         if app_complete_check:

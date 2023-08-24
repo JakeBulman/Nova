@@ -51,7 +51,7 @@
     <img class="card-img-top" src="{% static 'admin/img/mytask-icon.png' %}" alt="EAR Icon">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">My Tasks</h5>
-      {% if mytask.count > 0 %}<span class="badge rounded-pill bg-danger">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if mytask.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       <p class="card-text">A list of tasks currently assigned to me.</p>
       <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
     </div>
@@ -90,7 +90,7 @@
     <img class="card-img-top" src="{% static 'admin/img/iec-icon.png' %}" alt="IEC Icon">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Initial Enquiry Checks</h5>
-      {% if cer.count > 0 %}<span class="badge rounded-pill bg-danger">{{ cer.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if cer.count > 0 %}<span class="badge rounded-pill bg-primary">{{ cer.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       <p class="card-text">Checks on new enquiries to confirm availability to proceed to apportionment.</p>
       <a href="{% url 'enquiries_list' %}" class="mt-auto btn btn-outline-primary">Go to IECs</a>
     </div>
@@ -100,7 +100,7 @@
     <img class="card-img-top" src="{% static 'admin/img/iec-icon.png' %}" alt="EAR Icon">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">ESM CSV Download</h5>
-      {% if esmcsv.count > 0 %}<span class="badge rounded-pill bg-danger">{{ esmcsv.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if esmcsv.count > 0 %}<span class="badge rounded-pill bg-primary">{{ esmcsv.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       <p class="card-text">Download for examiner access to RM</p>
       <a href="{% url 'esmcsv_list' %}" class="mt-auto btn btn-outline-primary">ESM Downloads</a>
     </div>
@@ -110,7 +110,7 @@
     <img class="card-img-top" src="{% static 'admin/img/iec-icon.png' %}" alt="EAR Icon">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Grade Release</h5>
-      {% if grdrel.count > 0 %}<span class="badge rounded-pill bg-danger">{{ grdrel.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if grdrel.count > 0 %}<span class="badge rounded-pill bg-primary">{{ grdrel.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       <p class="card-text">Release calculated grades after marks keying</p>
       <a href="{% url 'grdrel_create' %}" class="mt-auto btn btn-outline-primary">Release Grades</a>
     </div>
@@ -119,7 +119,7 @@
     <img class="card-img-top" src="{% static 'admin/img/iec-icon.png' %}" alt="EAR Icon">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Grade Confirmations</h5>
-      {% if grdcon.count > 0 %}<span class="badge rounded-pill bg-danger">{{ grdcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if grdcon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ grdcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       <p class="card-text">Mark confirmed grades as complete after updating EPS</p>
       <a href="{% url 'grdcon-complete' %}" class="mt-auto btn btn-outline-primary">Confirm Grades</a>
     </div>
@@ -128,7 +128,7 @@
     <img class="card-img-top" src="{% static 'admin/img/iec-icon.png' %}" alt="EAR Icon">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Letters Printing</h5>
-      {% if outcon.count > 0 %}<span class="badge rounded-pill bg-danger">{{ outcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if outcon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ outcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       <p class="card-text">Confirm letters printing has taken place for outstanding letters.</p>
       <a href="{% url 'outcon_create' %}" class="mt-auto btn btn-outline-primary">Confirm Printing</a>
     </div>
@@ -147,8 +147,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">BIE Tasks</h5>
-      {% if bie.count > 0 %}<span class="badge rounded-pill bg-danger">{{ bie.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if biea.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ biea.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if bie.count > 0 %}<span class="badge rounded-pill bg-primary">{{ bie.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if biea.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ biea.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Convert WebApp cancellations to EPS BIE status</p>
       <a href="{% url 'enquiries_setbie_list' %}" class="mt-auto btn btn-outline-primary">Go to BIE Tasks</a>
     </div>
@@ -156,17 +156,17 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Clerical Checks</h5>
-      {% if cleric.count > 0 %}<span class="badge rounded-pill bg-danger">{{ cleric.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if clerica.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ clerica.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-      <p class="card-text">Checks on previous examiners when a GR or TL Adjustment has taken place.</p>
+      {% if cleric.count > 0 %}<span class="badge rounded-pill bg-primary">{{ cleric.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if clerica.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ clerica.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      <p class="card-text">Service 1 and 1s clerical check on script marks.</p>
       <a href="{% url 'cleric_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
     </div>
   </div>
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Previous Examiner Checks</h5>
-      {% if pexmch.count > 0 %}<span class="badge rounded-pill bg-danger">{{ pexmch.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if pexmcha.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ pexmcha.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if pexmch.count > 0 %}<span class="badge rounded-pill bg-primary">{{ pexmch.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if pexmcha.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ pexmcha.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Checks on previous examiners when a GR or TL Adjustment has taken place.</p>
       <a href="{% url 'pexmch_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
     </div>
@@ -174,8 +174,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Manual Apportionment</h5>
-      {% if manapp.count > 0 %}<span class="badge rounded-pill bg-danger">{{ manapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if manappa.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ manappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if manapp.count > 0 %}<span class="badge rounded-pill bg-primary">{{ manapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if manappa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ manappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Scripts awaiting manual apportionment.</p>
       <a href="{% url 'manapp_list' %}" class="mt-auto btn btn-outline-primary">Go to Apportionment</a>
     </div>
@@ -183,8 +183,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Non-RM Scripts</h5>
-      {% if nrmacc.count > 0 %}<span class="badge rounded-pill bg-danger">{{ nrmacc.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if nrmacca.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ nrmacca.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if nrmacc.count > 0 %}<span class="badge rounded-pill bg-primary">{{ nrmacc.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if nrmacca.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ nrmacca.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Scripts awaiting manual apportionment.</p>
       <a href="{% url 'nrmacc_list' %}" class="mt-auto btn btn-outline-primary">Go to Scripts</a>
     </div>
@@ -192,8 +192,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">MIS RM Checks</h5>
-      {% if misvrm.count > 0 %}<span class="badge rounded-pill bg-danger">{{ misvrm.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if misvrma.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ misvrma.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if misvrm.count > 0 %}<span class="badge rounded-pill bg-primary">{{ misvrm.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if misvrma.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ misvrma.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Checks between returned MIS forms and RM.</p>
       <a href="{% url 'misvrm_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
     </div>
@@ -201,8 +201,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Examiner SLA Breaches</h5>
-      {% if exmsla.count > 0 %}<span class="badge rounded-pill bg-danger">{{ exmsla.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if exmslaa.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ exmslaa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if exmsla.count > 0 %}<span class="badge rounded-pill bg-primary">{{ exmsla.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if exmslaa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ exmslaa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Checks on examiner breaches leading to extension or reapportionment.</p>
       <a href="{% url 'exmsla_list' %}" class="mt-auto btn btn-outline-primary">Go to Breaches</a>
     </div>
@@ -210,8 +210,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">SLA Breach Reapportionment</h5>
-      {% if remapp.count > 0 %}<span class="badge rounded-pill bg-danger">{{ remapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if remappa.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ remappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if remapp.count > 0 %}<span class="badge rounded-pill bg-primary">{{ remapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if remappa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ remappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Reapportionment when an examiner SLA is breached.</p>
       <a href="{% url 'remapp_list' %}" class="mt-auto btn btn-outline-primary">Go to Breaches</a>
     </div>
@@ -219,8 +219,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">EPS Reapportionment</h5>
-      {% if remapf.count > 0 %}<span class="badge rounded-pill bg-danger">{{ remapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if remapfa.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ remapfa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if remapf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ remapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if remapfa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ remapfa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Reapportionment when an examiner SLA is breached.</p>
       <a href="{% url 'remapf_list' %}" class="mt-auto btn btn-outline-primary">Go to Apportionment</a>
     </div>
@@ -229,8 +229,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Immediate Rejections Checks</h5>
-      {% if negcon.count > 0 %}<span class="badge rounded-pill bg-danger">{{ negcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if negcona.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ negcona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if negcon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ negcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if negcona.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ negcona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Confirm a negative has not occured.</p>
       <a href="{% url 'negcon_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
     </div>
@@ -238,8 +238,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Principle Examiner Approval</h5>
-      {% if peacon.count > 0 %}<span class="badge rounded-pill bg-danger">{{ peacon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if peacona.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ peacona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if peacon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ peacon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if peacona.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ peacona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Confirm grade change with principle examiner.</p>
       <a href="{% url 'peacon_list' %}" class="mt-auto btn btn-outline-primary">Go to Approvals</a>
     </div>
@@ -247,8 +247,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Product Owner Approvals</h5>
-      {% if pdacon.count > 0 %}<span class="badge rounded-pill bg-danger">{{ pdacon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if pdacona.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ pdacona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if pdacon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ pdacon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if pdacona.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ pdacona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Confirm grade change with product owner.</p>
       <a href="{% url 'pdacon_list' %}" class="mt-auto btn btn-outline-primary">Go to Approvals</a>
     </div>
@@ -256,8 +256,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Grade Changes</h5>
-      {% if grdchg.count > 0 %}<span class="badge rounded-pill bg-danger">{{ grdchg.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if grdchga.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ grdchga.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if grdchg.count > 0 %}<span class="badge rounded-pill bg-primary">{{ grdchg.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if grdchga.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ grdchga.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Action a grade change.</p>
       <a href="{% url 'grdchg_list' %}" class="mt-auto btn btn-outline-primary">Go to Changes</a>
     </div>
@@ -265,8 +265,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Grade Rejections</h5>
-      {% if grdrej.count > 0 %}<span class="badge rounded-pill bg-danger">{{ grdrej.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if grdreja.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ grdreja.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if grdrej.count > 0 %}<span class="badge rounded-pill bg-primary">{{ grdrej.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if grdreja.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ grdreja.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Finalise grade rejections.</p>
       <a href="{% url 'grdrej_list' %}" class="mt-auto btn btn-outline-primary">Go to Rejections</a>
     </div>
@@ -274,8 +274,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Mark Amendments</h5>
-      {% if mrkamd.count > 0 %}<span class="badge rounded-pill bg-danger">{{ mrkamd.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if mrkamda.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ mrkamda.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if mrkamd.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mrkamd.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if mrkamda.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ mrkamda.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Finalise mark amendments for rejected grades.</p>
       <a href="{% url 'mrkamd_list' %}" class="mt-auto btn btn-outline-primary">Go to Amendments</a>
     </div>
@@ -283,8 +283,8 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">PUM Checks</h5>
-      {% if pumcon.count > 0 %}<span class="badge rounded-pill bg-danger">{{ pumcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      {% if pumcona.count > 0 %}<span class="badge rounded-pill bg-warning mt-1">{{ pumcona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      {% if pumcon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ pumcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if pumcona.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ pumcona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
       <p class="card-text">Confirm PUMs checks are complete.</p>
       <a href="{% url 'exmsla_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
     </div>
@@ -300,7 +300,7 @@
     <div class="card m-3 shadow-lg" style="width: 18rem; ">
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">RPA Apportionment</h5>
-          {% if botapp.count > 0 %}<span class="badge rounded-pill bg-danger">{{ botapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          {% if botapp.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
           <p class="card-text">Tasks awaiting an RPA processing run for apportionment.</p>
           <a href="{% url 'rpa_apportionment' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
         </div>
@@ -309,7 +309,7 @@
     <div class="card m-3 shadow-lg" style="width: 18rem; ">
       <div class="card-body d-flex flex-column">
         <h5 class="card-title">RPA Apportion Failures</h5>
-        {% if botapf.count > 0 %}<span class="badge rounded-pill bg-danger">{{ botapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+        {% if botapf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
         <p class="card-text">Tasks awaiting completion after a bot failed to process an apportionment.</p>
         <a href="{% url 'rpa_apportionment_failure' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
       </div>
@@ -318,7 +318,7 @@
     <div class="card m-3 shadow-lg" style="width: 18rem; ">
       <div class="card-body d-flex flex-column">
         <h5 class="card-title">RPA Marks Keying</h5>
-        {% if botmar.count > 0 %}<span class="badge rounded-pill bg-danger">{{ botmar.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+        {% if botmar.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botmar.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
         <p class="card-text">Tasks awaiting an RPA processing run for marks keying.</p>
         <a href="{% url 'rpa_marks_keying' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
       </div>
@@ -327,7 +327,7 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">RPA Marks Keying Failures</h5>
-      {% if botmaf.count > 0 %}<span class="badge rounded-pill bg-danger">{{ botmaf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if botmaf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botmaf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       <p class="card-text">Tasks awaiting completion after a bot failed to process a mark keying.</p>
       <a href="{% url 'rpa_marks_keying_failure' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
     </div>

@@ -23,7 +23,7 @@ else:
 
 django.setup()
 
-from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, TaskTypes, EarServerSettings, EnquiryGrades, EnquiryDeadline, ExaminerPanels, MarkTolerances, ScaledMarks
+from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, TaskTypes, EarServerSettings, EnquiryGrades, EnquiryDeadline, ExaminerPanels, MarkTolerances, ScaledMarks, CentreEnquiryRequestsExtra, EnquiryRequestPartsExtra, EnquiryComponentsExtra
 
 def load_core_tables():
 
@@ -38,508 +38,502 @@ def load_core_tables():
 
     print("ENQ:" + enquiry_id_list)
 
-#     # # Get datalake data - Centre Enquiry Requests
-#     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-#         df = pd.read_sql(f'''
-#             select 
-#             sid as enquiry_id,
-#             status as enquiry_status,
-#             created_datetime as eps_creation_date,
-#             completed_datetime as eps_completion_date,
-#             acknowledge_letter_ind as eps_ack_letter_ind,
-#             ses_sid as eps_ses_sid,
-#             cnu_id as centre_id,
-#             created_by as created_by,
-#             cie_direct_id as cie_direct_id
-#             from ar_meps_req_prd.centre_enquiry_requests
-#             where ses_sid in ({session_id}) 
-#             {enquiry_id_list}
-#                                 ''', conn)
-#         print(df)
+    # # # Get datalake data - Centre Enquiry Requests
+    # with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+    #     df = pd.read_sql(f'''
+    #         select distinct
+    #         cer.sid as enquiry_id,
+    #         cer.status as enquiry_status,
+    #         cer.created_datetime as eps_creation_date,
+    #         cer.completed_datetime as eps_completion_date,
+    #         cer.acknowledge_letter_ind as eps_ack_letter_ind,
+    #         cer.ses_sid as eps_ses_sid,
+    #         cer.cnu_id as centre_id,
+    #         cer.created_by as created_by,
+    #         cer.cie_direct_id as cie_direct_id
+    #         from ar_meps_req_prd.centre_enquiry_requests cer
+    #         left join ar_meps_req_prd.enquiry_request_parts erp
+    #         on erp.cer_sid = cer.sid
+    #         where ses_sid in ({session_id}) 
+    #         and erp.es_service_code in ('1','1S','2','2P','2PS','2S')
+    #         {enquiry_id_list}
+    #                             ''', conn)
+    #     print(df)
     
-#     def insert_to_model_cer(row):
-#         if CentreEnquiryRequests.objects.filter(enquiry_id=row['enquiry_id']).exists():
-#             CentreEnquiryRequests.objects.filter(enquiry_id=row['enquiry_id']).update(
-#                 enquiry_id = row['enquiry_id'],
-#                 enquiry_status = row['enquiry_status'],
-#                 eps_creation_date = row['eps_creation_date'],
-#                 eps_completion_date = row['eps_completion_date'],
-#                 eps_ack_letter_ind = row['eps_ack_letter_ind'],
-#                 eps_ses_sid = row['eps_ses_sid'],
-#                 centre_id = row['centre_id'],
-#                 created_by = row['created_by'],
-#                 cie_direct_id = row['cie_direct_id'], 
-#             )
-#         else:
-#             CentreEnquiryRequests.objects.create(
-#                 enquiry_id = row['enquiry_id'],
-#                 enquiry_status = row['enquiry_status'],
-#                 eps_creation_date = row['eps_creation_date'],
-#                 eps_completion_date = row['eps_completion_date'],
-#                 eps_ack_letter_ind = row['eps_ack_letter_ind'],
-#                 eps_ses_sid = row['eps_ses_sid'],
-#                 centre_id = row['centre_id'],
-#                 created_by = row['created_by'],
-#                 cie_direct_id = row['cie_direct_id'],
-#             )
-#             TaskManager.objects.create(
-#                 enquiry_id = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['enquiry_id']),
-#                 ec_sid = None,
-#                 task_id = TaskTypes.objects.get(task_id = 'INITCH'),
-#                 task_assigned_to = None,
-#                 task_assigned_date = None,
-#                 task_completion_date = None
-#             )
+    # def insert_to_model_cer(row):
+    #     if CentreEnquiryRequests.objects.filter(enquiry_id=row['enquiry_id']).exists():
+    #         CentreEnquiryRequests.objects.filter(enquiry_id=row['enquiry_id']).update(
+    #             enquiry_id = row['enquiry_id'],
+    #             enquiry_status = row['enquiry_status'],
+    #             eps_creation_date = row['eps_creation_date'],
+    #             eps_completion_date = row['eps_completion_date'],
+    #             eps_ack_letter_ind = row['eps_ack_letter_ind'],
+    #             eps_ses_sid = row['eps_ses_sid'],
+    #             centre_id = row['centre_id'],
+    #             created_by = row['created_by'],
+    #             cie_direct_id = row['cie_direct_id'], 
+    #         )
+    #     else:
+    #         CentreEnquiryRequests.objects.create(
+    #             enquiry_id = row['enquiry_id'],
+    #             enquiry_status = row['enquiry_status'],
+    #             eps_creation_date = row['eps_creation_date'],
+    #             eps_completion_date = row['eps_completion_date'],
+    #             eps_ack_letter_ind = row['eps_ack_letter_ind'],
+    #             eps_ses_sid = row['eps_ses_sid'],
+    #             centre_id = row['centre_id'],
+    #             created_by = row['created_by'],
+    #             cie_direct_id = row['cie_direct_id'],
+    #         )
 
-#     df.apply(insert_to_model_cer, axis=1)
-#     print("CER loaded:" + str(datetime.datetime.now()))
+    # df.apply(insert_to_model_cer, axis=1)
+    # print("CER loaded:" + str(datetime.datetime.now()))
 
-#     # # Get datalake data - Enquiry Request Parts
-#     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-#         df = pd.read_sql(f'''
-#             select 
-#             erp.sid as erp_sid,
-#             erp.cer_sid as cer_sid,
-#             erp.es_service_code as service_code,
-#             erp.caom_ses_sid as eps_ses_sid,
-#             erp.caom_ass_code as eps_ass_code,
-#             erp.caom_asv_ver_no as eps_ass_ver_no,
-#             erp.caom_opt_code as eps_option_code,
-#             erp.caom_can_unique_identifier as eps_cand_unique_id,
-#             erp.caom_cand_no as eps_cand_id,
-#             erp.caom_cnu_id as eps_centre_id,
-#             if(erp.component_ind="Y","C","S") as eps_comp_ind,
-#             erp.caom_measure as eps_script_measure,
-#             erp.booked_in_error_ind as booked_in_error_ind,
-#             can.full_name as stud_name
-#             from ar_meps_req_prd.enquiry_request_parts erp
-#             left join cie.ca_candidates can
-#             on erp.caom_can_unique_identifier = can.unique_id
-#             where caom_ses_sid in ({session_id}) 
-#                                 ''', conn)
+    # # # Get datalake data - Enquiry Request Parts
+    # with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+    #     df = pd.read_sql(f'''
+    #         select 
+    #         erp.sid as erp_sid,
+    #         erp.cer_sid as cer_sid,
+    #         erp.es_service_code as service_code,
+    #         erp.caom_ses_sid as eps_ses_sid,
+    #         erp.caom_ass_code as eps_ass_code,
+    #         erp.caom_asv_ver_no as eps_ass_ver_no,
+    #         erp.caom_opt_code as eps_option_code,
+    #         erp.caom_can_unique_identifier as eps_cand_unique_id,
+    #         erp.caom_cand_no as eps_cand_id,
+    #         erp.caom_cnu_id as eps_centre_id,
+    #         if(erp.component_ind="Y","C","S") as eps_comp_ind,
+    #         erp.caom_measure as eps_script_measure,
+    #         erp.booked_in_error_ind as booked_in_error_ind,
+    #         can.full_name as stud_name
+    #         from ar_meps_req_prd.enquiry_request_parts erp
+    #         left join cie.ca_candidates can
+    #         on erp.caom_can_unique_identifier = can.unique_id
+    #         where caom_ses_sid in ({session_id}) 
+    #                             ''', conn)
 
-#     def insert_to_model_erp(row):
-#         if EnquiryRequestParts.objects.filter(erp_sid = row['erp_sid']).exists():
-#             EnquiryRequestParts.objects.filter(erp_sid = row['erp_sid']).update(
-#                 erp_sid = row['erp_sid'],
-#                 cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
-#                 service_code = row['service_code'],
-#                 eps_ses_sid = row['eps_ses_sid'],
-#                 eps_ass_code = row['eps_ass_code'],
-#                 eps_ass_ver_no = row['eps_ass_ver_no'],
-#                 eps_option_code = row['eps_option_code'],
-#                 eps_cand_unique_id = row['eps_cand_unique_id'],
-#                 eps_cand_id = row['eps_cand_id'],
-#                 eps_centre_id = row['eps_centre_id'],
-#                 eps_comp_ind = row['eps_comp_ind'],
-#                 eps_script_measure = row['eps_script_measure'],
-#                 booked_in_error_ind = row['booked_in_error_ind'],
-#                 stud_name = row['stud_name'],
-#         )
-#         else:
-#             try:
-#                 EnquiryRequestParts.objects.create(
-#                     erp_sid = row['erp_sid'],
-#                     cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
-#                     service_code = row['service_code'],
-#                     eps_ses_sid = row['eps_ses_sid'],
-#                     eps_ass_code = row['eps_ass_code'],
-#                     eps_ass_ver_no = row['eps_ass_ver_no'],
-#                     eps_option_code = row['eps_option_code'],
-#                     eps_cand_unique_id = row['eps_cand_unique_id'],
-#                     eps_cand_id = row['eps_cand_id'],
-#                     eps_centre_id = row['eps_centre_id'],
-#                     eps_comp_ind = row['eps_comp_ind'],
-#                     eps_script_measure = row['eps_script_measure'],
-#                     booked_in_error_ind = row['booked_in_error_ind'],
-#                     stud_name = row['stud_name'],
-#                 )
-#             except:
-#                 pass
+    # def insert_to_model_erp(row):
+    #     if EnquiryRequestParts.objects.filter(erp_sid = row['erp_sid']).exists():
+    #         EnquiryRequestParts.objects.filter(erp_sid = row['erp_sid']).update(
+    #             erp_sid = row['erp_sid'],
+    #             cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
+    #             service_code = row['service_code'],
+    #             eps_ses_sid = row['eps_ses_sid'],
+    #             eps_ass_code = row['eps_ass_code'],
+    #             eps_ass_ver_no = row['eps_ass_ver_no'],
+    #             eps_option_code = row['eps_option_code'],
+    #             eps_cand_unique_id = row['eps_cand_unique_id'],
+    #             eps_cand_id = row['eps_cand_id'],
+    #             eps_centre_id = row['eps_centre_id'],
+    #             eps_comp_ind = row['eps_comp_ind'],
+    #             eps_script_measure = row['eps_script_measure'],
+    #             booked_in_error_ind = row['booked_in_error_ind'],
+    #             stud_name = row['stud_name'],
+    #     )
+    #     else:
+    #         try:
+    #             EnquiryRequestParts.objects.create(
+    #                 erp_sid = row['erp_sid'],
+    #                 cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
+    #                 service_code = row['service_code'],
+    #                 eps_ses_sid = row['eps_ses_sid'],
+    #                 eps_ass_code = row['eps_ass_code'],
+    #                 eps_ass_ver_no = row['eps_ass_ver_no'],
+    #                 eps_option_code = row['eps_option_code'],
+    #                 eps_cand_unique_id = row['eps_cand_unique_id'],
+    #                 eps_cand_id = row['eps_cand_id'],
+    #                 eps_centre_id = row['eps_centre_id'],
+    #                 eps_comp_ind = row['eps_comp_ind'],
+    #                 eps_script_measure = row['eps_script_measure'],
+    #                 booked_in_error_ind = row['booked_in_error_ind'],
+    #                 stud_name = row['stud_name'],
+    #             )
+    #         except:
+    #             pass
 
-#     df.apply(insert_to_model_erp, axis=1)
+    # df.apply(insert_to_model_erp, axis=1)
 
 
-#     print("ERP loaded:" + str(datetime.datetime.now()))
+    # print("ERP loaded:" + str(datetime.datetime.now()))
 
-#     # # Get datalake data - Enquiry Components
-#     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-#         df = pd.read_sql(f'''
-#                 select distinct
-#                 ec.sid as ec_sid,
-#                 ec.erp_sid as erp_sid,
-#                 ec.ccm_ses_sid as eps_ses_sid,
-#                 ses.sessionname as eps_ses_name,
-#                 ec.ccm_ass_code as eps_ass_code,
-#                 ec.ccm_asv_ver_no as eps_ass_ver_no,
-#                 ec.ccm_com_id as eps_com_id,
-#                 prod.qualfication as eps_qual_id,
-#                 prod.qualification_short_text as eps_qual_name,
-#                 prod.assessment_short_text as eps_ass_name,
-#                 prod.component_text as eps_comp_name,
-#                 ec.ccm_measure as ccm_measure
-#                 from ar_meps_req_prd.enquiry_components ec
-#                 left join ar_meps_req_prd.enquiry_request_parts erp
-#                 on ec.erp_sid = erp.sid
-#                 left join cie.ca_products prod
-#                 on ec.ccm_ass_code = prod.assessment
-#                 and ec.ccm_asv_ver_no = prod.assessment_version_no
-#                 and ec.ccm_com_id = prod.component
-#                 and erp.caom_opt_code = prod.option_code
-#                 left join cie.ods_sessions ses
-#                 on ec.ccm_ses_sid = ses.sessionid
-#                 where ccm_ses_sid in ({session_id}) 
-#                                 ''', conn)
+    # # # Get datalake data - Enquiry Components
+    # with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+    #     df = pd.read_sql(f'''
+    #             select distinct
+    #             ec.sid as ec_sid,
+    #             ec.erp_sid as erp_sid,
+    #             ec.ccm_ses_sid as eps_ses_sid,
+    #             ses.sessionname as eps_ses_name,
+    #             ec.ccm_ass_code as eps_ass_code,
+    #             ec.ccm_asv_ver_no as eps_ass_ver_no,
+    #             ec.ccm_com_id as eps_com_id,
+    #             prod.qualfication as eps_qual_id,
+    #             prod.qualification_short_text as eps_qual_name,
+    #             prod.assessment_short_text as eps_ass_name,
+    #             prod.component_text as eps_comp_name,
+    #             ec.ccm_measure as ccm_measure
+    #             from ar_meps_req_prd.enquiry_components ec
+    #             left join ar_meps_req_prd.enquiry_request_parts erp
+    #             on ec.erp_sid = erp.sid
+    #             left join cie.ca_products prod
+    #             on ec.ccm_ass_code = prod.assessment
+    #             and ec.ccm_asv_ver_no = prod.assessment_version_no
+    #             and ec.ccm_com_id = prod.component
+    #             and erp.caom_opt_code = prod.option_code
+    #             left join cie.ods_sessions ses
+    #             on ec.ccm_ses_sid = ses.sessionid
+    #             where ccm_ses_sid in ({session_id}) 
+    #                             ''', conn)
 
-#     def insert_to_model_ec(row):
-#         if EnquiryComponents.objects.filter(ec_sid = row['ec_sid']).exists():
-#             EnquiryComponents.objects.filter(ec_sid = row['ec_sid']).update(
-#                 ec_sid = row['ec_sid'],
-#                 erp_sid = EnquiryRequestParts.objects.only('erp_sid').get(erp_sid=row['erp_sid']),
-#                 eps_ses_sid = row['eps_ses_sid'],
-#                 eps_ses_name = row['eps_ses_name'],
-#                 eps_ass_code = row['eps_ass_code'],
-#                 eps_ass_ver_no = row['eps_ass_ver_no'],
-#                 eps_com_id = row['eps_com_id'],
-#                 eps_qual_id = row['eps_qual_id'],
-#                 eps_qual_name = row['eps_qual_name'],
-#                 eps_ass_name = row['eps_ass_name'],
-#                 eps_comp_name = row['eps_comp_name'],
-#                 ccm_measure = row['ccm_measure'],
-#             )
-#         else:
-#             try:
-#                 EnquiryComponents.objects.create(
-#                     ec_sid = row['ec_sid'],
-#                     erp_sid = EnquiryRequestParts.objects.only('erp_sid').get(erp_sid=row['erp_sid']),
-#                     eps_ses_sid = row['eps_ses_sid'],
-#                     eps_ses_name = row['eps_ses_name'],
-#                     eps_ass_code = row['eps_ass_code'],
-#                     eps_ass_ver_no = row['eps_ass_ver_no'],
-#                     eps_com_id = row['eps_com_id'],
-#                     eps_qual_id = row['eps_qual_id'],
-#                     eps_qual_name = row['eps_qual_name'],
-#                     eps_ass_name = row['eps_ass_name'],
-#                     eps_comp_name = row['eps_comp_name'],
-#                     ccm_measure = row['ccm_measure'],
-#                 )
-#             except:
-#                 pass
+    # def insert_to_model_ec(row):
+    #     if EnquiryComponents.objects.filter(ec_sid = row['ec_sid']).exists():
+    #         EnquiryComponents.objects.filter(ec_sid = row['ec_sid']).update(
+    #             ec_sid = row['ec_sid'],
+    #             erp_sid = EnquiryRequestParts.objects.only('erp_sid').get(erp_sid=row['erp_sid']),
+    #             eps_ses_sid = row['eps_ses_sid'],
+    #             eps_ses_name = row['eps_ses_name'],
+    #             eps_ass_code = row['eps_ass_code'],
+    #             eps_ass_ver_no = row['eps_ass_ver_no'],
+    #             eps_com_id = row['eps_com_id'],
+    #             eps_qual_id = row['eps_qual_id'],
+    #             eps_qual_name = row['eps_qual_name'],
+    #             eps_ass_name = row['eps_ass_name'],
+    #             eps_comp_name = row['eps_comp_name'],
+    #             ccm_measure = row['ccm_measure'],
+    #         )
+    #     else:
+    #         try:
+    #             EnquiryComponents.objects.create(
+    #                 ec_sid = row['ec_sid'],
+    #                 erp_sid = EnquiryRequestParts.objects.only('erp_sid').get(erp_sid=row['erp_sid']),
+    #                 eps_ses_sid = row['eps_ses_sid'],
+    #                 eps_ses_name = row['eps_ses_name'],
+    #                 eps_ass_code = row['eps_ass_code'],
+    #                 eps_ass_ver_no = row['eps_ass_ver_no'],
+    #                 eps_com_id = row['eps_com_id'],
+    #                 eps_qual_id = row['eps_qual_id'],
+    #                 eps_qual_name = row['eps_qual_name'],
+    #                 eps_ass_name = row['eps_ass_name'],
+    #                 eps_comp_name = row['eps_comp_name'],
+    #                 ccm_measure = row['ccm_measure'],
+    #             )
+    #         except:
+    #             pass
     
-#     df.apply(insert_to_model_ec, axis=1)
+    # df.apply(insert_to_model_ec, axis=1)
 
-#     filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Type Of Script.xlsx")
-#     workbook = load_workbook(filename)
-#     sheet = workbook.active
+    #filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Type Of Script.xlsx")
+    workbook = load_workbook("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Type Of Script.xlsx")
+    sheet = workbook.active
 
-#     for row in sheet.iter_rows():
-#         ass_code = str(row[0].value).zfill(4)
-#         comp_id = row[2].value
-#         script_type = row[5].value
+    for row in sheet.iter_rows():
+        ass_code = str(row[0].value).zfill(4)
+        comp_id = str(row[2].value).zfill(2)
+        script_type = row[5].value
 
-#         EnquiryComponents.objects.filter(eps_ass_code=ass_code,eps_com_id=comp_id).update(script_type=script_type)
-
-
-#     print("EC loaded:" + str(datetime.datetime.now()))
-
-#     # # Get datalake data - Enquiry Batches
-#     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-#         df = pd.read_sql(f'''
-#             select distinct
-#             sb.sid as eb_sid,
-#             sb.created_date as created_date,
-#             sb.enpe_eper_per_sid as eper_per_sid
-#             from ar_meps_req_prd.summary_batches sb
-#             left join ar_meps_req_prd.enquiry_component_elements ece
-#             on sb.sid = ece.eb_sid
-#             left join ar_meps_req_prd.enquiry_components ec
-#             on ec.sid = ece.ec_sid
-#             where ec.ccm_ses_sid in ({session_id}) 
-#                                 ''', conn)
-
-#     def insert_to_model_eb(row):
-#         if EnquiryBatches.objects.filter(eb_sid = row['eb_sid']).exists():
-#             EnquiryBatches.objects.filter(eb_sid = row['eb_sid']).update(
-#                 eb_sid = row['eb_sid'],
-#                 created_date = row['created_date'],
-#                 enpe_eper_per_sid = row['eper_per_sid'],
-#             )
-#         else:
-#             try:
-#                 EnquiryBatches.objects.create(
-#                     eb_sid = row['eb_sid'],
-#                     created_date = row['created_date'],
-#                     enpe_eper_per_sid = row['eper_per_sid'],
-#                 )
-#             except:
-#                 pass
-
-#     df.apply(insert_to_model_eb, axis=1)
-#     print("EB loaded:" + str(datetime.datetime.now()))
-
-#     #Get datalake data - Enquiry Components
-#     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-#         df = pd.read_sql(f'''
-#             select distinct
-#             ece.ec_sid as ec_sid,
-#             ece.status as ece_status,
-#             ece.eb_sid as eb_sid,
-#             ece.clerical_mark as clerical_mark,
-#             ece.mark_after_enquiry as mark_after_enquiry,
-#             ece.justification_code as justification_code
-#             from  ar_meps_req_prd.enquiry_component_elements ece
-#             left join ar_meps_req_prd.enquiry_components ec
-#             on ece.ec_sid = ec.sid
-#             where ec.ccm_ses_sid in ({session_id}) 
-#                                 ''', conn)
-
-#     def insert_to_model_ec(row):
-#         if EnquiryComponentElements.objects.filter(ec_sid=row['ec_sid']).exists():
-#             EnquiryComponentElements.objects.filter(ec_sid=row['ec_sid']).update(
-#                 ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
-#                 ece_status = row['ece_status'],
-#                 eb_sid = EnquiryBatches.objects.only('eb_sid').filter(eb_sid=row['eb_sid']).first(),
-#                 clerical_mark = row['clerical_mark'],
-#                 mark_after_enquiry = row['mark_after_enquiry'],
-#                 justification_code = row['justification_code'],
-#             )   
-#         else:
-#             try:
-#                 EnquiryComponentElements.objects.create(
-#                     ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
-#                     ece_status = row['ece_status'],
-#                     eb_sid = EnquiryBatches.objects.only('eb_sid').filter(eb_sid=row['eb_sid']).first(),
-#                     clerical_mark = row['clerical_mark'],
-#                     mark_after_enquiry = row['mark_after_enquiry'],
-#                     justification_code = row['justification_code'],
-#                 )   
-#             except:
-#                 pass
+        EnquiryComponents.objects.filter(eps_ass_code=ass_code,eps_com_id=comp_id).update(script_type=script_type)
 
 
-#     df.apply(insert_to_model_ec, axis=1)
+    print("EC loaded:" + str(datetime.datetime.now()))
 
-#     print("ECE loaded:" + str(datetime.datetime.now()))
+    # # Get datalake data - Enquiry Batches
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql(f'''
+            select distinct
+            sb.sid as eb_sid,
+            sb.created_date as created_date,
+            sb.enpe_eper_per_sid as eper_per_sid
+            from ar_meps_req_prd.summary_batches sb
+            left join ar_meps_req_prd.enquiry_component_elements ece
+            on sb.sid = ece.eb_sid
+            left join ar_meps_req_prd.enquiry_components ec
+            on ec.sid = ece.ec_sid
+            where ec.ccm_ses_sid in ({session_id}) 
+                                ''', conn)
+
+    def insert_to_model_eb(row):
+        if EnquiryBatches.objects.filter(eb_sid = row['eb_sid']).exists():
+            EnquiryBatches.objects.filter(eb_sid = row['eb_sid']).update(
+                eb_sid = row['eb_sid'],
+                created_date = row['created_date'],
+                enpe_eper_per_sid = row['eper_per_sid'],
+            )
+        else:
+            try:
+                EnquiryBatches.objects.create(
+                    eb_sid = row['eb_sid'],
+                    created_date = row['created_date'],
+                    enpe_eper_per_sid = row['eper_per_sid'],
+                )
+            except:
+                pass
+
+    df.apply(insert_to_model_eb, axis=1)
+    print("EB loaded:" + str(datetime.datetime.now()))
+
+    #Get datalake data - Enquiry Components
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql(f'''
+            select distinct
+            ece.ec_sid as ec_sid,
+            ece.status as ece_status,
+            ece.eb_sid as eb_sid,
+            ece.clerical_mark as clerical_mark,
+            ece.mark_after_enquiry as mark_after_enquiry,
+            ece.justification_code as justification_code
+            from  ar_meps_req_prd.enquiry_component_elements ece
+            left join ar_meps_req_prd.enquiry_components ec
+            on ece.ec_sid = ec.sid
+            where ec.ccm_ses_sid in ({session_id}) 
+                                ''', conn)
+
+    def insert_to_model_ec(row):
+        if EnquiryComponentElements.objects.filter(ec_sid=row['ec_sid']).exists():
+            EnquiryComponentElements.objects.filter(ec_sid=row['ec_sid']).update(
+                ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
+                ece_status = row['ece_status'],
+                eb_sid = EnquiryBatches.objects.only('eb_sid').filter(eb_sid=row['eb_sid']).first(),
+                clerical_mark = row['clerical_mark'],
+                mark_after_enquiry = row['mark_after_enquiry'],
+                justification_code = row['justification_code'],
+            )   
+        else:
+            try:
+                EnquiryComponentElements.objects.create(
+                    ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
+                    ece_status = row['ece_status'],
+                    eb_sid = EnquiryBatches.objects.only('eb_sid').filter(eb_sid=row['eb_sid']).first(),
+                    clerical_mark = row['clerical_mark'],
+                    mark_after_enquiry = row['mark_after_enquiry'],
+                    justification_code = row['justification_code'],
+                )   
+            except:
+                pass
+
+
+    df.apply(insert_to_model_ec, axis=1)
+
+    print("ECE loaded:" + str(datetime.datetime.now()))
 
 
 
-#    # Get datalake data - Enquiry Personnel - Extended
-#     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-#         df = pd.read_sql(f'''
-#                 select distinct
-#                 csce.ass_code as ass_code,
-#                 csce.com_id as com_id,
-#                 sp.name as sp_name,
-#                 sp.ses_sid as sp_ses_sid,
-#                 sdc.panel_size as panel_size
-#                 from ar_meps_req_prd.enquiry_personnel enpe
-#                 left join ar_meps_pan_prd.session_panel_positions spp
-#                 on enpe.eper_per_sid = spp.per_sid and enpe.pan_sid = spp.stm_pan_sid
-#                 inner join (select z.stm_pan_sid, z.creditor_no, max(z.load_date) as max_date from ar_meps_pan_prd.session_panel_positions z group by z.stm_pan_sid, z.creditor_no) mld
-#                 on spp.stm_pan_sid = mld.stm_pan_sid and spp.creditor_no = mld.creditor_no and spp.load_date = mld.max_date
-#                 left join  ar_meps_pan_prd.session_panels sp
-#                 on sp.sid = spp.stm_pan_sid
-#                 left join (select stm_pan_sid, count(*) as panel_size from ar_meps_pan_prd.session_panel_positions spp where spp.creditor_no is not null
-#                 group by stm_pan_sid) sdc
-#                 on sdc.stm_pan_sid = spp.stm_pan_sid
-#                 inner join (select z.sid, max(z.load_date) as max_date from ar_meps_pan_prd.session_panels z group by z.sid) mld2
-#                 on sp.sid = mld2.sid and sp.load_date = mld2.max_date
-#                 left join ar_meps_ord_prd.centre_sess_comp_entries csce
-#                 on sp.sid = csce.pan_sid
-#                 where 
-#                 sp.ses_sid in({session_id}) 
-#                                 ''', conn)
+   # Get datalake data - Panels
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql(f'''
+                select distinct
+                csce.ass_code as ass_code,
+                csce.com_id as com_id,
+                sp.name as sp_name,
+                sp.ses_sid as sp_ses_sid,
+                sdc.panel_size as panel_size
+                from ar_meps_req_prd.enquiry_personnel enpe
+                left join ar_meps_pan_prd.session_panel_positions spp
+                on enpe.eper_per_sid = spp.per_sid and enpe.pan_sid = spp.stm_pan_sid
+                inner join (select z.stm_pan_sid, z.creditor_no, max(z.load_date) as max_date from ar_meps_pan_prd.session_panel_positions z group by z.stm_pan_sid, z.creditor_no) mld
+                on spp.stm_pan_sid = mld.stm_pan_sid and spp.creditor_no = mld.creditor_no and spp.load_date = mld.max_date
+                left join  ar_meps_pan_prd.session_panels sp
+                on sp.sid = spp.stm_pan_sid
+                left join (select stm_pan_sid, count(*) as panel_size from ar_meps_pan_prd.session_panel_positions spp where spp.creditor_no is not null
+                group by stm_pan_sid) sdc
+                on sdc.stm_pan_sid = spp.stm_pan_sid
+                inner join (select z.sid, max(z.load_date) as max_date from ar_meps_pan_prd.session_panels z group by z.sid) mld2
+                on sp.sid = mld2.sid and sp.load_date = mld2.max_date
+                left join ar_meps_ord_prd.centre_sess_comp_entries csce
+                on sp.sid = csce.pan_sid
+                where csce.ass_code is not null and
+                sp.ses_sid in({session_id}) 
+                                ''', conn)
 
-#     def insert_to_model_enpee(row):
-#         if ExaminerPanels.objects.filter(ass_code = row['ass_code'],com_id = row['com_id']).exists():
-#                 ExaminerPanels.objects.filter(ass_code = row['ass_code'],com_id = row['com_id']).update(
-#                     ses_sid = row['sp_ses_sid'],
-#                     ass_code = row['ass_code'],
-#                     com_id = row['com_id'],
-#                     panel_name = row['sp_name'],
-#                     panel_size = row['panel_size'],
-#                     #manual_apportionment = USE DEFAULT
-#                     #panel_notes = None
-#                 )
-#         else:
-#             try:
-#                 ExaminerPanels.objects.create(
-#                     ses_sid = row['sp_ses_sid'],
-#                     ass_code = row['ass_code'],
-#                     com_id = row['com_id'],
-#                     panel_name = row['sp_name'],
-#                     panel_size = row['panel_size'],
-#                     #manual_apportionment = USE DEFAULT
-#                     panel_notes = None
-#                 )
-#             except:
-#                 pass
+    def insert_to_model_enpee(row):
+        if ExaminerPanels.objects.filter(ass_code = row['ass_code'],com_id = row['com_id']).exists():
+                ExaminerPanels.objects.filter(ass_code = row['ass_code'],com_id = row['com_id']).update(
+                    ses_sid = row['sp_ses_sid'],
+                    ass_code = row['ass_code'],
+                    com_id = row['com_id'],
+                    panel_name = row['sp_name'],
+                    panel_size = row['panel_size'],
+                    #manual_apportionment = USE DEFAULT
+                    #panel_notes = None
+                )
+        else:
+            try:
+                ExaminerPanels.objects.create(
+                    ses_sid = row['sp_ses_sid'],
+                    ass_code = row['ass_code'],
+                    com_id = row['com_id'],
+                    panel_name = row['sp_name'],
+                    panel_size = row['panel_size'],
+                    #manual_apportionment = USE DEFAULT
+                    panel_notes = None
+                )
+            except:
+                pass
     
-#     df.apply(insert_to_model_enpee, axis=1)
+    df.apply(insert_to_model_enpee, axis=1)
 
-#     print("ECM_PAN loaded:" + str(datetime.datetime.now()))
+    print("ECM_PAN loaded:" + str(datetime.datetime.now()))
 
-#     # Get datalake data - Unique Creditors
-#     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-#         df = pd.read_sql(f'''
-#             select distinct
-#             spp.creditor_no as exm_creditor_no,
-#             per.sid as per_sid,
-#             per.title as exm_title,
-#             per.initials as exm_initials,
-#             per.surname as exm_surname,
-#             per.forenames as exm_forename,
-#             per.email_address as exm_email
-#             from ar_meps_req_prd.enquiry_personnel enpe
-#             left join ar_meps_pan_prd.session_panel_positions spp
-#             on enpe.eper_per_sid = spp.per_sid and enpe.pan_sid = spp.stm_pan_sid
-#             inner join (select z.stm_pan_sid, z.creditor_no, max(z.load_date) as max_date from ar_meps_pan_prd.session_panel_positions z group by z.stm_pan_sid, z.creditor_no) mld
-#             on spp.stm_pan_sid = mld.stm_pan_sid and spp.creditor_no = mld.creditor_no and spp.load_date = mld.max_date
-#             left join cie.vw_persons per
-#             on spp.per_sid = per.sid
-#             left join ar_meps_pan_prd.session_panels sp
-#             on sp.sid = enpe.pan_sid
-#             where sp.ses_sid in ({session_id}) 
-#                                 ''', conn)
+    # Get datalake data - Unique Creditors
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql(f'''
+            select distinct
+            spp.creditor_no as exm_creditor_no,
+            per.sid as per_sid,
+            per.title as exm_title,
+            per.initials as exm_initials,
+            per.surname as exm_surname,
+            per.forenames as exm_forename,
+            per.email_address as exm_email
+            from ar_meps_req_prd.enquiry_personnel enpe
+            left join ar_meps_pan_prd.session_panel_positions spp
+            on enpe.eper_per_sid = spp.per_sid and enpe.pan_sid = spp.stm_pan_sid
+            inner join (select z.stm_pan_sid, z.creditor_no, max(z.load_date) as max_date from ar_meps_pan_prd.session_panel_positions z group by z.stm_pan_sid, z.creditor_no) mld
+            on spp.stm_pan_sid = mld.stm_pan_sid and spp.creditor_no = mld.creditor_no and spp.load_date = mld.max_date
+            left join cie.vw_persons per
+            on spp.per_sid = per.sid
+            left join ar_meps_pan_prd.session_panels sp
+            on sp.sid = enpe.pan_sid
+            where sp.ses_sid in ({session_id}) 
+                                ''', conn)
 
-#     def insert_to_model_enpe(row):
-#         if UniqueCreditor.objects.filter(exm_creditor_no = row['exm_creditor_no']).exists():
-#             UniqueCreditor.objects.filter(exm_creditor_no = row['exm_creditor_no']).update(
-#                 exm_creditor_no = row['exm_creditor_no'],
-#                 per_sid = row['per_sid'],
-#                 exm_title = row['exm_title'],
-#                 exm_initials = row['exm_initials'],
-#                 exm_surname = row['exm_surname'],
-#                 exm_forename = row['exm_forename'],
-#                 exm_email = row['exm_email'],
-#             )
-#         else:
-#             UniqueCreditor.objects.create(
-#                 exm_creditor_no = row['exm_creditor_no'],
-#                 per_sid = row['per_sid'],
-#                 exm_title = row['exm_title'],
-#                 exm_initials = row['exm_initials'],
-#                 exm_surname = row['exm_surname'],
-#                 exm_forename = row['exm_forename'],
-#                 exm_email = row['exm_email'],
-#             )
+    def insert_to_model_enpe(row):
+        if UniqueCreditor.objects.filter(exm_creditor_no = row['exm_creditor_no']).exists():
+            UniqueCreditor.objects.filter(exm_creditor_no = row['exm_creditor_no']).update(
+                exm_creditor_no = row['exm_creditor_no'],
+                per_sid = row['per_sid'],
+                exm_title = row['exm_title'],
+                exm_initials = row['exm_initials'],
+                exm_surname = row['exm_surname'],
+                exm_forename = row['exm_forename'],
+                exm_email = row['exm_email'],
+            )
+        else:
+            UniqueCreditor.objects.create(
+                exm_creditor_no = row['exm_creditor_no'],
+                per_sid = row['per_sid'],
+                exm_title = row['exm_title'],
+                exm_initials = row['exm_initials'],
+                exm_surname = row['exm_surname'],
+                exm_forename = row['exm_forename'],
+                exm_email = row['exm_email'],
+            )
 
-#     df.apply(insert_to_model_enpe, axis=1)
-#     print("UC loaded:" + str(datetime.datetime.now()))
+    df.apply(insert_to_model_enpe, axis=1)
+    print("UC loaded:" + str(datetime.datetime.now()))
 
 
 
-#     # Get datalake data - Enquiry Personnel
-#     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-#         df = pd.read_sql(f'''
-#             select distinct 
-#             enpe.sid as enpe_sid,
-#             enpe.pan_sid as sp_sid,
-#             enpe.eper_per_sid as per_sid
-#             from ar_meps_req_prd.enquiry_personnel enpe
-#             left join ar_meps_pan_prd.session_panels sp
-#             on sp.sid = enpe.pan_sid
-#             where sp.ses_sid in ({session_id}) 
-#                                 ''', conn)
+    # Get datalake data - Enquiry Personnel
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql(f'''
+            select distinct 
+            enpe.sid as enpe_sid,
+            enpe.pan_sid as sp_sid,
+            enpe.eper_per_sid as per_sid
+            from ar_meps_req_prd.enquiry_personnel enpe
+            left join ar_meps_pan_prd.session_panels sp
+            on sp.sid = enpe.pan_sid
+            where sp.ses_sid in ({session_id}) 
+                                ''', conn)
 
-#     def insert_to_model_enpe(row):
-#         if EnquiryPersonnel.objects.filter(enpe_sid = row['enpe_sid']).exists():
-#             EnquiryPersonnel.objects.filter(enpe_sid = row['enpe_sid']).update(
-#                 enpe_sid = row['enpe_sid'],
-#                 sp_sid = row['sp_sid'],
-#                 per_sid = UniqueCreditor.objects.only('per_sid').get(per_sid=row['per_sid']),
-#             )
-#         else:
-#             try:
-#                 EnquiryPersonnel.objects.create(
-#                     enpe_sid = row['enpe_sid'],
-#                     sp_sid = row['sp_sid'],
-#                     per_sid = UniqueCreditor.objects.only('per_sid').get(per_sid=row['per_sid']),
-#                 )
-#             except:
-#                 pass
+    def insert_to_model_enpe(row):
+        if EnquiryPersonnel.objects.filter(enpe_sid = row['enpe_sid']).exists():
+            EnquiryPersonnel.objects.filter(enpe_sid = row['enpe_sid']).update(
+                enpe_sid = row['enpe_sid'],
+                sp_sid = row['sp_sid'],
+                per_sid = UniqueCreditor.objects.only('per_sid').get(per_sid=row['per_sid']),
+            )
+        else:
+            try:
+                EnquiryPersonnel.objects.create(
+                    enpe_sid = row['enpe_sid'],
+                    sp_sid = row['sp_sid'],
+                    per_sid = UniqueCreditor.objects.only('per_sid').get(per_sid=row['per_sid']),
+                )
+            except:
+                pass
     
-#     df.apply(insert_to_model_enpe, axis=1)
+    df.apply(insert_to_model_enpe, axis=1)
 
-#     print("EPNE loaded:" + str(datetime.datetime.now()))
-
-
-#     # Get datalake data - Enquiry Personnel - Extended
-#     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-#         df = pd.read_sql(f'''
-#                 select distinct
-#                 enpe.sid as enpe_sid,
-#                 sp.sid as sp_sid,
-#                 csce.ass_code as ass_code,
-#                 csce.com_id as com_id,
-#                 sp.name as sp_name,
-#                 sp.ses_sid as sp_ses_sid,
-#                 sp.use_esm_ind as sp_use_esm_ind,
-#                 sp.ses_sid as session,
-#                 spp.creditor_no as exm_creditor_no,
-#                 spp.examiner_no as exm_examiner_no,
-#                 spp.sid as spp_sid,
-#                 enpe.approval_ind as ear_approval_ind,
-#                 sdc.panel_size as panel_size
-#                 from ar_meps_req_prd.enquiry_personnel enpe
-#                 left join ar_meps_pan_prd.session_panel_positions spp
-#                 on enpe.eper_per_sid = spp.per_sid and enpe.pan_sid = spp.stm_pan_sid
-#                 inner join (select z.stm_pan_sid, z.creditor_no, max(z.load_date) as max_date from ar_meps_pan_prd.session_panel_positions z group by z.stm_pan_sid, z.creditor_no) mld
-#                 on spp.stm_pan_sid = mld.stm_pan_sid and spp.creditor_no = mld.creditor_no and spp.load_date = mld.max_date
-#                 left join  ar_meps_pan_prd.session_panels sp
-#                 on sp.sid = spp.stm_pan_sid
-#                 left join (select stm_pan_sid, count(*) as panel_size from ar_meps_pan_prd.session_panel_positions spp where spp.creditor_no is not null
-#                 group by stm_pan_sid) sdc
-#                 on sdc.stm_pan_sid = spp.stm_pan_sid
-#                 inner join (select z.sid, max(z.load_date) as max_date from ar_meps_pan_prd.session_panels z group by z.sid) mld2
-#                 on sp.sid = mld2.sid and sp.load_date = mld2.max_date
-#                 left join ar_meps_ord_prd.centre_sess_comp_entries csce
-#                 on sp.sid = csce.pan_sid
-#                 where 
-#                 sp.ses_sid in({session_id}) 
-#                                 ''', conn)
-
-#     def insert_to_model_enpee(row):
-#         print(row['ass_code'] + row['com_id'])
-#         if EnquiryPersonnelDetails.objects.filter(enpe_sid=row['enpe_sid'],ass_code = row['ass_code'],com_id = row['com_id']).exists():
-#             EnquiryPersonnelDetails.objects.filter(enpe_sid=row['enpe_sid'],ass_code = row['ass_code'],com_id = row['com_id']).update(
-#                 enpe_sid = EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=row['enpe_sid']),
-#                 sp_sid = row['sp_sid'],
-#                 ass_code = row['ass_code'],
-#                 com_id = row['com_id'],
-#                 sp_name = row['sp_name'],
-#                 sp_ses_sid = row['sp_ses_sid'],
-#                 sp_use_esm_ind = row['sp_use_esm_ind'],
-#                 session = row['session'],
-#                 exm_creditor_no = row['exm_creditor_no'],
-#                 exm_examiner_no = row['exm_examiner_no'],
-#                 spp_sid = row['spp_sid'],
-#                 ear_approval_ind = row['ear_approval_ind'],
-#                 panel_size = row['panel_size'],
-#                 panel_id = ExaminerPanels.objects.get(ass_code=row['ass_code'],com_id=row['com_id'])
-#             )
-#         else:        
-#             EnquiryPersonnelDetails.objects.create(
-#                 enpe_sid = EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=row['enpe_sid']),
-#                 sp_sid = row['sp_sid'],
-#                 ass_code = row['ass_code'],
-#                 com_id = row['com_id'],
-#                 sp_name = row['sp_name'],
-#                 sp_ses_sid = row['sp_ses_sid'],
-#                 sp_use_esm_ind = row['sp_use_esm_ind'],
-#                 session = row['session'],
-#                 exm_creditor_no = row['exm_creditor_no'],
-#                 exm_examiner_no = row['exm_examiner_no'],
-#                 spp_sid = row['spp_sid'],
-#                 ear_approval_ind = row['ear_approval_ind'],
-#                 panel_size = row['panel_size'],
-#                 panel_id = ExaminerPanels.objects.get(ass_code=row['ass_code'],com_id=row['com_id'])
-#                 )
+    print("EPNE loaded:" + str(datetime.datetime.now()))
 
 
-#     df.apply(insert_to_model_enpee, axis=1)
+    # Get datalake data - Enquiry Personnel - Extended
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql(f'''
+                select distinct
+                enpe.sid as enpe_sid,
+                sp.sid as sp_sid,
+                csce.ass_code as ass_code,
+                csce.com_id as com_id,
+                sp.name as sp_name,
+                sp.ses_sid as sp_ses_sid,
+                sp.use_esm_ind as sp_use_esm_ind,
+                sp.ses_sid as session,
+                spp.creditor_no as exm_creditor_no,
+                spp.examiner_no as exm_examiner_no,
+                spp.sid as spp_sid,
+                enpe.approval_ind as ear_approval_ind,
+                sdc.panel_size as panel_size
+                from ar_meps_req_prd.enquiry_personnel enpe
+                left join ar_meps_pan_prd.session_panel_positions spp
+                on enpe.eper_per_sid = spp.per_sid and enpe.pan_sid = spp.stm_pan_sid
+                inner join (select z.stm_pan_sid, z.creditor_no, max(z.load_date) as max_date from ar_meps_pan_prd.session_panel_positions z group by z.stm_pan_sid, z.creditor_no) mld
+                on spp.stm_pan_sid = mld.stm_pan_sid and spp.creditor_no = mld.creditor_no and spp.load_date = mld.max_date
+                left join  ar_meps_pan_prd.session_panels sp
+                on sp.sid = spp.stm_pan_sid
+                left join (select stm_pan_sid, count(*) as panel_size from ar_meps_pan_prd.session_panel_positions spp where spp.creditor_no is not null
+                group by stm_pan_sid) sdc
+                on sdc.stm_pan_sid = spp.stm_pan_sid
+                inner join (select z.sid, max(z.load_date) as max_date from ar_meps_pan_prd.session_panels z group by z.sid) mld2
+                on sp.sid = mld2.sid and sp.load_date = mld2.max_date
+                left join ar_meps_ord_prd.centre_sess_comp_entries csce
+                on sp.sid = csce.pan_sid
+                where csce.ass_code is not null and
+                sp.ses_sid in({session_id}) 
+                                ''', conn)
 
-#     print("EPD loaded:" + str(datetime.datetime.now()))
+    def insert_to_model_enpee(row):
+        if EnquiryPersonnelDetails.objects.filter(enpe_sid=row['enpe_sid'],ass_code = row['ass_code'],com_id = row['com_id']).exists():
+            EnquiryPersonnelDetails.objects.filter(enpe_sid=row['enpe_sid'],ass_code = row['ass_code'],com_id = row['com_id']).update(
+                enpe_sid = EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=row['enpe_sid']),
+                sp_sid = row['sp_sid'],
+                ass_code = row['ass_code'],
+                com_id = row['com_id'],
+                sp_name = row['sp_name'],
+                sp_ses_sid = row['sp_ses_sid'],
+                sp_use_esm_ind = row['sp_use_esm_ind'],
+                session = row['session'],
+                exm_creditor_no = row['exm_creditor_no'],
+                exm_examiner_no = row['exm_examiner_no'],
+                spp_sid = row['spp_sid'],
+                ear_approval_ind = row['ear_approval_ind'],
+                panel_size = row['panel_size'],
+                panel_id = ExaminerPanels.objects.get(ass_code=row['ass_code'],com_id=row['com_id'])
+            )
+        else:        
+            EnquiryPersonnelDetails.objects.create(
+                enpe_sid = EnquiryPersonnel.objects.only('enpe_sid').get(enpe_sid=row['enpe_sid']),
+                sp_sid = row['sp_sid'],
+                ass_code = row['ass_code'],
+                com_id = row['com_id'],
+                sp_name = row['sp_name'],
+                sp_ses_sid = row['sp_ses_sid'],
+                sp_use_esm_ind = row['sp_use_esm_ind'],
+                session = row['session'],
+                exm_creditor_no = row['exm_creditor_no'],
+                exm_examiner_no = row['exm_examiner_no'],
+                spp_sid = row['spp_sid'],
+                ear_approval_ind = row['ear_approval_ind'],
+                panel_size = row['panel_size'],
+                panel_id = ExaminerPanels.objects.get(ass_code=row['ass_code'],com_id=row['com_id'])
+                )
+
+
+    df.apply(insert_to_model_enpee, axis=1)
+
+    print("EPD loaded:" + str(datetime.datetime.now()))
 
 
     # Get datalake data - ECH
@@ -864,6 +858,226 @@ def load_core_tables():
 
 
     print("ERP loaded:" + str(datetime.datetime.now()))
+
+    for enquiry in CentreEnquiryRequests.objects.all():
+        enquiry_id = enquiry.enquiry_id
+        if not TaskManager.objects.filter(enquiry_id=enquiry_id,task_id_id = 'INITCH').exists():
+            TaskManager.objects.create(
+                enquiry_id = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+                ec_sid = None,
+                task_id = TaskTypes.objects.get(task_id = 'INITCH'),
+                task_assigned_to = None,
+                task_assigned_date = None,
+                task_completion_date = None
+            )
+
+    print("IEC loaded:" + str(datetime.datetime.now()))
+
+
+
+### LOAD EXTRAS DATA
+
+    
+    # # Get datalake data - Centre Enquiry Requests
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql(f'''
+            select distinct
+            cer.sid as enquiry_id,
+            cer.status as enquiry_status,
+            cer.created_datetime as eps_creation_date,
+            cer.completed_datetime as eps_completion_date,
+            cer.acknowledge_letter_ind as eps_ack_letter_ind,
+            cer.ses_sid as eps_ses_sid,
+            cer.cnu_id as centre_id,
+            cer.created_by as created_by,
+            cer.cie_direct_id as cie_direct_id
+            from ar_meps_req_prd.centre_enquiry_requests cer
+            left join ar_meps_req_prd.enquiry_request_parts erp
+            on erp.cer_sid = cer.sid
+            where ses_sid in ({session_id}) 
+            and erp.es_service_code not in ('1','1S','2','2P','2PS','2S')
+            {enquiry_id_list}
+                                ''', conn)
+        print(df)
+    
+    def insert_to_model_cer(row):
+        if CentreEnquiryRequestsExtra.objects.filter(enquiry_id=row['enquiry_id']).exists():
+            CentreEnquiryRequestsExtra.objects.filter(enquiry_id=row['enquiry_id']).update(
+                enquiry_id = row['enquiry_id'],
+                enquiry_status = row['enquiry_status'],
+                eps_creation_date = row['eps_creation_date'],
+                eps_completion_date = row['eps_completion_date'],
+                eps_ack_letter_ind = row['eps_ack_letter_ind'],
+                eps_ses_sid = row['eps_ses_sid'],
+                centre_id = row['centre_id'],
+                created_by = row['created_by'],
+                cie_direct_id = row['cie_direct_id'], 
+            )
+        else:
+            CentreEnquiryRequestsExtra.objects.create(
+                enquiry_id = row['enquiry_id'],
+                enquiry_status = row['enquiry_status'],
+                eps_creation_date = row['eps_creation_date'],
+                eps_completion_date = row['eps_completion_date'],
+                eps_ack_letter_ind = row['eps_ack_letter_ind'],
+                eps_ses_sid = row['eps_ses_sid'],
+                centre_id = row['centre_id'],
+                created_by = row['created_by'],
+                cie_direct_id = row['cie_direct_id'],
+            )
+
+    df.apply(insert_to_model_cer, axis=1)
+    print("CER loaded:" + str(datetime.datetime.now()))
+
+    # # Get datalake data - Enquiry Request Parts
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql(f'''
+            select 
+            erp.sid as erp_sid,
+            erp.cer_sid as cer_sid,
+            erp.es_service_code as service_code,
+            erp.caom_ses_sid as eps_ses_sid,
+            erp.caom_ass_code as eps_ass_code,
+            erp.caom_asv_ver_no as eps_ass_ver_no,
+            erp.caom_opt_code as eps_option_code,
+            erp.caom_can_unique_identifier as eps_cand_unique_id,
+            erp.caom_cand_no as eps_cand_id,
+            erp.caom_cnu_id as eps_centre_id,
+            if(erp.component_ind="Y","C","S") as eps_comp_ind,
+            erp.caom_measure as eps_script_measure,
+            erp.booked_in_error_ind as booked_in_error_ind,
+            can.full_name as stud_name
+            from ar_meps_req_prd.enquiry_request_parts erp
+            left join cie.ca_candidates can
+            on erp.caom_can_unique_identifier = can.unique_id
+            where caom_ses_sid in ({session_id}) 
+                                ''', conn)
+
+    def insert_to_model_erp(row):
+        if EnquiryRequestPartsExtra.objects.filter(erp_sid = row['erp_sid']).exists():
+            EnquiryRequestPartsExtra.objects.filter(erp_sid = row['erp_sid']).update(
+                erp_sid = row['erp_sid'],
+                cer_sid = CentreEnquiryRequestsExtra.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
+                service_code = row['service_code'],
+                eps_ses_sid = row['eps_ses_sid'],
+                eps_ass_code = row['eps_ass_code'],
+                eps_ass_ver_no = row['eps_ass_ver_no'],
+                eps_option_code = row['eps_option_code'],
+                eps_cand_unique_id = row['eps_cand_unique_id'],
+                eps_cand_id = row['eps_cand_id'],
+                eps_centre_id = row['eps_centre_id'],
+                eps_comp_ind = row['eps_comp_ind'],
+                eps_script_measure = row['eps_script_measure'],
+                booked_in_error_ind = row['booked_in_error_ind'],
+                stud_name = row['stud_name'],
+        )
+        else:
+            try:
+                EnquiryRequestPartsExtra.objects.create(
+                    erp_sid = row['erp_sid'],
+                    cer_sid = CentreEnquiryRequestsExtra.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
+                    service_code = row['service_code'],
+                    eps_ses_sid = row['eps_ses_sid'],
+                    eps_ass_code = row['eps_ass_code'],
+                    eps_ass_ver_no = row['eps_ass_ver_no'],
+                    eps_option_code = row['eps_option_code'],
+                    eps_cand_unique_id = row['eps_cand_unique_id'],
+                    eps_cand_id = row['eps_cand_id'],
+                    eps_centre_id = row['eps_centre_id'],
+                    eps_comp_ind = row['eps_comp_ind'],
+                    eps_script_measure = row['eps_script_measure'],
+                    booked_in_error_ind = row['booked_in_error_ind'],
+                    stud_name = row['stud_name'],
+                )
+            except:
+                pass
+
+    df.apply(insert_to_model_erp, axis=1)
+
+
+    print("ERP loaded:" + str(datetime.datetime.now()))
+
+    # # Get datalake data - Enquiry Components
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql(f'''
+                select distinct
+                ec.sid as ec_sid,
+                ec.erp_sid as erp_sid,
+                ec.ccm_ses_sid as eps_ses_sid,
+                ses.sessionname as eps_ses_name,
+                ec.ccm_ass_code as eps_ass_code,
+                ec.ccm_asv_ver_no as eps_ass_ver_no,
+                ec.ccm_com_id as eps_com_id,
+                prod.qualfication as eps_qual_id,
+                prod.qualification_short_text as eps_qual_name,
+                prod.assessment_short_text as eps_ass_name,
+                prod.component_text as eps_comp_name,
+                ec.ccm_measure as ccm_measure
+                from ar_meps_req_prd.enquiry_components ec
+                left join ar_meps_req_prd.enquiry_request_parts erp
+                on ec.erp_sid = erp.sid
+                left join cie.ca_products prod
+                on ec.ccm_ass_code = prod.assessment
+                and ec.ccm_asv_ver_no = prod.assessment_version_no
+                and ec.ccm_com_id = prod.component
+                and erp.caom_opt_code = prod.option_code
+                left join cie.ods_sessions ses
+                on ec.ccm_ses_sid = ses.sessionid
+                where ccm_ses_sid in ({session_id}) 
+                                ''', conn)
+
+    def insert_to_model_ec(row):
+        if EnquiryComponentsExtra.objects.filter(ec_sid = row['ec_sid']).exists():
+            EnquiryComponentsExtra.objects.filter(ec_sid = row['ec_sid']).update(
+                ec_sid = row['ec_sid'],
+                erp_sid = EnquiryRequestPartsExtra.objects.only('erp_sid').get(erp_sid=row['erp_sid']),
+                eps_ses_sid = row['eps_ses_sid'],
+                eps_ses_name = row['eps_ses_name'],
+                eps_ass_code = row['eps_ass_code'],
+                eps_ass_ver_no = row['eps_ass_ver_no'],
+                eps_com_id = row['eps_com_id'],
+                eps_qual_id = row['eps_qual_id'],
+                eps_qual_name = row['eps_qual_name'],
+                eps_ass_name = row['eps_ass_name'],
+                eps_comp_name = row['eps_comp_name'],
+                ccm_measure = row['ccm_measure'],
+            )
+        else:
+            try:
+                EnquiryComponentsExtra.objects.create(
+                    ec_sid = row['ec_sid'],
+                    erp_sid = EnquiryRequestPartsExtra.objects.only('erp_sid').get(erp_sid=row['erp_sid']),
+                    eps_ses_sid = row['eps_ses_sid'],
+                    eps_ses_name = row['eps_ses_name'],
+                    eps_ass_code = row['eps_ass_code'],
+                    eps_ass_ver_no = row['eps_ass_ver_no'],
+                    eps_com_id = row['eps_com_id'],
+                    eps_qual_id = row['eps_qual_id'],
+                    eps_qual_name = row['eps_qual_name'],
+                    eps_ass_name = row['eps_ass_name'],
+                    eps_comp_name = row['eps_comp_name'],
+                    ccm_measure = row['ccm_measure'],
+                )
+            except:
+                pass
+    
+    df.apply(insert_to_model_ec, axis=1)
+
+    filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Type Of Script.xlsx")
+    workbook = load_workbook(filename)
+    sheet = workbook.active
+
+    for row in sheet.iter_rows():
+        ass_code = str(row[0].value).zfill(4)
+        comp_id = row[2].value
+        script_type = row[5].value
+
+        EnquiryComponentsExtra.objects.filter(eps_ass_code=ass_code,eps_com_id=comp_id).update(script_type=script_type)
+
+
+    print("EC loaded:" + str(datetime.datetime.now()))
+
+
 
 
     end_time = datetime.datetime.now()

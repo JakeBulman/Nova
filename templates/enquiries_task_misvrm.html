@@ -67,7 +67,7 @@
         <table class="table table-sm table-bordered table-hover text-center">
             <tr class="text-center">
                 <th>JC4 Remark Reason</th>
-                <td>{% for mis in task.ec_sid.script_mis.all %}{{ mis.justification_code }}{% endfor %}</td>             
+                <td>{% for mis in task.ec_sid.script_mis.all %}{{ mis.remark_reason }}{% endfor %}</td>             
             </tr>
         </table>
         <h5>Task Instruction</h5>
@@ -95,6 +95,7 @@
         <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
         <input name="enquiry_id" id="enquiry_id" value={{task.enquiry_id.enquiry_id}} type="hidden" class="form-control">
         <label class="form-label">If different, enter a new Mark, Justification Code and Status below. This should be confirmed with the examiner before continuing.</label>
+        <label class="form-label">You MUST enter all relevant fields, blanks fields will override any values.</label>
 
         <div class="row">
             <div class="col">
@@ -124,7 +125,14 @@
                 </select>   
             </div>
         </div>
-        
+        <div class="row">
+            <div class="col">
+                <label class="form-label">New JC4 Reasoning</label>
+            </div>
+            <div class="col">
+                <input name="new_jc4r" id="new_jc4r" type="text" class="form-control text-center" required> 
+            </div>
+        </div>
         
         
 
