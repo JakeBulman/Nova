@@ -39,6 +39,11 @@
                 <button type="submit" style="border-radius: 25px; width: 200px; height: 50px; font-size: 30px; line-height: 0" class="btn btn-danger m-5">Login</button>
             </div>
         </div>
+        <div class="row">
+            <div class="col">
+                {% for message in messages %} {{ message }} {% endfor %}
+            </div>
+        </div>
     </div> 
 </form>
 

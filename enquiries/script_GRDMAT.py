@@ -25,7 +25,7 @@ from enquiries.models import TaskManager, MisReturnData, CentreEnquiryRequests, 
 from django.contrib.auth.models import User
 
 def run_algo():
-    for task in TaskManager.objects.filter(task_id='GRDMAT', task_completion_date__isnull=True):
+    for task in TaskManager.objects.filter(task_id='GRDMAT', task_completion_date__isnull=True, enquiry_id = '1302802'):
         enquiry_id = task.enquiry_id.enquiry_id
 
         #check if grade confirmed, if so skip checks
@@ -33,6 +33,7 @@ def run_algo():
             script_marks = MisReturnData.objects.filter(ec_sid__erp_sid__cer_sid__enquiry_id=enquiry_id)
             mark_changed_check = 0
             for mark in script_marks:
+                print(mark.ec_sid.ec_sid)
                 if mark.final_mark_status == 'Changed':
                     mark_changed_check =+ 1
             print(mark_changed_check)

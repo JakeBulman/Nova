@@ -26,24 +26,8 @@ django.setup()
 from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, EnquiryBatches, EnquiryComponentElements, MisReturnData, ScriptApportionment, EnquiryPersonnelDetails, TaskTypes
 
 def run_algo():
-    import os
-    for file in os.listdir("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\\"):
-        filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\\", file)
-        new_filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\COMPLETE\\", file)
-        error_filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\FILE_CHECKS\\", file)
-        if file.endswith(".xlsx"):
-            try:
-                workbook = load_workbook(filename)
-            except:
-                print("Bad file type")
-                continue
-            try:
-                sheet = workbook['MIS & Justifications']
-            except:
-                print("No Sheet Found")
-                continue
 
-            eb_sid = sheet["I2"].value
+            eb_sid = '903544'
             print(eb_sid)
             ec_sid = None
             if EnquiryComponentElements.objects.filter(eb_sid=eb_sid).exists():
@@ -58,36 +42,33 @@ def run_algo():
                 
                 if TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).exists():
                     task_pk = TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).first().pk
-                if task_pk is not None and expected_exm.exm_examiner_no==sheet["E4"].value:
+                if task_pk is not None:
                     if MisReturnData.objects.filter(ec_sid=ec_sid).exists():
                         MisReturnData.objects.filter(ec_sid=ec_sid).update(
                             eb_sid = EnquiryBatches.objects.get(eb_sid=eb_sid),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
-                            original_exm = sheet["D4"].value,
-                            rev_exm = sheet["E4"].value,
-                            original_mark = sheet["F4"].value,
-                            mark_status = sheet["G4"].value,
-                            revised_mark = sheet["H4"].value,
-                            justification_code = sheet["I4"].value,
-                            remark_reason = sheet["B40"].value,
-                            remark_concern_reason = sheet["B50"].value
+                            original_exm = '01.03',
+                            rev_exm = '01.01',
+                            original_mark = '22',
+                            mark_status = 'Confirmed',
+                            revised_mark = '23',
+                            justification_code = '5',
+                            remark_reason = '',
+                            remark_concern_reason = '',
                         )
                     else:
                         MisReturnData.objects.create(
                             eb_sid = EnquiryBatches.objects.get(eb_sid=eb_sid),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
-                            original_exm = sheet["D4"].value,
-                            rev_exm = sheet["E4"].value,
-                            original_mark = sheet["F4"].value,
-                            mark_status = sheet["G4"].value,
-                            revised_mark = sheet["H4"].value,
-                            justification_code = sheet["I4"].value,
-                            remark_reason = sheet["B40"].value,
-                            remark_concern_reason = sheet["B50"].value
+                            original_exm = '01.03',
+                            rev_exm = '01.01',
+                            original_mark = '22',
+                            mark_status = 'Confirmed',
+                            revised_mark = '23',
+                            justification_code = '5',
+                            remark_reason = '',
+                            remark_concern_reason = '',
                         )
-
-                    #Move file to completed folder
-                    shutil.move(filename, new_filename)
 
                     #Create next step in chain (MISVRM)
                     TaskManager.objects.create(

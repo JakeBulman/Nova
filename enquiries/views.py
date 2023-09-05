@@ -266,51 +266,54 @@ def manual_apportionment(request):
 	examiner_obj = models.EnquiryPersonnel.objects.get(enpe_sid=apportion_enpe_sid)
 	script_obj = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id)
 
-	if not models.ScriptApportionment.objects.filter(enpe_sid=examiner_obj,ec_sid=script_obj).exists():
-		models.ScriptApportionment.objects.create(
-			enpe_sid = examiner_obj,
-			ec_sid = script_obj
-			#script_marked is default to 1
-		)
-
-	if models.EnquiryComponents.objects.get(ec_sid=apportion_script_id).script_type == "RM Assessor":
-		if not models.TaskManager.objects.filter(ec_sid=apportion_script_id, task_id='BOTAPP',task_completion_date = None).exists():
-			models.TaskManager.objects.create(
-				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
-				ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
-				task_id = models.TaskTypes.objects.get(task_id = 'BOTAPP'),
-				task_assigned_to = User.objects.get(username='RPABOT'),
-				task_assigned_date = timezone.now(),
-				task_completion_date = None
-			)
-		if not models.TaskManager.objects.filter(ec_sid=apportion_script_id, task_id='NEWMIS',task_completion_date = None).exists():
-			models.TaskManager.objects.create(
-				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
-				ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
-				task_id = models.TaskTypes.objects.get(task_id = 'NEWMIS'),
-				task_assigned_to = User.objects.get(username='NovaServer'),
-				task_assigned_date = timezone.now(),
-				task_completion_date = None
-		)
-		if not models.TaskManager.objects.filter(ec_sid=apportion_script_id, task_id='ESMCSV',task_completion_date = None).exists():
-			models.TaskManager.objects.create(
-				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
-				ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
-				task_id = models.TaskTypes.objects.get(task_id = 'ESMCSV'),
-				task_assigned_to = None,
-				task_assigned_date = None,
-				task_completion_date = None
-		)
+	if models.ScriptApportionment.objects.filter(enpe_sid=examiner_obj,ec_sid=script_obj,apportionment_invalidated=0, script_marked=1).exists():
+		print('Script already apportioned')
 	else:
-		if not models.TaskManager.objects.filter(ec_sid=apportion_script_id, task_id='NRMACC',task_completion_date = None).exists():
-			models.TaskManager.objects.create(
-				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
-				ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
-				task_id = models.TaskTypes.objects.get(task_id = 'NRMACC'),
-				task_assigned_to = None,
-				task_assigned_date = None,
-				task_completion_date = None
-			)		
+		if not models.ScriptApportionment.objects.filter(enpe_sid=examiner_obj,ec_sid=script_obj).exists():
+			models.ScriptApportionment.objects.create(
+				enpe_sid = examiner_obj,
+				ec_sid = script_obj
+				#script_marked is default to 1
+			)
+
+		if models.EnquiryComponents.objects.get(ec_sid=apportion_script_id).script_type == "RM Assessor":
+			if not models.TaskManager.objects.filter(ec_sid=apportion_script_id, task_id='BOTAPP',task_completion_date = None).exists():
+				models.TaskManager.objects.create(
+					enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
+					task_id = models.TaskTypes.objects.get(task_id = 'BOTAPP'),
+					task_assigned_to = User.objects.get(username='RPABOT'),
+					task_assigned_date = timezone.now(),
+					task_completion_date = None
+				)
+			if not models.TaskManager.objects.filter(ec_sid=apportion_script_id, task_id='NEWMIS',task_completion_date = None).exists():
+				models.TaskManager.objects.create(
+					enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
+					task_id = models.TaskTypes.objects.get(task_id = 'NEWMIS'),
+					task_assigned_to = User.objects.get(username='NovaServer'),
+					task_assigned_date = timezone.now(),
+					task_completion_date = None
+			)
+			if not models.TaskManager.objects.filter(ec_sid=apportion_script_id, task_id='ESMCSV',task_completion_date = None).exists():
+				models.TaskManager.objects.create(
+					enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
+					task_id = models.TaskTypes.objects.get(task_id = 'ESMCSV'),
+					task_assigned_to = None,
+					task_assigned_date = None,
+					task_completion_date = None
+			)
+		else:
+			if not models.TaskManager.objects.filter(ec_sid=apportion_script_id, task_id='NRMACC',task_completion_date = None).exists():
+				models.TaskManager.objects.create(
+					enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
+					task_id = models.TaskTypes.objects.get(task_id = 'NRMACC'),
+					task_assigned_to = None,
+					task_assigned_date = None,
+					task_completion_date = None
+				)		
 
 	#complete the task
 	models.TaskManager.objects.filter(pk=apportion_task_id,task_id='MANAPP').update(task_completion_date=timezone.now())    

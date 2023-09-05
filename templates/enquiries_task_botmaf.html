@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h1 class="display-5 text-center mb-5">EAR Task - Apportion Bot Correction</h1>
+<h1 class="display-5 text-center mb-5">EAR Task - Marks Keying Bot Correction</h1>
 
 <div class="container">
     <div class="row text-center">
@@ -56,6 +56,27 @@
                     {% if y.apportionment_invalidated == 0 %}
                     {{ y.enpe_sid.per_sid.exm_title }} {{ y.enpe_sid.per_sid.exm_initials }} ({{ y.enpe_sid.per_sid.exm_forename }}) {{ y.enpe_sid.per_sid.exm_surname }}
                     {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr class="text-center">
+                <th>MIS Status</th>
+                <td>{% for y in task.ec_sid.script_mis.all %}
+                        {{ y.keyed_mark_status }}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr class="text-center">
+                <th>MIS Mark</th>
+                <td>{% for y in task.ec_sid.script_mis.all %}
+                    {{ y.final_mark }}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr class="text-center">
+                <th>MIS Justification Code</th>
+                <td>{% for y in task.ec_sid.script_mis.all %}
+                    {{ y.selected_justification_code }}
                     {% endfor %}
                 </td>
             </tr>
