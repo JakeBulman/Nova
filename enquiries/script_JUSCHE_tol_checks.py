@@ -24,8 +24,12 @@ django.setup()
 from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, MisReturnData, TaskTypes, MarkTolerances, ScaledMarks, EnquiryComponentsExaminerChecks
 from django.contrib.auth.models import User
 
+ec_list = ['1943008',
+
+]
+
 def run_algo():
-    for task in TaskManager.objects.filter(task_id='JUSCHE'):
+    for task in TaskManager.objects.filter(task_id='JUSCHE', task_completion_date__isnull=True, ec_sid__in = ec_list):
         print(task.ec_sid.ec_sid)
 
         if not MisReturnData.objects.filter(ec_sid=task.ec_sid.ec_sid).exists():
@@ -36,7 +40,6 @@ def run_algo():
             justification_string = mis_data.final_justification_code
             final_mark_status = mis_data.final_mark_status
             final_mark = mis_data.final_mark
-        
 
         #Check MIS has scaling applied
         if not MarkTolerances.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id).exists():
@@ -69,7 +72,7 @@ def run_algo():
             mis_data.error_status = "No status"
             mis_data.save()
             continue
-        if final_mark_status == 'Changed' and (justification_string is None or final_mark is None):
+        if final_mark_status == 'Changed' and (justification_string is None or justification_string.strip() is '' or final_mark is None):
             print('NO JC or Mark')
             mis_data.error_status = "No JC or Mark"
             mis_data.save()
@@ -78,10 +81,15 @@ def run_algo():
         if final_mark_status == 'Confirmed':
             print('CONF')
             if not scaled_mark_on_mis and within_tolerance:
-                print('Conf InTol needs checking')
-                mis_data.error_status = "Conf InTol needs checking"
-                mis_data.save()
-                continue
+                print('Conf InTol was checked')
+                mis_data.error_status = "Conf InTol was checked"
+                final_justification_code = None
+                final_keying_required = 'Y'
+                final_keyed_mark_status = 'Confirmed' 
+                mis_data.selected_justification_code = final_justification_code
+                mis_data.keying_required = final_keying_required
+                mis_data.keyed_mark_status = final_keyed_mark_status
+                mis_data.save() 
             
             elif not scaled_mark_on_mis and not within_tolerance:
                 print('Conf OutTol')
@@ -101,7 +109,15 @@ def run_algo():
                 mis_data.keyed_mark_status = 'Confirmed'
                 mis_data.keying_required = 'Y'
                 mis_data.save()
-  
+            TaskManager.objects.create(
+                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
+                task_assigned_to = User.objects.get(username='NovaServer'),
+                task_assigned_date = timezone.now(),
+                task_completion_date = None
+            )
+            TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())   
 
         else:  
             # each of the codes 1-4 even if other things present
@@ -113,7 +129,15 @@ def run_algo():
                 mis_data.keyed_mark_status = 'Changed'
                 mis_data.save() 
                 print(4)
-
+                TaskManager.objects.create(
+                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                    task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
+                    task_assigned_to = User.objects.get(username='NovaServer'),
+                    task_assigned_date = timezone.now(),
+                    task_completion_date = None
+                )
+                TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())   
 
             elif justification_string.find('2') != -1:
                 mis_data.selected_justification_code = '2'
@@ -122,7 +146,15 @@ def run_algo():
                 mis_data.save() 
                 print(2)
 
-
+                TaskManager.objects.create(
+                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                    task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
+                    task_assigned_to = User.objects.get(username='NovaServer'),
+                    task_assigned_date = timezone.now(),
+                    task_completion_date = None
+                )
+                TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())   
 
             elif justification_string.find('3') != -1:
                 mis_data.selected_justification_code = '3'
@@ -130,7 +162,15 @@ def run_algo():
                 mis_data.keyed_mark_status = 'Changed'
                 mis_data.save()
                 print(3) 
-
+                TaskManager.objects.create(
+                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                    task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
+                    task_assigned_to = User.objects.get(username='NovaServer'),
+                    task_assigned_date = timezone.now(),
+                    task_completion_date = None
+                )
+                TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())   
 
             elif justification_string.find('1') != -1:
                 mis_data.selected_justification_code = '1'
@@ -138,7 +178,15 @@ def run_algo():
                 mis_data.keyed_mark_status = 'Changed'
                 mis_data.save() 
                 print(1)
-
+                TaskManager.objects.create(
+                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                    task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
+                    task_assigned_to = User.objects.get(username='NovaServer'),
+                    task_assigned_date = timezone.now(),
+                    task_completion_date = None
+                )
+                TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
 
             else:
 
@@ -156,6 +204,8 @@ def run_algo():
                     is_scaled_exm = scaled_mark_set.original_exm_scaled == 'Scaled'
                     within_tolerance = int(abs(int(final_mark)-scaled_mark)) <= int(mark_tolerance)
 
+                final_justification_code = None
+                justification_string = justification_string.replace('0','')
                 if len(justification_string.strip()) == 1:
                     final_justification_code = justification_string.strip()
                     final_keying_required = 'Y'
@@ -211,6 +261,7 @@ def run_algo():
                         final_keying_required = 'Y'
                         final_keyed_mark_status = 'Changed'  
 
+                final_justification_code
                 if int(final_justification_code) == 7 and not is_scaled_exm: final_justification_code = 5
                 if int(final_justification_code) == 8 and not is_scaled_exm: final_justification_code = 6
                 if int(final_justification_code) == 5 and is_scaled_exm: final_justification_code = 7
@@ -226,6 +277,7 @@ def run_algo():
                     print("No JC - 5678")
                     mis_data.error_status = "No JC - 5678"
                     mis_data.save()
+                    continue
 
                 print(final_justification_code)
                 print('TOL:' + str(within_tolerance))
@@ -277,6 +329,15 @@ def run_algo():
                 print(final_keying_required)
                 print(final_keyed_mark_status)
 
+                TaskManager.objects.create(
+                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                    task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
+                    task_assigned_to = User.objects.get(username='NovaServer'),
+                    task_assigned_date = timezone.now(),
+                    task_completion_date = None
+                )
+                TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
 
 
 run_algo()

@@ -24,6 +24,8 @@ django.setup()
 from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, TaskTypes
 from django.contrib.auth.models import User
 
+task_type = ['BOTMAR','BOTMAF','CLERIC']
+
 def run_algo():
     for task in TaskManager.objects.filter(task_id='GDWAIT', task_completion_date__isnull=True):
         app_complete_check = False
@@ -33,8 +35,10 @@ def run_algo():
         for comp in EnquiryComponents.objects.filter(erp_sid__cer_sid=enquiry_id):
             comp_list_newmis.append(comp.ec_sid)
         comp_list_gdwait = []
-        for comp in TaskManager.objects.filter(task_id='BOTMAR', enquiry_id=enquiry_id, task_completion_date__isnull=False):
-            comp_list_gdwait.append(comp.ec_sid.ec_sid)
+        for comp in TaskManager.objects.filter(task_id__in=task_type, enquiry_id=enquiry_id, task_completion_date__isnull=False):
+            if not TaskManager.objects.filter(task_id__in=task_type, enquiry_id=enquiry_id, task_completion_date__isnull=True).exists():   
+                if comp.ec_sid.ec_sid not in comp_list_gdwait:
+                    comp_list_gdwait.append(comp.ec_sid.ec_sid)
 
         comp_list_newmis.sort()
         comp_list_gdwait.sort()

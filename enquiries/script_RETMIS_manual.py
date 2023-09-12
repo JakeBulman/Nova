@@ -27,7 +27,7 @@ from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryReques
 
 def run_algo():
 
-            eb_sid = '903544'
+            eb_sid = '907134'
             print(eb_sid)
             ec_sid = None
             if EnquiryComponentElements.objects.filter(eb_sid=eb_sid).exists():
@@ -47,12 +47,12 @@ def run_algo():
                         MisReturnData.objects.filter(ec_sid=ec_sid).update(
                             eb_sid = EnquiryBatches.objects.get(eb_sid=eb_sid),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
-                            original_exm = '01.03',
+                            original_exm = '02.01',
                             rev_exm = '01.01',
-                            original_mark = '22',
+                            original_mark = '32',
                             mark_status = 'Confirmed',
-                            revised_mark = '23',
-                            justification_code = '5',
+                            revised_mark = None,
+                            justification_code = None,
                             remark_reason = '',
                             remark_concern_reason = '',
                         )
@@ -60,12 +60,12 @@ def run_algo():
                         MisReturnData.objects.create(
                             eb_sid = EnquiryBatches.objects.get(eb_sid=eb_sid),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
-                            original_exm = '01.03',
+                            original_exm = '02.01',
                             rev_exm = '01.01',
-                            original_mark = '22',
+                            original_mark = '32',
                             mark_status = 'Confirmed',
-                            revised_mark = '23',
-                            justification_code = '5',
+                            revised_mark = None,
+                            justification_code = None,
                             remark_reason = '',
                             remark_concern_reason = '',
                         )

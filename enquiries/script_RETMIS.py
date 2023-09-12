@@ -27,20 +27,25 @@ from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryReques
 
 def run_algo():
     import os
+    print(os.listdir("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\\"))
     for file in os.listdir("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\\"):
         filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\\", file)
         new_filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\COMPLETE\\", file)
         error_filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\FILE_CHECKS\\", file)
-        if file.endswith(".xlsx"):
+        if file.endswith(".xlsx") or file.endswith(".XLSX") or file.endswith(".xls"):
             try:
                 workbook = load_workbook(filename)
             except:
                 print("Bad file type")
+                #Move file to error folder
+                shutil.move(filename, error_filename)
                 continue
             try:
                 sheet = workbook['MIS & Justifications']
             except:
                 print("No Sheet Found")
+                #Move file to error folder
+                shutil.move(filename, error_filename)
                 continue
 
             eb_sid = sheet["I2"].value
@@ -50,7 +55,6 @@ def run_algo():
                 ec_sid = EnquiryComponentElements.objects.filter(eb_sid=eb_sid).first().ec_sid.ec_sid
                 task_enquiry_id = EnquiryComponentElements.objects.filter(eb_sid=eb_sid).first().ec_sid.erp_sid.cer_sid.enquiry_id
 
-            #TODO add safety checks on file content (or lock down file)
             task_pk = None
             print(ec_sid)
             try:
@@ -104,6 +108,8 @@ def run_algo():
 
                 else:
                     print("Expected:" + expected_exm.exm_examiner_no)
+                    #Move file to error folder
+                    shutil.move(filename, error_filename)
 
             except:
                 pass

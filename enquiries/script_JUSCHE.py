@@ -37,6 +37,19 @@ def run_algo():
             final_mark_status = mis_data.final_mark_status
             final_mark = mis_data.final_mark
 
+        #Check for bad statuses
+        if final_mark_status not in ['Confirmed','Changed']:
+            print('NO STATUS')
+            mis_data.error_status = "No status"
+            mis_data.save()
+            continue
+        if final_mark_status == 'Changed' and (justification_string is None or justification_string.strip() is '' or final_mark is None):
+            print('NO JC or Mark')
+            mis_data.error_status = "No JC or Mark"
+            mis_data.save()
+            continue
+        
+
         #Check MIS has scaling applied
         if not MarkTolerances.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id).exists():
             print("Tolerance Not Available")
@@ -54,7 +67,7 @@ def run_algo():
         else:
             scaled_mark_set = ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id).first()
             scaled_mark = int(scaled_mark_set.scaled_mark.split('.')[0])
-            mis_mark = mis_data.original_mark
+            mis_mark = int(mis_data.original_mark.split('.')[0])
             print(str(scaled_mark) + " " + str(mis_mark))
             scaled_mark_on_mis = str(scaled_mark) == str(mis_mark)
             print(scaled_mark_on_mis)
@@ -62,17 +75,7 @@ def run_algo():
             print(within_tolerance)
 
     
-        #Check for bad statuses
-        if final_mark_status not in ['Confirmed','Changed']:
-            print('NO STATUS')
-            mis_data.error_status = "No status"
-            mis_data.save()
-            continue
-        if final_mark_status == 'Changed' and (justification_string is None or justification_string.strip() is '' or final_mark is None):
-            print('NO JC or Mark')
-            mis_data.error_status = "No JC or Mark"
-            mis_data.save()
-            continue
+
 
         if final_mark_status == 'Confirmed':
             print('CONF')
@@ -90,6 +93,7 @@ def run_algo():
                 mis_data.selected_justification_code = final_justification_code
                 mis_data.keying_required = final_keying_required
                 mis_data.keyed_mark_status = final_keyed_mark_status
+                mis_data.final_mark = mis_data.original_mark
                 mis_data.save() 
 
                 print(final_justification_code)
