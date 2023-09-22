@@ -21,11 +21,11 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, MisReturnData, CentreEnquiryRequests, EnquiryGrades, TaskTypes
+from enquiries.models import TaskManager, MisReturnData, CentreEnquiryRequests, EnquiryGrades, TaskTypes, EnquiryRequestParts
 from django.contrib.auth.models import User
 
 def run_algo():
-    for task in TaskManager.objects.filter(task_id='GRDMAT', task_completion_date__isnull=True, enquiry_id = '1302802'):
+    for task in TaskManager.objects.filter(task_id='GRDMAT', task_completion_date__isnull=True):
         enquiry_id = task.enquiry_id.enquiry_id
 
         #check if grade confirmed, if so skip checks
@@ -80,8 +80,66 @@ def run_algo():
                         ) 
                         TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
                         print('GRDNEG')
+                elif EnquiryRequestParts.objects.get(cer_sid=enquiry_id).grade_confirmed_ind == 'Y':
+                    #mark has changed, grade has not changed
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                        ec_sid = None,
+                        task_id = TaskTypes.objects.get(task_id = 'GRDCON'),
+                        task_assigned_to = User.objects.get(username='NovaServer'),
+                        task_assigned_date = timezone.now(),
+                        task_completion_date = None
+                    )
+                    TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
+                    print('GRDCON')
                 else:
                     print('no grade avail')
+        elif EnquiryRequestParts.objects.get(cer_sid=enquiry_id).service_code in ['1','1S']:
+                #check if valid grade change value exists, else do nothing
+                print("grdcon check 1")
+                if EnquiryGrades.objects.filter(enquiry_id=enquiry_id).exists():
+                    print("grdcon check 2")
+                    previous_grade = EnquiryGrades.objects.get(enquiry_id=enquiry_id).previous_grade
+                    new_grade = EnquiryGrades.objects.get(enquiry_id=enquiry_id).new_grade
+                    if previous_grade == new_grade:
+                        #mark has changed, grade has not changed
+                        TaskManager.objects.create(
+                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                            ec_sid = None,
+                            task_id = TaskTypes.objects.get(task_id = 'GRDCON'),
+                            task_assigned_to = User.objects.get(username='NovaServer'),
+                            task_assigned_date = timezone.now(),
+                            task_completion_date = None
+                        )
+                        TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
+                        print('GRDCON - CLERIC')
+                    else:
+                        #mark has changed, grade has changed
+                        TaskManager.objects.create(
+                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                            ec_sid = None,
+                            task_id = TaskTypes.objects.get(task_id = 'NEGCON'),
+                            task_assigned_to = None,
+                            task_assigned_date = None,
+                            task_completion_date = None
+                        ) 
+                        TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
+                        print('GRDNEG - CLERIC')
+                elif EnquiryRequestParts.objects.get(cer_sid=enquiry_id).grade_confirmed_ind == 'Y':
+                    #mark has changed, grade has not changed
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                        ec_sid = None,
+                        task_id = TaskTypes.objects.get(task_id = 'GRDCON'),
+                        task_assigned_to = User.objects.get(username='NovaServer'),
+                        task_assigned_date = timezone.now(),
+                        task_completion_date = None
+                    )
+                    TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
+                    print('GRDCON')
+                else:
+                    print('no grade avail')
+
         else:
             print('no MIS data')
             #TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())   

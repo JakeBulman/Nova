@@ -29,6 +29,7 @@ def ear_home_view(request,*args, **kwargs):
 	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
 	cer_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True)
 	esmcsv_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMCSV', enquiry_tasks__task_completion_date__isnull=True)
+	omrche_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OMRCHE', enquiry_tasks__task_completion_date__isnull=True)
 	bie_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True)
 	bie_count_assigned = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	manapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MANAPP', enquiry_tasks__task_completion_date__isnull=True)
@@ -75,9 +76,9 @@ def ear_home_view(request,*args, **kwargs):
 	session_desc = models.EarServerSettings.objects.first().session_description
 	context = {"session_desc":session_desc, "mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
 	    "botapp":botapp_count, "botapf":botapp_fail_count, "botmar":botmar_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count,
-		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "cleric":cleric_count, "clerica":clerica_count, "esmcsv":esmcsv_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, "remapf":remapf_count, "remapfa":remapfa_count,
+		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "cleric":cleric_count, "clerica":clerica_count, "esmcsv":esmcsv_count, "omrche":omrche_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, "remapf":remapf_count, "remapfa":remapfa_count,
 		"grdrel":grdrel_count, "grdrela":grdrela_count, "negcon":negcon_count, "negcona":negcona_count, "pdacon":pdacon_count, "pdacona":pdacona_count, 
-		"peacon":peacon_count, "peacon":peacona_count, "pumcon":pumcon_count, "pumcona":pumcona_count, "grdrej":grdrej_count, "grdreja":grdreja_count, "mrkamd":mrkamd_count, 
+		"peacon":peacon_count, "peacona":peacona_count, "pumcon":pumcon_count, "pumcona":pumcona_count, "grdrej":grdrej_count, "grdreja":grdreja_count, "mrkamd":mrkamd_count, 
 		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count, "nrmacc":nrmacc_count, "nrmacca":nrmacca_count
 		, "outcon":outcon_count, "outcona":outcona_count
 		}
@@ -139,7 +140,7 @@ def my_tasks_view(request):
 	if request.user.is_authenticated:
 		user = request.user
 
-	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON']
+	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE']
 	primary_team = models.TaskUserPrimary.objects.get(task_user=user).primary_team
 	secondary_team_set = models.TaskUserSecondary.objects.filter(task_user=user)
 	secondary_teams = []
@@ -201,7 +202,7 @@ def new_task_view(request):
 	username = None
 	if request.user.is_authenticated:
 		username =request.user
-	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON']
+	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE']
 	primary_team = models.TaskUserPrimary.objects.get(task_user=username).primary_team
 	secondary_team_set = models.TaskUserSecondary.objects.filter(task_user=username)
 	secondary_teams = []
@@ -266,15 +267,14 @@ def manual_apportionment(request):
 	examiner_obj = models.EnquiryPersonnel.objects.get(enpe_sid=apportion_enpe_sid)
 	script_obj = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id)
 
-	if models.ScriptApportionment.objects.filter(enpe_sid=examiner_obj,ec_sid=script_obj,apportionment_invalidated=0, script_marked=1).exists():
+	if models.ScriptApportionment.objects.filter(ec_sid=apportion_script_id,apportionment_invalidated=0,script_marked=1).exists():
 		print('Script already apportioned')
 	else:
-		if not models.ScriptApportionment.objects.filter(enpe_sid=examiner_obj,ec_sid=script_obj).exists():
-			models.ScriptApportionment.objects.create(
-				enpe_sid = examiner_obj,
-				ec_sid = script_obj
-				#script_marked is default to 1
-			)
+		models.ScriptApportionment.objects.create(
+			enpe_sid = examiner_obj,
+			ec_sid = script_obj
+			#script_marked is default to 1
+		)
 
 		if models.EnquiryComponents.objects.get(ec_sid=apportion_script_id).script_type == "RM Assessor":
 			if not models.TaskManager.objects.filter(ec_sid=apportion_script_id, task_id='BOTAPP',task_completion_date = None).exists():
@@ -315,9 +315,9 @@ def manual_apportionment(request):
 					task_completion_date = None
 				)		
 
-	#complete the task
-	models.TaskManager.objects.filter(pk=apportion_task_id,task_id='MANAPP').update(task_completion_date=timezone.now())    
-	return redirect('my_tasks')
+		#complete the task
+		models.TaskManager.objects.filter(pk=apportion_task_id,task_id='MANAPP').update(task_completion_date=timezone.now())    
+		return redirect('my_tasks')
 
 def nrmacc_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
@@ -694,7 +694,7 @@ def negcon_task_complete(request):
 			)
 	else:
 		if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='GRDREJ',task_completion_date = None).exists():
-			models.TaskManager.objects.create(
+			new_task = models.TaskManager.objects.create(
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = None,
 				task_id = models.TaskTypes.objects.get(task_id = 'GRDREJ'),
@@ -703,7 +703,8 @@ def negcon_task_complete(request):
 				task_completion_date = None
 			)
 			models.GradeFailureAudit.objects.create(
-				task_key = models.TaskManager.objects.get(pk=task_id),
+				task_key = models.TaskManager.objects.get(pk=new_task.pk),
+				failure_stage = models.TaskTypes.objects.get(task_id='NEGCON'),
 				failure_reason = request.POST.get('rpa_fail')
 			)		
 	#complete the task
@@ -731,7 +732,7 @@ def peacon_task_complete(request):
 			)
 	else:
 		if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='GRDREJ',task_completion_date = None).exists():
-			models.TaskManager.objects.create(
+			new_task = models.TaskManager.objects.create(
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = None,
 				task_id = models.TaskTypes.objects.get(task_id = 'GRDREJ'),
@@ -740,8 +741,8 @@ def peacon_task_complete(request):
 				task_completion_date = None
 			)	
 			models.GradeFailureAudit.objects.create(
-				task_key = models.TaskManager.objects.get(pk=task_id),
-				failure_stage = models.TaskTypes.objects.get(task_id='NEGCON'),
+				task_key = models.TaskManager.objects.get(pk=new_task.pk),
+				failure_stage = models.TaskTypes.objects.get(task_id='PEACON'),
 				failure_reason = request.POST.get('rpa_fail')
 			)
 	#complete the task
@@ -769,7 +770,7 @@ def pdacon_task_complete(request):
 			)
 	else:
 		if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='GRDREJ',task_completion_date = None).exists():
-			models.TaskManager.objects.create(
+			new_task = models.TaskManager.objects.create(
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = None,
 				task_id = models.TaskTypes.objects.get(task_id = 'GRDREJ'),
@@ -778,7 +779,8 @@ def pdacon_task_complete(request):
 				task_completion_date = None
 			)	
 			models.GradeFailureAudit.objects.create(
-				task_key = models.TaskManager.objects.get(pk=task_id),
+				task_key = models.TaskManager.objects.get(pk=new_task.pk),
+				failure_stage = models.TaskTypes.objects.get(task_id='PDACON'),
 				failure_reason = request.POST.get('rpa_fail')
 			)
 	#complete the task
@@ -1069,6 +1071,17 @@ def iec_pass_view(request, enquiry_id=None):
 		#Get scripts for this enquiry ID, this is a join from EC to ERP
 		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 		for s in Scripts:
+			if s.script_type == 'Multiple Choice':
+				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
+					models.TaskManager.objects.create(
+					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+					task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
+					task_assigned_to = None,
+					task_assigned_date = None,
+					task_completion_date = None
+					)		
+				continue	
 			if '1' in s.erp_sid.service_code:
 				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
 					models.TaskManager.objects.create(
@@ -1125,6 +1138,17 @@ def iec_pass_all_view(request):
 					#Get scripts for this enquiry ID, this is a join from EC to ERP
 			Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 			for s in Scripts:
+				if s.script_type == 'Multiple Choice':
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+						)	
+					continue
 				if '1' in s.erp_sid.service_code:
 					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
@@ -1203,6 +1227,17 @@ def iec_issue_view(request, enquiry_id=None):
 		#Get scripts for this enquiry ID, this is a join from EC to ERP
 		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 		for s in Scripts:
+			if s.script_type == 'Multiple Choice':
+				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
+					models.TaskManager.objects.create(
+					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+					task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
+					task_assigned_to = None,
+					task_assigned_date = None,
+					task_completion_date = None
+					)	
+				continue
 			if '1' in s.erp_sid.service_code:
 				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
 					models.TaskManager.objects.create(
@@ -1391,6 +1426,70 @@ def esmcsv_download_view(request, download_id=None):
 	models.EsmcsvDownloads.objects.filter(pk=download_id).update(download_count = str(downloads))
 
 	return FileResponse(document, as_attachment=True)
+
+
+
+
+def omrche_list_view(request):
+	ec_queryset = models.OmrcheDownloads.objects.order_by('-uploaded_at')
+	ec_queryset_paged = Paginator(ec_queryset,20,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries_omrche.html", context=context)
+
+def omrche_create_view(request):
+	ec_queryset = models.TaskManager.objects.filter(task_id='OMRCHE', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__eb_sid__isnull=False)
+	if ec_queryset.count() > 0:
+		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + "_OMR.csv"
+		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
+		print(file_location)
+		username = None
+		if request.user.is_authenticated:
+			username =request.user		
+		with open(file_location, 'w', newline='') as file:
+			file.truncate()
+			writer = csv.writer(file)
+			writer.writerow(['enquiry_no','batch','centre','candidate','syllcomp','session','service'])
+			for s in ec_queryset:
+				enquiry_no = s.ec_sid.erp_sid.cer_sid.enquiry_id
+				syllcomp = s.ec_sid.eps_ass_code + "/" + s.ec_sid.eps_com_id
+				batch = models.EnquiryComponentElements.objects.get(ec_sid = s.ec_sid).eb_sid.eb_sid
+				session = s.ec_sid.eps_ses_name
+				candidate = s.ec_sid.erp_sid.eps_cand_id
+				centre = s.ec_sid.erp_sid.eps_centre_id
+				service = s.ec_sid.erp_sid.service_code
+				
+				writer.writerow([enquiry_no,batch,centre,candidate,syllcomp,session,service])
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='OMRCHE').update(task_completion_date=timezone.now())
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='OMRCHE').update(task_assigned_date=timezone.now())
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='OMRCHE').update(task_assigned_to=username)
+
+		models.OmrcheDownloads.objects.create(
+			document = file_location,
+			file_name = file_timestamp,
+			download_count = 0,
+			archive_count = 0
+			)
+
+	return redirect('omrche_list')
+
+def omrche_download_view(request, download_id=None):
+	# 
+	document = models.OmrcheDownloads.objects.get(pk=download_id).document
+	downloads = int(models.OmrcheDownloads.objects.get(pk=download_id).download_count) + 1
+	models.OmrcheDownloads.objects.filter(pk=download_id).update(download_count = str(downloads))
+
+	return FileResponse(document, as_attachment=True)
+
+
 
 
 def exmsla_list_view(request):

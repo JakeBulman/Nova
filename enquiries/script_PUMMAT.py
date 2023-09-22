@@ -32,7 +32,7 @@ def run_algo():
             task_id = TaskTypes.objects.get(task_id = 'COMPLT'),
             task_assigned_to = User.objects.get(username='NovaServer'),
             task_assigned_date = timezone.now(),
-            task_completion_date = timezone.now()
+            task_completion_date = None
         )
 
         TaskManager.objects.filter(pk=task.pk,task_id='PUMMAT').update(task_completion_date=timezone.now())   

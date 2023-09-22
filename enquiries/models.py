@@ -49,6 +49,8 @@ class EnquiryRequestParts(models.Model):
     eps_script_measure = models.CharField(max_length=8,null=True)
     booked_in_error_ind = models.CharField(max_length=1,null=True)
     stud_name = models.CharField(max_length=100,null=True)
+    grade_confirmed_ind = models.CharField(max_length=1,null=True)
+
 
 class EnquiryComponents(models.Model):
     ec_sid = models.CharField(max_length=8, unique=True, default=0)
@@ -279,6 +281,13 @@ class MisReturnData(models.Model):
     error_status = models.CharField(max_length=50, null=True)
 
 class EsmcsvDownloads(models.Model):
+    document = models.FileField(upload_to='documents/')
+    file_name = models.CharField(max_length=50, null=True)
+    download_count = models.CharField(max_length=3, null=True)
+    archive_count = models.CharField(max_length=3, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+class OmrcheDownloads(models.Model):
     document = models.FileField(upload_to='documents/')
     file_name = models.CharField(max_length=50, null=True)
     download_count = models.CharField(max_length=3, null=True)

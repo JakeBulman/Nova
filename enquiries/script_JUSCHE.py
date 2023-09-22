@@ -2,7 +2,7 @@ import sys
 import os
 import django
 from django.utils import timezone
-import datetime
+import datetime, re
 
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
     print('DEV')
@@ -33,7 +33,7 @@ def run_algo():
             continue
         else:
             mis_data = MisReturnData.objects.filter(ec_sid=task.ec_sid.ec_sid).first()
-            justification_string = mis_data.final_justification_code
+            justification_string = re.sub("[^0-9]", "", str(mis_data.final_justification_code))
             final_mark_status = mis_data.final_mark_status
             final_mark = mis_data.final_mark
 

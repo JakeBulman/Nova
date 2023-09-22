@@ -191,7 +191,7 @@
                             <input name="script_id" id="script_id" value={{task.ec_sid.ec_sid}} type="hidden" class="form-control">
                             <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
                             <input name="enquiry_id" id="enquiry_id" value={{task.enquiry_id.enquiry_id}} type="hidden" class="form-control">
-                            <button type="submit" class="btn btn-primary" style="width:120px">Apportion</button>
+                            <button type="submit" class="btn btn-primary" style="width:120px" onClick="this.form.submit(); this.disabled=true;">Apportion</button>
                         </form></td>  
                     </tr>
                 {% endfor %}

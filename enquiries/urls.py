@@ -79,6 +79,10 @@ urlpatterns = [
     path('esmcsv_list', views.esmcsv_list_view, name='esmcsv_list'),
     path('exmsla_create', views.esmcsv_create_view, name='exmsla_create'),
     path('exmsla_download/<str:download_id>', views.esmcsv_download_view, name='exmsla_download'),
+    #Download OMRCHE to file location
+    path('omrche_list', views.omrche_list_view, name='omrche_list'),
+    path('omrche_create', views.omrche_create_view, name='omrche_create'),
+    path('omrche_download/<str:download_id>', views.omrche_download_view, name='omrche_download'),
     #Control Examiner SAL breaches
     path('exmsla_list', views.exmsla_list_view, name='exmsla_list'),
     #Re-do Examiner SAL breaches

@@ -55,7 +55,7 @@
 {% endif %}
 
 <div class="row text-center m-5">
-    {% if tasks.count > 19 %}
+    {% if tasks.count > 24 %}
         <form method="POST" action="{% url 'new-task' %}">
             <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
             <button disabled type="submit" title="New Task" class="btn btn-outline-secondary btn-lg my-2" style="width:500px">Too many tasks</button>

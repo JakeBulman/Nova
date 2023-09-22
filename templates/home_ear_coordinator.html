@@ -109,6 +109,16 @@
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <img class="card-img-top" src="{% static 'admin/img/iec-icon.png' %}" alt="EAR Icon">
     <div class="card-body d-flex flex-column">
+      <h5 class="card-title">OMR CSV Download</h5>
+      {% if omrche.count > 0 %}<span class="badge rounded-pill bg-primary">{{ omrche.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      <p class="card-text">Download for examiner access to RM</p>
+      <a href="{% url 'omrche_list' %}" class="mt-auto btn btn-outline-primary">OMR Downloads</a>
+    </div>
+  </div>
+
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/iec-icon.png' %}" alt="EAR Icon">
+    <div class="card-body d-flex flex-column">
       <h5 class="card-title">Grade Release</h5>
       {% if grdrel.count > 0 %}<span class="badge rounded-pill bg-primary">{{ grdrel.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       <p class="card-text">Release calculated grades after marks keying</p>

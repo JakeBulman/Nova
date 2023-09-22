@@ -24,7 +24,9 @@ django.setup()
 from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, MisReturnData, TaskTypes, MarkTolerances, ScaledMarks, EnquiryComponentsExaminerChecks
 from django.contrib.auth.models import User
 
-ec_list = ['1943008',
+ec_list = ['1969476',
+'1958860',
+
 
 ]
 
