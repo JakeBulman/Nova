@@ -25,26 +25,6 @@ from enquiries.models import TaskManager, RpaFailureAudit, ScriptApportionment, 
 from django.contrib.auth.models import User
 
 ec_list = [
-'1958146',
-'1955472',
-'1955824',
-'1957284',
-'1958782',
-'1958762',
-'1959288',
-'1944038',
-'1941842',
-'1941450',
-'1954884',
-'1957620',
-'1955816',
-'1959630',
-'1958772',
-'1959412',
-'1957920',
-'1960854',
-'1960256',
-'1951202',
 
 ]
 

@@ -27,7 +27,7 @@ from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryReques
 
 def run_algo():
 
-            eb_sid = '938224'
+            eb_sid = '939428'
             print(eb_sid)
             ec_sid = None
             if EnquiryComponentElements.objects.filter(eb_sid=eb_sid).exists():
@@ -48,12 +48,12 @@ def run_algo():
                         MisReturnData.objects.filter(ec_sid=ec_sid).update(
                             eb_sid = EnquiryBatches.objects.get(eb_sid=eb_sid),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
-                            original_exm = '02.02',
-                            rev_exm = '01.03',
-                            original_mark = '33',
-                            mark_status = 'Changed',
-                            revised_mark = '37',
-                            justification_code = '6',
+                            original_exm = '03.02',
+                            rev_exm = '05.01',
+                            original_mark = '63',
+                            mark_status = 'Confirmed',
+                            revised_mark = None,
+                            justification_code = '',
                             remark_reason = '',
                             remark_concern_reason = '',
                         )
@@ -62,12 +62,12 @@ def run_algo():
                         MisReturnData.objects.create(
                             eb_sid = EnquiryBatches.objects.get(eb_sid=eb_sid),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
-                            original_exm = '02.02',
-                            rev_exm = '01.03',
-                            original_mark = '33',
-                            mark_status = 'Changed',
-                            revised_mark = '37',
-                            justification_code = '6',
+                            original_exm = '03.02',
+                            rev_exm = '05.01',
+                            original_mark = '63',
+                            mark_status = 'Confirmed',
+                            revised_mark = None,
+                            justification_code = '',
                             remark_reason = '',
                             remark_concern_reason = '',
                         )

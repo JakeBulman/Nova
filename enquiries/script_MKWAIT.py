@@ -32,7 +32,7 @@ def run_algo():
         #TODO: check if on an error path such as being reapped or bot failed
         task_list = ['BOTAPP','NRMACC','REMAPF','BOTAPF']
         app_complete_check = TaskManager.objects.filter(enquiry_id=task.enquiry_id.enquiry_id,task_id__in=task_list, task_completion_date__isnull=False)
-
+        #app_complete_check2 = TaskManager.objects.filter(enquiry_id=task.enquiry_id.enquiry_id,task_id = 'BOTAPP', task_completion_date__isnull=False) and TaskManager.objects.filter(enquiry_id=task.enquiry_id.enquiry_id,task_id = 'BOTAPF', task_completion_date__isnull=True)
         if app_complete_check:
             TaskManager.objects.create(
                 enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
