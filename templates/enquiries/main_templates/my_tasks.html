@@ -1,0 +1,84 @@
+{% load static %}
+{% load compress %}
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    {% compress css %}
+        <link href="{% static 'admin/css/custom.scss' %}" rel="stylesheet" type="text/x-scss">
+    {% endcompress %}
+    <script type="text/javascript">
+        function preventBack() {
+            window.history.forward(); 
+        }
+          
+        setTimeout("preventBack()", 0);
+          
+        window.onunload = function () { null };
+    </script>
+    <title>Nova</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
+</head>
+<body style="background-color:#ffffff;" onload="javascript:setTimeout(function(){ location.reload(); },15000);">
+{% include 'nova_core/base_navbar.html' %}
+
+
+<h1 class="display-5 text-center mb-5">EAR - My Tasks</h1>
+
+{% if tasks.count == 0 %}
+
+<div class="text-center m-5">
+<img class="rounded mx-auto d-block " src="{% static 'admin/img/empty-icon.png' %}" alt="Empty Icon">
+</div>
+
+<h5 class="display-5 text-center m-5">You currently have no tasks assigned</h5>
+
+{% else %}
+
+<div class="row ms-5">
+{% for t in tasks %}
+
+<div class="card m-3" style="width: 18rem; ">
+    <div class="card-body">
+        <h5 class="card-title">{{t.task_id.task_id}}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">Enquiry: {{t.enquiry_id.enquiry_id}}</h6>
+        <h6 class="card-subtitle mb-2 text-muted">Script: {{t.ec_sid.ec_sid}}</h6>
+        {% for b in t.ec_sid.script_id.all %}
+        <h6 class="card-subtitle mb-2 text-muted">Batch: {{b.eb_sid.eb_sid}}</h6>
+        {% endfor %}
+        {% for d in t.enquiry_id.enquiry_deadline.all %}
+        <h6 class="card-subtitle mb-2 text-muted">Enquiry SLA: {{ d.original_enquiry_deadline|date:"d/m/y" }}</h6>
+        {% endfor %}
+        <p class="card-text">{{t.task_id.task_description}}</p>
+        <form method="POST" action="{% url 'task-router' t.id %}">
+            <input name="task_type" id="task_type" value='{{t.task_id.task_id}}' type="hidden" class="form-control">
+            <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
+            <button type="submit" class="btn btn-primary">Go to Task</button>
+        </form>
+    </div>
+</div>
+
+{% endfor %}
+</div>
+
+{% endif %}
+
+<div class="row text-center m-5">
+    {% if tasks.count > 24 %}
+        <form method="POST" action="{% url 'new-task' %}">
+            <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
+            <button disabled type="submit" title="New Task" class="btn btn-outline-secondary btn-lg my-2" style="width:500px">Too many tasks</button>
+        </form>
+    {% elif task_count == 0 %}
+    <form method="POST" action="{% url 'new-task' %}">
+        <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
+        <button disabled type="submit" title="New Task" class="btn btn-outline-secondary btn-lg my-2" style="width:500px">No tasks in queue</button>
+    </form>
+    {% else %}
+        <form method="POST" action="{% url 'new-task' %}">
+            <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
+            <button type="submit" title="New Task" class="btn btn-primary btn-lg my-2" style="width:500px">Get new task</button>
+        </form>
+    {% endif %}
+</div>

@@ -1,0 +1,100 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+
+{% load mathfilters %}
+
+<h1 class="display-5 text-center mb-5">EAR Task - Mark Amendment</h1>
+
+<div class="container">
+    <div class="row text-center">
+        <a class="btn btn-secondary btn-lg my-2" href='/enquiries/task_manager/my_tasks'>Back to My Tasks</a>
+    </div>
+    <div class="row text-center my-3">
+        <h5>Task Summary</h5>
+        <table class="table table-sm table-bordered table-hover text-center">
+            <tr class="text-center">
+                <th>Task ID</th>
+                <td>{{ task.id }}</td>
+                <th>Centre Number</th>
+                <td>{{ task.enquiry_id.centre_id }}</td>
+            </tr>
+            <tr class="text-center">
+                <th>Enquiry ID</th>
+                <td><a href='/enquiries/enquiries_detail/{{ task.enquiry_id.enquiry_id }}'>{{ task.enquiry_id.enquiry_id }}</a></td>
+                <th>Candidate Number</th>
+                <td>{% for ec in task.enquiry_id.enquiries.all %}{{ ec.eps_cand_id }}{% endfor %}</td>
+            </tr>
+            <tr class="text-center">
+                <th>Syllabus</th>
+                <td>{% for ec in task.enquiry_id.enquiries.all %}{{ ec.eps_ass_code }}{% endfor %}</td>
+                <th></th>
+                <td></td>
+            </tr>
+        </table>
+        <h5>Task Instruction</h5>
+        <div>Please complete next steps for this grade rejection by amending the marks for this enquiry.</div>
+
+        <table class="table table-sm table-bordered table-hover text-center mt-3">
+            <tr class="text-center">
+                <th>Original Grade</th>
+                <th>New Grade</th>
+                <th>Grade Change</th>
+            </tr>
+            <tr class="text-center">    
+                <td>{% for eg in task.enquiry_id.enquiry_grades.all %}{{ eg.previous_grade }}{% endfor %}</td>
+                <td>{% for eg in task.enquiry_id.enquiry_grades.all %}{{ eg.new_grade }}{% endfor %}</td>
+                <td>{% for eg in task.enquiry_id.enquiry_grades.all %}
+                    {% if eg.previous_seq|sub:eg.new_seq < 0 %}
+                    <a style="word-break: break-word; font-weight: bold; color: red;">{{ eg.previous_seq|sub:eg.new_seq }}
+                    {% else %}
+                    {{ eg.previous_seq|sub:eg.new_seq }}
+                    {% endif %}
+                {% endfor %}</td>
+            </tr>
+        </table>
+        <table class="table table-sm table-bordered table-hover text-center mt-3">            
+            <tr class="text-center">
+                <th>Components</th>
+                <th>Original Marks</th>
+                <th>New Marks</th>
+                <th>Marks Difference</th>
+            </tr>
+            
+            {% for ec in task.enquiry_id.enquiries.all %}
+            {% for ec2 in ec.enquiry_parts.all %}
+            {% for ec3 in ec2.script_mis.all %}
+            <tr class="text-center">
+            <td>{{ ec2.eps_com_id }}</td>
+            <td>{{ ec3.original_mark }}</td>
+            <td>{{ ec3.final_mark }}</td>
+            <td>
+                {% if ec3.final_mark|sub:ec3.original_mark < 0 %}
+            <a style="word-break: break-word; font-weight: bold; color: red;">{{ ec3.final_mark|sub:ec3.original_mark }}
+                {% else %}
+                {{ ec3.final_mark|sub:ec3.original_mark }}
+                {% endif %}
+            </td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+            {% endfor %}
+            
+        </table>
+    </div>
+
+    <div class="row text-center mt-5">
+        <form method="POST" action="{% url 'mrkamd-complete' %}" class="text-center">
+        <input name="task_status" id="task_status" value="Pass" type="hidden" class="form-control">
+        <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+        <button type="submit" class="btn btn-success btn-lg my-2" style="width:300px">Confirm Mark Amend</button>
+        </form>
+    </div>  
+
+</div>  
+
+</div>
+
+
+
+{% endblock %}

@@ -146,8 +146,8 @@ def load_core_tables():
                     eps_cand_unique_id = row['eps_cand_unique_id'],
                     eps_cand_id = row['eps_cand_id'],
                     eps_centre_id = row['eps_centre_id'],
-                    eps_comp_ind = row['eps_comp_ind'],
-                    eps_script_measure = row['eps_script_measure'],
+                    eps_comp_ind = None,
+                    eps_script_measure = 1,
                     booked_in_error_ind = row['booked_in_error_ind'],
                     stud_name = row['stud_name'],
                     grade_confirmed_ind = row['grade_confirmed_ind']

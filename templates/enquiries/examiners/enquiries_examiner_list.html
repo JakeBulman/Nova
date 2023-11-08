@@ -1,0 +1,171 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center mb-5">EAR - Examiners</h1>
+
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+        <li class="page-item">
+            {% if ep.has_previous %}
+            <a class="page-link" href="?page={{ep.previous_page_number}}&search_query={{sq}}" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+            </a>
+            {% else %}
+            <a class="page-link disabled" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+            {% endif %}
+        </li>
+
+        <li class="page-item">
+            {% if ep.number == 1 %}
+            <a class="page-link disabled"aria-label="First">
+            <span aria-hidden="true">First</span>
+            </a>
+            {% else %}
+            <a class="page-link" href="?page=1&search_query={{sq}}" aria-label="First">
+                <span aria-hidden="true">First</span>
+            </a>
+            {% endif %}
+        </li>
+
+        <li class="page-item"><a class="page-link active"style="width: 45px; text-align:center">{{ep.number}}</a></li>
+
+        <li class="page-item">
+            {% if ep.number == ep.paginator.num_pages %}
+            <a class="page-link disabled"aria-label="Last">
+            <span aria-hidden="true">Last ({{ep.paginator.num_pages}})</span>
+            </a>
+            {% else %}
+            <a class="page-link" href="?page={{ep.paginator.num_pages}}&search_query={{sq}}" aria-label="Previous">
+                <span aria-hidden="true">Last ({{ep.paginator.num_pages}})</span>
+            </a>
+            {% endif %}
+        </li>
+
+        <li class="page-item">
+            {%if ep.has_next %}
+            <a class="page-link" href="?page={{ep.next_page_number}}&search_query={{sq}}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+            </a>
+            {% else %}
+            <a class="page-link disabled" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+            {% endif %}
+        </li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-auto">
+                <form class="text-center" style="width:500px" method="GET" action='/enquiries/examiner_list'>
+                    <div>
+                    <input name="search_query" id="search_query" type="text" class="form-control mb-1" placeholder="Creditor No., Surname or Syllabus/Component" value={{sq}}>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary text-center" style="width:200px">Search</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive-xl m-5">
+        <table class="table table-sm table-bordered table-hover align-middle text-center">
+            <tr class="text-center">
+                <th>Creditor Number</th>
+                <th>Examiner Name</th>
+                <th>Examiner Email</th>
+
+                <th>Syll/Comp</th>
+                <th>Examiner Position</th>
+                <th>Panel Size</th>            
+                
+                <th>Conflict of Interest List</th>
+                <th>Examiner Notes</th>
+                <th>Examiner Unavailability</th>
+            </tr>
+            {% for exm in ep %}
+                <tr>
+                    <td class="text-center"><a class="btn btn-primary" style="width:100px" href='/enquiries/examiner_detail/{{ exm.per_sid }}'>{{ exm.exm_creditor_no }}</a></td>
+                    <td>{{ exm.exm_title }} {{ exm.exm_initials }} ({{ exm.exm_forename }}) {{ exm.exm_surname }}</td>
+                    {% if exm.exm_email_manual.all.count > 0 %}
+                        <td>{% for emails in exm.exm_email_manual.all %}{{ emails.examiner_email_manual|upper }}{% endfor %}</td>
+                    {% else %}
+                        <td>{{ exm.exm_email }}</td>
+                    {% endif %}
+
+
+                    <td>
+                        <table class="table table-sm text-center">
+                            {% for enpe in exm.creditors.all %}
+                                {% for deet in enpe.exm_per_details.all %}
+                                <tr>
+                                    <td> {{ deet.ass_code }}/{{ deet.com_id }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% endfor %}    
+                        </table>
+                    </td>
+                    <td>
+                        <table class="table table-sm text-center">
+                            {% for enpe in exm.creditors.all %}
+                                {% for deet in enpe.exm_per_details.all %}
+                                <tr>
+                                    <td>{{ deet.exm_examiner_no }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% endfor %}    
+                        </table>
+                    </td>
+                    <td>
+                        <table class="table table-sm text-center">
+                            {% for enpe in exm.creditors.all %}
+                                {% for deet in enpe.exm_per_details.all %}
+                                <tr>
+                                    <td>{{ deet.panel_size }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% endfor %}    
+                        </table>
+                    </td>
+                    <td>
+                        <table class="table table-sm text-center">
+                            {% for conf in exm.exm_conflicts.all %}
+                                <tr>
+                                    <td style="word-break: break-word;">{{ conf.examiner_conflicts }}</td>
+                                </tr>
+                            {% endfor %} 
+                        </table>
+                    </td>
+
+                    <td>
+                        <table class="table table-sm text-center">
+                            {% for noted in exm.exm_notes.all %}
+                                <tr>
+                                    <td style="word-break: break-word;">{{ noted.examiner_notes }}</td>
+                                </tr>
+                            {% endfor %} 
+                        </table>
+                    </td>
+                    
+                    <td>
+                        <table class="table table-sm text-center">
+                            {% for avail in exm.exm_availability.all %}
+                                <tr>
+                                    <td>{{ avail.unavailability_start_date|date:"d/m/y" }}-{{ avail.unavailability_end_date|date:"d/m/y" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                    
+                    
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+
+{% endblock %}

@@ -17,9 +17,11 @@ urlpatterns = [
 
     #Shows all tasks sets to the user
     path('task_manager/my_tasks', views.my_tasks_view, name='my_tasks'),
-    path('task_manager/task_router', views.task_router_view, name='task-router'),
+    path('task_manager/task_router/<str:task_id>', views.task_router_view, name='task-router'),
     path('task_manager/new_task', views.new_task_view, name='new-task'),
     path('task_manager/self_assign_task/<str:task_id>', views.self_assign_task_view, name='self-assign-task'),
+    path('task_manager/add_new_comment', views.new_task_comment_view, name='add_task_comment'),
+    path('task_manager/remove_new_comment', views.remove_task_comment_view, name='remove_task_comment'),
     path('task_manager/manual_apportionment_task/complete', views.manual_apportionment, name='manual-apportionment-complete'),
     path('task_manager/manual_apportionment_task/<str:task_id>', views.manual_apportionment_task, name='manual-apportionment-task'),
     path('task_manager/setbie_task/<str:task_id>', views.setbie_task, name='setbie-task'),

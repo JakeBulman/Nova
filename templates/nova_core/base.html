@@ -1,0 +1,33 @@
+{% load static %}
+{% load compress %}
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    {% compress css %}
+        <link href="{% static 'admin/css/custom.scss' %}" rel="stylesheet" type="text/x-scss">
+    {% endcompress %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <script type="text/javascript">
+        function preventBack() {
+            window.history.forward(); 
+        }
+          
+        setTimeout("preventBack()", 0);
+          
+        window.onunload = function () { null };
+    </script>
+    <link rel="icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
+    <title>Nova</title>
+</head>
+<body style="background-color:#F7FAFA;">
+    {% include 'nova_core/base_navbar.html' %}
+
+    {% block content %}
+    
+    {% endblock %}
+</body>
+</html>

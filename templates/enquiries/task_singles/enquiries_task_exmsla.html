@@ -1,0 +1,101 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center mb-5">EAR Task - Examiner SLA Breach</h1>
+
+<div class="container">
+    <div class="row text-center">
+        <a class="btn btn-secondary btn-lg my-2" href='/enquiries/task_manager/my_tasks'>Back to My Tasks</a>
+    </div>
+    <div class="row text-center my-3">
+        <h5>Task Summary</h5>
+        <table class="table table-sm table-bordered table-hover text-center">
+            <tr class="text-center">
+                <th>Task ID</th>
+                <td>{{ task.id }}</td>
+                <th>Centre Number</th>
+                <td>{{ task.ec_sid.erp_sid.eps_centre_id }}</td>
+            </tr>
+            <tr class="text-center">
+                <th>Enquiry ID</th>
+                <td><a href='/enquiries/enquiries_detail/{{ task.enquiry_id.enquiry_id }}'>{{ task.enquiry_id.enquiry_id }}</a></td>
+                <th>Candidate Number</th>
+                <td>{{ task.ec_sid.erp_sid.eps_cand_id }}</td>
+            </tr>
+            <tr class="text-center">
+                <th>Script ID</th>
+                <td>{{ task.ec_sid.ec_sid }}</td>
+                <th>Syllabus</th>
+                <td>{{ task.ec_sid.eps_ass_code }}</td>
+            </tr>
+            <tr class="text-center">
+                <th>Batch ID</th>
+                <td>{% for bat in task.ec_sid.script_id.all %}{{ bat.eb_sid.eb_sid }}{% endfor %}</td>
+                <th>Component</th>
+                <td>{{ task.ec_sid.eps_com_id }}</td>
+            </tr>
+            <tr class="text-center">
+                <th>Remark Examiner</th>
+                <td>{% for t in task.ec_sid.apportion_script.all %}{% for e in t.enpe_sid.exm_per_details.all %}
+                        {% if t.apportionment_invalidated == 0 %}
+                            {{ e.exm_examiner_no }}
+                        {% endif %}
+                    {% endfor %}{% endfor %}</td>
+                <th>Script Assign DateTime</th>
+                <td>{{ task.task_creation_date|date:"d/m/y H:i" }}</td>
+            </tr>
+            <tr class="text-center">
+                <th>Remark Examiner Email</th>
+                <td>{% for t in task.ec_sid.apportion_script.all %}{% if t.apportionment_invalidated == 0 %}{{ t.enpe_sid.per_sid.exm_email }}{% endif %}{% endfor %}</td>
+                <th>Previous SLA extensions</th>
+                <td>{% if ext_days > 0 %}
+                        {{ ext_days }} Days
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+        <h5>Task Instruction</h5>
+        <div>Please contact the examiner for this script and confirm if they require an extension. If they cannot mark the script it will be sent for reapportionment</div>
+    </div>
+
+    <div class="row text-center m-5">
+    <div class="col-lg-3 align-self-center"></div>
+    <div class="col-lg-6 align-self-center">
+        <form method="POST" action="{% url 'exmsla-complete' %}" class="text-center">
+            <input name="script_id" id="script_id" value={{task.ec_sid.ec_sid}} type="hidden" class="form-control">
+            <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+            <input name="enquiry_id" id="enquiry_id" value={{task.enquiry_id.enquiry_id}} type="hidden" class="form-control">
+            <label class="form-label">If an extension is need, please enter it below.</label>
+            <div class="row">
+                <div class="col">
+                    <label class="form-label text-end">Extension (Days)</label>
+                </div>
+                <div class="col">
+                    <input name="new_sla" id="new_sla" type="number" class="form-control text-center" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success btn-lg my-2" style="width:300px">Extend SLA</button>
+        </form>
+    </div>
+    <div class="col-lg-3 align-self-center"></div>
+    </div>  
+</div>
+
+<div class="row text-center mt-5">
+    <form method="POST" action="{% url 'exmsla-complete' %}" class="text-center">
+    <input name="script_id" id="script_id" value={{task.ec_sid.ec_sid}} type="hidden" class="form-control">
+    <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+    <input name="enquiry_id" id="enquiry_id" value={{task.enquiry_id.enquiry_id}} type="hidden" class="form-control">
+    <label class="form-label">If the examiner is unresponsive or cannot mark the script, please begin reapportionment of the script.</label>
+    <div class="row">
+
+    </div>
+    <button type="submit" class="btn btn-danger btn-lg my-4" style="width:300px">Reapportion Script</button>
+    </form>
+</div>  
+
+
+{% endblock %}
