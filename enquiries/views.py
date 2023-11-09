@@ -290,7 +290,7 @@ def manual_apportionment_task(request, task_id=None):
 	#Check for comments on task
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
-		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk)
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
 	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, "issue_reason":issue_reason, "panel_notes":panel_notes, "task_comments":task_comments}
 	return render(request, "enquiries/task_singles/enquiries_task_manual_apportionment.html", context=context)
 
@@ -366,7 +366,7 @@ def nrmacc_task(request, task_id=None):
 	#Check for comments on task
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
-		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk)
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
 	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "panel_notes":panel_notes, "task_comments":task_comments}
 	return render(request, "enquiries/task_singles/enquiries_task_nrmacc.html", context=context)
 
@@ -411,7 +411,7 @@ def misvrm_task(request, task_id=None):
 	#Check for comments on task
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
-		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk)
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
 	context = {"task_id":task_id, "task":task_queryset, "issue_reason":issue_reason, "task_comments":task_comments}
 	return render(request, "enquiries/task_singles/enquiries_task_misvrm.html", context=context)
 
@@ -460,7 +460,7 @@ def pexmch_task(request, task_id=None):
 	#Check for comments on task
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
-		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk)
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
 	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "task_comments":task_comments}
 	return render(request, "enquiries/task_singles/enquiries_task_pexmch.html", context=context)
 
@@ -647,7 +647,7 @@ def remapp_task(request, task_id=None):
 	#Check for comments on task
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
-		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk)
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
 
 	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, "issue_reason":issue_reason, "panel_notes":panel_notes, "task_comments":task_comments}
 	return render(request, "enquiries/task_singles/enquiries_task_remapp.html", context=context)
