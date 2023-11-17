@@ -214,6 +214,15 @@
   </div>
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
+      <h5 class="card-title">MIS RM Re-checks</h5>
+      {% if misvrf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ misvrf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if misvrfa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ misvrfa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      <p class="card-text">Checks between returned MIS forms and RM.</p>
+      <a href="{% url 'misvrf_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+    </div>
+  </div>
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <div class="card-body d-flex flex-column">
       <h5 class="card-title">Examiner SLA Breaches</h5>
       {% if exmsla.count > 0 %}<span class="badge rounded-pill bg-primary">{{ exmsla.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       {% if exmslaa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ exmslaa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}

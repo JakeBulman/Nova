@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h1 class="display-5 mb-4 mt-3 mx-5 text-center">EAR Task - MIS vs RM</h1>
+<h1 class="display-5 mb-4 mt-3 mx-5 text-center">EAR Task - MIS vs RM Re-check</h1>
 
 <div class="container-fluid">
     <div class="row text-center">
@@ -108,9 +108,9 @@
 
 
                 <h5>Task Instruction</h5>
-                <div>1 - Please check the script has been submitted correctly </div>
-                <div>2 - Please check the mark awarded matches the mark returned and if changed, a justification code is given.</div>
-                <div>3 - Please check for annotations on the script. </div>
+                <div>Please check the MISVRM has been completed correctly.</div>
+                <div style="font-weight: bold; color: red;">Error Code: {% for mis in task.ec_sid.script_mis.all %}{{ mis.error_status }}{% endfor %}</div>
+                <div style="font-weight: bold;">Original MISVRM by: {{original_user}}</div>
             </div>
 
             {% if issue_reason %}<h2 class="text-center text-primary">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
@@ -172,31 +172,11 @@
     </div>
 
     <div class="row text-center">
-        <div class="col text-center mt-4 ms-5 me-3 bg-light text-dark rounded">
-            <div class="row text-center m-3">
-                <h5>Confirm MIS</h5>
-                    <form method="POST" action="{% url 'misvrm-complete' %}" class="text-center">
-                    <input name="script_id" id="script_id" value={{task.ec_sid.ec_sid}} type="hidden" class="form-control">
-                    <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
-                    <input name="enquiry_id" id="enquiry_id" value={{task.enquiry_id.enquiry_id}} type="hidden" class="form-control">
-                    <div class="row">
-                        <label class="form-label mb-5">If the values above are correct, please confirm the MIS.</label>
-                    </div>
-                    <div class="row">
-                        <div class="col align-self-center">
-                            <button type="submit" class="btn btn-success btn-lg my-2" style="width:300px">Confirm Current MIS</button>
-                        </div>
-                    </div>
-                    </form>
-            </div> 
-        </div> 
-
-
-        <div class="col text-center mt-4 ms-3 me-5 bg-light text-dark rounded">
+        <div class="col text-center mt-4 mx-5 bg-light text-dark rounded">
             <div class="row text-center m-3">
                 <h5>Update MIS</h5>
             <div class="col align-self-center">
-                <form method="POST" action="{% url 'misvrm-complete' %}" class="text-center">
+                <form method="POST" action="{% url 'misvrf-complete' %}" class="text-center">
                 <input name="script_id" id="script_id" value={{task.ec_sid.ec_sid}} type="hidden" class="form-control">
                 <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
                 <input name="enquiry_id" id="enquiry_id" value={{task.enquiry_id.enquiry_id}} type="hidden" class="form-control">

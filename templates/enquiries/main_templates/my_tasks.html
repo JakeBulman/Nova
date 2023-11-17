@@ -23,62 +23,123 @@
 <body style="background-color:#ffffff;" onload="javascript:setTimeout(function(){ location.reload(); },15000);">
 {% include 'nova_core/base_navbar.html' %}
 
-
-<h1 class="display-5 text-center mb-5">EAR - My Tasks</h1>
-
-{% if tasks.count == 0 %}
-
-<div class="text-center m-5">
-<img class="rounded mx-auto d-block " src="{% static 'admin/img/empty-icon.png' %}" alt="Empty Icon">
-</div>
-
-<h5 class="display-5 text-center m-5">You currently have no tasks assigned</h5>
-
-{% else %}
-
-<div class="row ms-5">
-{% for t in tasks %}
-
-<div class="card m-3" style="width: 18rem; ">
-    <div class="card-body">
-        <h5 class="card-title">{{t.task_id.task_id}}</h5>
-        <h6 class="card-subtitle mb-2 text-muted">Enquiry: {{t.enquiry_id.enquiry_id}}</h6>
-        <h6 class="card-subtitle mb-2 text-muted">Script: {{t.ec_sid.ec_sid}}</h6>
-        {% for b in t.ec_sid.script_id.all %}
-        <h6 class="card-subtitle mb-2 text-muted">Batch: {{b.eb_sid.eb_sid}}</h6>
-        {% endfor %}
-        {% for d in t.enquiry_id.enquiry_deadline.all %}
-        <h6 class="card-subtitle mb-2 text-muted">Enquiry SLA: {{ d.original_enquiry_deadline|date:"d/m/y" }}</h6>
-        {% endfor %}
-        <p class="card-text">{{t.task_id.task_description}}</p>
-        <form method="POST" action="{% url 'task-router' t.id %}">
-            <input name="task_type" id="task_type" value='{{t.task_id.task_id}}' type="hidden" class="form-control">
-            <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
-            <button type="submit" class="btn btn-primary">Go to Task</button>
+<div class="container-fluid">
+    <div class="row text-center m-2">
+        <h1 class="display-5 text-center">EAR - My Tasks</h1>
+    </div>
+    <div class="row text-center m-5">
+        {% if tasks.count > 24 %}
+            <form method="POST" action="{% url 'new-task' %}">
+                <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
+                <button disabled type="submit" title="New Task" class="btn btn-outline-secondary btn-lg my-2" style="width:500px">Too many tasks</button>
+            </form>
+        {% elif task_count == 0 %}
+        <form method="POST" action="{% url 'new-task' %}">
+            <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
+            <button disabled type="submit" title="New Task" class="btn btn-outline-secondary btn-lg my-2" style="width:500px">No tasks in queue</button>
         </form>
+        {% else %}
+            <form method="POST" action="{% url 'new-task' %}">
+                <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
+                <button type="submit" title="New Task" class="btn btn-primary btn-lg my-2" style="width:500px">Get new task</button>
+            </form>
+        {% endif %}
+    </div>
+
+
+    <div class="row m-5">
+        <div class="col bg-light text-dark rounded">
+            {% if tasks.count == 0 %}
+
+            <div class="text-center m-5">
+                <img class="rounded mx-auto d-block " src="{% static 'admin/img/empty-icon.png' %}" alt="Empty Icon">
+            </div>
+            <h5 class="display-5 text-center m-5">You currently have no tasks assigned</h5>
+
+            {% else %}
+
+            <h5 class="display-6 m-3">New Tasks</h5>
+
+            <div class="row ms-3">
+                {% for t in tasks %}
+                    {% if t.task_queued == 0 %}
+                        <div class="card me-3 my-3" style="width: 18rem; ">
+                            <div class="card-body">
+                                <h5 class="card-title">{{t.task_id.task_id}}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Enquiry: {{t.enquiry_id.enquiry_id}}</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Script: {{t.ec_sid.ec_sid}}</h6>
+                                {% for b in t.ec_sid.script_id.all %}
+                                <h6 class="card-subtitle mb-2 text-muted">Batch: {{b.eb_sid.eb_sid}}</h6>
+                                {% endfor %}
+                                {% for d in t.enquiry_id.enquiry_deadline.all %}
+                                <h6 class="card-subtitle mb-2 text-muted">Enquiry SLA: {{ d.original_enquiry_deadline|date:"d/m/y" }}</h6>
+                                {% endfor %}
+                                <h6 class="card-subtitle mb-2 text-muted">Task Created: {{ t.task_creation_date|date:"d/m/y" }}</h6>
+                                <p class="card-text" style="height:50px">{{t.task_id.task_description}}</p>
+                                <div class="row">
+                                    <div class="col">
+                                        <form method="POST" action="{% url 'task-router' t.id %}">
+                                            <input name="task_type" id="task_type" value='{{t.task_id.task_id}}' type="hidden" class="form-control">
+                                            <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
+                                            <button type="submit" class="btn btn-primary" style="width:100px">To Task</button>
+                                        </form>
+                                    </div>
+                                    <div class="col">
+                                        <form method="POST" action="{% url 'set_backlog' %}">
+                                            <input name="task_val" id="task_val" value='{{t.task_queued}}' type="hidden" class="form-control">
+                                            <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
+                                            <button type="submit" class="btn btn-warning" style="width:100px">Backlog</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="row m-5">
+        <div class="col bg-light text-dark rounded">
+            <h5 class="display-6 m-3">Backlog Tasks</h5>
+            <div class="row ms-3">
+                {% for t in tasks %}
+                    {% if t.task_queued == 1 %}
+                        <div class="card me-3 my-3" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">{{t.task_id.task_id}}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Enquiry: {{t.enquiry_id.enquiry_id}}</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Script: {{t.ec_sid.ec_sid}}</h6>
+                                {% for b in t.ec_sid.script_id.all %}
+                                <h6 class="card-subtitle mb-2 text-muted">Batch: {{b.eb_sid.eb_sid}}</h6>
+                                {% endfor %}
+                                {% for d in t.enquiry_id.enquiry_deadline.all %}
+                                <h6 class="card-subtitle mb-2 text-muted">Enquiry SLA: {{ d.original_enquiry_deadline|date:"d/m/y" }}</h6>
+                                {% endfor %}
+                                <h6 class="card-subtitle mb-2 text-muted">Task Created: {{ t.task_creation_date|date:"d/m/y" }}</h6>
+                                <p class="card-text" style="height:50px">{{t.task_id.task_description}}</p>
+                                <div class="row">
+                                    <div class="col">
+                                        <form method="POST" action="{% url 'task-router' t.id %}">
+                                            <input name="task_type" id="task_type" value='{{t.task_id.task_id}}' type="hidden" class="form-control">
+                                            <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
+                                            <button type="submit" class="btn btn-primary" style="width:100px">To Task</button>
+                                        </form>
+                                    </div>
+                                    <div class="col">
+                                        <form method="POST" action="{% url 'set_backlog' %}">
+                                            <input name="task_val" id="task_val" value='{{t.task_queued}}' type="hidden" class="form-control">
+                                            <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
+                                            <button type="submit" class="btn btn-outline-warning" style="width:100px">Backlog</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
-
-{% endfor %}
-</div>
-
 {% endif %}
-
-<div class="row text-center m-5">
-    {% if tasks.count > 24 %}
-        <form method="POST" action="{% url 'new-task' %}">
-            <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
-            <button disabled type="submit" title="New Task" class="btn btn-outline-secondary btn-lg my-2" style="width:500px">Too many tasks</button>
-        </form>
-    {% elif task_count == 0 %}
-    <form method="POST" action="{% url 'new-task' %}">
-        <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
-        <button disabled type="submit" title="New Task" class="btn btn-outline-secondary btn-lg my-2" style="width:500px">No tasks in queue</button>
-    </form>
-    {% else %}
-        <form method="POST" action="{% url 'new-task' %}">
-            <input name="page_source" id="page_source" value="my_tasks" type="hidden" class="form-control" placeholder="Enquiry No.">
-            <button type="submit" title="New Task" class="btn btn-primary btn-lg my-2" style="width:500px">Get new task</button>
-        </form>
-    {% endif %}
-</div>

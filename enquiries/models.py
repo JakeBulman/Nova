@@ -23,7 +23,6 @@ class Enquiries(models.Model):
 ##########################################################################
 
 class CentreEnquiryRequests(models.Model):
-    
     enquiry_id = models.CharField(max_length=10, unique=True)
     enquiry_status = models.CharField(max_length=1)
     eps_creation_date = models.DateTimeField(null=True)
@@ -116,7 +115,8 @@ class TaskManager(models.Model):
     task_creation_date = models.DateTimeField(auto_now_add=True)
     task_assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='assigned_tasks',)
     task_assigned_date = models.DateTimeField(null=True) 
-    task_completion_date = models.DateTimeField(null=True)   
+    task_completion_date = models.DateTimeField(null=True)
+    task_queued = models.IntegerField(default=0)
 
 class TaskComments(models.Model):
     task_pk = models.ForeignKey(TaskManager, on_delete=models.SET_NULL, related_name='task_comments', null=True)

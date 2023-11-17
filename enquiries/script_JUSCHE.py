@@ -30,6 +30,15 @@ def run_algo():
 
         if not MisReturnData.objects.filter(ec_sid=task.ec_sid.ec_sid).exists():
             print("MIS Data Missing")
+            TaskManager.objects.create(
+                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                task_id = TaskTypes.objects.get(task_id = 'MISVRF'),
+                task_assigned_to = None,
+                task_assigned_date = None,
+                task_completion_date = None
+            )
+            TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
             continue
         else:
             mis_data = MisReturnData.objects.filter(ec_sid=task.ec_sid.ec_sid).first()
@@ -42,11 +51,29 @@ def run_algo():
             print('NO STATUS')
             mis_data.error_status = "No status"
             mis_data.save()
+            TaskManager.objects.create(
+                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                task_id = TaskTypes.objects.get(task_id = 'MISVRF'),
+                task_assigned_to = None,
+                task_assigned_date = None,
+                task_completion_date = None
+            )
+            TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
             continue
         if final_mark_status == 'Changed' and (justification_string is None or justification_string.strip() is '' or final_mark is None):
             print('NO JC or Mark')
             mis_data.error_status = "No JC or Mark"
             mis_data.save()
+            TaskManager.objects.create(
+                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                task_id = TaskTypes.objects.get(task_id = 'MISVRF'),
+                task_assigned_to = None,
+                task_assigned_date = None,
+                task_completion_date = None
+            )
+            TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
             continue
         
 
@@ -55,6 +82,15 @@ def run_algo():
             print("Tolerance Not Available")
             mis_data.error_status = "Tolerance Not Available"
             mis_data.save()
+            TaskManager.objects.create(
+                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                task_id = TaskTypes.objects.get(task_id = 'MISVRF'),
+                task_assigned_to = None,
+                task_assigned_date = None,
+                task_completion_date = None
+            )
+            TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
             continue
         else:
             early_mark_tolerance = MarkTolerances.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id).first().mark_tolerance
@@ -63,6 +99,15 @@ def run_algo():
             print("No mark available")
             mis_data.error_status = "No mark available"
             mis_data.save()
+            TaskManager.objects.create(
+                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                task_id = TaskTypes.objects.get(task_id = 'MISVRF'),
+                task_assigned_to = None,
+                task_assigned_date = None,
+                task_completion_date = None
+            )
+            TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
             continue
         else:
             scaled_mark_set = ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id).first()
@@ -83,6 +128,15 @@ def run_algo():
                 print('Conf InTol needs checking')
                 mis_data.error_status = "Conf InTol needs checking"
                 mis_data.save()
+                TaskManager.objects.create(
+                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                    task_id = TaskTypes.objects.get(task_id = 'MISVRF'),
+                    task_assigned_to = None,
+                    task_assigned_date = None,
+                    task_completion_date = None
+                )
+                TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
                 continue
             
             elif not scaled_mark_on_mis and not within_tolerance:
@@ -272,6 +326,15 @@ def run_algo():
                     print("No JC - 5678")
                     mis_data.error_status = "No JC - 5678"
                     mis_data.save()
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                        ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                        task_id = TaskTypes.objects.get(task_id = 'MISVRF'),
+                        task_assigned_to = None,
+                        task_assigned_date = None,
+                        task_completion_date = None
+                    )
+                    TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
                     continue
 
                 print(final_justification_code)
