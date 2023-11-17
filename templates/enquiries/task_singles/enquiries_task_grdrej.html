@@ -4,90 +4,151 @@
 
 {% load mathfilters %}
 
-<h1 class="display-5 text-center mb-5">EAR Task - Grade Rejection</h1>
+<h1 class="display-5 mb-4 mt-3 mx-5 text-center">EAR Task - Grade Rejection</h1>
 
-<div class="container">
+<div class="container-fluid">
     <div class="row text-center">
-        <a class="btn btn-secondary btn-lg my-2" href='/enquiries/task_manager/my_tasks'>Back to My Tasks</a>
+        <div class="row text-center">
+            <div class="col mb-5 mx-5">
+                <a class="btn btn-primary btn-lg" style="width: 500px" href='/enquiries/task_manager/my_tasks'>&lt;&lt; Back to My Tasks</a>
+            </div>
+        </div>
     </div>
-    <div class="row text-center my-3">
-        <h5>Task Summary</h5>
-        <table class="table table-sm table-bordered table-hover text-center">
-            <tr class="text-center">
-                <th>Task ID</th>
-                <td>{{ task.id }}</td>
-                <th>Centre Number</th>
-                <td>{{ task.enquiry_id.centre_id }}</td>
-            </tr>
-            <tr class="text-center">
-                <th>Enquiry ID</th>
-                <td><a href='/enquiries/enquiries_detail/{{ task.enquiry_id.enquiry_id }}'>{{ task.enquiry_id.enquiry_id }}</a></td>
-                <th>Candidate Number</th>
-                <td>{% for ec in task.enquiry_id.enquiries.all %}{{ ec.eps_cand_id }}{% endfor %}</td>
-            </tr>
-            <tr class="text-center">
-                <th>Syllabus</th>
-                <td>{% for ec in task.enquiry_id.enquiries.all %}{{ ec.eps_ass_code }}{% endfor %}</td>
-                <th></th>
-                <td></td>
-            </tr>
-        </table>
-        <h5>Task Instruction</h5>
-        <div>Please complete next steps for this grade rejection in EPS.</div>
-        <h5 class="mt-3" style="word-break: break-word; font-weight: bold; color: red;">Rejection Reason</h5>
-        {% for tf in task.task_grade_failure.all %}
-        <div class="mb-3" style="word-break: break-word; font-weight: bold; color: red;">{{ tf.failure_stage_id }} - {{ tf.failure_reason }}</div>
-        {% endfor %}
+    <div class="row text-center">
+        <div class="col text-center text-dark ms-5 me-3 bg-light rounded">
+            <div class="row text-center m-3">
+                <h5>Task Summary</h5>
+                <table class="table table-sm table-bordered table-hover text-center">
+                    <tr class="text-center">
+                        <th>Task ID</th>
+                        <td>{{ task.id }}</td>
+                        <th>Centre Number</th>
+                        <td>{{ task.enquiry_id.centre_id }}</td>
+                    </tr>
+                    <tr class="text-center">
+                        <th>Enquiry ID</th>
+                        <td><a href='/enquiries/enquiries_detail/{{ task.enquiry_id.enquiry_id }}'>{{ task.enquiry_id.enquiry_id }}</a></td>
+                        <th>Candidate Number</th>
+                        <td>{% for ec in task.enquiry_id.enquiries.all %}{{ ec.eps_cand_id }}{% endfor %}</td>
+                    </tr>
+                    <tr class="text-center">
+                        <th>Syllabus</th>
+                        <td>{% for ec in task.enquiry_id.enquiries.all %}{{ ec.eps_ass_code }}{% endfor %}</td>
+                        <th></th>
+                        <td></td>
+                    </tr>
+                </table>
+                <h5>Task Instruction</h5>
+                <div>Please complete next steps for this grade rejection in EPS.</div>
+                <h5 class="mt-3" style="word-break: break-word; font-weight: bold; color: red;">Rejection Reason</h5>
+                {% for tf in task.task_grade_failure.all %}
+                <div class="mb-3" style="word-break: break-word; font-weight: bold; color: red;">{{ tf.failure_stage_id }} - {{ tf.failure_reason }}</div>
+                {% endfor %}
 
 
-        <table class="table table-sm table-bordered table-hover text-center mt-3">
-            <tr class="text-center">
-                <th>Original Grade</th>
-                <th>New Grade</th>
-                <th>Grade Change</th>
-            </tr>
-            <tr class="text-center">    
-                <td>{% for eg in task.enquiry_id.enquiry_grades.all %}{{ eg.previous_grade }}{% endfor %}</td>
-                <td>{% for eg in task.enquiry_id.enquiry_grades.all %}{{ eg.new_grade }}{% endfor %}</td>
-                <td>{% for eg in task.enquiry_id.enquiry_grades.all %}
-                    {% if eg.previous_seq|sub:eg.new_seq < 0 %}
-                    <a style="word-break: break-word; font-weight: bold; color: red;">{{ eg.previous_seq|sub:eg.new_seq }}
+                <table class="table table-sm table-bordered table-hover text-center mt-3">
+                    <tr class="text-center">
+                        <th>Original Grade</th>
+                        <th>New Grade</th>
+                        <th>Grade Change</th>
+                    </tr>
+                    <tr class="text-center">    
+                        <td>{% for eg in task.enquiry_id.enquiry_grades.all %}{{ eg.previous_grade }}{% endfor %}</td>
+                        <td>{% for eg in task.enquiry_id.enquiry_grades.all %}{{ eg.new_grade }}{% endfor %}</td>
+                        <td>{% for eg in task.enquiry_id.enquiry_grades.all %}
+                            {% if eg.previous_seq|sub:eg.new_seq < 0 %}
+                            <a style="word-break: break-word; font-weight: bold; color: red;">{{ eg.previous_seq|sub:eg.new_seq }}
+                            {% else %}
+                            {{ eg.previous_seq|sub:eg.new_seq }}
+                            {% endif %}
+                        {% endfor %}</td>
+                    </tr>
+                </table>
+                <table class="table table-sm table-bordered table-hover text-center mt-3">            
+                    <tr class="text-center">
+                        <th>Components</th>
+                        <th>Original Marks</th>
+                        <th>New Marks</th>
+                        <th>Marks Difference</th>
+                    </tr>
+                    
+                    {% for ec in task.enquiry_id.enquiries.all %}
+                    {% for ec2 in ec.enquiry_parts.all %}
+                    {% for ec3 in ec2.script_mis.all %}
+                    <tr class="text-center">
+                    <td>{{ ec2.eps_com_id }}</td>
+                    <td>{{ ec3.original_mark }}</td>
+                    <td>{{ ec3.final_mark }}</td>
+                    <td>
+                        {% if ec3.final_mark|sub:ec3.original_mark < 0 %}
+                    <a style="word-break: break-word; font-weight: bold; color: red;">{{ ec3.final_mark|sub:ec3.original_mark }}
+                        {% else %}
+                        {{ ec3.final_mark|sub:ec3.original_mark }}
+                        {% endif %}
+                    </td>
+                    </tr>
+                    {% endfor %}
+                    {% endfor %}
+                    {% endfor %}
+                    
+                </table>
+            </div>
+        </div>           
+        <div class="col text-center ms-3 me-5 bg-light text-dark rounded">
+            <div class="row text-center m-3">
+                <h5>Task Comments</h5>
+                <table class="table table-bordered table-hover text-center bg-white">
+                    <tr class="text-center">
+                        <th class="text-dark">Comment</th>
+                        <th class="text-dark">Creation Date</th>
+                        <th class="text-dark">Creator</th>
+                        <th class="text-dark">Task Complete</th>
+                    </tr>
+                    {% for comment in task_comments %}
+                    {% if comment.task_comment_invalid == 0 %}
+                    <tr class="text-center">
+                        <td style="word-break: break-word;">{{ comment.task_comment_text }}</td>
+                        <td>{{ comment.task_comment_creation_date|date:"d/m/y H:i" }}</td>
+                        <td>{{ comment.task_comment_user }}</td>
+                        <td>                        
+                            <form method="POST" action="{% url 'remove_task_comment' %}" class="form-inline">
+                                    <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                                    <input name="comment_id" id="comment_id" value={{comment.id}} type="hidden" class="form-control">
+                                    <button type="submit" class="btn btn-danger btn-sm" style="width:100px" onClick="this.form.submit(); this.disabled=true;">Remove</button>
+                            </form>  
+                        </td>
+                    </tr>
                     {% else %}
-                    {{ eg.previous_seq|sub:eg.new_seq }}
+                    <tr class="text-center">
+                        <td class="text-info" style="word-break: break-word;">{{ comment.task_comment_text }}</td>
+                        <td class="text-info">{{ comment.task_comment_creation_date|date:"d/m/y H:i" }}</td>
+                        <td class="text-info">{{ comment.task_comment_user }}</td>
+                        <td>                        
+                            <form method="POST" action="{% url 'remove_task_comment' %}" class="form-inline">
+                                    <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                                    <input name="comment_id" id="comment_id" value={{comment.id}} type="hidden" class="form-control">
+                                    <button disabled type="submit" class="btn btn-info btn-sm" style="width:100px">Remove</button>
+                            </form>  
+                        </td>
+                    </tr>
                     {% endif %}
-                {% endfor %}</td>
-            </tr>
-        </table>
-        <table class="table table-sm table-bordered table-hover text-center mt-3">            
-            <tr class="text-center">
-                <th>Components</th>
-                <th>Original Marks</th>
-                <th>New Marks</th>
-                <th>Marks Difference</th>
-            </tr>
-            
-            {% for ec in task.enquiry_id.enquiries.all %}
-            {% for ec2 in ec.enquiry_parts.all %}
-            {% for ec3 in ec2.script_mis.all %}
-            <tr class="text-center">
-            <td>{{ ec2.eps_com_id }}</td>
-            <td>{{ ec3.original_mark }}</td>
-            <td>{{ ec3.final_mark }}</td>
-            <td>
-                {% if ec3.final_mark|sub:ec3.original_mark < 0 %}
-            <a style="word-break: break-word; font-weight: bold; color: red;">{{ ec3.final_mark|sub:ec3.original_mark }}
-                {% else %}
-                {{ ec3.final_mark|sub:ec3.original_mark }}
-                {% endif %}
-            </td>
-            </tr>
-            {% endfor %}
-            {% endfor %}
-            {% endfor %}
-            
-        </table>
+                    {% endfor %}
+                    <tr class="text-center">
+                        <td colspan="4">
+                        <form method="POST" action="{% url 'add_task_comment' %}" class="form-inline">
+                            <table class="table table-sm text-center bg-white">
+                                <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                                <td><input name="task_comment" id="task_comment" type="text" class="form-control"></td>
+                                <td><button type="submit" class="btn btn-primary" style="width:200px" onClick="this.form.submit(); this.disabled=true;">Add Comment</button></td>
+                            </table>
+                        </form>   
+                        </td>                  
+                    </tr>
+                    
+                </table>
+            </div>
+        </div>
     </div>
-
     <div class="row text-center mt-5">
         <form method="POST" action="{% url 'grdrej-complete' %}" class="text-center">
         <input name="task_status" id="task_status" value="Pass" type="hidden" class="form-control">

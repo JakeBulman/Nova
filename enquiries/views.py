@@ -794,7 +794,11 @@ def remapf_task_complete(request):
 
 def negcon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
 	return render(request, "enquiries/task_singles/enquiries_task_negcon.html", context=context)
 
 def negcon_task_complete(request):
@@ -832,7 +836,11 @@ def negcon_task_complete(request):
 
 def peacon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
+		#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
 	return render(request, "enquiries/task_singles/enquiries_task_peacon.html", context=context)
 
 def peacon_task_complete(request):
@@ -870,7 +878,11 @@ def peacon_task_complete(request):
 
 def pdacon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
 	return render(request, "enquiries/task_singles/enquiries_task_pdacon.html", context=context)
 
 def pdacon_task_complete(request):
@@ -931,7 +943,11 @@ def pumcon_task_complete(request):
 
 def grdrej_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
 	return render(request, "enquiries/task_singles/enquiries_task_grdrej.html", context=context)
 
 def grdrej_task_complete(request):
@@ -962,7 +978,11 @@ def grdrej_task_complete(request):
 
 def mrkamd_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
 	return render(request, "enquiries/task_singles/enquiries_task_mrkamd.html", context=context)
 
 def mrkamd_task_complete(request):
@@ -1014,7 +1034,11 @@ def grdcon_task_complete(request):
 
 def grdchg_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
 	return render(request, "enquiries/task_singles/enquiries_task_grdchg.html", context=context)
 
 def grdchg_task_complete(request):

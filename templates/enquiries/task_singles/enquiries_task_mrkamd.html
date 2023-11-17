@@ -4,13 +4,19 @@
 
 {% load mathfilters %}
 
-<h1 class="display-5 text-center mb-5">EAR Task - Mark Amendment</h1>
+<h1 class="display-5 mb-4 mt-3 mx-5 text-center">EAR Task - Mark Amendment</h1>
 
-<div class="container">
+<div class="container-fluid">
     <div class="row text-center">
-        <a class="btn btn-secondary btn-lg my-2" href='/enquiries/task_manager/my_tasks'>Back to My Tasks</a>
+        <div class="row text-center">
+            <div class="col mb-5 mx-5">
+                <a class="btn btn-primary btn-lg" style="width: 500px" href='/enquiries/task_manager/my_tasks'>&lt;&lt; Back to My Tasks</a>
+            </div>
+        </div>
     </div>
-    <div class="row text-center my-3">
+    <div class="row text-center">
+        <div class="col text-center text-dark ms-5 me-3 bg-light rounded">
+            <div class="row text-center m-3">
         <h5>Task Summary</h5>
         <table class="table table-sm table-bordered table-hover text-center">
             <tr class="text-center">
@@ -82,6 +88,62 @@
             
         </table>
     </div>
+</div>           
+<div class="col text-center ms-3 me-5 bg-light text-dark rounded">
+    <div class="row text-center m-3">
+        <h5>Task Comments</h5>
+        <table class="table table-bordered table-hover text-center bg-white">
+            <tr class="text-center">
+                <th class="text-dark">Comment</th>
+                <th class="text-dark">Creation Date</th>
+                <th class="text-dark">Creator</th>
+                <th class="text-dark">Task Complete</th>
+            </tr>
+            {% for comment in task_comments %}
+            {% if comment.task_comment_invalid == 0 %}
+            <tr class="text-center">
+                <td style="word-break: break-word;">{{ comment.task_comment_text }}</td>
+                <td>{{ comment.task_comment_creation_date|date:"d/m/y H:i" }}</td>
+                <td>{{ comment.task_comment_user }}</td>
+                <td>                        
+                    <form method="POST" action="{% url 'remove_task_comment' %}" class="form-inline">
+                            <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                            <input name="comment_id" id="comment_id" value={{comment.id}} type="hidden" class="form-control">
+                            <button type="submit" class="btn btn-danger btn-sm" style="width:100px" onClick="this.form.submit(); this.disabled=true;">Remove</button>
+                    </form>  
+                </td>
+            </tr>
+            {% else %}
+            <tr class="text-center">
+                <td class="text-info" style="word-break: break-word;">{{ comment.task_comment_text }}</td>
+                <td class="text-info">{{ comment.task_comment_creation_date|date:"d/m/y H:i" }}</td>
+                <td class="text-info">{{ comment.task_comment_user }}</td>
+                <td>                        
+                    <form method="POST" action="{% url 'remove_task_comment' %}" class="form-inline">
+                            <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                            <input name="comment_id" id="comment_id" value={{comment.id}} type="hidden" class="form-control">
+                            <button disabled type="submit" class="btn btn-info btn-sm" style="width:100px">Remove</button>
+                    </form>  
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            <tr class="text-center">
+                <td colspan="4">
+                <form method="POST" action="{% url 'add_task_comment' %}" class="form-inline">
+                    <table class="table table-sm text-center bg-white">
+                        <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                        <td><input name="task_comment" id="task_comment" type="text" class="form-control"></td>
+                        <td><button type="submit" class="btn btn-primary" style="width:200px" onClick="this.form.submit(); this.disabled=true;">Add Comment</button></td>
+                    </table>
+                </form>   
+                </td>                  
+            </tr>
+            
+        </table>
+    </div>
+</div>
+</div>
 
     <div class="row text-center mt-5">
         <form method="POST" action="{% url 'mrkamd-complete' %}" class="text-center">
