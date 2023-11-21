@@ -247,19 +247,6 @@ def set_backlog(request):
 	models.TaskManager.objects.filter(id=task_id).update(task_queued=set_val)
 	return redirect('my_tasks')
 
-def self_assign_task_view(request, task_id=None):
-	#Get username to filter tasks
-	username = None
-	if request.user.is_authenticated:
-		username =request.user
-	#Set the  task to this user
-	print(task_id)
-	if task_id is not None:
-		models.TaskManager.objects.filter(id=task_id).update(task_assigned_to=username)
-		models.TaskManager.objects.filter(id=task_id).update(task_assigned_date=timezone.now())
-	redirect_address = request.POST.get('page_location')
-	return redirect(redirect_address)
-
 def new_task_comment_view(request):
 	task_id = request.POST.get('task_id')
 	task_comment = request.POST.get('task_comment')
@@ -285,6 +272,56 @@ def remove_task_comment_view(request):
 	comment_id = request.POST.get('comment_id')
 	models.TaskComments.objects.filter(pk=comment_id).update(task_comment_invalid=1)
 	return redirect('task-router', task_id)
+
+def user_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
+	teams = models.TaskTeams.objects.all().order_by('id')
+	context = {"users": queryset, "teams":teams}
+	return render(request, "enquiries/main_templates/enquiries_user_list.html", context=context)
+
+def user_tasks_view(request, userid=None):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_assigned_to=userid, script_tasks__task_completion_date__isnull=True).order_by('script_tasks__task_assigned_date')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj, "original_user":userid}
+	return render(request, "enquiries/main_templates/enquiries_task_user_list.html", context=context) 
+
+def self_assign_task_view(request, task_id=None):
+	#Get username to filter tasks
+	username = None
+	if request.user.is_authenticated:
+		username =request.user
+	#Set the  task to this user
+	print(task_id)
+	if task_id is not None:
+		models.TaskManager.objects.filter(id=task_id).update(task_assigned_to=username)
+		models.TaskManager.objects.filter(id=task_id).update(task_assigned_date=timezone.now())
+	redirect_address = request.POST.get('page_location')
+	if redirect_address == 'task_assignment':
+		return redirect('my_tasks')
+	else:
+		return redirect(redirect_address)
+
+def assign_task_user_view(request, user_id=None, task_id=None):
+	#grab the model rows (ordered by id), filter to required task and where not completed.
+	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
+	context = {"users": queryset, "original_user":user_id, "task_id":task_id}	
+	return render(request, "enquiries/main_templates/enquiries_user_select.html", context=context)
+	#return redirect('user_tasks', user_id)
+
+def assign_task_user_selected_view(request, user_id=None, task_id=None, selected_user=None):
+	models.TaskManager.objects.filter(pk=task_id).update(task_assigned_to=User.objects.get(pk=selected_user))
+	return redirect('user_tasks', user_id)
 
 def setbie_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
