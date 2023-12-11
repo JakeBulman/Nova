@@ -169,5 +169,6 @@ COMPRESS_JS_FILTERS = [
 COMPRESS_PRECOMPILERS = (
     ('module', 'compressor_toolkit.precompilers.ES6Compiler'),
     ('css', 'compressor_toolkit.precompilers.SCSSCompiler'),
+    ('text/x-scss', 'django_libsass.SassCompiler'),
 )
 COMPRESS_ENABLED = True
