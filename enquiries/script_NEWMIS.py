@@ -30,12 +30,14 @@ def run_algo():
             #task data pulled in here
             task_pk = app_task.pk
             script_id = app_task.ec_sid.ec_sid
+            print(app_task.enquiry_id.enquiry_id)
             print(script_id)
             task_enquiry_id = app_task.enquiry_id.enquiry_id
             syll_comp = app_task.ec_sid.eps_ass_code + "/" + app_task.ec_sid.eps_com_id
             if EnquiryComponentElements.objects.filter(ec_sid=script_id).exists():
                 if EnquiryComponentElements.objects.get(ec_sid=script_id).eb_sid is not None:
                     batch_no = EnquiryComponentElements.objects.get(ec_sid=script_id).eb_sid.eb_sid
+                    print(batch_no)
                 else:
                     print('No batch number')
                     continue

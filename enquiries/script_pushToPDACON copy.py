@@ -25,72 +25,59 @@ from enquiries.models import TaskManager, RpaFailureAudit, ScriptApportionment, 
 from django.contrib.auth.models import User
 
 ec_list = [
-'1344684',
-'1320186',
-'1318928',
-'1318928',
-'1321684',
-'1321684',
-'1322396',
-'1322396',
-'1322396',
-'1334052',
-'1334052',
-'1334052',
-'1325658',
-'1327506',
-'1327506',
-'1335192',
-'1336802',
-'1336802',
-'1336802',
-'1329072',
-'1329614',
-'1330338',
-'1336110',
-'1336110',
-'1336722',
-'1336110',
-'1336722',
-'1336722',
-'1336312',
-'1336312',
-'1336312',
-'1339016',
-'1338952',
-'1339044',
-'1344060',
-'1344522',
-'1344522',
-'1344522',
-'1344684',
-'1344830',
-'1344684',
-'1344830',
-'1344830',
-'1349466',
-'1349740',
-'1350390',
-'1352862',
-'1350956',
-'1353016',
-'1351356',
-'1347456',
-'1354508',
-
-
+'1318140',
+'1318348',
+'1318350',
+'1321362',
+'1318352',
+'1324734',
+'1324332',
+'1321772',
+'1319794',
+'1323086',
+'1333366',
+'1325514',
+'1326226',
+'1324014',
+'1326824',
+'1322848',
+'1325088',
+'1335790',
+'1337498',
+'1328344',
+'1328728',
+'1329086',
+'1330130',
+'1330376',
+'1330758',
+'1331124',
+'1331364',
+'1336552',
+'1340374',
+'1341436',
+'1342026',
+'1343828',
+'1345512',
+'1345592',
+'1349086',
+'1352552',
+'1347068',
+'1351334',
+'1351394',
+'1351558',
+'1349408',
 
 ]
 
 def run_algo():
-    for app_task in TaskManager.objects.filter(task_id='NEGCON', enquiry_id__in = ec_list):
+    for app_task in TaskManager.objects.filter(task_id='PDACON', enquiry_id__in = ec_list):
         task_id = app_task.pk
         enquiry_id = TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
-        # if not TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='PEACON',task_completion_date = None).exists():
+        # if not TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='GRDCHG',task_completion_date = None).exists():
         #     TaskManager.objects.create(
         #         enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
         #         ec_sid = None,
-        #         task_id = TaskTypes.objects.get(task_id = 'PEACON'),
+        #         task_id = TaskTypes.objects.get(task_id = 'GRDCHG'),
         #         task_assigned_to = None,
         #         task_assigned_date = None,
         #         task_completion_date = None
@@ -107,11 +94,11 @@ def run_algo():
             )
             GradeFailureAudit.objects.create(
 				task_key = TaskManager.objects.get(pk=new_task.pk),
-				failure_stage = TaskTypes.objects.get(task_id='NEGCON'),
-				failure_reason = 'Numeric Grade Change' 
+				failure_stage = TaskTypes.objects.get(task_id='PDACON'),
+				failure_reason = 'Rejected by PM' 
             )		
 
         #complete the task
-        TaskManager.objects.filter(pk=task_id,task_id='NEGCON').update(task_completion_date=timezone.now())    
+        TaskManager.objects.filter(pk=task_id,task_id='PDACON').update(task_completion_date=timezone.now())    
 
 run_algo()
