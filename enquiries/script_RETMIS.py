@@ -51,14 +51,16 @@ def run_algo():
                 continue
 
             eb_sid = sheet["I2"].value
-            print(eb_sid)
+            print("Batch: " + str(eb_sid))
             ec_sid = None
+            print(str(EnquiryComponentElements.objects.filter(eb_sid=eb_sid).exists()))
             if EnquiryComponentElements.objects.filter(eb_sid=eb_sid).exists():
+                print("ok")
                 ec_sid = EnquiryComponentElements.objects.filter(eb_sid=eb_sid).first().ec_sid.ec_sid
                 task_enquiry_id = EnquiryComponentElements.objects.filter(eb_sid=eb_sid).first().ec_sid.erp_sid.cer_sid.enquiry_id
 
             task_pk = None
-            print(ec_sid)
+            print("Script: " + str(ec_sid))
             try:
                 expected_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.get(ec_sid=ec_sid, apportionment_invalidated=0).enpe_sid).first()
                 

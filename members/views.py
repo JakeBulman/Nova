@@ -23,7 +23,7 @@ def login_user(request):
             messages.success(request,("There was an error logging in, please try again."))
             return redirect('login')
     else:
-        return render(request, 'user_login.html', {})
+        return render(request, 'nova_core/user_login.html', {})
 
 def register_user(request):
     if request.method == "POST":

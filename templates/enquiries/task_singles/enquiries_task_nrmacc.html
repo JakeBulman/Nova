@@ -1,0 +1,314 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 mb-4 mt-3 mx-5 text-center">EAR Task - Non-RM Script</h1>
+
+<div class="container-fluid">
+    <div class="row text-center">
+        <div class="row text-center">
+            <div class="col mb-5 mx-5">
+                <a class="btn btn-primary btn-lg" style="width: 500px" href='/enquiries/task_manager/my_tasks'>&lt;&lt; Back to My Tasks</a>
+            </div>
+        </div>
+    </div>
+    <div class="row text-center">
+        <div class="col text-center text-dark ms-5 me-3 bg-light rounded">
+            <div class="row text-center m-3">
+        <h5>Task Summary</h5>
+        <table class="table table-sm table-bordered table-hover text-center">
+            <tr class="text-center">
+                <th>Task ID</th>
+                <td>{{ task.id }}</td>
+                <th>Centre Number</th>
+                <td>{{ task.enquiry_id.centre_id }}</td>
+            </tr>
+            <tr class="text-center">
+                <th>Enquiry ID</th>
+                <td><a href='/enquiries/enquiries_detail/{{ task.enquiry_id.enquiry_id }}'>{{ task.enquiry_id.enquiry_id }}</a></td>
+                <th>Candidate Number</th>
+                <td>{% for ec in task.enquiry_id.enquiries.all %}{{ ec.eps_cand_id }}{% endfor %}</td>
+            </tr>
+            <tr class="text-center">
+                <th>Syllabus</th>
+                <td>{% for ec in task.enquiry_id.enquiries.all %}{{ ec.eps_ass_code }}{% endfor %}</td>
+                <th>Components</th>
+                <td>{{ task.ec_sid.eps_com_id }}</td>
+            </tr>
+            <tr class="text-center">
+                <th>Assigned Examiner Position</th>
+                <td>{% for ec in task.ec_sid.apportion_script.all %}
+                    {% if ec.apportionment_invalidated == 0 %}
+                    {% for enpe in ec.enpe_sid.exm_per_details.all %}
+                    {{ enpe.exm_examiner_no }}
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}</td>
+                <th>Script Type</th>
+                <td>{{ task.ec_sid.script_type }}</td>
+
+            </tr>
+            <tr class="text-center">
+                <th>Assigned Examiner Creditor</th>
+                <td>{% for ec in task.ec_sid.apportion_script.all %}
+                    {% if ec.apportionment_invalidated == 0 %}
+                    {% for enpe in ec.enpe_sid.exm_per_details.all %}
+                    <a href='/enquiries/examiner_detail/{{ enpe.enpe_sid.per_sid.per_sid }}'>{{ enpe.exm_creditor_no }}</a>
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}</td>
+                <th>Assigned Examiner Unavailability</th>
+                <td>{% for ec in task.ec_sid.apportion_script.all %}
+                    {% for avail in ec.enpe_sid.per_sid.exm_availability.all %}
+                    {{ avail.unavailability_start_date|date:"d/m/y" }}-{{ avail.unavailability_end_date|date:"d/m/y" }},
+                    {% endfor %}
+                    {% endfor %}</td>
+            </tr>
+            <tr class="text-center">
+                <th>Batch Number</th>
+                <td>{% for ec in task.ec_sid.script_id.all %}
+                    {{ ec.eb_sid.eb_sid }}
+                    {% endfor %}</td>
+                <th>Assigned Examiner Notes</th>
+                <td>{% for ec in task.ec_sid.apportion_script.all %}
+                    {% for avail in ec.enpe_sid.per_sid.exm_notes.all %}
+                    {{avail.examiner_notes}}
+                    {% endfor %}
+                    {% endfor %}</td>
+            </tr>
+        </table>
+    </div>
+        <div class="row text-center my-5">
+            <h5>Task Instruction</h5>
+            <div>1. Please request the hard copy script for the above enquiry.</div>
+            <div>2. Please complete the EPS apportionment process for the above enquiry.</div>
+            <div>3. Please send the hard copy script for the above enquiry to the examiner. If the examiner is no longer available, see below before completing the task.</div>
+        </div>
+    </div>
+    {% if issue_reason %}<h2 class="text-center text-primary mb-3">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
+
+
+        <div class="col text-center ms-3 me-5 bg-light text-dark rounded">
+            <div class="row text-center m-3">
+                <h5>Task Comments</h5>
+                <table class="table table-bordered table-hover text-center bg-white">
+                    <tr class="text-center">
+                        <th class="text-dark">Comment</th>
+                        <th class="text-dark">Creation Date</th>
+                        <th class="text-dark">Creator</th>
+                        <th class="text-dark">Task Complete</th>
+                    </tr>
+                    {% for comment in task_comments %}
+                    {% if comment.task_comment_invalid == 0 %}
+                    <tr class="text-center">
+                        <td style="word-break: break-word;">{{ comment.task_comment_text }}</td>
+                        <td>{{ comment.task_comment_creation_date|date:"d/m/y H:i" }}</td>
+                        <td>{{ comment.task_comment_user }}</td>
+                        <td>                        
+                            <form method="POST" action="{% url 'remove_task_comment' %}" class="form-inline">
+                                    <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                                    <input name="comment_id" id="comment_id" value={{comment.id}} type="hidden" class="form-control">
+                                    <button type="submit" class="btn btn-danger btn-sm" style="width:100px" onClick="this.form.submit(); this.disabled=true;">Remove</button>
+                            </form>  
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr class="text-center">
+                        <td class="text-info" style="word-break: break-word;">{{ comment.task_comment_text }}</td>
+                        <td class="text-info">{{ comment.task_comment_creation_date|date:"d/m/y H:i" }}</td>
+                        <td class="text-info">{{ comment.task_comment_user }}</td>
+                        <td>                        
+                            <form method="POST" action="{% url 'remove_task_comment' %}" class="form-inline">
+                                    <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                                    <input name="comment_id" id="comment_id" value={{comment.id}} type="hidden" class="form-control">
+                                    <button disabled type="submit" class="btn btn-info btn-sm" style="width:100px">Remove</button>
+                            </form>  
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    <tr class="text-center">
+                        <td colspan="4">
+                        <form method="POST" action="{% url 'add_task_comment' %}" class="form-inline">
+                            <table class="table table-sm text-center bg-white">
+                                <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                                <td><input name="task_comment" id="task_comment" type="text" class="form-control"></td>
+                                <td><button type="submit" class="btn btn-primary" style="width:200px" onClick="this.form.submit(); this.disabled=true;">Add Comment</button></td>
+                            </table>
+                        </form>   
+                        </td>                  
+                    </tr>
+                    
+                </table>
+            </div>
+            <div class="row text-center m-3">
+                <h5>Panel Notes</h5>
+                <div>{{panel_notes}}</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row text-center">
+        <div class="col text-center my-4 mx-5 bg-light text-dark rounded">
+            <div class="row text-center m-3">
+                <form method="POST" action="{% url 'nrmacc-complete' %}" class="text-center">
+                <input name="task_status" id="task_status" value="Pass" type="hidden" class="form-control">
+                <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                <button type="submit" class="btn btn-success btn-lg my-2" style="width:300px">Confirm Task Complete</button>
+                </form>
+            </div>  
+
+            <div class="row text-center mt-5 my-3">
+                <h5>Override Apportionment</h5>
+                <div>If the examiner is no longer available once hardcopy scripts are ready, please select a new examiner from below.</div>
+            </div>
+
+            <div class="row text-center mt-5 m-3">
+                <h5>Available Examiner List</h5>
+                <table class="table table-sm table-bordered table-hover text-center bg-white">
+                    <tr class="text-center">
+                        <th>Creditor Number</th>
+                        <th>Examiner Name</th>
+                        <th>Examiner Email</th>
+
+                        
+                        <th>Examiner Position</th>
+                        <th>Panel Size</th>  
+                        <th>Previous Examiner</th>
+                                
+                        
+                        <th>Conflict of Interest List</th>
+                        <th>Examiner Notes</th>
+                        <th>Examiner Unavailability</th>
+                        <th>Assigned Scripts</th>  
+                        <th>Select Examiner</th>
+                    </tr>
+                    {% for exm in ep %}
+                        
+                        <tr>
+                            <td class="text-center"><a class="btn btn-outline-primary" style="width:100px" href='/enquiries/examiner_detail/{{ exm.per_sid }}'>{{ exm.exm_creditor_no }}</a></td>
+                            <td>{{ exm.exm_title }} {{ exm.exm_initials }} ({{ exm.exm_forename }}) {{ exm.exm_surname }}</td>
+                            {% if exm.exm_email_manual.all.count > 0 %}
+                                <td>{% for emails in exm.exm_email_manual.all %}{{ emails.examiner_email_manual|upper }}{% endfor %}</td>
+                            {% else %}
+                                <td>{{ exm.exm_email }}</td>
+                            {% endif %}
+
+                            {% for exm2 in exm.creditors.all %}
+                            {% for exm3 in exm2.exm_per_details.all %}
+                            {% if exm3.ass_code == task.ec_sid.eps_ass_code and exm3.com_id == task.ec_sid.eps_com_id %}
+                            
+                            <td>
+                                <table class="table table-sm text-center">
+
+                                        <tr>
+                                            <td>{{ exm3.exm_examiner_no }}</td>
+                                        </tr>
+
+                                </table>
+                            </td>
+                            <td>
+                                <table class="table table-sm text-center">
+
+                                        <tr>
+                                            <td>{{ exm3.panel_size }}</td>
+                                        </tr>
+
+                                </table>
+                            </td>
+
+                                            <td style="word-break: break-word; font-weight: bold; color: red;">
+                                                {% for appor in task.ec_sid.script_prev_exm.all %}
+                                                    {% if appor.exm_position == exm3.exm_examiner_no %}
+                                                        -X-
+                                                    {% endif %}   
+                                                {% endfor %}
+                                            </td>
+
+
+                            <td>
+                                <table class="table table-sm text-center">
+                                    {% for conf in exm.exm_conflicts.all %}
+                                        {% if task.ec_sid.erp_sid.eps_centre_id in conf.examiner_conflicts %}
+                                            <tr>
+                                                <td style="word-break: break-word; font-weight: bold; color: red;">{{ conf.examiner_conflicts }}</td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td style="word-break: break-word;">{{ conf.examiner_conflicts }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %} 
+                                </table>
+                            </td>
+
+                            <td>
+                                <table class="table table-sm text-center">
+                                    {% for noted in exm.exm_notes.all %}
+                                        <tr>
+                                            <td style="word-break: break-word;">{{ noted.examiner_notes }}</td>
+                                        </tr>
+                                    {% endfor %} 
+                                </table>
+                            </td>
+                            
+                            <td>
+                                <table class="table table-sm text-center">
+                                    {% for avail in exm.exm_availability.all %}
+                                        {% now "d/m/y" as todays_date %}
+                                        {% if todays_date >= avail.unavailability_start_date|date:"d/m/y" and todays_date < avail.unavailability_end_date|date:"d/m/y" %}
+                                            <tr>
+                                                <td style="word-break: break-word; font-weight: bold; color: red;">{{ avail.unavailability_start_date|date:"d/m/y" }}-{{ avail.unavailability_end_date|date:"d/m/y" }}</td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td style="word-break: break-word;">{{ avail.unavailability_start_date|date:"d/m/y" }}-{{ avail.unavailability_end_date|date:"d/m/y" }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </table>
+                            </td>
+
+                            {% endif %}
+                            {% endfor %}
+                            {% endfor %}
+                            <td>
+                                <table class="table table-sm text-center">
+
+                                        <tr>
+                                            <td>
+                                                {{ exm.script_count }}
+                                            </td>
+                                        </tr>
+
+                                </table>
+                            </td>
+                            <td><form method="POST" action="{% url 'nrmacc-complete' %}" class="text-center">
+                                {% for exm2 in exm.creditors.all %}
+                                {% for exm3 in exm2.exm_per_details.all %}
+                                {% if exm3.ass_code == task.ec_sid.eps_ass_code and exm3.com_id == task.ec_sid.eps_com_id %}
+                                <input name="enpe_sid" id="enpe_sid" value={{exm3.enpe_sid.enpe_sid}} type="hidden" class="form-control">
+                                {% endif %}
+                                {% endfor %}
+                                {% endfor %}
+                                <input name="script_id" id="script_id" value={{task.ec_sid.ec_sid}} type="hidden" class="form-control">
+                                <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                                <input name="enquiry_id" id="enquiry_id" value={{task.enquiry_id.enquiry_id}} type="hidden" class="form-control">
+                                <button type="submit" class="btn btn-danger" style="width:120px">Reapportion</button>
+                            </form></td>  
+                        </tr>
+                    {% endfor %}
+                </table>
+
+
+            </div>
+        </div>
+    </div>
+</div>  
+
+</div>
+
+
+
+{% endblock %}

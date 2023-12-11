@@ -1,0 +1,22 @@
+{
+  "name": "nova",
+  "version": "1.0.0",
+  "description": "readme",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "latest",
+    "babel-preset-es2015": "latest",
+    "babelify": "latest",
+    "browserify": "latest",
+    "node-sass": "latest",
+    "postcss-cli": "latest"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.2"
+  }
+}

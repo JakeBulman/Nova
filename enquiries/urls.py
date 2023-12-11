@@ -17,9 +17,16 @@ urlpatterns = [
 
     #Shows all tasks sets to the user
     path('task_manager/my_tasks', views.my_tasks_view, name='my_tasks'),
-    path('task_manager/task_router', views.task_router_view, name='task-router'),
+    path('task_manager/set_backlog', views.set_backlog, name='set_backlog'),
+    path('task_manager/task_router/<str:task_id>', views.task_router_view, name='task-router'),
     path('task_manager/new_task', views.new_task_view, name='new-task'),
+    path('task_manager/add_new_comment', views.new_task_comment_view, name='add_task_comment'),
+    path('task_manager/remove_new_comment', views.remove_task_comment_view, name='remove_task_comment'),
+    path('task_manager/user_list', views.user_list_view, name='user-list'),
+    path('user_tasks/<str:userid>/', views.user_tasks_view, name='user_tasks'),
     path('task_manager/self_assign_task/<str:task_id>', views.self_assign_task_view, name='self-assign-task'),
+    path('task_manager/assign_task_user/<str:user_id>/<str:task_id>', views.assign_task_user_view, name='assign-task-user'),
+    path('task_manager/assign_task_user/<str:user_id>/<str:task_id>/<str:selected_user>', views.assign_task_user_selected_view, name='assign-task-user-selected'),
     path('task_manager/manual_apportionment_task/complete', views.manual_apportionment, name='manual-apportionment-complete'),
     path('task_manager/manual_apportionment_task/<str:task_id>', views.manual_apportionment_task, name='manual-apportionment-task'),
     path('task_manager/setbie_task/<str:task_id>', views.setbie_task, name='setbie-task'),
@@ -28,6 +35,8 @@ urlpatterns = [
     path('task_manager/nrmacc_task/<str:task_id>', views.nrmacc_task, name='nrmacc-task'), 
     path('task_manager/misvrm_task/complete', views.misvrm_task_complete, name='misvrm-complete'),
     path('task_manager/misvrm_task/<str:task_id>', views.misvrm_task, name='misvrm-task'), 
+    path('task_manager/misvrf_task/complete', views.misvrf_task_complete, name='misvrf-complete'),
+    path('task_manager/misvrf_task/<str:task_id>', views.misvrf_task, name='misvrf-task'), 
     path('task_manager/pexmch_task/complete', views.pexmch_task_complete, name='pexmch-complete'),
     path('task_manager/pexmch_task/<str:task_id>', views.pexmch_task, name='pexmch-task'),  
     path('task_manager/cleric_task/complete', views.cleric_task_complete, name='cleric-complete'),
@@ -71,6 +80,8 @@ urlpatterns = [
     path('nrmacc_list', views.nrmacc_list_view, name='nrmacc_list'),
     #MIS vs RM main screen
     path('misvrm_list', views.misvrm_list_view, name='misvrm_list'),
+    #MIS vs RM recheck main screen
+    path('misvrf_list', views.misvrf_list_view, name='misvrf_list'),
     #Previous Exminer Checks main screen
     path('pexmch_list', views.pexmch_list_view, name='pexmch_list'),
     #Clerical Checks main screen

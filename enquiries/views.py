@@ -1,4 +1,4 @@
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponseRedirect
 from . import models
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -40,6 +40,8 @@ def ear_home_view(request,*args, **kwargs):
 	botmar_fail_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTMAF', enquiry_tasks__task_completion_date__isnull=True)
 	misvrm_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRM', enquiry_tasks__task_completion_date__isnull=True)
 	misvrma_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRM', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	misvrf_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRF', enquiry_tasks__task_completion_date__isnull=True)
+	misvrfa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRF', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	nrmacc_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NRMACC', enquiry_tasks__task_completion_date__isnull=True)
 	nrmacca_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NRMACC', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	cleric_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='CLERIC', enquiry_tasks__task_completion_date__isnull=True)
@@ -75,7 +77,7 @@ def ear_home_view(request,*args, **kwargs):
 
 	session_desc = models.EarServerSettings.objects.first().session_description
 	context = {"session_desc":session_desc, "mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
-	    "botapp":botapp_count, "botapf":botapp_fail_count, "botmar":botmar_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count,
+	    "botapp":botapp_count, "botapf":botapp_fail_count, "botmar":botmar_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count, "misvrf":misvrf_count, "misvrfa":misvrfa_count,
 		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "cleric":cleric_count, "clerica":clerica_count, "esmcsv":esmcsv_count, "omrche":omrche_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, "remapf":remapf_count, "remapfa":remapfa_count,
 		"grdrel":grdrel_count, "grdrela":grdrela_count, "negcon":negcon_count, "negcona":negcona_count, "pdacon":pdacon_count, "pdacona":pdacona_count, 
 		"peacon":peacon_count, "peacona":peacona_count, "pumcon":pumcon_count, "pumcona":pumcona_count, "grdrej":grdrej_count, "grdreja":grdreja_count, "mrkamd":mrkamd_count, 
@@ -90,22 +92,22 @@ def ear_home_view(request,*args, **kwargs):
 	user_status = models.TaskUserPrimary.objects.get(task_user_id=user).primary_status
 
 	if user_status == 'CO':
-		return render(request, "home_ear_coordinator.html", context=context, )
+		return render(request, "enquiries/main_templates/home_ear_coordinator.html", context=context, )
 	elif user_status == 'TL':
-		return render(request, "home_ear.html", context=context, )
+		return render(request, "enquiries/main_templates/home_ear.html", context=context, )
 	elif user_status == 'AD':
-		return render(request, "home_ear_admin.html", context=context, )
+		return render(request, "enquiries/main_templates/home_ear_admin.html", context=context, )
 
-	return render(request, "home_ear_restricted.html", context=context, )
+	return render(request, "enquiries/main_templates/home_ear_restricted.html", context=context, )
 
 def server_options_view(request):
 	context = {}
-	return render(request, "enquiries_server_options.html", context=context)
+	return render(request, "enquiries/main_templates/enquiries_server_options.html", context=context)
 
 def server_settings_view(request):
 	serv = models.EarServerSettings.objects.first()
 	context = {"serv":serv}
-	return render(request, "enquiries_server_settings.html", context=context)
+	return render(request, "enquiries/main_templates/enquiries_server_settings.html", context=context)
 
 def server_settings_update_view(request):
 	sessions = request.POST.get('session_id_list')
@@ -120,19 +122,19 @@ def server_settings_update_view(request):
 	# )
 	serv = models.EarServerSettings.objects.all().first()
 	context = {"serv":serv}
-	return render(request, "enquiries_server_settings.html", context=context)
+	return render(request, "enquiries/main_templates/enquiries_server_settings.html", context=context)
 
 def server_short_reset_view(request):
 	srs.clear_tables()
 	srs.load_core_tables()
 	context = {}
-	return render(request, "enquiries_server_options.html", context=context)
+	return render(request, "enquiries/main_templates/enquiries_server_options.html", context=context)
 
 def server_long_reset_view(request):
 # 	srf.clear_tables()
 # 	srf.load_core_tables()
 		context = {}
-		return render(request, "enquiries_server_options.html", context=context)
+		return render(request, "enquiries/main_templates/enquiries_server_options.html", context=context)
 
 def my_tasks_view(request):
 		#Get username to filter tasks
@@ -150,11 +152,18 @@ def my_tasks_view(request):
 	task_queryset = models.TaskManager.objects.filter(task_assigned_to=user,task_completion_date__isnull=True).order_by('enquiry_id__enquiry_deadline__enquiry_deadline')
 	task_count = models.TaskManager.objects.filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team=primary_team).exclude(task_id__in=excluded_task_list).count() + models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team__in=secondary_teams).exclude(task_id__in=excluded_task_list).count() 
 	context = {"tasks": task_queryset, "task_count": task_count}
-	return render(request, "my_tasks.html", context=context)
+	return render(request, "enquiries/main_templates/my_tasks.html", context=context)
 
-def task_router_view(request):
-	task_type = request.POST.get('task_type')
-	task_id = request.POST.get('task_id')
+def task_router_view(request, task_id):
+	
+	print(task_id)
+
+	if task_id == None:
+		#task_type = request.POST.get('task_id')
+		task_id = request.POST.get('task_id')
+	
+	task_type = models.TaskManager.objects.get(pk=task_id).task_id.task_id
+	print(task_id)
 	
 	if task_type == "SETBIE":
 		return redirect('setbie-task', task_id=task_id)
@@ -164,6 +173,8 @@ def task_router_view(request):
 		return redirect('nrmacc-task', task_id=task_id)
 	if task_type == "MISVRM":
 		return redirect('misvrm-task', task_id=task_id)
+	if task_type == "MISVRF":
+		return redirect('misvrf-task', task_id=task_id)
 	if task_type == "PEXMCH":
 		return redirect('pexmch-task', task_id=task_id)
 	if task_type == "CLERIC":
@@ -224,6 +235,67 @@ def new_task_view(request):
 		models.TaskManager.objects.filter(id=next_task_id).update(task_assigned_date=timezone.now())
 	return redirect('my_tasks')
 
+def set_backlog(request):
+	task_id = request.POST.get('task_id')
+	task_val = request.POST.get('task_val')
+	print(task_val)
+	if task_val == '0': 
+		set_val = 1
+	else: 
+		set_val = 0
+	print(set_val)
+	models.TaskManager.objects.filter(id=task_id).update(task_queued=set_val)
+	return redirect('my_tasks')
+
+def new_task_comment_view(request):
+	task_id = request.POST.get('task_id')
+	task_comment = request.POST.get('task_comment')
+	#get current user
+	username = None
+	if request.user.is_authenticated:
+		username =request.user
+
+	#get this task, assuming valid
+	task = models.TaskManager.objects.get(pk=task_id)
+
+	if task_id is not None:
+		models.TaskComments.objects.create(
+			task_pk = task,
+			task_comment_text = task_comment,
+			task_comment_user = username
+		)
+
+	return redirect('task-router', task_id)
+
+def remove_task_comment_view(request):
+	task_id = request.POST.get('task_id')
+	comment_id = request.POST.get('comment_id')
+	models.TaskComments.objects.filter(pk=comment_id).update(task_comment_invalid=1)
+	return redirect('task-router', task_id)
+
+def user_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
+	teams = models.TaskTeams.objects.all().order_by('id')
+	context = {"users": queryset, "teams":teams}
+	return render(request, "enquiries/main_templates/enquiries_user_list.html", context=context)
+
+def user_tasks_view(request, userid=None):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_assigned_to=userid, script_tasks__task_completion_date__isnull=True).order_by('script_tasks__task_assigned_date')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj, "original_user":userid}
+	return render(request, "enquiries/main_templates/enquiries_task_user_list.html", context=context) 
+
 def self_assign_task_view(request, task_id=None):
 	#Get username to filter tasks
 	username = None
@@ -235,12 +307,26 @@ def self_assign_task_view(request, task_id=None):
 		models.TaskManager.objects.filter(id=task_id).update(task_assigned_to=username)
 		models.TaskManager.objects.filter(id=task_id).update(task_assigned_date=timezone.now())
 	redirect_address = request.POST.get('page_location')
-	return redirect(redirect_address)
+	if redirect_address == 'task_assignment':
+		return redirect('my_tasks')
+	else:
+		return redirect(redirect_address)
+
+def assign_task_user_view(request, user_id=None, task_id=None):
+	#grab the model rows (ordered by id), filter to required task and where not completed.
+	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
+	context = {"users": queryset, "original_user":user_id, "task_id":task_id}	
+	return render(request, "enquiries/main_templates/enquiries_user_select.html", context=context)
+	#return redirect('user_tasks', user_id)
+
+def assign_task_user_selected_view(request, user_id=None, task_id=None, selected_user=None):
+	models.TaskManager.objects.filter(pk=task_id).update(task_assigned_to=User.objects.get(pk=selected_user))
+	return redirect('user_tasks', user_id)
 
 def setbie_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	context = {"task_id":task_id, "task":task_queryset}
-	return render(request, "enquiries_task_setbie.html", context=context)
+	return render(request, "enquiries/task_singles/enquiries_task_setbie.html", context=context)
 
 def manual_apportionment_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
@@ -254,9 +340,12 @@ def manual_apportionment_task(request, task_id=None):
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
-
-	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, "issue_reason":issue_reason, "panel_notes":panel_notes}
-	return render(request, "enquiries_task_manual_apportionment.html", context=context)
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, "issue_reason":issue_reason, "panel_notes":panel_notes, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_manual_apportionment.html", context=context)
 
 def manual_apportionment(request):
 	apportion_enpe_sid = request.POST.get('enpe_sid')
@@ -327,8 +416,12 @@ def nrmacc_task(request, task_id=None):
 	panel_notes = ''
 	if models.ExaminerPanels.objects.filter(ass_code=task_ass_code,com_id=task_comp_code).exists():
 		panel_notes = models.ExaminerPanels.objects.get(ass_code=task_ass_code,com_id=task_comp_code).panel_notes
-	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "panel_notes":panel_notes}
-	return render(request, "enquiries_task_nrmacc.html", context=context)
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "panel_notes":panel_notes, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_nrmacc.html", context=context)
 
 def nrmacc_task_complete(request):
 	task_id = request.POST.get('task_id')
@@ -368,10 +461,12 @@ def misvrm_task(request, task_id=None):
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
-
-
-	context = {"task_id":task_id, "task":task_queryset, "issue_reason":issue_reason}
-	return render(request, "enquiries_task_misvrm.html", context=context)
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "issue_reason":issue_reason, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_misvrm.html", context=context)
 
 def misvrm_task_complete(request):
 	script_id = request.POST.get('script_id')
@@ -410,13 +505,70 @@ def misvrm_task_complete(request):
 	return redirect('my_tasks')
 
 
+def misvrf_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+
+	original_user = models.TaskManager.objects.get(task_id='MISVRM',ec_sid=task_queryset.ec_sid).task_assigned_to.username
+
+	#Get task_id for this enquiry if it has SETBIE
+	issue_reason = None
+	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
+		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "issue_reason":issue_reason, "task_comments":task_comments, "original_user":original_user}
+	return render(request, "enquiries/task_singles/enquiries_task_misvrf.html", context=context)
+
+def misvrf_task_complete(request):
+	script_id = request.POST.get('script_id')
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	new_mark = request.POST.get('new_mark')
+	new_jc = request.POST.get('new_jc')
+	new_status = request.POST.get('new_status')
+	new_jc4r = request.POST.get('new_jc4r')
+	
+	misDataQC = models.MisReturnData.objects.get(ec_sid = script_id)
+
+	if new_mark is None:
+		new_mark = misDataQC.revised_mark
+		new_jc = misDataQC.justification_code
+		new_status = misDataQC.mark_status
+		new_jc4r = misDataQC.remark_reason
+	
+	models.MisReturnData.objects.filter(ec_sid=script_id).update(final_mark=new_mark)
+	models.MisReturnData.objects.filter(ec_sid=script_id).update(final_justification_code=new_jc)
+	models.MisReturnData.objects.filter(ec_sid=script_id).update(final_mark_status=new_status)
+	models.MisReturnData.objects.filter(ec_sid=script_id).update(remark_reason=new_jc4r)
+
+	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='JUSCHE',task_completion_date = None).exists():
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			task_id = models.TaskTypes.objects.get(task_id = 'JUSCHE'),
+			task_assigned_to = User.objects.get(username='NovaServer'),
+			task_assigned_date = timezone.now(),
+			task_completion_date = None
+		)
+
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='MISVRF').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+
 def pexmch_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
 	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
 	examiner_queryset = models.UniqueCreditor.objects.filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no')
-	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, }
-	return render(request, "enquiries_task_pexmch.html", context=context)
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_pexmch.html", context=context)
 
 def pexmch_task_complete(request):
 	script_id = request.POST.get('script_id')
@@ -454,7 +606,7 @@ def cleric_task(request, task_id=None):
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
 
 	context = {"task_id":task_id, "task":task_queryset, "issue_reason":issue_reason, }
-	return render(request, "enquiries_task_cleric.html", context=context)
+	return render(request, "enquiries/task_singles/enquiries_task_cleric.html", context=context)
 
 def cleric_task_complete(request):
 	script_id = request.POST.get('script_id')
@@ -483,7 +635,7 @@ def cleric_task_complete(request):
 def botapf_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	context = {"task_id":task_id, "task":task_queryset, }
-	return render(request, "enquiries_task_botapf.html", context=context)
+	return render(request, "enquiries/task_singles/enquiries_task_botapf.html", context=context)
 
 def botapf_task_complete(request):
 	task_id = request.POST.get('task_id')
@@ -494,7 +646,7 @@ def botapf_task_complete(request):
 def botmaf_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	context = {"task_id":task_id, "task":task_queryset, }
-	return render(request, "enquiries_task_botmaf.html", context=context)
+	return render(request, "enquiries/task_singles/enquiries_task_botmaf.html", context=context)
 
 def botmaf_task_complete(request):
 	task_id = request.POST.get('task_id')
@@ -527,7 +679,7 @@ def exmsla_task(request, task_id=None):
 	for e in models.ScriptApportionmentExtension.objects.filter(task_id=models.TaskManager.objects.get(ec_sid=script_id,task_id='RETMIS').pk):
 		extension_total = extension_total + int(e.extension_days)
 	context = {"task_id":task_id, "task":task_queryset, "ext_days":extension_total }
-	return render(request, "enquiries_task_exmsla.html", context=context)
+	return render(request, "enquiries/task_singles/enquiries_task_exmsla.html", context=context)
 
  
 def exmsla_task_complete(request):
@@ -565,7 +717,7 @@ def exmsla_task_complete(request):
 			else:
 				#this is for forced reapportionments
 				#close all outstanding tasks
-				models.TaskManager.objects.filter(ec_sid=models.EnquiryComponents.objects.get(ec_sid=script_id),task_id__in=['REMAPP','REMAPF','BOTAPP','ESMCSV','NRMACC','EXMSLA','NEWMIS','RETMIS','MISVRM','JUSCHE','MKWAIT','BOTMAR'],task_completion_date=None).update(task_completion_date=timezone.now())
+				models.TaskManager.objects.filter(ec_sid=models.EnquiryComponents.objects.get(ec_sid=script_id),task_id__in=['REMAPP','REMAPF','BOTAPP','ESMCSV','NRMACC','EXMSLA','NEWMIS','RETMIS','MISVRM','MISVRF','JUSCHE','MKWAIT','BOTMAR'],task_completion_date=None).update(task_completion_date=timezone.now())
 				models.ScriptApportionment.objects.filter(ec_sid=script_id).update(apportionment_invalidated=1, script_marked=0)
 				#CHECK IF REMAPP ALREADY EXISTS
 				models.TaskManager.objects.create(
@@ -598,9 +750,13 @@ def remapp_task(request, task_id=None):
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
 
-	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, "issue_reason":issue_reason, "panel_notes":panel_notes}
-	return render(request, "enquiries_task_remapp.html", context=context)
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "appor_count":0, "issue_reason":issue_reason, "panel_notes":panel_notes, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_remapp.html", context=context)
 
 def remapp_task_complete(request):
 	apportion_enpe_sid = request.POST.get('enpe_sid')
@@ -664,7 +820,7 @@ def remapf_task(request, task_id=None):
 	examiner_queryset = models.UniqueCreditor.objects.annotate(script_count=Sum("creditors__apportion_examiner__script_marked")).filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no').exclude(creditors__exm_per_details__enpe_sid__apportion_examiner__apportionment_invalidated=1)
 
 	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset}
-	return render(request, "enquiries_task_remapf.html", context=context)
+	return render(request, "enquiries/task_singles/enquiries_task_remapf.html", context=context)
 
 def remapf_task_complete(request):
 	apportion_task_id = request.POST.get('task_id')
@@ -675,8 +831,12 @@ def remapf_task_complete(request):
 
 def negcon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
-	return render(request, "enquiries_task_negcon.html", context=context)
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_negcon.html", context=context)
 
 def negcon_task_complete(request):
 	task_id = request.POST.get('task_id')
@@ -713,8 +873,12 @@ def negcon_task_complete(request):
 
 def peacon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
-	return render(request, "enquiries_task_peacon.html", context=context)
+		#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_peacon.html", context=context)
 
 def peacon_task_complete(request):
 	task_id = request.POST.get('task_id')
@@ -751,8 +915,12 @@ def peacon_task_complete(request):
 
 def pdacon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
-	return render(request, "enquiries_task_pdacon.html", context=context)
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_pdacon.html", context=context)
 
 def pdacon_task_complete(request):
 	task_id = request.POST.get('task_id')
@@ -790,7 +958,7 @@ def pdacon_task_complete(request):
 def pumcon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	context = {"task_id":task_id, "task":task_queryset, }
-	return render(request, "enquiries_task_pumcon.html", context=context)
+	return render(request, "enquiries/task_singles/enquiries_task_pumcon.html", context=context)
 
 def pumcon_task_complete(request):
 	task_id = request.POST.get('task_id')
@@ -812,8 +980,12 @@ def pumcon_task_complete(request):
 
 def grdrej_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
-	return render(request, "enquiries_task_grdrej.html", context=context)
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_grdrej.html", context=context)
 
 def grdrej_task_complete(request):
 	task_id = request.POST.get('task_id')
@@ -843,8 +1015,12 @@ def grdrej_task_complete(request):
 
 def mrkamd_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
-	return render(request, "enquiries_task_mrkamd.html", context=context)
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_mrkamd.html", context=context)
 
 def mrkamd_task_complete(request):
 	task_id = request.POST.get('task_id')
@@ -866,7 +1042,7 @@ def mrkamd_task_complete(request):
 def grdcon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	context = {"task_id":task_id, "task":task_queryset, }
-	return render(request, "enquiries_task_grdcon.html", context=context)
+	return render(request, "enquiries/task_singles/enquiries_task_grdcon.html", context=context)
 
 def grdcon_task_complete(request):
 	task_queryset = models.TaskManager.objects.filter(task_id='GRDCON', task_completion_date__isnull=True)
@@ -895,8 +1071,12 @@ def grdcon_task_complete(request):
 
 def grdchg_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset, }
-	return render(request, "enquiries_task_grdchg.html", context=context)
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_grdchg.html", context=context)
 
 def grdchg_task_complete(request):
 	task_id = request.POST.get('task_id')
@@ -974,7 +1154,7 @@ def enquiries_detail(request, enquiry_id=None):
 			issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=enquiry_id).first().issue_reason
 
 	context = {"cer": cer_queryset, "bie_status": bie_task_id, "enquiry_paused":enquiry_paused, "enquiry_prioritised":enquiry_prioritised, "issue_reason":issue_reason, "tasks":task_queryset}
-	return render(request, "enquiries_detail.html", context=context)
+	return render(request, "enquiries/main_templates/enquiries_detail.html", context=context)
 
 def pause_enquiry(request, enquiry_id=None):
 	if enquiry_id is not None and request.method == 'POST':	
@@ -1048,7 +1228,7 @@ def enquiries_list_view(request):
 		# if page is empty then return last page
 		page_obj = cer_queryset_paged.page(cer_queryset_paged.num_pages)	
 	context = {"cer": page_obj, "sq":search_q, }
-	return render(request, "enquiries_list.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_list.html", context=context)
 
 def enquiries_bie_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1064,7 +1244,7 @@ def enquiries_bie_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_list_setbie.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_list_setbie.html", context=context)
 
 def iec_pass_view(request, enquiry_id=None):
 	if enquiry_id is not None and request.method == 'POST':
@@ -1307,13 +1487,13 @@ def manapp_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_manual_apportionment.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_manual_apportionment.html", context=context)
 
 def nrmacc_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='NRMACC', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')	
 	context = {"cer": ec_queryset,}
-	return render(request, "enquiries_nrmacc.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_nrmacc.html", context=context)
 
 def misvrm_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1329,7 +1509,23 @@ def misvrm_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_misvrm.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_misvrm.html", context=context)
+
+def misvrf_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='MISVRF', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries/task_lists/enquiries_misvrf.html", context=context)
 
 def cleric_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1345,7 +1541,7 @@ def cleric_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_cleric.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_cleric.html", context=context)
 
 def pexmch_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1361,7 +1557,7 @@ def pexmch_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_pexmch.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_pexmch.html", context=context)
 
 def esmcsv_list_view(request):
 	ec_queryset = models.EsmcsvDownloads.objects.order_by('-uploaded_at')
@@ -1376,7 +1572,7 @@ def esmcsv_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_esmcsv.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_esmcsv.html", context=context)
 
 def esmcsv_create_view(request):
 	ec_queryset = models.TaskManager.objects.filter(task_id='ESMCSV', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__eb_sid__isnull=False)
@@ -1443,7 +1639,7 @@ def omrche_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_omrche.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_omrche.html", context=context)
 
 def omrche_create_view(request):
 	ec_queryset = models.TaskManager.objects.filter(task_id='OMRCHE', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__eb_sid__isnull=False)
@@ -1506,7 +1702,7 @@ def exmsla_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_exmsla.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_exmsla.html", context=context)
 
 def remapp_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1522,7 +1718,7 @@ def remapp_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_remapp.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_remapp.html", context=context)
 
 def remapf_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1538,7 +1734,7 @@ def remapf_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_remapf.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_remapf.html", context=context)
 
 
 def grdrel_create_view(request):
@@ -1581,7 +1777,7 @@ def negcon_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_negcon.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_negcon.html", context=context)
 
 def pdacon_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1597,7 +1793,7 @@ def pdacon_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_pdacon.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_pdacon.html", context=context)
 
 def peacon_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1613,7 +1809,7 @@ def peacon_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_peacon.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_peacon.html", context=context)
 
 def grdchg_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1629,7 +1825,7 @@ def grdchg_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_grdchg.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_grdchg.html", context=context)
 
 def grdrej_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1645,7 +1841,7 @@ def grdrej_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_grdrej.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_grdrej.html", context=context)
 
 def mrkamd_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1661,7 +1857,7 @@ def mrkamd_list_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "enquiries_mrkamd.html", context=context)
+	return render(request, "enquiries/task_lists/enquiries_mrkamd.html", context=context)
 
 def enquiries_rpa_apportion_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -1677,7 +1873,7 @@ def enquiries_rpa_apportion_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"ec_queryset": page_obj,}
-	return render(request, 'rpa_apportionment.html', context=context)
+	return render(request, 'enquiries/rpa/rpa_apportionment.html', context=context)
 
 def rpa_apportion_pass_view(request, script_id=None):
 	if script_id is not None and request.method == 'POST':
@@ -1721,7 +1917,7 @@ def enquiries_rpa_apportion_failure_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "rpa_apportionment_failure.html", context=context)
+	return render(request, "enquiries/rpa/rpa_apportionment_failure.html", context=context)
 
 
 def enquiries_rpa_marks_keying_view(request):
@@ -1738,7 +1934,7 @@ def enquiries_rpa_marks_keying_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"ec_queryset": page_obj,}
-	return render(request, 'rpa_marks_keying.html', context=context)
+	return render(request, 'enquiries/rpa/rpa_marks_keying.html', context=context)
 
 def rpa_marks_keying_pass_view(request, script_id=None):
 	if script_id is not None and request.method == 'POST':
@@ -1797,7 +1993,7 @@ def enquiries_rpa_marks_keying_failure_view(request):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
-	return render(request, "rpa_marks_keying_failure.html", context=context)
+	return render(request, "enquiries/rpa/rpa_marks_keying_failure.html", context=context)
 
 
 def examiner_list_view(request):
@@ -1822,7 +2018,7 @@ def examiner_list_view(request):
 		# if page is empty then return last page
 		page_obj = ep_queryset_paged.page(ep_queryset_paged.num_pages)	
 	context = {"ep": page_obj, "sq":search_q, }
-	return render(request, "enquiries_examiner_list.html", context=context)
+	return render(request, "enquiries/examiners/enquiries_examiner_list.html", context=context)
 
 def examiner_detail(request, per_sid=None):
 	exm_queryset = None
@@ -1838,7 +2034,7 @@ def examiner_detail(request, per_sid=None):
 
 
 	context = {"uc": uc_queryset, "exm": exm_queryset, "exm2": exm_queryset2, "exm_email": email_new}
-	return render(request, 'enquiries_examiner_detail.html', context=context)
+	return render(request, 'enquiries/examiners/enquiries_examiner_detail.html', context=context)
 
 def examiner_scripts_view(request, per_sid=None):
 	
@@ -1862,12 +2058,12 @@ def examiner_scripts_view(request, per_sid=None):
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,"enpe": enpe_queryset}
-	return render(request, "enquiries_examiner_scripts.html", context=context)
+	return render(request, "enquiries/examiners/enquiries_examiner_scripts.html", context=context)
 
 def examiner_availability_view(request, per_sid=None):
 	uc_queryset = models.UniqueCreditor.objects.get(per_sid=per_sid)
 	context = {"enpe": uc_queryset,}
-	return render(request, 'enquiries_examiner_availability.html', context=context)
+	return render(request, 'enquiries/examiners/enquiries_examiner_availability.html', context=context)
 
 def examiner_availability_edit_view(request, per_sid=None):
 	print(per_sid)
@@ -1895,7 +2091,7 @@ def examiner_availability_delete(request, note_id=None):
 def examiner_notes_view(request, per_sid=None):
 	uc_queryset = models.UniqueCreditor.objects.get(per_sid=per_sid)
 	context = {"enpe": uc_queryset,}
-	return render(request, 'enquiries_examiner_notes.html', context=context)
+	return render(request, 'enquiries/examiners/enquiries_examiner_notes.html', context=context)
 
 def examiner_notes_edit_view(request, per_sid=None):
 		#Get username to filter tasks
@@ -1926,7 +2122,7 @@ def examiner_conflicts_view(request, per_sid=None):
 	else:
 		current_conflict = None
 	context = {"enpe": uc_queryset, "current_conflict":current_conflict}
-	return render(request, 'enquiries_examiner_conflicts.html', context=context)
+	return render(request, 'enquiries/examiners/enquiries_examiner_conflicts.html', context=context)
 
 def examiner_conflicts_edit_view(request, per_sid=None):
 	#Get username
@@ -1962,7 +2158,7 @@ def examiner_conflicts_delete(request, note_id=None):
 def examiner_email_view(request, per_sid=None):
 	uc_queryset = models.UniqueCreditor.objects.get(per_sid=per_sid)
 	context = {"enpe": uc_queryset,}
-	return render(request, 'enquiries_examiner_email.html', context=context)
+	return render(request, 'enquiries/examiners/enquiries_examiner_email.html', context=context)
 
 def examiner_email_edit_view(request, per_sid=None):
 	#Get username
@@ -2013,7 +2209,7 @@ def panel_list_view(request):
 		# if page is empty then return last page
 		page_obj = ep_queryset_paged.page(ep_queryset_paged.num_pages)	
 	context = {"ep": page_obj, "sq":search_q, }
-	return render(request, "enquiries_panel_list.html", context=context)
+	return render(request, "enquiries/examiners/enquiries_panel_list.html", context=context)
 
 def panel_set_manual_view(request):
 	panel_id = request.POST.get('panel_id')
@@ -2031,7 +2227,7 @@ def user_panel_view(request):
 	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
 	teams = models.TaskTeams.objects.all().order_by('id')
 	context = {"users": queryset, "teams":teams}
-	return render(request, "enquiries_task_user.html", context=context)
+	return render(request, "enquiries/main_templates/enquiries_task_user.html", context=context)
 
 def create_user_view(request):
 	username = request.POST.get('username')
@@ -2090,7 +2286,7 @@ def edit_user_view(request, userid=None):
 	primary_team = models.TaskUserPrimary.objects.get(task_user=user).primary_team.team_name
 
 	context = {"teams":teams, "user":user, "team_list":team_list, "primary_team":primary_team}
-	return render(request, "enquiries_task_user_detail.html", context=context) 
+	return render(request, "enquiries/main_templates/enquiries_task_user_detail.html", context=context) 
 
 def user_change_secondary(request):
 	userid = request.POST.get('userid')

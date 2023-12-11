@@ -1,0 +1,31 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+{% load static %}
+
+<div class="row mx-2">
+
+<div class="card m-5 shadow-lg" style="width: 18rem; ">
+    <img class="card-img-top" src="{% static 'admin/img/ear-icon.png' %}" alt="EAR Icon">
+    <div class="card-body">
+      <h5 class="card-title">Enquires About Results</h5>
+      <h6 class="card-subtitle mb-2 text-muted">Results</h6>
+      <p class="card-text">Enquiries About Results task management system.</p>
+      <a href="{% url 'enquiries_home' %}" class="btn btn-primary">Go to EARs</a>
+    </div>
+</div>
+
+<div class="card m-5 shadow-lg" style="width: 18rem; ">
+  <img class="card-img-top" src="{% static 'admin/img/ear-icon.png' %}" alt="EAR Icon">
+  <div class="card-body">
+    <h5 class="card-title">Indian Examiner Payments</h5>
+    <h6 class="card-subtitle mb-2 text-muted">AS&M</h6>
+    <p class="card-text">Indian Examiner file splitting service.</p>
+    <a href="{% url 'indianexm_home' %}" class="btn btn-primary">Go to IEPs</a>
+  </div>
+</div>
+
+</div>
+
+{% endblock %}
+

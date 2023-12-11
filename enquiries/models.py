@@ -113,9 +113,17 @@ class TaskManager(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, related_name='script_tasks',null=True)
     task_id = models.ForeignKey(TaskTypes, to_field='task_id', on_delete=models.SET_NULL, related_name='all_tasks',null=True)
     task_creation_date = models.DateTimeField(auto_now_add=True)
-    task_assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='assigned_tasks',) #Have to use proper user model here instead of strings
+    task_assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='assigned_tasks',)
     task_assigned_date = models.DateTimeField(null=True) 
-    task_completion_date = models.DateTimeField(null=True)   
+    task_completion_date = models.DateTimeField(null=True)
+    task_queued = models.IntegerField(default=0)
+
+class TaskComments(models.Model):
+    task_pk = models.ForeignKey(TaskManager, on_delete=models.SET_NULL, related_name='task_comments', null=True)
+    task_comment_text = models.TextField()
+    task_comment_creation_date = models.DateTimeField(auto_now_add=True)
+    task_comment_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='commented_tasks')
+    task_comment_invalid = models.IntegerField(default=0)
 
 class TaskUserPrimary(models.Model):
     task_user  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='user_primary')

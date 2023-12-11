@@ -1,0 +1,87 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center mb-5">EAR Users - Task Control</h1>
+
+
+
+<div class="container">
+  <div class="row text-center m-3">
+  <div class="col-lg-3 align-self-center"></div>
+  <div class="col-lg-6 align-self-center">
+      <button type="submit" title="Fail" class="btn btn-success btn-lg my-4" style="width:300px"
+      data-bs-toggle="modal" data-bs-target="#exampleModal{{ task.enquiry_id.enquiry_id }}">Create New User</button>
+  </div>
+
+
+
+      <div class="modal fade" id="exampleModal{{ task.enquiry_id.enquiry_id }}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                  <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Create User</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                      <form method="POST" action="{% url 'create_user' %}" class="text-left">
+                      <input name="username" id="username" placeholder="Username" type="text" class="form-control">
+                      <br>
+                      <input name="password" id="password" placeholder="Password" type="text" class="form-control">
+                      <br>
+                      <input name="email" id="email" placeholder="Email" type="text" class="form-control">
+                      <br>
+                      <label for="message-text" class="col-form-label">Primary Team:</label>
+                      <select name="pteam" id="pteam" class="form-select">
+                        {% for x in teams %}
+                        <option >{{ x.team_name }}</option>
+                        {% endfor %}
+                      </select>
+                      <br>
+                      <label for="message-text" class="col-form-label">Access Level:</label>
+                      <select name="access" id="access" class="form-select">
+                        <option selected>AD</option>
+                        <option>TL</option>
+                        <option>CO</option>
+                      </select>
+                      <div class="mb-5">
+                      
+                  </div>
+                  <button type="submit" title="Pass" class="btn btn-outline-primary" style="width:150px" data-bs-dismiss="modal">Continue</button>
+              </form>
+              </div>
+          </div>
+      </div>
+  </div>
+
+
+  <div class="col-lg-3 align-self-center"></div>
+</div>  
+
+
+<div class="table-responsive-xl m-5">
+    <table class="table table-sm table-bordered table-hover">
+        <tr class="text-center">
+          <th>Username</th>
+          <th>Team</th>
+          <th>Access Level</th>
+          <th>Tasks Assigned</th>
+          <th>Remove Tasks</th>
+        </tr>
+        {% for x in users %}
+          <tr class="text-center">
+            <td class="text-center"><a class="btn btn-primary" style="width:200px" href='/enquiries/edit_user/{{ x.id }}'>{{ x.username }}</a></td>
+            <td>{% for y in x.user_primary.all %}{{ y.primary_team.team_name }}{% endfor %}</td>
+            <td>{% for y in x.user_primary.all %}{{ y.primary_status }}{% endfor %}</td>
+            <td>{{ x.task_count }}</td>
+            <td><form method="POST" action="{% url 'user_remove_tasks' %}" class="text-center">
+              <input name="username" id="username" value="{{ x.username }}" type="hidden" class="form-control">
+              <button type="submit" class="btn btn-outline-danger" style="width:200px">Remove All Tasks</button>
+            </form></td>
+          </tr>
+        {% endfor %}
+        
+    </table>
+</div>
+
+{% endblock %}
