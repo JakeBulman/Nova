@@ -24,7 +24,7 @@ django.setup()
 from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, TaskTypes
 from django.contrib.auth.models import User
 
-task_type = ['BOTMAR','BOTMAF','CLERIC']
+task_type = ['BOTMAR','BOTMAF','CLERIC','OMRCHE']
 
 def run_algo():
     for task in TaskManager.objects.filter(task_id='GDWAIT', task_completion_date__isnull=True):

@@ -18,7 +18,7 @@ elif os.getenv('DJANGO_PRODUCTION') == 'true':
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
 else:
     print('UAT')
-    sys.path.append('C:/Dev/redepplan')
+    sys.path.append('C:/Dev/Nova')
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 
 django.setup()
@@ -640,17 +640,19 @@ def load_core_tables():
     print("EG loaded:" + str(datetime.datetime.now()))
 
     for enquiry in CentreEnquiryRequests.objects.all():
-        erp_service = EnquiryRequestParts.objects.filter(cer_sid = enquiry.enquiry_id).first().service_code
-        if 'P' in erp_service:
-            deadline = enquiry.eps_creation_date + datetime.timedelta(days=18)
-        else:
-            deadline = enquiry.eps_creation_date + datetime.timedelta(days=30)
-        if not EnquiryDeadline.objects.filter(enquiry_id=enquiry).exists():
-            EnquiryDeadline.objects.create(
-                enquiry_id = enquiry,
-                enquiry_deadline = deadline,
-                original_enquiry_deadline = deadline
-            )
+        print(enquiry.enquiry_id)
+        if EnquiryRequestParts.objects.filter(cer_sid = enquiry.enquiry_id).exists():
+            erp_service = EnquiryRequestParts.objects.filter(cer_sid = enquiry.enquiry_id).first().service_code
+            if 'P' in erp_service:
+                deadline = enquiry.eps_creation_date + datetime.timedelta(days=18)
+            else:
+                deadline = enquiry.eps_creation_date + datetime.timedelta(days=30)
+            if not EnquiryDeadline.objects.filter(enquiry_id=enquiry).exists():
+                EnquiryDeadline.objects.create(
+                    enquiry_id = enquiry,
+                    enquiry_deadline = deadline,
+                    original_enquiry_deadline = deadline
+                )
 
     print("ED loaded:" + str(datetime.datetime.now()))
 

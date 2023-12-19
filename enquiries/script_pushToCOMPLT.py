@@ -29,20 +29,20 @@ ec_list = [
 ]
 
 def run_algo():
-    for app_task in TaskManager.objects.filter(task_id='GRDCHG'):  #(task_id='GRDCHG', enquiry_id__in = ec_list):
+    for app_task in TaskManager.objects.filter(task_id='MRKAMD'):  #(task_id='GRDCHG', enquiry_id__in = ec_list):
         task_id = app_task.pk
         enquiry_id = TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
-        if not TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='OUTCON',task_completion_date = None).exists():
+        if not TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='COMPLT',task_completion_date = None).exists():
             TaskManager.objects.create(
                 enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
                 ec_sid = None,
-                task_id = TaskTypes.objects.get(task_id = 'OUTCON'),
+                task_id = TaskTypes.objects.get(task_id = 'COMPLT'),
                 task_assigned_to = None,
                 task_assigned_date = None,
                 task_completion_date = None
             )
 
         #complete the task
-        TaskManager.objects.filter(pk=task_id,task_id='GRDCHG').update(task_completion_date=timezone.now())    
+        TaskManager.objects.filter(pk=task_id,task_id='MRKAMD').update(task_completion_date=timezone.now())    
 
 run_algo()
