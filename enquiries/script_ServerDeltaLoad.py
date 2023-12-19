@@ -770,7 +770,10 @@ def load_core_tables():
     print("EG loaded:" + str(datetime.datetime.now()))
 
     for enquiry in CentreEnquiryRequests.objects.all():
-        erp_service = EnquiryRequestParts.objects.filter(cer_sid = enquiry.enquiry_id).first().service_code
+        try:
+            erp_service = EnquiryRequestParts.objects.filter(cer_sid = enquiry.enquiry_id).first().service_code
+        except:
+            erp_service = 'Unknown'
         if 'P' in erp_service:
             deadline = enquiry.eps_creation_date + datetime.timedelta(days=18)
         else:
