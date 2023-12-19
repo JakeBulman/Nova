@@ -90,9 +90,11 @@ def run_algo():
             #Scaled (prev) mark
             sheet["F4"] = original_mark
 
-            #Examiners-956955_BATCH_836680_MIS
+            #Examiner-956955_BATCH_836680_MIS
+            #workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\Examiner-" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
 
-            workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\Examiner-" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
+            #Examiners-956955_BATCH_836680_MIS
+            workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\Examiner-" + cred_no + "_" + batch_no + "_" + centre_no + "_" + cand_no + "_" + syll_comp.split('/')[0] + "_" + syll_comp.split('/')[1] + "_MIS.xlsx")
 
             #Create next step in chain (RETMIS)
             TaskManager.objects.create(
