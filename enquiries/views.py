@@ -452,6 +452,86 @@ def nrmacc_task_complete(request):
 		#complete the task
 		models.TaskManager.objects.filter(pk=task_id,task_id='NRMACC').update(task_completion_date=timezone.now())    
 		return redirect('my_tasks')
+	
+def manual_mis(request):
+	return render(request, "enquiries/task_singles/enquiries_task_manual_mis.html")
+
+def manual_mis_complete(request):
+	batch_id = request.POST.get('batch_id')
+	original_exm = request.POST.get('original_exm')
+	rev_exm = request.POST.get('rev_exm')
+	original_mark = request.POST.get('original_mark')
+	mark_status = request.POST.get('mark_status')
+	revised_mark = request.POST.get('revised_mark')
+	justification_code = request.POST.get('justification_code')
+	remark_reason = request.POST.get('remark_reason')
+	remark_concern_reason = request.POST.get('remark_concern_reason')
+
+	context = {"current_status":"Successful MIS Upload."}
+
+	ec_sid = None
+	if models.EnquiryComponentElements.objects.filter(eb_sid=batch_id).exists():
+		ec_sid = models.EnquiryComponentElements.objects.filter(eb_sid=batch_id).first().ec_sid.ec_sid
+		task_enquiry_id = models.EnquiryComponentElements.objects.filter(eb_sid=batch_id).first().ec_sid.erp_sid.cer_sid.enquiry_id
+
+		task_pk = None
+		expected_exm = models.EnquiryPersonnelDetails.objects.filter(enpe_sid=models.ScriptApportionment.objects.get(ec_sid=ec_sid, apportionment_invalidated=0).enpe_sid).first()
+		
+		if models.TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid, task_completion_date = None).exists():
+			task_pk = models.TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid).first().pk
+			if task_pk is not None:
+				if models.MisReturnData.objects.filter(ec_sid=ec_sid).exists():
+					print("Update")
+					models.MisReturnData.objects.filter(ec_sid=ec_sid).update(
+						eb_sid = models.EnquiryBatches.objects.get(eb_sid=batch_id),
+						ec_sid = models.EnquiryComponents.objects.get(ec_sid=ec_sid),
+						original_exm = original_exm,
+						rev_exm = rev_exm,
+						original_mark = original_mark,
+						mark_status = mark_status,
+						revised_mark = revised_mark,
+						justification_code = justification_code,
+						remark_reason = remark_reason,
+						remark_concern_reason = remark_concern_reason,
+					)
+				else:
+					print("Create")
+					models.MisReturnData.objects.create(
+						eb_sid = models.EnquiryBatches.objects.get(eb_sid=batch_id),
+						ec_sid = models.EnquiryComponents.objects.get(ec_sid=ec_sid),
+						original_exm = original_exm,
+						rev_exm = rev_exm,
+						original_mark = original_mark,
+						mark_status = mark_status,
+						revised_mark = revised_mark,
+						justification_code = justification_code,
+						remark_reason = remark_reason,
+						remark_concern_reason = remark_concern_reason,
+					)
+
+				#Create next step in chain (MISVRM)
+				if not models.TaskManager.objects.filter(task_id='MISVRM', ec_sid=ec_sid).exists():
+					print("MISVRM Made")
+					models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.get(ec_sid=ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'MISVRM'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+					)
+				#complete the task
+				models.TaskManager.objects.filter(ec_sid=ec_sid,task_id='RETMIS').update(task_completion_date=timezone.now())
+				models.ScriptApportionment.objects.filter(ec_sid=ec_sid).update(script_marked=0)
+
+		else:
+			context = {"current_status":"No Open RETMIS task for this batch."}
+	else:
+		context = {"current_status":"Batch ID does not exist."}
+
+	#CHANGE THIS TO RENDER SO CAN PASS ERROR CODES
+	
+	return render(request, "enquiries/task_singles/enquiries_task_manual_mis.html", context=context)
 
 def misvrm_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
