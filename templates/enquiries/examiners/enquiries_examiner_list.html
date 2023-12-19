@@ -101,33 +101,39 @@
                     <td>
                         <table class="table table-sm text-center">
                             {% for enpe in exm.creditors.all %}
+                            {%if enpe.currently_valid %}
                                 {% for deet in enpe.exm_per_details.all %}
                                 <tr>
                                     <td> {{ deet.ass_code }}/{{ deet.com_id }}</td>
                                 </tr>
                                 {% endfor %}
+                            {% endif %}
                             {% endfor %}    
                         </table>
                     </td>
                     <td>
                         <table class="table table-sm text-center">
                             {% for enpe in exm.creditors.all %}
+                            {%if enpe.currently_valid %}
                                 {% for deet in enpe.exm_per_details.all %}
                                 <tr>
                                     <td>{{ deet.exm_examiner_no }}</td>
                                 </tr>
                                 {% endfor %}
+                            {% endif %}
                             {% endfor %}    
                         </table>
                     </td>
                     <td>
                         <table class="table table-sm text-center">
                             {% for enpe in exm.creditors.all %}
+                            {%if enpe.currently_valid %}
                                 {% for deet in enpe.exm_per_details.all %}
                                 <tr>
                                     <td>{{ deet.panel_size }}</td>
                                 </tr>
                                 {% endfor %}
+                            {% endif %}
                             {% endfor %}    
                         </table>
                     </td>

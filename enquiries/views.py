@@ -336,7 +336,6 @@ def manual_apportionment_task(request, task_id=None):
 	panel_notes = ''
 	if models.ExaminerPanels.objects.filter(ass_code=task_ass_code,com_id=task_comp_code).exists():
 		panel_notes = models.ExaminerPanels.objects.get(ass_code=task_ass_code,com_id=task_comp_code).panel_notes
-	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
@@ -2006,7 +2005,7 @@ def examiner_list_view(request):
 		split_search_q_1 = search_q.split("/")[0]
 		split_search_q_2 = search_q.split("/")[1]
 	ep_queryset = models.UniqueCreditor.objects.filter(Q(exm_creditor_no__icontains = search_q) | Q(exm_surname__icontains = search_q) | Q(creditors__exm_per_details__ass_code__icontains = split_search_q_1) & Q(creditors__exm_per_details__com_id__icontains = split_search_q_2)).order_by('exm_creditor_no').distinct()
-
+	ep_queryset = ep_queryset.filter(creditors__currently_valid=1)
 	ep_queryset_paged = Paginator(ep_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -2026,6 +2025,7 @@ def examiner_detail(request, per_sid=None):
 		uc_queryset = models.UniqueCreditor.objects.get(per_sid=per_sid)
 		exm_queryset = models.EnquiryPersonnel.objects.filter(per_sid=per_sid)
 		exm_queryset2 = models.EnquiryPersonnelDetails.objects.filter(enpe_sid__per_sid=per_sid)
+		exm_queryset2 = exm_queryset2.filter(enpe_sid__currently_valid=1)
 		#examiner email override check
 		try:
 			email_new = models.ExaminerEmailOverride.objects.get(creditor__per_sid = per_sid).examiner_email_manual

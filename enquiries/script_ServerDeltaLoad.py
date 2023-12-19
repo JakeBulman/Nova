@@ -446,6 +446,7 @@ def load_core_tables():
                 enpe_sid = row['enpe_sid'],
                 sp_sid = row['sp_sid'],
                 per_sid = UniqueCreditor.objects.only('per_sid').get(per_sid=row['per_sid']),
+                currently_valid = True
             )
         else:
             try:
@@ -458,6 +459,15 @@ def load_core_tables():
                 pass
     
     df.apply(insert_to_model_enpe, axis=1)
+
+    for examiner in EnquiryPersonnel.objects.all():
+        enpe = examiner.enpe_sid
+        df_row = df[df.enpe_sid == enpe]
+        try:
+            valid_enpe = df_row['enpe_sid'].values[0]
+        except:
+            examiner.currently_valid = False
+            examiner.save()
 
     print("EPNE loaded:" + str(datetime.datetime.now()))
 

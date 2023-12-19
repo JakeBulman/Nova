@@ -181,6 +181,7 @@ class ExaminerPanels(models.Model):
     panel_size = models.CharField(max_length=8, null=True)
     manual_apportionment=models.BooleanField(default=False)
     panel_notes = models.TextField(null=True)
+    currently_valid = models.BooleanField(default=1)
 
 class UniqueCreditor(models.Model):
     exm_creditor_no = models.CharField(max_length=8, unique=True, default=0)
@@ -195,6 +196,7 @@ class EnquiryPersonnel(models.Model):
     enpe_sid = models.CharField(max_length=8, unique=True, default=0)
     sp_sid = models.CharField(max_length=8, null=True)
     per_sid = models.ForeignKey(UniqueCreditor, to_field='per_sid', on_delete=models.CASCADE, null=True, related_name='creditors')
+    currently_valid = models.BooleanField(default=1)
 
 class EnquiryPersonnelDetails(models.Model):
     enpe_sid = models.ForeignKey(EnquiryPersonnel, to_field='enpe_sid', on_delete=models.CASCADE, null=True, related_name='exm_per_details')
