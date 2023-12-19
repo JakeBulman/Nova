@@ -9,15 +9,18 @@ if os.getenv('DJANGO_DEVELOPMENT') == 'true':
     path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+    mis_folder = '0.UAT_MIS Returns'
 elif os.getenv('DJANGO_PRODUCTION') == 'true':
     print('PROD')
     path = os.path.join('C:\\Dev\\Nova')
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
+    mis_folder = '0.RPA_MIS Returns'
 else:
     print('UAT')
     sys.path.append('C:/Dev/redepplan')
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
+    mis_folder = '0.UAT_MIS Returns'
 
 django.setup()
 
@@ -94,7 +97,7 @@ def run_algo():
             #workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\Examiner-" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
 
             #Examiners-956955_BATCH_836680_MIS
-            workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\Examiner-" + cred_no + "_" + batch_no + "_" + centre_no + "_" + cand_no + "_" + syll_comp.split('/')[0] + "_" + syll_comp.split('/')[1] + "_MIS.xlsx")
+            workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Outbound\\Examiner-" + cred_no + "_" + batch_no + "_" + centre_no + "_" + cand_no + "_" + syll_comp.split('/')[0] + "_" + syll_comp.split('/')[1] + "_MIS.xlsx")
 
             #Create next step in chain (RETMIS)
             TaskManager.objects.create(
