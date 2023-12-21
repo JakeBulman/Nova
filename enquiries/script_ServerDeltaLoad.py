@@ -5,6 +5,7 @@ import datetime
 import pyodbc
 import pandas as pd
 from openpyxl import load_workbook
+import re
 
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
     print('DEV')
@@ -84,10 +85,22 @@ def load_core_tables():
                 centre_id = row['centre_id'],
                 created_by = row['created_by'],
                 cie_direct_id = row['cie_direct_id'],
+                ministry_flag = None
             )
 
     df.apply(insert_to_model_cer, axis=1)
     print("CER loaded:" + str(datetime.datetime.now()))
+
+    for enquiry in CentreEnquiryRequests.objects.all():
+        centre_id = enquiry.centre_id
+        if re.search("^S[0-9]",centre_id):
+            enquiry.ministry_flag = 'S'
+            enquiry.save()
+        if re.search("^MU",centre_id):
+            enquiry.ministry_flag = 'MU'
+            enquiry.save()
+
+
 
     # # Get datalake data - Enquiry Request Parts
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:

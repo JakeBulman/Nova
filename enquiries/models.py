@@ -32,6 +32,7 @@ class CentreEnquiryRequests(models.Model):
     centre_id = models.CharField(max_length=5, null=True)
     created_by = models.CharField(max_length=50, null=True)
     cie_direct_id = models.CharField(max_length=7, null=True)
+    ministry_flag = models.CharField(max_length=3,null=True)
 
 
 class EnquiryRequestParts(models.Model):
