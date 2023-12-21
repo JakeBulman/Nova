@@ -99,15 +99,28 @@ def run_algo():
                     #Move file to completed folder
                     shutil.move(filename, new_filename)
 
-                    #Create next step in chain (MISVRM)
-                    TaskManager.objects.create(
-                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                        ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
-                        task_id = TaskTypes.objects.get(task_id = 'MISVRM'),
-                        task_assigned_to = None,
-                        task_assigned_date = None,
-                        task_completion_date = None
-                    )
+                    #Create next step in chain (MISVRM), now split if SEAB to allow TL pickup
+                    if CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id).ministry_flag == 'S':
+                        TaskManager.objects.create(
+                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+                            ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
+                            task_id = TaskTypes.objects.get(task_id = 'MISVRF'),
+                            task_assigned_to = None,
+                            task_assigned_date = None,
+                            task_completion_date = None
+                        )
+                        mis_data = MisReturnData.objects.filter(ec_sid=ec_sid).first()
+                        mis_data.error_status = "SEAB Component"
+                        mis_data.save()
+                    else:
+                        TaskManager.objects.create(
+                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+                            ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
+                            task_id = TaskTypes.objects.get(task_id = 'MISVRM'),
+                            task_assigned_to = None,
+                            task_assigned_date = None,
+                            task_completion_date = None
+                        )
                     #complete the task
                     TaskManager.objects.filter(ec_sid=ec_sid,task_id='RETMIS').update(task_completion_date=timezone.now())
                     ScriptApportionment.objects.filter(ec_sid=ec_sid).update(script_marked=0)

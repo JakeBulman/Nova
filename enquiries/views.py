@@ -509,9 +509,20 @@ def manual_mis_complete(request):
 						remark_concern_reason = remark_concern_reason,
 					)
 
-				#Create next step in chain (MISVRM)
-				if not models.TaskManager.objects.filter(task_id='MISVRM', ec_sid=ec_sid).exists():
-					print("MISVRM Made")
+				#Create next step in chain (MISVRM), now split if SEAB to allow TL pickup
+				if models.CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id).ministry_flag == 'S':
+					models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.get(ec_sid=ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'MISVRF'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+					)
+					mis_data = models.MisReturnData.objects.filter(ec_sid=ec_sid).first()
+					mis_data.error_status = "SEAB Component"
+					mis_data.save()
+				else:
 					models.TaskManager.objects.create(
 						enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
 						ec_sid = models.EnquiryComponents.objects.get(ec_sid=ec_sid),
