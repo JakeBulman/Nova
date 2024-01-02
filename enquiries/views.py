@@ -938,7 +938,7 @@ def negcon_task_complete(request):
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = None,
 				task_id = models.TaskTypes.objects.get(task_id = 'PEACON'),
-				task_assigned_to = None,
+				task_assigned_to = User.objects.get(id=models.TaskManager.objects.get(pk=task_id).task_assigned_to.pk),
 				task_assigned_date = None,
 				task_completion_date = None
 			)
@@ -948,7 +948,7 @@ def negcon_task_complete(request):
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = None,
 				task_id = models.TaskTypes.objects.get(task_id = 'GRDREJ'),
-				task_assigned_to = None,
+				task_assigned_to = User.objects.get(id=models.TaskManager.objects.get(pk=task_id).task_assigned_to.pk),
 				task_assigned_date = None,
 				task_completion_date = None
 			)
@@ -980,7 +980,7 @@ def peacon_task_complete(request):
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = None,
 				task_id = models.TaskTypes.objects.get(task_id = 'PDACON'),
-				task_assigned_to = None,
+				task_assigned_to = User.objects.get(id=models.TaskManager.objects.get(pk=task_id).task_assigned_to.pk),
 				task_assigned_date = None,
 				task_completion_date = None
 			)
@@ -990,7 +990,7 @@ def peacon_task_complete(request):
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = None,
 				task_id = models.TaskTypes.objects.get(task_id = 'GRDREJ'),
-				task_assigned_to = None,
+				task_assigned_to = User.objects.get(id=models.TaskManager.objects.get(pk=task_id).task_assigned_to.pk),
 				task_assigned_date = None,
 				task_completion_date = None
 			)	
@@ -1022,7 +1022,7 @@ def pdacon_task_complete(request):
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = None,
 				task_id = models.TaskTypes.objects.get(task_id = 'GRDCHG'),
-				task_assigned_to = None,
+				task_assigned_to = User.objects.get(id=models.TaskManager.objects.get(pk=task_id).task_assigned_to.pk),
 				task_assigned_date = None,
 				task_completion_date = None
 			)
@@ -1032,7 +1032,7 @@ def pdacon_task_complete(request):
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = None,
 				task_id = models.TaskTypes.objects.get(task_id = 'GRDREJ'),
-				task_assigned_to = None,
+				task_assigned_to = User.objects.get(id=models.TaskManager.objects.get(pk=task_id).task_assigned_to.pk),
 				task_assigned_date = None,
 				task_completion_date = None
 			)	
