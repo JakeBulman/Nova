@@ -1,4 +1,4 @@
-{% extends 'nova_core/base.html' %}
+{% extends 'nova_core/base_old_bootstrap.html' %}
 
 {% block content %}
 
@@ -105,9 +105,9 @@
                     <td>    
                         <div class="text-center">
                             <button type="submit" title="Edit" class="btn btn-outline-primary text-center" style="width:200px"
-                            data-bs-toggle="modal" data-bs-target="#exampleModal{{y.ec_sid.ec_sid}}">Update Notes</button>
+                            data-bs-toggle="modal" data-bs-target="#exampleModal{{pan.id}}">Update Notes</button>
                         </div>
-                        <div class="modal fade" id="exampleModal{{y.ec_sid.ec_sid}}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal fade" id="exampleModal{{pan.id}}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                               <div class="modal-content">
                                 <div class="modal-header">
