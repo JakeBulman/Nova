@@ -196,6 +196,15 @@
   </div>
   <div class="card m-3 shadow-lg" style="width: 18rem; ">
     <div class="card-body d-flex flex-column">
+      <h5 class="card-title">Local Marking Checks</h5>
+      {% if locmar.count > 0 %}<span class="badge rounded-pill bg-primary">{{ locmar.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+      {% if locmara.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ locmara.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+      <p class="card-text">Local marking control and apportionment.</p>
+      <a href="{% url 'locmar_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+    </div>
+  </div>
+  <div class="card m-3 shadow-lg" style="width: 18rem; ">
+    <div class="card-body d-flex flex-column">
       <h5 class="card-title">Previous Examiner Checks</h5>
       {% if pexmch.count > 0 %}<span class="badge rounded-pill bg-primary">{{ pexmch.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
       {% if pexmcha.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ pexmcha.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}

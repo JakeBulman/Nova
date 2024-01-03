@@ -46,6 +46,8 @@ def ear_home_view(request,*args, **kwargs):
 	nrmacca_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NRMACC', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	cleric_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='CLERIC', enquiry_tasks__task_completion_date__isnull=True)
 	clerica_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='CLERIC', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	locmar_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='LOCMAR', enquiry_tasks__task_completion_date__isnull=True)
+	locmara_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='LOCMAR', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	pexmch_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True)
 	pexmcha_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	exmsla_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='EXMSLA', enquiry_tasks__task_completion_date__isnull=True)
@@ -78,7 +80,7 @@ def ear_home_view(request,*args, **kwargs):
 	session_desc = models.EarServerSettings.objects.first().session_description
 	context = {"session_desc":session_desc, "mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
 	    "botapp":botapp_count, "botapf":botapp_fail_count, "botmar":botmar_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count, "misvrf":misvrf_count, "misvrfa":misvrfa_count,
-		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "cleric":cleric_count, "clerica":clerica_count, "esmcsv":esmcsv_count, "omrche":omrche_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, "remapf":remapf_count, "remapfa":remapfa_count,
+		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "cleric":cleric_count, "clerica":clerica_count, "locmar":locmar_count, "locmara":locmara_count, "esmcsv":esmcsv_count, "omrche":omrche_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, "remapf":remapf_count, "remapfa":remapfa_count,
 		"grdrel":grdrel_count, "grdrela":grdrela_count, "negcon":negcon_count, "negcona":negcona_count, "pdacon":pdacon_count, "pdacona":pdacona_count, 
 		"peacon":peacon_count, "peacona":peacona_count, "pumcon":pumcon_count, "pumcona":pumcona_count, "grdrej":grdrej_count, "grdreja":grdreja_count, "mrkamd":mrkamd_count, 
 		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count, "nrmacc":nrmacc_count, "nrmacca":nrmacca_count
@@ -177,6 +179,8 @@ def task_router_view(request, task_id):
 		return redirect('misvrf-task', task_id=task_id)
 	if task_type == "PEXMCH":
 		return redirect('pexmch-task', task_id=task_id)
+	if task_type == "LOCMAR":
+		return redirect('locmar-task', task_id=task_id)
 	if task_type == "CLERIC":
 		return redirect('cleric-task', task_id=task_id)
 	if task_type == "EXMSLA":
@@ -481,7 +485,6 @@ def manual_mis_complete(request):
 			task_pk = models.TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid).first().pk
 			if task_pk is not None:
 				if models.MisReturnData.objects.filter(ec_sid=ec_sid).exists():
-					print("Update")
 					models.MisReturnData.objects.filter(ec_sid=ec_sid).update(
 						eb_sid = models.EnquiryBatches.objects.get(eb_sid=batch_id),
 						ec_sid = models.EnquiryComponents.objects.get(ec_sid=ec_sid),
@@ -495,7 +498,6 @@ def manual_mis_complete(request):
 						remark_concern_reason = remark_concern_reason,
 					)
 				else:
-					print("Create")
 					models.MisReturnData.objects.create(
 						eb_sid = models.EnquiryBatches.objects.get(eb_sid=batch_id),
 						ec_sid = models.EnquiryComponents.objects.get(ec_sid=ec_sid),
@@ -598,7 +600,10 @@ def misvrm_task_complete(request):
 def misvrf_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 
-	original_user = models.TaskManager.objects.get(task_id='MISVRM',ec_sid=task_queryset.ec_sid).task_assigned_to.username
+	if models.TaskManager.objects.filter(task_id='MISVRM',ec_sid=task_queryset.ec_sid).exists():
+		original_user = models.TaskManager.objects.get(task_id='MISVRM',ec_sid=task_queryset.ec_sid).task_assigned_to.username
+	else:
+		original_user = None
 
 	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None
@@ -687,6 +692,66 @@ def pexmch_task_complete(request):
 		models.TaskManager.objects.filter(pk=task_id,task_id='PEXMCH').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
 
+
+def locmar_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
+	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
+	examiner_queryset = models.UniqueCreditor.objects.filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no')
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_locmar.html", context=context)
+
+def locmar_task_complete(request):
+	script_id = request.POST.get('script_id')
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	if models.EnquiryComponentElements.objects.get(ec_sid=script_id).eb_sid is not None:
+		batch_no = models.EnquiryComponentElements.objects.get(ec_sid=script_id).eb_sid.eb_sid
+	if script_id is not None and request.method == 'POST':
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			#change to AUTAPP once testing complete
+			task_id = models.TaskTypes.objects.get(task_id = 'MISVRF'),
+			task_assigned_to = User.objects.get(id=models.TaskManager.objects.get(pk=task_id).task_assigned_to.pk),
+			task_assigned_date = timezone.now(),
+			task_completion_date = None
+		)
+		if models.MisReturnData.objects.filter(ec_sid=script_id).exists():
+			models.MisReturnData.objects.filter(ec_sid=script_id).update(
+				eb_sid = models.EnquiryBatches.objects.get(eb_sid=batch_no),
+				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+				original_exm = None,
+				rev_exm = None,
+				original_mark = None,
+				mark_status = None,
+				revised_mark = None,
+				justification_code = None,
+				remark_reason = None,
+				remark_concern_reason = None,
+				error_status = "Locally Marked Component",
+			)
+		else:
+			models.MisReturnData.objects.create(
+				eb_sid = models.EnquiryBatches.objects.get(eb_sid=batch_no),
+				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+				original_exm = None,
+				rev_exm = None,
+				original_mark = None,
+				mark_status = None,
+				revised_mark = None,
+				justification_code = None,
+				remark_reason = None,
+				remark_concern_reason = None,
+				error_status = "Locally Marked Component",
+			)
+		#complete the task
+		models.TaskManager.objects.filter(pk=task_id,task_id='LOCMAR').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
 
 def cleric_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
@@ -1341,6 +1406,17 @@ def iec_pass_view(request, enquiry_id=None):
 		#Get scripts for this enquiry ID, this is a join from EC to ERP
 		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 		for s in Scripts:
+			if s.script_type == 'MIC - MU' or s.script_type == 'MIC - SEAB':
+				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='LOCMAR',task_completion_date = None).exists():
+					models.TaskManager.objects.create(
+					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+					task_id = models.TaskTypes.objects.get(task_id = 'LOCMAR'),
+					task_assigned_to = None,
+					task_assigned_date = None,
+					task_completion_date = None
+					)		
+				continue	
 			if s.script_type == 'Multiple Choice':
 				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
 					models.TaskManager.objects.create(
@@ -1408,6 +1484,17 @@ def iec_pass_all_view(request):
 					#Get scripts for this enquiry ID, this is a join from EC to ERP
 			Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 			for s in Scripts:
+				if s.script_type == 'MIC - MU' or s.script_type == 'MIC - SEAB':
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='LOCMAR',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'LOCMAR'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+						)		
+					continue	
 				if s.script_type == 'Multiple Choice':
 					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
@@ -1497,6 +1584,17 @@ def iec_issue_view(request, enquiry_id=None):
 		#Get scripts for this enquiry ID, this is a join from EC to ERP
 		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 		for s in Scripts:
+			if s.script_type == 'MIC - MU' or s.script_type == 'MIC - SEAB':
+				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='LOCMAR',task_completion_date = None).exists():
+					models.TaskManager.objects.create(
+					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+					task_id = models.TaskTypes.objects.get(task_id = 'LOCMAR'),
+					task_assigned_to = None,
+					task_assigned_date = None,
+					task_completion_date = None
+					)		
+				continue	
 			if s.script_type == 'Multiple Choice':
 				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
 					models.TaskManager.objects.create(
@@ -1632,6 +1730,22 @@ def cleric_list_view(request):
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
 	return render(request, "enquiries/task_lists/enquiries_cleric.html", context=context)
+
+def locmar_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='LOCMAR', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries/task_lists/enquiries_locmar.html", context=context)
 
 def pexmch_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.

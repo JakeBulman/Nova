@@ -41,6 +41,8 @@ urlpatterns = [
     path('task_manager/misvrf_task/<str:task_id>', views.misvrf_task, name='misvrf-task'), 
     path('task_manager/pexmch_task/complete', views.pexmch_task_complete, name='pexmch-complete'),
     path('task_manager/pexmch_task/<str:task_id>', views.pexmch_task, name='pexmch-task'),  
+    path('task_manager/locmar_task/complete', views.locmar_task_complete, name='locmar-complete'),
+    path('task_manager/locmar_task/<str:task_id>', views.locmar_task, name='locmar-task'), 
     path('task_manager/cleric_task/complete', views.cleric_task_complete, name='cleric-complete'),
     path('task_manager/cleric_task/<str:task_id>', views.cleric_task, name='cleric-task'), 
     path('task_manager/botapf_task/complete', views.botapf_task_complete, name='botapf-complete'),
@@ -86,6 +88,8 @@ urlpatterns = [
     path('misvrf_list', views.misvrf_list_view, name='misvrf_list'),
     #Previous Exminer Checks main screen
     path('pexmch_list', views.pexmch_list_view, name='pexmch_list'),
+    #Locmar Checks main screen
+    path('locmar_list', views.locmar_list_view, name='locmar_list'),
     #Clerical Checks main screen
     path('cleric_list', views.cleric_list_view, name='cleric_list'),
     #Download ESMCSV to file location
