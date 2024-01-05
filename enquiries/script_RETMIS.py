@@ -11,15 +11,19 @@ if os.getenv('DJANGO_DEVELOPMENT') == 'true':
     path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+    mis_folder = '0.UAT_MIS Returns'
 elif os.getenv('DJANGO_PRODUCTION') == 'true':
     print('PROD')
     path = os.path.join('C:\\Dev\\Nova')
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
+    mis_folder = '0.RPA_MIS Returns'
 else:
-    print('UAT')
-    sys.path.append('C:/Dev/redepplan')
+    print('UAT - Check')
+    path = os.path.join('C:\\Dev\\nova')
+    sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
+    mis_folder = '0.UAT_MIS Returns'
 
 django.setup()
 
@@ -27,18 +31,18 @@ from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryReques
 
 def run_algo():
     import os
-    print(os.listdir("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\\"))
-    for file in os.listdir("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\\"):
-        filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\\", file)
-        new_filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\COMPLETE\\", file)
-        error_filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\FILE_CHECKS\\", file)
-        copy_filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Inbound\COPY\\", file)
+    print(os.listdir("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\\"))
+    for file in os.listdir("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\\"):
+        filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\\", file)
+        new_filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\COMPLETE\\", file)
+        error_filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\FILE_CHECKS\\", file)
+        copy_filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\COPY\\", file)
         if file.endswith(".xlsx") or file.endswith(".XLSX") or file.endswith(".xls"):
             try:
                 workbook = load_workbook(filename)
                 shutil.copy(filename, copy_filename)
             except:
-                print("Bad file type")
+                print("Bad file type: " + file)
                 #Move file to error folder
                 shutil.move(filename, error_filename)
                 continue
@@ -55,7 +59,6 @@ def run_algo():
             ec_sid = None
             print(str(EnquiryComponentElements.objects.filter(eb_sid=eb_sid).exists()))
             if EnquiryComponentElements.objects.filter(eb_sid=eb_sid).exists():
-                print("ok")
                 ec_sid = EnquiryComponentElements.objects.filter(eb_sid=eb_sid).first().ec_sid.ec_sid
                 task_enquiry_id = EnquiryComponentElements.objects.filter(eb_sid=eb_sid).first().ec_sid.erp_sid.cer_sid.enquiry_id
 

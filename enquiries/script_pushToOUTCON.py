@@ -15,8 +15,9 @@ elif os.getenv('DJANGO_PRODUCTION') == 'true':
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
 else:
-    print('UAT')
-    sys.path.append('C:/Dev/redepplan')
+    print('UAT - Check')
+    path = os.path.join('C:\\Dev\\nova')
+    sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 
 django.setup()

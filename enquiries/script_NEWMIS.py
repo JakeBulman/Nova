@@ -17,8 +17,9 @@ elif os.getenv('DJANGO_PRODUCTION') == 'true':
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
     mis_folder = '0.RPA_MIS Returns'
 else:
-    print('UAT')
-    sys.path.append('C:/Dev/redepplan')
+    print('UAT - Check')
+    path = os.path.join('C:\\Dev\\nova')
+    sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
     mis_folder = '0.UAT_MIS Returns'
 
@@ -72,8 +73,13 @@ def run_algo():
             cred_no = ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid.per_sid.exm_creditor_no
 
             #Work to be done by NEWMIS done here 
+            # new_filename = os.path.realpath("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\EARTemplate1.xlsx")
+            # print(os.path.dirname(new_filename))
 
-            workbook = load_workbook(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\EARTemplate1.xlsx")
+            new_filename = os.path.realpath("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\EARTemplate1.xlsx")
+            print(new_filename)
+
+            workbook = load_workbook(filename=new_filename)
             sheet = workbook.active
 
             #Syll/Comp
@@ -94,10 +100,12 @@ def run_algo():
             sheet["F4"] = original_mark
 
             #Examiner-956955_BATCH_836680_MIS
-            #workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\Examiner-" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
+            #workbook.save(filename="\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\Examiner-" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
 
             #Examiners-956955_BATCH_836680_MIS
-            workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Outbound\\Examiner-" + cred_no + "_" + batch_no + "_" + centre_no + "_" + cand_no + "_" + syll_comp.split('/')[0] + "_" + syll_comp.split('/')[1] + "_MIS.xlsx")
+            new_filename2 = os.path.realpath("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Outbound\\Examiner-" + cred_no + "_" + batch_no + "_" + centre_no + "_" + cand_no + "_" + syll_comp.split('/')[0] + "_" + syll_comp.split('/')[1] + "_MIS.xlsx")
+            print(new_filename2)
+            workbook.save(filename=new_filename2)
 
             #Create next step in chain (RETMIS)
             TaskManager.objects.create(

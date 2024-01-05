@@ -22,8 +22,9 @@ elif os.getenv('DJANGO_PRODUCTION') == 'true':
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
 else:
-    print('UAT')
-    sys.path.append('C:/Dev/redepplan')
+    print('UAT - Check')
+    path = os.path.join('C:\\Dev\\nova')
+    sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 
 django.setup()
@@ -127,7 +128,7 @@ try:
           <h3>Enquiry About Results – Review of Marking </h3>
 
           <p>We have been asked to provide a check on the marking accuracy for the candidates detailed in the below listed batches. These scripts have been uploaded to your RM Assessor work list or will have been sent in a separate email including the batch number in the subject line. The Mark Input Sheets for these batches can be found on your Secure Exchange account. Your attention is directed to the Instructions and Guidance already issued.</p>
-
+          <p>Please note, some of the batches listed below you may have already completed and therefore can be ignored if you have already returned the work to us. MIS are ingested at four key times in the day from Secure Exchange so any changes can take a few hours to be reflected in your worklist.</p>
             
           <ul>
           <li>
@@ -146,6 +147,9 @@ try:
           Please do not change the name of the file when you download it and upload it to Secure Exchange.   
           </li>
           <li>
+          Please upload the completed MIS forms to your ReturnToCI folder within your Secure Exchange account to return them to us.   
+          </li>
+          <li>
           Please upload the completed MIS forms to your Secure Exchange account to return them to us. 
           </li>
           <li>
@@ -153,6 +157,9 @@ try:
           </li>
           <li>
           Services 2P and 2PS are priority EAR services. Please prioritize any of these services that are present in your worklist.  
+          </li>
+          <li>
+          SEAB are priority enquiries and examiners are asked to return work within 2 days.  
           </li>
           </ul> 
 

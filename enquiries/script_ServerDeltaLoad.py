@@ -18,8 +18,9 @@ elif os.getenv('DJANGO_PRODUCTION') == 'true':
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
 else:
-    print('UAT')
-    sys.path.append('C:\\Dev\\Nova')
+    print('UAT - Check')
+    path = os.path.join('C:\\Dev\\nova')
+    sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 
 django.setup()
@@ -239,8 +240,8 @@ def load_core_tables():
     
     df.apply(insert_to_model_ec, axis=1)
 
-    #filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Type Of Script.xlsx")
-    workbook = load_workbook("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Type Of Script.xlsx")
+    #filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Type Of Script.xlsx")
+    workbook = load_workbook("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Type Of Script.xlsx")
     sheet = workbook.active
 
     for row in sheet.iter_rows():
@@ -801,7 +802,7 @@ def load_core_tables():
     print("ED loaded:" + str(datetime.datetime.now()))
 
 
-    filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Tolerances.xlsx")
+    filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Tolerances.xlsx")
     workbook = load_workbook(filename)
     sheet = workbook.active
 
@@ -1092,7 +1093,7 @@ def load_core_tables():
     
     df.apply(insert_to_model_ec, axis=1)
 
-    filename=os.path.join("Y:\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Type Of Script.xlsx")
+    filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Type Of Script.xlsx")
     workbook = load_workbook(filename)
     sheet = workbook.active
 

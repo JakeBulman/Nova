@@ -15,8 +15,9 @@ elif os.getenv('DJANGO_PRODUCTION') == 'true':
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
 else:
-    print('UAT')
-    sys.path.append('C:/Dev/redepplan')
+    print('UAT - Check')
+    path = os.path.join('C:\\Dev\\nova')
+    sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 
 django.setup()
@@ -61,7 +62,7 @@ def run_algo():
             )
             TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
             continue
-        if final_mark_status == 'Changed' and (justification_string is None or justification_string.strip() is '' or final_mark is None):
+        if final_mark_status == 'Changed' and (justification_string is None or justification_string.strip() == '' or final_mark is None):
             print('NO JC or Mark')
             mis_data.error_status = "No JC or Mark"
             mis_data.save()
