@@ -71,6 +71,7 @@
                                 {% for b in t.ec_sid.script_id.all %}
                                 <h6 class="card-subtitle mb-2 text-muted">Batch: {{b.eb_sid.eb_sid}}</h6>
                                 {% endfor %}
+                                <h6 class="card-subtitle mb-2 text-muted">Enquiry Created: {{ t.enquiry_id.eps_creation_date|date:"d/m/y" }}</h6>
                                 {% for d in t.enquiry_id.enquiry_deadline.all %}
                                 <h6 class="card-subtitle mb-2 text-muted">Enquiry SLA: {{ d.original_enquiry_deadline|date:"d/m/y" }}</h6>
                                 {% endfor %}
@@ -113,6 +114,7 @@
                                 {% for b in t.ec_sid.script_id.all %}
                                 <h6 class="card-subtitle mb-2 text-muted">Batch: {{b.eb_sid.eb_sid}}</h6>
                                 {% endfor %}
+                                <h6 class="card-subtitle mb-2 text-muted">Enquiry Created: {{ t.enquiry_id.eps_creation_date|date:"d/m/y" }}</h6>
                                 {% for d in t.enquiry_id.enquiry_deadline.all %}
                                 <h6 class="card-subtitle mb-2 text-muted">Enquiry SLA: {{ d.original_enquiry_deadline|date:"d/m/y" }}</h6>
                                 {% endfor %}
