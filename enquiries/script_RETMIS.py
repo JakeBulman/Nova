@@ -70,8 +70,8 @@ def run_algo():
                 if TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).exists():
                     task_pk = TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).first().pk
                     print("Task PK" + str(task_pk))
-                print(sheet["E4"].value)
-                if task_pk is not None and expected_exm.exm_examiner_no==sheet["E4"].value:
+                print(str(expected_exm.exm_examiner_no).strip()==str(sheet["E4"].value).strip())
+                if task_pk is not None and str(expected_exm.exm_examiner_no).strip()==str(sheet["E4"].value).strip():
                     if MisReturnData.objects.filter(ec_sid=ec_sid).exists():
                         MisReturnData.objects.filter(ec_sid=ec_sid).update(
                             eb_sid = EnquiryBatches.objects.get(eb_sid=eb_sid),

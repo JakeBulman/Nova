@@ -790,6 +790,8 @@ def load_core_tables():
             erp_service = 'Unknown'
         if 'P' in erp_service:
             deadline = enquiry.eps_creation_date + datetime.timedelta(days=18)
+        elif enquiry.ministry_flag == "S":
+            deadline = enquiry.eps_creation_date + datetime.timedelta(days=21)
         else:
             deadline = enquiry.eps_creation_date + datetime.timedelta(days=30)
         if not EnquiryDeadline.objects.filter(enquiry_id=enquiry).exists():
