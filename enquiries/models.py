@@ -51,6 +51,7 @@ class EnquiryRequestParts(models.Model):
     booked_in_error_ind = models.CharField(max_length=1,null=True)
     stud_name = models.CharField(max_length=100,null=True)
     grade_confirmed_ind = models.CharField(max_length=1,null=True)
+    grade_changed_ind = models.CharField(max_length=1,null=True)
 
 
 class EnquiryComponents(models.Model):

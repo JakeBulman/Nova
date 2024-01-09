@@ -121,7 +121,8 @@ def load_core_tables():
             erp.caom_measure as eps_script_measure,
             erp.booked_in_error_ind as booked_in_error_ind,
             can.full_name as stud_name,
-            erp.grade_confirmed_ind as grade_confirmed_ind
+            erp.grade_confirmed_ind as grade_confirmed_ind,
+            erp.grade_changed_ind as grade_changed_ind
             from ar_meps_req_prd.enquiry_request_parts erp
             left join cie.ca_candidates can
             on erp.caom_can_unique_identifier = can.unique_id
@@ -145,7 +146,8 @@ def load_core_tables():
                 eps_script_measure = row['eps_script_measure'],
                 booked_in_error_ind = row['booked_in_error_ind'],
                 stud_name = row['stud_name'],
-                grade_confirmed_ind = row['grade_confirmed_ind']
+                grade_confirmed_ind = row['grade_confirmed_ind'],
+                grade_changed_ind = row['grade_changed_ind']
         )
         else:
             try:
