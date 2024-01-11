@@ -709,46 +709,86 @@ def locmar_task_complete(request):
 	script_id = request.POST.get('script_id')
 	task_id = request.POST.get('task_id')
 	enquiry_id = request.POST.get('enquiry_id')
-	if models.EnquiryComponentElements.objects.get(ec_sid=script_id).eb_sid is not None:
-		batch_no = models.EnquiryComponentElements.objects.get(ec_sid=script_id).eb_sid.eb_sid
+	script_obj = models.EnquiryComponentElements.objects.get(ec_sid=script_id)
+	if script_obj.eb_sid is not None:
+		batch_no = script_obj.eb_sid.eb_sid
 	if script_id is not None and request.method == 'POST':
-		models.TaskManager.objects.create(
-			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
-			#change to AUTAPP once testing complete
-			task_id = models.TaskTypes.objects.get(task_id = 'MISVRF'),
-			task_assigned_to = User.objects.get(id=models.TaskManager.objects.get(pk=task_id).task_assigned_to.pk),
-			task_assigned_date = timezone.now(),
-			task_completion_date = None
-		)
-		if models.MisReturnData.objects.filter(ec_sid=script_id).exists():
-			models.MisReturnData.objects.filter(ec_sid=script_id).update(
-				eb_sid = models.EnquiryBatches.objects.get(eb_sid=batch_no),
+		if script_obj.ec_sid.erp_sid.cer_sid.ministry_flag == 'S':
+			models.TaskManager.objects.create(
+				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
-				original_exm = None,
-				rev_exm = None,
-				original_mark = None,
-				mark_status = None,
-				revised_mark = None,
-				justification_code = None,
-				remark_reason = None,
-				remark_concern_reason = None,
-				error_status = "Locally Marked Component",
+				#change to AUTAPP once testing complete
+				task_id = models.TaskTypes.objects.get(task_id = 'BOTMAR'),
+				task_assigned_to = User.objects.get(id=models.TaskManager.objects.get(pk=task_id).task_assigned_to.pk),
+				task_assigned_date = timezone.now(),
+				task_completion_date = None
 			)
+			if models.MisReturnData.objects.filter(ec_sid=script_id).exists():
+				models.MisReturnData.objects.filter(ec_sid=script_id).update(
+					eb_sid = models.EnquiryBatches.objects.get(eb_sid=batch_no),
+					ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+					original_exm = None,
+					rev_exm = None,
+					original_mark = None,
+					mark_status = 'Confirmed',
+					revised_mark = None,
+					justification_code = None,
+					remark_reason = None,
+					remark_concern_reason = None,
+					error_status = "Locally Marked Component",
+				)
+			else:
+				models.MisReturnData.objects.create(
+					eb_sid = models.EnquiryBatches.objects.get(eb_sid=batch_no),
+					ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+					original_exm = None,
+					rev_exm = None,
+					original_mark = None,
+					mark_status = 'Confirmed',
+					revised_mark = None,
+					justification_code = None,
+					remark_reason = None,
+					remark_concern_reason = None,
+					error_status = "Locally Marked Component",
+				)
 		else:
-			models.MisReturnData.objects.create(
-				eb_sid = models.EnquiryBatches.objects.get(eb_sid=batch_no),
+			models.TaskManager.objects.create(
+				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
-				original_exm = None,
-				rev_exm = None,
-				original_mark = None,
-				mark_status = None,
-				revised_mark = None,
-				justification_code = None,
-				remark_reason = None,
-				remark_concern_reason = None,
-				error_status = "Locally Marked Component",
+				#change to AUTAPP once testing complete
+				task_id = models.TaskTypes.objects.get(task_id = 'MISVRF'),
+				task_assigned_to = User.objects.get(id=models.TaskManager.objects.get(pk=task_id).task_assigned_to.pk),
+				task_assigned_date = timezone.now(),
+				task_completion_date = None
 			)
+			if models.MisReturnData.objects.filter(ec_sid=script_id).exists():
+				models.MisReturnData.objects.filter(ec_sid=script_id).update(
+					eb_sid = models.EnquiryBatches.objects.get(eb_sid=batch_no),
+					ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+					original_exm = None,
+					rev_exm = None,
+					original_mark = None,
+					mark_status = None,
+					revised_mark = None,
+					justification_code = None,
+					remark_reason = None,
+					remark_concern_reason = None,
+					error_status = "Locally Marked Component",
+				)
+			else:
+				models.MisReturnData.objects.create(
+					eb_sid = models.EnquiryBatches.objects.get(eb_sid=batch_no),
+					ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+					original_exm = None,
+					rev_exm = None,
+					original_mark = None,
+					mark_status = None,
+					revised_mark = None,
+					justification_code = None,
+					remark_reason = None,
+					remark_concern_reason = None,
+					error_status = "Locally Marked Component",
+				)
 		#complete the task
 		models.TaskManager.objects.filter(pk=task_id,task_id='LOCMAR').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
@@ -1371,7 +1411,7 @@ def enquiries_list_view(request):
 	search_q = ""
 	if request.GET.get('search_query') is not None:
 		search_q = request.GET.get('search_query')
-	cer_queryset = models.CentreEnquiryRequests.objects.filter(Q(enquiry_id__icontains = search_q), enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+	cer_queryset = models.CentreEnquiryRequests.objects.filter(Q(enquiry_id__icontains = search_q), enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True,enquiries__enquiry_parts__isnull=False).order_by('enquiry_id')
 	cer_queryset_paged = Paginator(cer_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -1412,7 +1452,7 @@ def iec_pass_view(request, enquiry_id=None):
 			else:
 				kbr = None
 			print('KBR GO')
-			if kbr == 'SM':
+			if kbr == 'SM' and s.erp_sid.cer_sid.ministry_flag == 'MU':
 				#Create confirmed MIS
 				print('SM')
 				eb_sid = models.EnquiryComponentElements.objects.get(ec_sid=s.ec_sid).eb_sid.eb_sid
@@ -1549,7 +1589,7 @@ def iec_pass_view(request, enquiry_id=None):
 def iec_pass_all_view(request):
 	if request.method == 'POST':
 		#Get scripts for this enquiry ID, this is a join from EC to ERP
-		all_initch = models.TaskManager.objects.filter(task_id='INITCH',task_completion_date__isnull=True)
+		all_initch = models.TaskManager.objects.filter(task_id='INITCH',task_completion_date__isnull=True,enquiry_id__enquiries__enquiry_parts__isnull=False)
 		for task in all_initch:
 			enquiry_id = task.enquiry_id.enquiry_id
 					#Get scripts for this enquiry ID, this is a join from EC to ERP
@@ -1560,7 +1600,7 @@ def iec_pass_all_view(request):
 					kbr = models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).first().kbr_code
 				else:
 					kbr = None
-				if kbr == 'SM':
+				if kbr == 'SM' and s.erp_sid.cer_sid.ministry_flag == 'MU':
 					#Create confirmed MIS
 					print('SM')
 					eb_sid = models.EnquiryComponentElements.objects.get(ec_sid=s.ec_sid).eb_sid.eb_sid
@@ -1730,7 +1770,7 @@ def iec_issue_view(request, enquiry_id=None):
 				kbr = models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).first().kbr_code
 			else:
 				kbr = None
-			if kbr == 'SM':
+			if kbr == 'SM' and s.erp_sid.cer_sid.ministry_flag == 'MU':
 				#Create confirmed MIS
 				print('SM')
 				eb_sid = models.EnquiryComponentElements.objects.get(ec_sid=s.ec_sid).eb_sid.eb_sid
@@ -2462,17 +2502,7 @@ def examiner_scripts_view(request, per_sid=None):
 	# grab the model rows (ordered by id).
 	enpe_queryset = models.EnquiryPersonnel.objects.filter(enpe_sid__in=enpe_list).first()
 	ec_queryset = models.ScriptApportionment.objects.filter(enpe_sid__in=enpe_list,apportionment_invalidated=0).order_by('-script_marked','-script_mark_entered','ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,"enpe": enpe_queryset}
+	context = {"cer": ec_queryset,"enpe": enpe_queryset}
 	return render(request, "enquiries/examiners/enquiries_examiner_scripts.html", context=context)
 
 def examiner_availability_view(request, per_sid=None):

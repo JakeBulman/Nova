@@ -217,11 +217,11 @@ try:
           HtmlBody_final = HtmlBody.substitute(table_entry_insert=table_entry,full_name=full_name)
 
           sender = "results.enquiries@cambridge.org"
-          recipient = "jacob.bulman@cambridge.org"
-          # if ExaminerEmailOverride.objects.filter(creditor=uc).exists():
-          #     recipient = ExaminerEmailOverride.objects.filter(creditor=uc).first().examiner_email_manual
-          # else:
-          #     recipient = uc.exm_email
+          #recipient = "jacob.bulman@cambridge.org"
+          if ExaminerEmailOverride.objects.filter(creditor=uc).exists():
+              recipient = ExaminerEmailOverride.objects.filter(creditor=uc).first().examiner_email_manual
+          else:
+              recipient = uc.exm_email
 
           email = EmailMessage()
           email["From"] = sender
