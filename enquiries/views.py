@@ -720,7 +720,7 @@ def locmar_task_complete(request):
 				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
 				#change to AUTAPP once testing complete
 				task_id = models.TaskTypes.objects.get(task_id = 'BOTMAR'),
-				task_assigned_to = User.objects.get(id=models.TaskManager.objects.get(pk=task_id).task_assigned_to.pk),
+				task_assigned_to = User.objects.get(username='RPABOT2'),
 				task_assigned_date = timezone.now(),
 				task_completion_date = None
 			)
