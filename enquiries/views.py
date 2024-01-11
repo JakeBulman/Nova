@@ -1484,7 +1484,10 @@ def iec_pass_view(request, enquiry_id=None):
 					)
 
 				#Assign script to PE
-				principal_exm = models.EnquiryPersonnelDetails.objects.filter(exm_examiner_no='01.01',ass_code=s.eps_ass_code,com_id=s.eps_com_id,enpe_sid__currently_valid=True).first().enpe_sid
+				try:
+					principal_exm = models.EnquiryPersonnelDetails.objects.filter(exm_examiner_no='01.01',ass_code=s.eps_ass_code,com_id=s.eps_com_id,enpe_sid__currently_valid=True).first().enpe_sid
+				except:
+					principal_exm = None
 				if models.ScriptApportionment.objects.filter(ec_sid=s.ec_sid,apportionment_invalidated=0,script_marked=1).exists():
 					print('Script already apportioned')
 				else:
@@ -1591,6 +1594,7 @@ def iec_pass_all_view(request):
 		#Get scripts for this enquiry ID, this is a join from EC to ERP
 		all_initch = models.TaskManager.objects.filter(task_id='INITCH',task_completion_date__isnull=True,enquiry_id__enquiries__enquiry_parts__isnull=False)
 		for task in all_initch:
+			print(task.enquiry_id.enquiry_id)
 			enquiry_id = task.enquiry_id.enquiry_id
 					#Get scripts for this enquiry ID, this is a join from EC to ERP
 			Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
