@@ -67,9 +67,10 @@ try:
               if enpe.enpe_sid.enpe_sid not in enpe_list:
                   enpe_list.append(enpe.enpe_sid.enpe_sid)
           for enpe2 in enpe_list:
-              for script in ScriptApportionment.objects.filter(enpe_sid=enpe2, apportionment_invalidated=0, script_marked=1):
+              for script in ScriptApportionment.objects.filter(enpe_sid=enpe2, apportionment_invalidated=0, script_marked=1).order_by('ec_sid'):
                   print('Script:' + script.ec_sid.ec_sid)
-                  if not TaskManager.objects.filter(task_id='NRMACC', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).exists() and TaskManager.objects.filter(task_id='RETMIS', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).exists():
+                  #if not TaskManager.objects.filter(task_id='NRMACC', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).exists() and TaskManager.objects.filter(task_id='RETMIS', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).exists():
+                  if TaskManager.objects.filter(task_id='RETMIS', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).exists(): 
                       task = TaskManager.objects.filter(task_id='RETMIS', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).first()
                       extension_total = 0
                       exmsla_count = TaskManager.objects.filter(task_id='EXMSLA', ec_sid=task.ec_sid.ec_sid, task_completion_date__isnull=True).count()
@@ -127,8 +128,30 @@ try:
 
           <h3>Enquiry About Results – Review of Marking </h3>
 
-          <p>We have been asked to provide a check on the marking accuracy for the candidates detailed in the below listed batches. These scripts have been uploaded to your RM Assessor work list or will have been sent in a separate email including the batch number in the subject line. The Mark Input Sheets for these batches can be found on your Secure Exchange account. Your attention is directed to the Instructions and Guidance already issued.</p>
-          <p>Please note, some of the batches listed below you may have already completed and therefore can be ignored if you have already returned the work to us. MIS are ingested at four key times in the day from Secure Exchange so any changes can take a few hours to be reflected in your worklist.</p>
+          <p>We have been asked to provide a check on the marking accuracy for the candidates detailed in the below listed batches. These scripts have been uploaded to your RM Assessor work list or will have been sent in a separate email including the batch number in the subject line. The Mark Input Sheets for these batches can be found on your Secure Exchange account. Your attention is directed to the Instructions and Guidance already issued, but for ease of access here is a brief bullet point summary of the process:</p>
+                              
+          <ol>
+          <li>
+          Receive this email and review outstanding batches listed under Worklist      
+          </li>                  
+          <li>
+          Find batch in Secure Exchange folder /CI/EAR/Examiners/Examiner-(your examiner number)      
+          </li> 
+          <li>
+          Download batch     
+          </li> 
+          <li>
+          Open RM and locate script on the batch  
+          </li> 
+          <li>
+          Mark script on RM and submit. Populate MIS.     
+          </li> 
+          <li>
+          Upload completed MIS to folder /CI/EAR/ReturntoCI/Examiner-(your examiner number)     
+          </li>           
+          </ol>
+
+          <p>Please note, some of the batches listed below you may have already completed and therefore can be ignored if you have already returned the work to us. MIS are processed at four key times in the day from Secure Exchange so any changes can take a few hours to be reflected in your worklist.</p>
             
           <ul>
           <li>
@@ -150,9 +173,6 @@ try:
           Please upload the completed MIS forms to your ReturnToCI folder within your Secure Exchange account to return them to us.   
           </li>
           <li>
-          Please upload the completed MIS forms to your Secure Exchange account to return them to us. 
-          </li>
-          <li>
           Please keep a copy of the candidate’s details where any mark change has been made. 
           </li>
           <li>
@@ -163,7 +183,7 @@ try:
           </li>
           </ul> 
 
-          <h3>Please see below batches assigned to you and the date which they are due for completion. </h3>
+          <h3>Please see below batches assigned to you and the date which they are due for completion. Please work through the list from top to bottom. </h3>
 
           <h3>Worklist; </h3>
 
@@ -179,7 +199,8 @@ try:
           $table_entry_insert
           </table>
 
-          <h3>RM Assessor scripts may not be available on receipt of this email. Please contact us if they have not appeared within 24 hours of this email being sent. </h3>
+          <h3>RM Assessor scripts may not be available on receipt of this email. Please contact us if they have not appeared within 12 hours of this email being sent. </h3>
+          <h3>Additionally, if you have returned batches to us and the due date has passed please contact us using the details below.  </h3>
 
           <p>If completion of this work by the required date is not possible, or if you have any queries relating to this request, please contact the Enquiries about Results team on 01223 553771 or via email to results.enquiries@cambridge.org. If the enquiry is not received back by the date stated above, we will be contacting examiners to ensure that they have received the enquiry and not encountered any issues. </p>
 
@@ -196,10 +217,11 @@ try:
           HtmlBody_final = HtmlBody.substitute(table_entry_insert=table_entry,full_name=full_name)
 
           sender = "results.enquiries@cambridge.org"
-          if ExaminerEmailOverride.objects.filter(creditor=uc).exists():
-              recipient = ExaminerEmailOverride.objects.filter(creditor=uc).first().examiner_email_manual
-          else:
-              recipient = uc.exm_email
+          recipient = "jacob.bulman@cambridge.org"
+          # if ExaminerEmailOverride.objects.filter(creditor=uc).exists():
+          #     recipient = ExaminerEmailOverride.objects.filter(creditor=uc).first().examiner_email_manual
+          # else:
+          #     recipient = uc.exm_email
 
           email = EmailMessage()
           email["From"] = sender
@@ -215,26 +237,26 @@ try:
 
           print('SENT TO:' + uc.exm_email)
 
-  email = EmailMessage()
-  email["From"] = "results.enquiries@cambridge.org"
-  email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org, sarah.endersby@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org"
-  email["Subject"] = "Review of Marking Worklist Emails - Sent Successfully"
-  email.set_content("All emails have been sent successfully", subtype='html')
+  # email = EmailMessage()
+  # email["From"] = "results.enquiries@cambridge.org"
+  # email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org, sarah.endersby@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org"
+  # email["Subject"] = "Review of Marking Worklist Emails - Sent Successfully"
+  # email.set_content("All emails have been sent successfully", subtype='html')
 
-  smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
-  smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org", "sarah.endersby@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org"], email.as_string())
-  smtp.quit()
+  # smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
+  # smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org", "sarah.endersby@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org"], email.as_string())
+  # smtp.quit()
 
   print('Finished Successfully')
 except:
-  email = EmailMessage()
-  email["From"] = "results.enquiries@cambridge.org"
-  email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org, sarah.endersby@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org"
-  email["Subject"] = "Review of Marking Worklist Emails - ERROR"
-  email.set_content("Emails have not been sent successfully, please contact the system administrator for further details.", subtype='html')
+  # email = EmailMessage()
+  # email["From"] = "results.enquiries@cambridge.org"
+  # email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org, sarah.endersby@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org"
+  # email["Subject"] = "Review of Marking Worklist Emails - ERROR"
+  # email.set_content("Emails have not been sent successfully, please contact the system administrator for further details.", subtype='html')
 
-  smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
-  smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org", "sarah.endersby@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org"], email.as_string())
-  smtp.quit()
+  # smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
+  # smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org", "sarah.endersby@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org"], email.as_string())
+  # smtp.quit()
 
   print('Did not finish')
