@@ -716,7 +716,7 @@ def locmar_task_complete(request):
 	if script_id is not None and request.method == 'POST':
 		models.ScriptApportionment.objects.create(
 			enpe_sid = None,
-			ec_sid = script_obj,
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
 			script_marked = 0
 		)
 		if script_obj.ec_sid.erp_sid.cer_sid.ministry_flag == 'S':
