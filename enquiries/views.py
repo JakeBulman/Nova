@@ -714,6 +714,11 @@ def locmar_task_complete(request):
 	if script_obj.eb_sid is not None:
 		batch_no = script_obj.eb_sid.eb_sid
 	if script_id is not None and request.method == 'POST':
+		models.ScriptApportionment.objects.create(
+			enpe_sid = None,
+			ec_sid = script_obj,
+			script_marked = 0
+		)
 		if script_obj.ec_sid.erp_sid.cer_sid.ministry_flag == 'S':
 			models.TaskManager.objects.create(
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
@@ -732,6 +737,8 @@ def locmar_task_complete(request):
 					rev_exm = None,
 					original_mark = None,
 					mark_status = 'Confirmed',
+					final_mark_status = 'Confirmed',
+					keyed_mark_status = 'Confirmed',
 					revised_mark = None,
 					justification_code = None,
 					remark_reason = None,
@@ -746,6 +753,8 @@ def locmar_task_complete(request):
 					rev_exm = None,
 					original_mark = None,
 					mark_status = 'Confirmed',
+					final_mark_status = 'Confirmed',
+					keyed_mark_status = 'Confirmed',
 					revised_mark = None,
 					justification_code = None,
 					remark_reason = None,
