@@ -168,6 +168,7 @@ class ScaledMarks(models.Model):
     eps_com_id = models.CharField(max_length=2,null=True) 
     eps_cnu_id = models.CharField(max_length=10,null=True)
     eps_cand_no = models.CharField(max_length=10,null=True)
+    eps_ses_sid = models.CharField(max_length=5,null=True)
     raw_mark = models.CharField(max_length=10,null=True)
     assessor_mark  = models.CharField(max_length=10,null=True)
     final_mark = models.CharField(max_length=10,null=True)
