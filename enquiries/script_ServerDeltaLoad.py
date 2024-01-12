@@ -821,6 +821,8 @@ def load_core_tables():
                 eps_com_id = row[1],
                 mark_tolerance = row[2]
             )
+    
+    ScaledMarks.objects.all().delete()
         
         # # Get datalake data - Enquiry Request Parts
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:

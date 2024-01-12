@@ -96,7 +96,7 @@ def run_algo():
         else:
             early_mark_tolerance = MarkTolerances.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id).first().mark_tolerance
 
-        if not ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id).exists():
+        if not ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id,eps_ses_sid=task.ec_sid.eps_ses_sid).exists():
             print("No mark available")
             mis_data.error_status = "No mark available"
             mis_data.save()
@@ -111,7 +111,7 @@ def run_algo():
             TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
             continue
         else:
-            scaled_mark_set = ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id).first()
+            scaled_mark_set = ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id,eps_ses_sid=task.ec_sid.eps_ses_sid).first()
             scaled_mark = int(scaled_mark_set.scaled_mark.split('.')[0])
             mis_mark = int(mis_data.original_mark.split('.')[0])
             print(str(scaled_mark) + " " + str(mis_mark))
@@ -245,10 +245,10 @@ def run_algo():
                 else:
                     mark_tolerance = MarkTolerances.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id).first().mark_tolerance
 
-                if not ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id).exists():
+                if not ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id,eps_ses_sid=task.ec_sid.eps_ses_sid).exists():
                     print("No mark available")
                 else:
-                    scaled_mark_set = ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id).first()
+                    scaled_mark_set = ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id,eps_ses_sid=task.ec_sid.eps_ses_sid).first()
                     scaled_mark = int(scaled_mark_set.scaled_mark.split('.')[0])
                     final_mark = int(final_mark.split('.')[0])
                     is_scaled_exm = scaled_mark_set.original_exm_scaled == 'Scaled'
