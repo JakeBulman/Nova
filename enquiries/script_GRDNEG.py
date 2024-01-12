@@ -3,6 +3,7 @@ import os
 import django
 from django.utils import timezone
 import datetime
+from openpyxl import load_workbook
 
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
     print('DEV')
@@ -22,7 +23,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, TaskTypes
+from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, TaskTypes, MarkTolerances
 from django.contrib.auth.models import User
 
 def run_algo():
@@ -41,5 +42,23 @@ def run_algo():
         ) 
 
         TaskManager.objects.filter(pk=task.pk,task_id='GRDNEG').update(task_completion_date=timezone.now())   
+
+
+    filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Tolerances.xlsx")
+    workbook = load_workbook(filename)
+    sheet = workbook.active
+
+    # Iterating through All rows with all columns...
+    for i in range(1, sheet.max_row+1):
+        row = [cell.value for cell in sheet[i]] # sheet[n] gives nth row (list of cells)
+        if MarkTolerances.objects.filter(eps_ass_code = row[0],eps_com_id = row[1]).exists():
+            MarkTolerances.objects.filter(eps_ass_code = row[0],eps_com_id = row[1]).update(mark_tolerance = row[2])
+        else: 
+            MarkTolerances.objects.create(
+                eps_ass_code = row[0],
+                eps_com_id = row[1],
+                mark_tolerance = row[2]
+            )
+        
 
 run_algo()
