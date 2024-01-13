@@ -2686,9 +2686,10 @@ def panel_update_note_view(request):
 
 def user_panel_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
+	queryset = models.User.objects.filter(is_active=True).exclude(user_primary__primary_team__team_name='Server').order_by('username','user_primary__primary_team__team_name')
+	queryset2 = models.User.objects.filter(is_active=True,assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
 	teams = models.TaskTeams.objects.all().order_by('id')
-	context = {"users": queryset, "teams":teams}
+	context = {"users": queryset, "users2": queryset2, "teams":teams}
 	return render(request, "enquiries/main_templates/enquiries_task_user.html", context=context)
 
 def create_user_view(request):
