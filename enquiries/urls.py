@@ -192,5 +192,6 @@ urlpatterns = [
     path('create_user', views.create_user_view, name='create_user'),
     path('edit_user/<str:userid>/', views.edit_user_view, name='edit_user'),
     path('update_user', views.update_user_view, name='update_user'),
-    path('user_change_secondary', views.user_change_secondary, name='user_change_secondary')
+    path('user_change_secondary', views.user_change_secondary, name='user_change_secondary'),
+    path('reload_tolerance', views.reload_tolerance_view, name='reload_tolerance')
 ]

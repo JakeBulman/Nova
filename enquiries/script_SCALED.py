@@ -34,8 +34,6 @@ def run_algo():
     if enquiry_id_list != '':
         enquiry_id_list = ' and sid in (' + enquiry_id_list + ')'
 
-    ScaledMarks.objects.all().delete()
-
         # # Get datalake data - Enquiry Request Parts
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
         df = pd.read_sql(f'''
@@ -85,6 +83,8 @@ def run_algo():
             and c.examinernumber!=''
             and s.sessionid in ({session_id}) 
                                 ''', conn)
+        
+    ScaledMarks.objects.all().delete()
 
     def insert_to_model_erp(row):
         # try:

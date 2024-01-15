@@ -2467,6 +2467,12 @@ def enquiries_rpa_marks_keying_failure_view(request):
 	return render(request, "enquiries/rpa/rpa_marks_keying_failure.html", context=context)
 
 
+def reload_tolerance_view(request):
+	models.ManualTaskQueue.objects.create(
+	task_type = 'MARTOL',
+	)
+	return redirect('enquiries_home')
+
 def examiner_list_view(request):
 	search_q = ""
 	if request.GET.get('search_query') is not None:

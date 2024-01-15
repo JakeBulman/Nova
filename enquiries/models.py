@@ -371,3 +371,9 @@ class EnquiryComponentsExtra(models.Model):
     eps_comp_name = models.CharField(max_length=50,null=True) #from cie.ca_products
     ccm_measure = models.CharField(max_length=5,null=True)
     script_type = models.CharField(max_length=50,null=True)
+
+class ManualTaskQueue(models.Model):
+    task_type = models.CharField(max_length=6, null=True)
+    task_creation_date = models.DateTimeField(auto_now_add=True)
+    task_completion_date = models.DateTimeField(null=True)
+    task_queued = models.IntegerField(default=1)
