@@ -245,7 +245,7 @@
                             <td><form method="POST" action="{% url 'remapp-complete' %}" class="text-center">
                                 {% for exm2 in exm.creditors.all %}
                                 {% for exm3 in exm2.exm_per_details.all %}
-                                {% if exm3.ass_code == task.ec_sid.eps_ass_code and exm3.com_id == task.ec_sid.eps_com_id %}
+                                {% if exm3.ass_code == task.ec_sid.eps_ass_code and exm3.com_id == task.ec_sid.eps_com_id and exm2.currently_valid == True %}
                                 <input name="enpe_sid" id="enpe_sid" value={{exm3.enpe_sid.enpe_sid}} type="hidden" class="form-control">
                                 {% endif %}
                                 {% endfor %}
