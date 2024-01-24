@@ -71,7 +71,7 @@ def load_core_tables():
                 enquiry_id = row['enquiry_id'],
                 enquiry_status = row['enquiry_status'],
                 eps_creation_date = make_aware(parse(row['eps_creation_date'])),
-                eps_completion_date = make_aware(parse(row['eps_completion_date'])),
+                eps_completion_date = row['eps_completion_date'],
                 eps_ack_letter_ind = row['eps_ack_letter_ind'],
                 eps_ses_sid = row['eps_ses_sid'],
                 centre_id = row['centre_id'],
@@ -83,7 +83,7 @@ def load_core_tables():
                 enquiry_id = row['enquiry_id'],
                 enquiry_status = row['enquiry_status'],
                 eps_creation_date = make_aware(parse(row['eps_creation_date'])),
-                eps_completion_date = make_aware(parse(row['eps_completion_date'])),
+                eps_completion_date = row['eps_completion_date'],
                 eps_ack_letter_ind = row['eps_ack_letter_ind'],
                 eps_ses_sid = row['eps_ses_sid'],
                 centre_id = row['centre_id'],
@@ -381,7 +381,11 @@ def load_core_tables():
             ece.eb_sid as eb_sid,
             ece.clerical_mark as clerical_mark,
             ece.mark_after_enquiry as mark_after_enquiry,
-            ece.justification_code as justification_code
+            ece.justification_code as justification_code,
+            ece.omr_mark_changed_ind as omr_mark_changed_ind,
+            ece.omr_mark_confirmed_ind as omr_mark_confirmed_ind,
+            ece.clerical_mark_changed_ind as clerical_mark_changed_ind,
+            ece.clerical_mark_confirmed_ind as clerical_mark_confirmed_ind             
             from  ar_meps_req_prd.enquiry_component_elements ece
             left join ar_meps_req_prd.enquiry_components ec
             on ece.ec_sid = ec.sid
@@ -397,6 +401,10 @@ def load_core_tables():
                 clerical_mark = row['clerical_mark'],
                 mark_after_enquiry = row['mark_after_enquiry'],
                 justification_code = row['justification_code'],
+                omr_mark_changed_ind = row['omr_mark_changed_ind'],
+                omr_mark_confirmed_ind = row['omr_mark_confirmed_ind'],
+                clerical_mark_changed_ind = row['clerical_mark_changed_ind'],
+                clerical_mark_confirmed_ind = row['clerical_mark_confirmed_ind'],
             )   
         else:
             try:
@@ -407,6 +415,10 @@ def load_core_tables():
                     clerical_mark = row['clerical_mark'],
                     mark_after_enquiry = row['mark_after_enquiry'],
                     justification_code = row['justification_code'],
+                    omr_mark_changed_ind = row['omr_mark_changed_ind'],
+                    omr_mark_confirmed_ind = row['omr_mark_confirmed_ind'],
+                    clerical_mark_changed_ind = row['clerical_mark_changed_ind'],
+                    clerical_mark_confirmed_ind = row['clerical_mark_confirmed_ind'],
                 )   
             except:
                 pass

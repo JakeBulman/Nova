@@ -145,7 +145,11 @@ class EnquiryComponentElements(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', related_name='script_id', on_delete=models.CASCADE)
     ece_status = models.CharField(max_length=20, null=True)
     eb_sid = models.ForeignKey(EnquiryBatches, to_field='eb_sid', related_name='batch_id', on_delete=models.SET_NULL, null=True)
+    omr_mark_changed_ind = models.CharField(max_length=1,null=True)
+    omr_mark_confirmed_ind = models.CharField(max_length=1,null=True)    
     clerical_mark = models.CharField(max_length=5, null=True)
+    clerical_mark_changed_ind = models.CharField(max_length=1,null=True)
+    clerical_mark_confirmed_ind = models.CharField(max_length=1,null=True)
     mark_after_enquiry = models.CharField(max_length=5, null=True)
     justification_code = models.CharField(max_length=5, null=True)
 
