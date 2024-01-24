@@ -259,7 +259,6 @@ def load_core_tables():
 
     print("EC loaded:" + str(datetime.datetime.now()))
 
-            
         # # Get datalake data - Enquiry Request Parts
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
         df = pd.read_sql(f'''
@@ -317,22 +316,22 @@ def load_core_tables():
     print("Scaled Marks deleted:" + str(datetime.datetime.now()))
 
     def insert_to_model_erp(row):
-        try:
-            ScaledMarks.objects.create(
-                eps_ass_code = row['eps_ass_code'],
-                eps_com_id = row['eps_com_id'],
-                eps_cnu_id = row['eps_cnu_id'],
-                eps_cand_no = row['eps_cand_no'],
-                eps_ses_id = row['eps_ses_id'],
-                raw_mark = row['raw_mark'],
-                assessor_mark  = row['assessor_mark'],
-                final_mark = row['final_mark'],
-                exm_examiner_no = row['exm_examiner_no'],
-                scaled_mark = row['scaled_mark'],
-                original_exm_scaled = row['original_exm_scaled'],
-                )
-        except:
-            pass
+        # try:
+        ScaledMarks.objects.create(
+            eps_ass_code = row['eps_ass_code'],
+            eps_com_id = row['eps_com_id'],
+            eps_cnu_id = row['eps_cnu_id'],
+            eps_cand_no = row['eps_cand_no'],
+            eps_ses_sid = row['eps_ses_id'],
+            raw_mark = row['raw_mark'],
+            assessor_mark  = row['assessor_mark'],
+            final_mark = row['final_mark'],
+            exm_examiner_no = row['exm_examiner_no'],
+            scaled_mark = row['scaled_mark'],
+            original_exm_scaled = row['original_exm_scaled'],
+            )
+        # except:
+        #     pass
 
     df.apply(insert_to_model_erp, axis=1)
 
@@ -895,12 +894,12 @@ def load_core_tables():
     # Iterating through All rows with all columns...
     for i in range(1, sheet.max_row+1):
         row = [cell.value for cell in sheet[i]] # sheet[n] gives nth row (list of cells)
-        if MarkTolerances.objects.filter(eps_ass_code = row[0],eps_com_id = row[1]).exists():
-            MarkTolerances.objects.filter(eps_ass_code = row[0],eps_com_id = row[1]).update(mark_tolerance = row[2])
+        if MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).exists():
+            MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).update(mark_tolerance = row[2])
         else: 
             MarkTolerances.objects.create(
-                eps_ass_code = row[0],
-                eps_com_id = row[1],
+                eps_ass_code = str(row[0]).zfill(4),
+                eps_com_id = str(row[1]).zfill(2),
                 mark_tolerance = row[2]
             )
 

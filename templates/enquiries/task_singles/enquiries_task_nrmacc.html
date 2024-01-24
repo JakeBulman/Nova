@@ -40,7 +40,9 @@
                 <td>{% for ec in task.ec_sid.apportion_script.all %}
                     {% if ec.apportionment_invalidated == 0 %}
                     {% for enpe in ec.enpe_sid.exm_per_details.all %}
+                    {% if enpe.enpe_sid.currently_valid == True and enpe.ass_code == task.ec_sid.eps_ass_code and enpe.com_id == task.ec_sid.eps_com_id %}
                     {{ enpe.exm_examiner_no }}
+                    {% endif %}
                     {% endfor %}
                     {% endif %}
                     {% endfor %}</td>
@@ -50,13 +52,15 @@
             </tr>
             <tr class="text-center">
                 <th>Assigned Examiner Creditor</th>
-                <td>{% for ec in task.ec_sid.apportion_script.all %}
-                    {% if ec.apportionment_invalidated == 0 %}
-                    {% for enpe in ec.enpe_sid.exm_per_details.all %}
-                    <a href='/enquiries/examiner_detail/{{ enpe.enpe_sid.per_sid.per_sid }}'>{{ enpe.exm_creditor_no }}</a>
-                    {% endfor %}
-                    {% endif %}
-                    {% endfor %}</td>
+                    <td>{% for ec in task.ec_sid.apportion_script.all %}
+                        {% if ec.apportionment_invalidated == 0 %}
+                        {% for enpe in ec.enpe_sid.exm_per_details.all %}
+                        {% if enpe.enpe_sid.currently_valid == True and enpe.ass_code == task.ec_sid.eps_ass_code and enpe.com_id == task.ec_sid.eps_com_id %}
+                        <a href='/enquiries/examiner_detail/{{ enpe.enpe_sid.per_sid.per_sid }}'>{{ enpe.exm_creditor_no }}</a>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                        {% endfor %}</td>
                 <th>Assigned Examiner Unavailability</th>
                 <td>{% for ec in task.ec_sid.apportion_script.all %}
                     {% for avail in ec.enpe_sid.per_sid.exm_availability.all %}
@@ -197,7 +201,7 @@
 
                             {% for exm2 in exm.creditors.all %}
                             {% for exm3 in exm2.exm_per_details.all %}
-                            {% if exm3.ass_code == task.ec_sid.eps_ass_code and exm3.com_id == task.ec_sid.eps_com_id %}
+                            {% if exm3.ass_code == task.ec_sid.eps_ass_code and exm3.com_id == task.ec_sid.eps_com_id and exm2.currently_valid == True  %}
                             
                             <td>
                                 <table class="table table-sm text-center">
@@ -287,7 +291,7 @@
                             <td><form method="POST" action="{% url 'nrmacc-complete' %}" class="text-center">
                                 {% for exm2 in exm.creditors.all %}
                                 {% for exm3 in exm2.exm_per_details.all %}
-                                {% if exm3.ass_code == task.ec_sid.eps_ass_code and exm3.com_id == task.ec_sid.eps_com_id %}
+                                {% if exm3.ass_code == task.ec_sid.eps_ass_code and exm3.com_id == task.ec_sid.eps_com_id and exm2.currently_valid == True %}
                                 <input name="enpe_sid" id="enpe_sid" value={{exm3.enpe_sid.enpe_sid}} type="hidden" class="form-control">
                                 {% endif %}
                                 {% endfor %}
