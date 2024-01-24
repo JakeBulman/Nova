@@ -860,6 +860,7 @@ def load_core_tables():
             except:
                 pass
 
+    EnquiryGrades.objects.all().delete()
 
     df.apply(insert_to_model_erp, axis=1)
 
