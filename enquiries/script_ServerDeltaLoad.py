@@ -6,6 +6,9 @@ import pyodbc
 import pandas as pd
 from openpyxl import load_workbook
 import re
+from django.conf import settings
+from django.utils.timezone import make_aware
+from dateutil.parser import parse
 
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
     print('DEV')
@@ -67,8 +70,8 @@ def load_core_tables():
             CentreEnquiryRequests.objects.filter(enquiry_id=row['enquiry_id']).update(
                 enquiry_id = row['enquiry_id'],
                 enquiry_status = row['enquiry_status'],
-                eps_creation_date = row['eps_creation_date'],
-                eps_completion_date = row['eps_completion_date'],
+                eps_creation_date = make_aware(parse(row['eps_creation_date'])),
+                eps_completion_date = make_aware(parse(row['eps_completion_date'])),
                 eps_ack_letter_ind = row['eps_ack_letter_ind'],
                 eps_ses_sid = row['eps_ses_sid'],
                 centre_id = row['centre_id'],
@@ -79,8 +82,8 @@ def load_core_tables():
             CentreEnquiryRequests.objects.create(
                 enquiry_id = row['enquiry_id'],
                 enquiry_status = row['enquiry_status'],
-                eps_creation_date = row['eps_creation_date'],
-                eps_completion_date = row['eps_completion_date'],
+                eps_creation_date = make_aware(parse(row['eps_creation_date'])),
+                eps_completion_date = make_aware(parse(row['eps_completion_date'])),
                 eps_ack_letter_ind = row['eps_ack_letter_ind'],
                 eps_ses_sid = row['eps_ses_sid'],
                 centre_id = row['centre_id'],
@@ -307,7 +310,11 @@ def load_core_tables():
             and s.sessionid in ({session_id}) 
                                 ''', conn)
         
+    print("Scaled Marks prepped:" + str(datetime.datetime.now()))
+        
     ScaledMarks.objects.all().delete()
+
+    print("Scaled Marks deleted:" + str(datetime.datetime.now()))
 
     def insert_to_model_erp(row):
         try:
@@ -329,7 +336,7 @@ def load_core_tables():
 
     df.apply(insert_to_model_erp, axis=1)
 
-
+    print("Scaled Marks loaded:" + str(datetime.datetime.now()))
 
     # # Get datalake data - Enquiry Batches
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
@@ -350,14 +357,14 @@ def load_core_tables():
         if EnquiryBatches.objects.filter(eb_sid = row['eb_sid']).exists():
             EnquiryBatches.objects.filter(eb_sid = row['eb_sid']).update(
                 eb_sid = row['eb_sid'],
-                created_date = row['created_date'],
+                created_date = make_aware(parse(row['created_date'])),
                 enpe_eper_per_sid = row['eper_per_sid'],
             )
         else:
             try:
                 EnquiryBatches.objects.create(
                     eb_sid = row['eb_sid'],
-                    created_date = row['created_date'],
+                    created_date = make_aware(parse(row['created_date'])),
                     enpe_eper_per_sid = row['eper_per_sid'],
                 )
             except:
