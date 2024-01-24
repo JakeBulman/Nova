@@ -27,7 +27,7 @@ from django.contrib.auth.models import User
 
 def run_algo():
     for task in TaskManager.objects.filter(task_id='CLERIC', task_completion_date__isnull=True):
-        enquiry_id = task.enquiry_id
+        enquiry_id = task.enquiry_id.enquiry_id
         for element in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid):
             if element.clerical_mark_confirmed_ind == 'Y' or element.clerical_mark_changed_ind == 'Y':
                 TaskManager.objects.create(
@@ -39,6 +39,6 @@ def run_algo():
                     task_completion_date = None
                 )
                     
-                TaskManager.objects.filter(pk=task.pk,task_id='CLERIC').update(task_completion_date=timezone.now())   
+                TaskManager.objects.filter(pk=task.pk,task_id='CLERIC').update(task_completion_date=timezone.now(),task_assigned_to=User.objects.get(username='NovaServer'))   
 
 run_algo()
