@@ -28,7 +28,7 @@ else:
 
 django.setup()
 
-from enquiries.models import CentreEnquiryRequests, EarServerSettings, EnquiryGrades
+from enquiries.models import CentreEnquiryRequests, EarServerSettings, EnquiryGrades, MarkTolerances
 
 def load_core_tables():
 
@@ -107,6 +107,24 @@ def load_core_tables():
 
 
     print("EG loaded:" + str(datetime.datetime.now()))
+
+    filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Tolerances.xlsx")
+    workbook = load_workbook(filename)
+    sheet = workbook.active
+
+    # Iterating through All rows with all columns...
+    for i in range(1, sheet.max_row+1):
+        row = [cell.value for cell in sheet[i]] # sheet[n] gives nth row (list of cells)
+        if str(row[0]) != 'None':
+            print(str(row[0]).zfill(4) + str(row[1]).zfill(2) + str(row[2]))
+            if MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).exists():
+                MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).update(mark_tolerance = row[2])
+            else: 
+                MarkTolerances.objects.create(
+                    eps_ass_code = str(row[0]).zfill(4),
+                    eps_com_id = str(row[1]).zfill(2),
+                    mark_tolerance = row[2]
+                )
 
 
     end_time = datetime.datetime.now()

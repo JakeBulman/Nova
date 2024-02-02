@@ -907,14 +907,15 @@ def load_core_tables():
     # Iterating through All rows with all columns...
     for i in range(1, sheet.max_row+1):
         row = [cell.value for cell in sheet[i]] # sheet[n] gives nth row (list of cells)
-        if MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).exists():
-            MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).update(mark_tolerance = row[2])
-        else: 
-            MarkTolerances.objects.create(
-                eps_ass_code = str(row[0]).zfill(4),
-                eps_com_id = str(row[1]).zfill(2),
-                mark_tolerance = row[2]
-            )
+        if str(row[0]) != 'None':
+            if MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).exists():
+                MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).update(mark_tolerance = row[2])
+            else: 
+                MarkTolerances.objects.create(
+                    eps_ass_code = str(row[0]).zfill(4),
+                    eps_com_id = str(row[1]).zfill(2),
+                    mark_tolerance = row[2]
+                )
 
     print("ERP loaded:" + str(datetime.datetime.now()))
 
