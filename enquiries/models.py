@@ -381,3 +381,4 @@ class ManualTaskQueue(models.Model):
     task_creation_date = models.DateTimeField(auto_now_add=True)
     task_completion_date = models.DateTimeField(null=True)
     task_queued = models.IntegerField(default=1)
+    task_running = models.IntegerField(default=0)

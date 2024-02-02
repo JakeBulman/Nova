@@ -2468,9 +2468,10 @@ def enquiries_rpa_marks_keying_failure_view(request):
 
 
 def reload_tolerance_view(request):
-	models.ManualTaskQueue.objects.create(
-	task_type = 'MARTOL',
-	)
+	if not models.ManualTaskQueue.objects.filter(task_type = 'MARTOL', task_queued=1).exists():
+		models.ManualTaskQueue.objects.create(
+		task_type = 'MARTOL',
+		)
 	return redirect('enquiries_home')
 
 def examiner_list_view(request):
