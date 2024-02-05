@@ -328,13 +328,16 @@ def assign_task_user_view(request, user_id=None, task_id=None):
 	#return redirect('user_tasks', user_id)
 
 def assign_task_user_selected_view(request, user_id=None, task_id=None, selected_user=None):
-	models.TaskManager.objects.filter(pk=task_id).update(task_assigned_to=User.objects.get(pk=selected_user),task_queued=0)
+	models.TaskManager.objects.filter(pk=task_id).update(task_assigned_to=User.objects.get(pk=selected_user),task_queued=0,task_assigned_date=timezone.now())
 	redirect_address = request.POST.get('page_location')
 	print(redirect_address)
 	if redirect_address == 'my_tasks':
 		return redirect('my_tasks')
-	else:
+	elif redirect_address == 'task_assignment':
 		return redirect('user_tasks', user_id)
+	else:
+		return redirect(redirect_address)
+		
 
 def setbie_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
