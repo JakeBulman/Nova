@@ -287,6 +287,7 @@ def user_list_view(request):
 def user_tasks_view(request, userid=None):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_assigned_to=userid, script_tasks__task_completion_date__isnull=True).order_by('script_tasks__task_assigned_date')
+	print(ec_queryset)
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -297,7 +298,8 @@ def user_tasks_view(request, userid=None):
 	except EmptyPage:
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj, "original_user":userid}
+	context = {"cer": page_obj, "original_user":int(userid)}
+	print(userid)
 	return render(request, "enquiries/main_templates/enquiries_task_user_list.html", context=context) 
 
 def self_assign_task_view(request, task_id=None):
@@ -319,13 +321,20 @@ def self_assign_task_view(request, task_id=None):
 def assign_task_user_view(request, user_id=None, task_id=None):
 	#grab the model rows (ordered by id), filter to required task and where not completed.
 	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
-	context = {"users": queryset, "original_user":user_id, "task_id":task_id}	
+	redirect_address = request.POST.get('page_location')
+	print(redirect_address)
+	context = {"users": queryset, "original_user":user_id, "task_id":task_id, "redirect_address":redirect_address}	
 	return render(request, "enquiries/main_templates/enquiries_user_select.html", context=context)
 	#return redirect('user_tasks', user_id)
 
 def assign_task_user_selected_view(request, user_id=None, task_id=None, selected_user=None):
-	models.TaskManager.objects.filter(pk=task_id).update(task_assigned_to=User.objects.get(pk=selected_user))
-	return redirect('user_tasks', user_id)
+	models.TaskManager.objects.filter(pk=task_id).update(task_assigned_to=User.objects.get(pk=selected_user),task_queued=0)
+	redirect_address = request.POST.get('page_location')
+	print(redirect_address)
+	if redirect_address == 'my_tasks':
+		return redirect('my_tasks')
+	else:
+		return redirect('user_tasks', user_id)
 
 def setbie_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
