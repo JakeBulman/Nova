@@ -157,16 +157,10 @@ def my_tasks_view(request):
 	return render(request, "enquiries/main_templates/my_tasks.html", context=context)
 
 def task_router_view(request, task_id):
-	
-	print(task_id)
-
 	if task_id == None:
 		#task_type = request.POST.get('task_id')
 		task_id = request.POST.get('task_id')
-	
-	task_type = models.TaskManager.objects.get(pk=task_id).task_id.task_id
-	print(task_id)
-	
+	task_type = models.TaskManager.objects.get(pk=task_id).task_id.task_id	
 	if task_type == "SETBIE":
 		return redirect('setbie-task', task_id=task_id)
 	if task_type == "MANAPP":
@@ -315,6 +309,9 @@ def self_assign_task_view(request, task_id=None):
 	redirect_address = request.POST.get('page_location')
 	if redirect_address == 'task_assignment':
 		return redirect('my_tasks')
+	if redirect_address == 'enquiry_detail':
+		enquiry_id = request.POST.get('enquiry_id')
+		return redirect('enquiries_detail', enquiry_id)
 	else:
 		return redirect(redirect_address)
 
@@ -322,8 +319,9 @@ def assign_task_user_view(request, user_id=None, task_id=None):
 	#grab the model rows (ordered by id), filter to required task and where not completed.
 	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
 	redirect_address = request.POST.get('page_location')
+	enquiry_id = request.POST.get('enquiry_id')
 	print(redirect_address)
-	context = {"users": queryset, "original_user":user_id, "task_id":task_id, "redirect_address":redirect_address}	
+	context = {"users": queryset, "original_user":user_id, "task_id":task_id, "redirect_address":redirect_address, "enquiry_id":enquiry_id}	
 	return render(request, "enquiries/main_templates/enquiries_user_select.html", context=context)
 	#return redirect('user_tasks', user_id)
 
@@ -335,6 +333,9 @@ def assign_task_user_selected_view(request, user_id=None, task_id=None, selected
 		return redirect('my_tasks')
 	elif redirect_address == 'task_assignment':
 		return redirect('user_tasks', user_id)
+	elif redirect_address == 'enquiry_detail':
+		enquiry_id = request.POST.get('enquiry_id')
+		return redirect('enquiries_detail', enquiry_id)
 	else:
 		return redirect(redirect_address)
 		
@@ -1349,6 +1350,27 @@ def enquiries_detail(request, enquiry_id=None):
 	if enquiry_id is not None:	
 		cer_queryset = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
 		task_queryset = models.TaskManager.objects.filter(enquiry_id=enquiry_id).order_by('task_creation_date')
+		excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE']
+		complete_list = ['COMPLT','SETBIE']
+		marking_list = ['NEWMIS','CLERIC','LOCMAR']
+		apportionment_list = ['AUTAPP','MANAPP']
+		enq_progress = None
+		enq_stage = None
+		if models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id__in=complete_list).exists():
+			enq_progress = 100
+			enq_stage = 'Complete'
+		elif models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='GDWAIT',task_completion_date__isnull=False).exists():
+			enq_progress = 75
+			enq_stage = 'Grading'
+		elif models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id__in=apportionment_list,task_completion_date__isnull=True).exists():
+			enq_progress = 25
+			enq_stage = 'Apportionment'
+		elif models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id__in=marking_list).exists():
+			enq_progress = 50
+			enq_stage = 'Marking'
+		else:
+			enq_progress = 0
+			enq_stage = 'Initial Checks'
 
 		#Get task_id for this enquiry if it has SETBIE
 		bie_task_id = None
@@ -1370,7 +1392,8 @@ def enquiries_detail(request, enquiry_id=None):
 		if models.SetIssueAudit.objects.filter(enquiry_id=enquiry_id).exists():
 			issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=enquiry_id).first().issue_reason
 
-	context = {"cer": cer_queryset, "bie_status": bie_task_id, "enquiry_paused":enquiry_paused, "enquiry_prioritised":enquiry_prioritised, "issue_reason":issue_reason, "tasks":task_queryset}
+	context = {"cer": cer_queryset, "bie_status": bie_task_id, "enquiry_paused":enquiry_paused, "enquiry_prioritised":enquiry_prioritised, 
+			"issue_reason":issue_reason, "tasks":task_queryset, "excluded_task_list":excluded_task_list, "enq_progress":enq_progress, "enq_stage":enq_stage}
 	return render(request, "enquiries/main_templates/enquiries_detail.html", context=context)
 
 def pause_enquiry(request, enquiry_id=None):
