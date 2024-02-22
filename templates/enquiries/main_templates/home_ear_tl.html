@@ -1,0 +1,140 @@
+{% load static %}
+{% load compress %}
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    {% compress css %}
+        <link href="{% static 'admin/css/custom.scss' %}" rel="stylesheet" type="text/x-scss">
+    {% endcompress %}
+    <script type="text/javascript">
+        function preventBack() {
+            window.history.forward(); 
+        }
+          
+        setTimeout("preventBack()", 0);
+          
+        window.onunload = function () { null };
+    </script>
+    <title>Nova</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
+</head>
+<body style="background-color:#ffffff;" onload="javascript:setTimeout(function(){ location.reload(); },15000);">
+  {% include 'nova_core/base_navbar.html' %}
+
+
+
+<div class="row mx-2">
+  <div class="col text-center">
+    <h2 class="display-3 mt-3 mb-5" style="color: rgb(150, 0, 0);">{{ session_desc }}</h2>
+  </div>
+</div>
+
+<div class="row mx-2 text-center">
+  <div class="col d-flex justify-content-center">
+    <div class="card m-3 shadow-lg" style="width: 18rem; ">
+      <img class="card-img-top" src="{% static 'admin/img/mytask-icon.png' %}" alt="EAR Icon">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">My Tasks</h5>
+        {% if mytask.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+        <p class="card-text"> </p>
+        <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
+      </div>
+    </div>
+    <div class="card m-3 shadow-lg" style="width: 18rem; ">
+      <img class="card-img-top" src="{% static 'admin/img/search-icon.png' %}" alt="Search Icon">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">Enquiry Search</h5>
+        <p class="card-text"> </p>
+        <form class="row g-3  d-grid" method="POST" action='/enquiries/enquiries_detail_search'>
+          <div class="col-auto">
+            <input name="enquiry_id" id="enquiry_id" type="text" class="form-control" placeholder="Enquiry No.">
+          </div>
+          <button type="submit" class="btn btn-outline-primary">Search</button>
+        </form>
+      </div>
+    </div>
+    <div class="card m-3 shadow-lg" style="width: 18rem; ">
+      <img class="card-img-top" src="{% static 'admin/img/mytask-icon.png' %}" alt="EAR Icon">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">Task Manager</h5>
+        <p class="card-text">A list of tasks currently assigned to other users.</p>
+        <a href="{% url 'user-list' %}" class="mt-auto btn btn-outline-primary">Go to Tasks</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row mx-2 text-center">
+  <div class="col d-flex justify-content-center">
+    <div class="card m-3 shadow-lg" style="width: 18rem; ">
+      <img class="card-img-top" src="{% static 'admin/img/alpha-icon.png' %}" alt="Examiner availability Icon">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">Alpha</h5>
+        {% if cer.count > 0 %}<span class="badge rounded-pill bg-primary">{{ cer.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+        <span class="badge rounded-pill bg-success"></span>
+        <p class="card-text"> </p>
+        <a href="{% url 'panel_list' %}" class="mt-auto btn btn-outline-primary">Go to Alpha</a>
+      </div>
+    </div>
+
+
+    <div class="card m-3 shadow-lg" style="width: 18rem; ">
+      <img class="card-img-top" src="{% static 'admin/img/gamma-icon.png' %}" alt="Examiner availability Icon">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">Gamma</h5>
+        {% if cer.count > 0 %}<span class="badge rounded-pill bg-primary">{{ cer.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+        <span class="badge rounded-pill bg-success"></span>
+        <p class="card-text"> </p>
+        <a href="{% url 'examiner_list' %}" class="mt-auto btn btn-outline-primary">Go to Gamma</a>
+      </div>
+    </div>
+
+    <div class="card m-3 shadow-lg" style="width: 18rem; ">
+      <img class="card-img-top" src="{% static 'admin/img/delta-icon.png' %}" alt="IEC Icon">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">Delta</h5>
+        {% if cer.count > 0 %}<span class="badge rounded-pill bg-primary">{{ cer.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+        <p class="card-text"> </p>
+        <a href="{% url 'enquiries_list' %}" class="mt-auto btn btn-outline-primary">Go to Delta</a>
+      </div>
+    </div>
+
+    <div class="card m-3 shadow-lg" style="width: 18rem; ">
+      <img class="card-img-top" src="{% static 'admin/img/kappa-icon.png' %}" alt="EAR Icon">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">Kappa</h5>
+        {% if esmcsv.count > 0 %}<span class="badge rounded-pill bg-primary">{{ esmcsv.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+        <p class="card-text"> </p>
+        <a href="{% url 'esmcsv_list' %}" class="mt-auto btn btn-outline-primary">Go to Kappa</a>
+      </div>
+    </div>
+
+    <div class="card m-3 shadow-lg" style="width: 18rem; ">
+      <img class="card-img-top" src="{% static 'admin/img/sigma-icon.png' %}" alt="EAR Icon">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">Sigma</h5>
+        {% if omrche.count > 0 %}<span class="badge rounded-pill bg-primary">{{ omrche.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+        <p class="card-text"> </p>
+        <a href="{% url 'omrche_list' %}" class="mt-auto btn btn-outline-primary">Go to Sigma</a>
+      </div>
+    </div>
+
+    <div class="card m-3 shadow-lg" style="width: 18rem; ">
+      <img class="card-img-top" src="{% static 'admin/img/omega-icon.png' %}" alt="EAR Icon">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">Omega</h5>
+        {% if omrche.count > 0 %}<span class="badge rounded-pill bg-primary">{{ omrche.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+        <p class="card-text"> </p>
+        <a href="{% url 'omrche_list' %}" class="mt-auto btn btn-outline-primary">Go to Omega</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+</body>
+</html>

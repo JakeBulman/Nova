@@ -1,0 +1,148 @@
+{% load static %}
+{% load compress %}
+<!DOCTYPE html>
+<html>
+  <head>
+      
+
+      {% compress css %}
+          <link href="{% static 'admin/css/custom.scss' %}" rel="stylesheet" type="text/x-scss">
+      {% endcompress %}
+      <script type="text/javascript">
+          function preventBack() {
+              window.history.forward(); 
+          }
+            
+          setTimeout("preventBack()", 0);
+            
+          window.onunload = function () { null };
+      </script>
+      <title>Nova</title>
+      <link rel="icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
+  </head>
+  <body style="background-color:#ffffff;" onload="javascript:setTimeout(function(){ location.reload(); },15000);">
+    {% include 'nova_core/base_navbar.html' %}
+
+    <div class="row mx-2 justify-content-between align-items-end">
+      <div class="col-4">
+        <h3 class="display-3 mt-3 mx-4 my-1"> </h3>
+      </div>
+
+      <div class="col-4">
+        <h2 class="display-3 mt-3 mx-4 my-1" style="color: rgb(150, 0, 0);">{{ session_desc }}</h2>
+      </div>
+    </div>
+
+    <div class="row mx-2 justify-content-between text-center">
+      <div class="col">
+        <h3 class="display-3 mt-3 mx-4 my-1">Omega</h3>
+      </div>
+    </div>
+
+    <div class="row mx-2">
+      <div class="col d-flex justify-content-center">
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">My Tasks</h5>
+            {% if mytask.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            <p class="card-text">A list of tasks currently assigned to me.</p>
+            <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Grade Release</h5>
+            {% if grdrel.count > 0 %}<span class="badge rounded-pill bg-primary">{{ grdrel.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            <p class="card-text">Release calculated grades after marks keying</p>
+            <a href="{% url 'grdrel_create' %}" class="mt-auto btn btn-outline-primary">Release Grades</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Grade Confirmations</h5>
+            {% if grdcon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ grdcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            <p class="card-text">Mark confirmed grades as complete after updating EPS</p>
+            <a href="{% url 'grdcon-complete' %}" class="mt-auto btn btn-outline-primary">Confirm Grades</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Letters Printing</h5>
+            {% if outcon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ outcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            <p class="card-text">Confirm letters printing has taken place for outstanding letters.</p>
+            <a href="{% url 'outcon_create' %}" class="mt-auto btn btn-outline-primary">Confirm Printing</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mx-2">
+      <div class="col d-flex justify-content-center">
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Immediate Rejections Checks</h5>
+            {% if negcon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ negcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if negcona.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ negcona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Confirm a negative has not occured.</p>
+            <a href="{% url 'negcon_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Principle Examiner Approval</h5>
+            {% if peacon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ peacon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if peacona.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ peacona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Confirm grade change with principle examiner.</p>
+            <a href="{% url 'peacon_list' %}" class="mt-auto btn btn-outline-primary">Go to Approvals</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Product Owner Approvals</h5>
+            {% if pdacon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ pdacon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if pdacona.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ pdacona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Confirm grade change with product owner.</p>
+            <a href="{% url 'pdacon_list' %}" class="mt-auto btn btn-outline-primary">Go to Approvals</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Grade Changes</h5>
+            {% if grdchg.count > 0 %}<span class="badge rounded-pill bg-primary">{{ grdchg.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if grdchga.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ grdchga.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Action a grade change.</p>
+            <a href="{% url 'grdchg_list' %}" class="mt-auto btn btn-outline-primary">Go to Changes</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Grade Rejections</h5>
+            {% if grdrej.count > 0 %}<span class="badge rounded-pill bg-primary">{{ grdrej.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if grdreja.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ grdreja.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Finalise grade rejections.</p>
+            <a href="{% url 'grdrej_list' %}" class="mt-auto btn btn-outline-primary">Go to Rejections</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Mark Amendments</h5>
+            {% if mrkamd.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mrkamd.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if mrkamda.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ mrkamda.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Finalise mark amendments for rejected grades.</p>
+            <a href="{% url 'mrkamd_list' %}" class="mt-auto btn btn-outline-primary">Go to Amendments</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">PUM Checks</h5>
+            {% if pumcon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ pumcon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if pumcona.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ pumcona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Confirm PUMs checks are complete.</p>
+            <a href="{% url 'exmsla_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+

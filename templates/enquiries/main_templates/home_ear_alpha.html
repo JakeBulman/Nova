@@ -1,0 +1,93 @@
+{% load static %}
+{% load compress %}
+<!DOCTYPE html>
+<html>
+  <head>
+      
+
+      {% compress css %}
+          <link href="{% static 'admin/css/custom.scss' %}" rel="stylesheet" type="text/x-scss">
+      {% endcompress %}
+      <script type="text/javascript">
+          function preventBack() {
+              window.history.forward(); 
+          }
+            
+          setTimeout("preventBack()", 0);
+            
+          window.onunload = function () { null };
+      </script>
+      <title>Nova</title>
+      <link rel="icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
+  </head>
+  <body style="background-color:#ffffff;" onload="javascript:setTimeout(function(){ location.reload(); },15000);">
+    {% include 'nova_core/base_navbar.html' %}
+
+    <div class="row mx-2 justify-content-between align-items-end">
+      <div class="col-4">
+        <h3 class="display-3 mt-3 mx-4 my-1"> </h3>
+      </div>
+
+      <div class="col-4">
+        <h2 class="display-3 mt-3 mx-4 my-1" style="color: rgb(150, 0, 0);">{{ session_desc }}</h2>
+      </div>
+    </div>
+
+    <div class="row mx-2 justify-content-between text-center">
+      <div class="col">
+        <h3 class="display-3 mt-3 mx-4 my-1">Alpha</h3>
+      </div>
+    </div>
+
+    <div class="row mx-2">
+      <div class="col d-flex justify-content-center">
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">My Tasks</h5>
+            {% if mytask.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            <p class="card-text">A list of tasks currently assigned to me.</p>
+            <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
+          </div>
+        </div>
+      
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Panel Details</h5>
+            <span class="badge rounded-pill bg-success"></span>
+            <p class="card-text">Add and change details for panels.</p>
+            <a href="{% url 'panel_list' %}" class="mt-auto btn btn-outline-primary">Go to Panels</a>
+          </div>
+        </div>
+
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Examiner Details</h5>
+            <span class="badge rounded-pill bg-success"></span>
+            <p class="card-text">Add and change the availability windows for examiners.</p>
+            <a href="{% url 'examiner_list' %}" class="mt-auto btn btn-outline-primary">Go to Examiners</a>
+          </div>
+        </div>
+
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Initial Enquiry Checks</h5>
+            {% if cer.count > 0 %}<span class="badge rounded-pill bg-primary">{{ cer.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if cer_count_compless.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ cer_count_compless.count }} Componentless</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Componentless</span>{% endif %}
+            <p class="card-text">Checks on new enquiries to confirm availability to proceed to apportionment.</p>
+            <a href="{% url 'enquiries_list' %}" class="mt-auto btn btn-outline-primary">Go to IECs</a>
+          </div>
+        </div>
+
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">BIE Tasks</h5>
+            {% if bie.count > 0 %}<span class="badge rounded-pill bg-primary">{{ bie.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if biea.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ biea.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Convert WebApp cancellations to EPS BIE status</p>
+            <a href="{% url 'enquiries_setbie_list' %}" class="mt-auto btn btn-outline-primary">Go to BIE Tasks</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -4,6 +4,13 @@ from . import views
 urlpatterns = [
     #Home view for EARs
     path('home', views.ear_home_view, name='enquiries_home'),
+    path('ear_home_view_team_alpha', views.ear_home_view_team_alpha, name='ear_home_view_team_alpha'),
+    path('ear_home_view_team_delta', views.ear_home_view_team_delta, name='ear_home_view_team_delta'),
+    path('ear_home_view_team_gamma', views.ear_home_view_team_gamma, name='ear_home_view_team_gamma'),
+    path('ear_home_view_team_kappa', views.ear_home_view_team_kappa, name='ear_home_view_team_kappa'),
+    path('ear_home_view_team_lambda', views.ear_home_view_team_lambda, name='ear_home_view_team_lambda'),
+    path('ear_home_view_team_omega', views.ear_home_view_team_omega, name='ear_home_view_team_omega'),
+    path('ear_home_view_team_sigma', views.ear_home_view_team_sigma, name='ear_home_view_team_sigma'),
 
     #Server reset hidden options
     path('server_options', views.server_options_view, name='server_options'),

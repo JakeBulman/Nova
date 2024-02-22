@@ -21,43 +21,150 @@ EmptyPage = None
 # Create your views here.
 @login_required
 def ear_home_view(request,*args, **kwargs):
-	#return HttpResponse("<h1>Hello World</h1>")
+	user = None
+	if request.user.is_authenticated:
+		user = request.user
+
+	alpha_tasks = ['INITCH','SETBIE']
+	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF',]
+	delta_tasks = ['NRMACC',]
+	kappa_tasks = ['CLERIC',]
+	sigma_tasks = []
+	omega_tasks = ['BOTMAF','GRDREL','NEGCON','PDACON','PEACON','PUMCON','GRDREJ','MRKAMD','GRDCON','GRDCHG','OUTCON',]
+	lambda_tasks = ['BOTAPP','BOTMAR',]
+
+	alpha_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=alpha_tasks, enquiry_tasks__task_completion_date__isnull=True)
+	gamma_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=gamma_tasks, enquiry_tasks__task_completion_date__isnull=True)
+	delta_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=delta_tasks, enquiry_tasks__task_completion_date__isnull=True)
+	kappa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=kappa_tasks, enquiry_tasks__task_completion_date__isnull=True)
+	sigma_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=sigma_tasks, enquiry_tasks__task_completion_date__isnull=True)
+	omega_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=omega_tasks, enquiry_tasks__task_completion_date__isnull=True)
+	lambda_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=lambda_tasks, enquiry_tasks__task_completion_date__isnull=True)
+	
+	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
+
+	session_desc = models.EarServerSettings.objects.first().session_description
+	context = {"session_desc":session_desc, "mytask":mytask_count,
+			"alpha_count":alpha_count, "gamma_count":gamma_count, "delta_count":delta_count, "kappa_count":kappa_count, 
+			"sigma_count":sigma_count, "omega_count":omega_count, "lambda_count":lambda_count,
+		}
+
+	user_status = models.TaskUserPrimary.objects.get(task_user_id=user).primary_status
+	if user_status == 'CO':
+		return render(request, "enquiries/main_templates/home_ear_coordinator.html", context=context, )
+	elif user_status == 'TL':
+		return render(request, "enquiries/main_templates/home_ear_tl.html", context=context, )
+	elif user_status == 'AD':
+		return render(request, "enquiries/main_templates/home_ear_admin.html", context=context, )
+
+	return render(request, "enquiries/main_templates/home_ear_restricted.html", context=context, )
+
+
+def ear_home_view_team_alpha(request,*args, **kwargs):
 	user = None
 	if request.user.is_authenticated:
 		user = request.user
 	
 	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
-	cer_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True)
-	esmcsv_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMCSV', enquiry_tasks__task_completion_date__isnull=True)
-	omrche_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OMRCHE', enquiry_tasks__task_completion_date__isnull=True)
+	cer_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True,enquiries__enquiry_parts__isnull=False)
+	cer_count_compless = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True,enquiries__enquiry_parts__isnull=True)
 	bie_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True)
 	bie_count_assigned = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+
+	session_desc = models.EarServerSettings.objects.first().session_description
+	context = {"session_desc":session_desc, "mytask":mytask_count,"cer":cer_count, "cer_count_compless":cer_count_compless, "bie":bie_count, "biea":bie_count_assigned,
+		}
+
+	return render(request, "enquiries/main_templates/home_ear_alpha.html", context=context, )
+
+def ear_home_view_team_delta(request,*args, **kwargs):
+	user = None
+	if request.user.is_authenticated:
+		user = request.user
+	
+	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
+	nrmacc_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NRMACC', enquiry_tasks__task_completion_date__isnull=True)
+	nrmacca_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NRMACC', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+
+	session_desc = models.EarServerSettings.objects.first().session_description
+	context = {"session_desc":session_desc, "mytask":mytask_count, "nrmacc":nrmacc_count, "nrmacca":nrmacca_count}
+
+	return render(request, "enquiries/main_templates/home_ear_delta.html", context=context, )
+
+def ear_home_view_team_gamma(request,*args, **kwargs):
+	user = None
+	if request.user.is_authenticated:
+		user = request.user
+	
+	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
+	esmcsv_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMCSV', enquiry_tasks__task_completion_date__isnull=True)
+	omrche_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OMRCHE', enquiry_tasks__task_completion_date__isnull=True)
 	manapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MANAPP', enquiry_tasks__task_completion_date__isnull=True)
 	manapp_count_assigned = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MANAPP', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
-	botapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTAPP', enquiry_tasks__task_completion_date__isnull=True)
 	botapp_fail_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTAPF', enquiry_tasks__task_completion_date__isnull=True)
-	botmar_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTMAR', enquiry_tasks__task_completion_date__isnull=True)
 	botmar_fail_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTMAF', enquiry_tasks__task_completion_date__isnull=True)
 	misvrm_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRM', enquiry_tasks__task_completion_date__isnull=True)
 	misvrma_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRM', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	misvrf_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRF', enquiry_tasks__task_completion_date__isnull=True)
 	misvrfa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRF', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
-	nrmacc_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NRMACC', enquiry_tasks__task_completion_date__isnull=True)
-	nrmacca_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NRMACC', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
-	cleric_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='CLERIC', enquiry_tasks__task_completion_date__isnull=True)
-	clerica_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='CLERIC', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	locmar_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='LOCMAR', enquiry_tasks__task_completion_date__isnull=True)
 	locmara_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='LOCMAR', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	pexmch_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True)
 	pexmcha_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	exmsla_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='EXMSLA', enquiry_tasks__task_completion_date__isnull=True)
 	exmslaa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='EXMSLA', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
-	grdrel_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDREL', enquiry_tasks__task_completion_date__isnull=True)
-	grdrela_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDREL', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	remapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='REMAPP', enquiry_tasks__task_completion_date__isnull=True)
 	remappa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='REMAPP', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	remapf_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='REMAPF', enquiry_tasks__task_completion_date__isnull=True)
 	remapfa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='REMAPF', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+
+	session_desc = models.EarServerSettings.objects.first().session_description
+	context = {"session_desc":session_desc, "mytask":mytask_count, "manapp": manapp_count, "manappa": manapp_count_assigned, 
+	     "botapf":botapp_fail_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count, 
+		"misvrf":misvrf_count, "misvrfa":misvrfa_count,	"pexmch":pexmch_count, "pexmcha":pexmcha_count, "locmar":locmar_count, "locmara":locmara_count, 
+		"esmcsv":esmcsv_count, "omrche":omrche_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, 
+		"remapf":remapf_count, "remapfa":remapfa_count,
+		}
+
+	return render(request, "enquiries/main_templates/home_ear_gamma.html", context=context, )
+
+def ear_home_view_team_kappa(request,*args, **kwargs):
+	user = None
+	if request.user.is_authenticated:
+		user = request.user
+	
+	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
+	cleric_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='CLERIC', enquiry_tasks__task_completion_date__isnull=True)
+	clerica_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='CLERIC', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+
+	session_desc = models.EarServerSettings.objects.first().session_description
+	context = {"session_desc":session_desc, "mytask":mytask_count, "cleric":cleric_count, "clerica":clerica_count,
+		}
+
+	return render(request, "enquiries/main_templates/home_ear_kappa.html", context=context, )
+
+def ear_home_view_team_lambda(request,*args, **kwargs):
+	user = None
+	if request.user.is_authenticated:
+		user = request.user
+	
+	botapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTAPP', enquiry_tasks__task_completion_date__isnull=True)
+	botmar_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTMAR', enquiry_tasks__task_completion_date__isnull=True)
+
+	session_desc = models.EarServerSettings.objects.first().session_description
+	context = {"session_desc":session_desc, "botapp":botapp_count, "botmar":botmar_count,
+		}
+
+	return render(request, "enquiries/main_templates/home_ear_lambda.html", context=context, )
+
+def ear_home_view_team_omega(request,*args, **kwargs):
+	user = None
+	if request.user.is_authenticated:
+		user = request.user
+	
+	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
+	grdrel_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDREL', enquiry_tasks__task_completion_date__isnull=True)
+	grdrela_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDREL', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	negcon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NEGCON', enquiry_tasks__task_completion_date__isnull=True)
 	negcona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NEGCON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	pdacon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PDACON', enquiry_tasks__task_completion_date__isnull=True)
@@ -78,29 +185,26 @@ def ear_home_view(request,*args, **kwargs):
 	outcona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
-	context = {"session_desc":session_desc, "mytask":mytask_count,"cer":cer_count, "bie":bie_count, "biea":bie_count_assigned, "manapp": manapp_count, "manappa": manapp_count_assigned, 
-	    "botapp":botapp_count, "botapf":botapp_fail_count, "botmar":botmar_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count, "misvrf":misvrf_count, "misvrfa":misvrfa_count,
-		"pexmch":pexmch_count, "pexmcha":pexmcha_count, "cleric":cleric_count, "clerica":clerica_count, "locmar":locmar_count, "locmara":locmara_count, "esmcsv":esmcsv_count, "omrche":omrche_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, "remapf":remapf_count, "remapfa":remapfa_count,
-		"grdrel":grdrel_count, "grdrela":grdrela_count, "negcon":negcon_count, "negcona":negcona_count, "pdacon":pdacon_count, "pdacona":pdacona_count, 
+	context = {"session_desc":session_desc, "mytask":mytask_count, "grdrel":grdrel_count, "grdrela":grdrela_count, "negcon":negcon_count, "negcona":negcona_count, "pdacon":pdacon_count, "pdacona":pdacona_count, 
 		"peacon":peacon_count, "peacona":peacona_count, "pumcon":pumcon_count, "pumcona":pumcona_count, "grdrej":grdrej_count, "grdreja":grdreja_count, "mrkamd":mrkamd_count, 
-		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count, "nrmacc":nrmacc_count, "nrmacca":nrmacca_count
+		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count
 		, "outcon":outcon_count, "outcona":outcona_count
 		}
-	#Get username to filter tasks
+
+	return render(request, "enquiries/main_templates/home_ear_omega.html", context=context, )
+
+def ear_home_view_team_sigma(request,*args, **kwargs):
 	user = None
 	if request.user.is_authenticated:
 		user = request.user
+	
+	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
 
-	user_status = models.TaskUserPrimary.objects.get(task_user_id=user).primary_status
+	session_desc = models.EarServerSettings.objects.first().session_description
+	context = {"session_desc":session_desc, "mytask":mytask_count,
+		}
 
-	if user_status == 'CO':
-		return render(request, "enquiries/main_templates/home_ear_coordinator.html", context=context, )
-	elif user_status == 'TL':
-		return render(request, "enquiries/main_templates/home_ear.html", context=context, )
-	elif user_status == 'AD':
-		return render(request, "enquiries/main_templates/home_ear_admin.html", context=context, )
-
-	return render(request, "enquiries/main_templates/home_ear_restricted.html", context=context, )
+	return render(request, "enquiries/main_templates/home_ear_sigma.html", context=context, )
 
 def server_options_view(request):
 	context = {}

@@ -24,29 +24,27 @@
   {% include 'nova_core/base_navbar.html' %}
 
 
-<div class="row mx-2 justify-content-between align-items-end">
-  <div class="col-4">
-    <h3 class="mt-3 mx-4 my-1">My Tasks</h3>
-  </div>
-
-  <div class="col-4">
-    <h2 class="display-3 mt-3 mx-4 my-1" style="color: rgb(150, 0, 0);">{{ session_desc }}</h2>
-  </div>
-</div>
 
 <div class="row mx-2">
-
-  <div class="card m-3 shadow-lg" style="width: 18rem; ">
-    <img class="card-img-top" src="{% static 'admin/img/mytask-icon.png' %}" alt="EAR Icon">
-    <div class="card-body d-flex flex-column">
-      <h5 class="card-title">My Tasks</h5>
-      {% if mytask.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-      <p class="card-text">A list of tasks currently assigned to me.</p>
-      <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
-    </div>
+  <div class="col text-center">
+    <h2 class="display-3 mt-3 mb-5" style="color: rgb(150, 0, 0);">{{ session_desc }}</h2>
   </div>
-  
 </div>
+
+<div class="row mx-2 text-center">
+  <div class="col d-flex justify-content-center">
+    <div class="card m-3 shadow-lg" style="width: 18rem; ">
+      <img class="card-img-top" src="{% static 'admin/img/mytask-icon.png' %}" alt="EAR Icon">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">My Tasks</h5>
+        {% if mytask.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+        <p class="card-text"> </p>
+        <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
+      </div>
+    </div>
+
+</div>
+
 
 </body>
 </html>
