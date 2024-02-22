@@ -536,11 +536,14 @@ def nrmacc_task(request, task_id=None):
 	panel_notes = ''
 	if models.ExaminerPanels.objects.filter(ass_code=task_ass_code,com_id=task_comp_code).exists():
 		panel_notes = models.ExaminerPanels.objects.get(ass_code=task_ass_code,com_id=task_comp_code).panel_notes
+	issue_reason = None
+	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
+		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
 	#Check for comments on task
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
 		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
-	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "panel_notes":panel_notes, "task_comments":task_comments}
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "panel_notes":panel_notes, "task_comments":task_comments, "issue_reason":issue_reason}
 	return render(request, "enquiries/task_singles/enquiries_task_nrmacc.html", context=context)
 
 def nrmacc_task_complete(request):
@@ -776,11 +779,14 @@ def pexmch_task(request, task_id=None):
 	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
 	ses_sid = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ses_sid
 	examiner_queryset = models.UniqueCreditor.objects.filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code, creditors__exm_per_details__sp_ses_sid=ses_sid).order_by('creditors__exm_per_details__exm_examiner_no')
+	issue_reason = None
+	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
+		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
 	#Check for comments on task
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
 		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
-	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "task_comments":task_comments}
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "task_comments":task_comments, "issue_reason":issue_reason}
 	return render(request, "enquiries/task_singles/enquiries_task_pexmch.html", context=context)
 
 def pexmch_task_complete(request):
@@ -816,11 +822,14 @@ def locmar_task(request, task_id=None):
 	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
 	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
 	examiner_queryset = models.UniqueCreditor.objects.filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no')
+	issue_reason = None
+	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
+		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
 	#Check for comments on task
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
 		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
-	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "task_comments":task_comments}
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "task_comments":task_comments, "issue_reason":issue_reason}
 	return render(request, "enquiries/task_singles/enquiries_task_locmar.html", context=context)
 
 def locmar_task_complete(request):
@@ -1153,11 +1162,14 @@ def remapf_task_complete(request):
 
 def negcon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	issue_reason = None
+	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
+		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
 	#Check for comments on task
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
 		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
-	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments, "issue_reason":issue_reason}
 	return render(request, "enquiries/task_singles/enquiries_task_negcon.html", context=context)
 
 def negcon_task_complete(request):
@@ -1195,11 +1207,14 @@ def negcon_task_complete(request):
 
 def peacon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	issue_reason = None
+	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
+		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
 		#Check for comments on task
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
 		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
-	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments, "issue_reason":issue_reason}
 	return render(request, "enquiries/task_singles/enquiries_task_peacon.html", context=context)
 
 def peacon_task_complete(request):
@@ -1237,11 +1252,14 @@ def peacon_task_complete(request):
 
 def pdacon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	issue_reason = None
+	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
+		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
 	#Check for comments on task
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
 		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
-	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments}
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments, "issue_reason":issue_reason}
 	return render(request, "enquiries/task_singles/enquiries_task_pdacon.html", context=context)
 
 def pdacon_task_complete(request):
