@@ -375,6 +375,9 @@ def remove_task_comment_view(request):
 	models.TaskComments.objects.filter(pk=comment_id).update(task_comment_invalid=1)
 	return redirect('task-router', task_id)
 
+def task_completion_view(request):
+	a = 1
+
 def user_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
