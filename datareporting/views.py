@@ -23,7 +23,7 @@ def datareporting_home_view(request):
 def run_data_load_view(request, report_id):
 	#Get session ID from POST form
 	ses_sid = request.POST.get('ses_sid')
-	models.Reports.objects.filter(id=report_id).update(ses_sid = ses_sid)
+	models.Reports.objects.filter(id=report_id).update(series_parameter = ses_sid)
 
 	#Check if task exists in queue, and if not, create it
 	if not models.ManualTaskQueue.objects.filter(report_name=report_id, task_queued=1).exists():

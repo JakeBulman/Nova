@@ -8,6 +8,7 @@ class Reports(models.Model):
     last_triggered = models.DateTimeField(null=True)
     last_updated = models.DateTimeField(null=True)
     series_parameter = models.CharField(max_length=30,null=True)
+    error_status = models.CharField(max_length=30,null=True)
 
 class ManualTaskQueue(models.Model):
     report_name = models.ForeignKey(Reports, on_delete=models.CASCADE,  related_name='task_queue')

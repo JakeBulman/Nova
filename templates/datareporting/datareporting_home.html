@@ -17,6 +17,9 @@
                         Report Queued: {{ report.num_queued }}</br>
                         Report Running: {{ report.num_running }}
                     </p>
+                    {% if report.error_status %}
+                    <p style="color: rgb(250, 0, 0);font-weight: bold;">Error: {{ report.error_status }}</p>
+                    {% endif %}
                     <form method="POST" action="{% url 'run_data_load' report.id %}">
                         <label for="ses_sid">Session ID:</label><br>
                         <input name="ses_sid" id="ses_sid" value="{{ report.series_parameter }}" type="text" class="form-control mb-2">
