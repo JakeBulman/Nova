@@ -1,0 +1,36 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center mb-5">Data Loading</h1>
+
+<div class="container">
+    <div class="row mx-2"> 
+        <div class="col d-flex justify-content-center">
+            {% for report in reports_queryset %}
+            <div class="card m-3 shadow-lg" style="width: 18rem; ">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ report.report_name }}</h5>
+                    <p class="card-text text-muted">
+                        Last Triggered: {{ report.last_triggered|date:"d/m/y H:i" }}</br>
+                        Last Updated: {{ report.last_updated|date:"d/m/y H:i" }}</br>
+                        Report Queued: {{ report.num_queued }}</br>
+                        Report Running: {{ report.num_running }}
+                    </p>
+                    <form method="POST" action="{% url 'run_data_load' report.id %}">
+                        <label for="ses_sid">Session ID:</label><br>
+                        <input name="ses_sid" id="ses_sid" value="{{ report.series_parameter }}" type="text" class="form-control mb-2">
+                        {% if report.num_queued or report.num_running %}
+                        <button disabled type="submit" class="btn btn-warning" style="width:225px">Pull Data</button>
+                        {% else %}
+                        <button type="submit" class="btn btn-warning" style="width:225px">Pull Data</button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+ 
+{% endblock %}

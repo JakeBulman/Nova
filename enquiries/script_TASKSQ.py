@@ -29,7 +29,6 @@ from django.contrib.auth.models import User
 def run_algo():
 
     for task in ManualTaskQueue.objects.all().filter(task_queued=1, task_running=0):
-        task.task_completion_date = timezone.now()
         task.task_running = 1
         task.save()
         if task.task_type == 'MARTOL':

@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     #Represents the EAR program
     'indianexm',
     #represent Indian Examiner Payments
+    'datareporting',
+    #data being pulled into 
     
 ]
 

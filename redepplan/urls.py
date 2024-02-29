@@ -27,7 +27,7 @@ urlpatterns = [
     path('members/', include('members.urls')),
     path('enquiries/', include('enquiries.urls')),
     path('indianexm/', include('indianexm.urls')),
-
+    path('datareporting/', include('datareporting.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
