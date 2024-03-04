@@ -31,8 +31,10 @@ from django.contrib.auth.models import User
 def run_algo():
 
     for task in ManualTaskQueue.objects.all().filter(task_queued=1, task_running=0):
+        report = task.report_name
         try:
-            task.report_name.error_status = None
+            report.error_status = None
+            report.save()
             task.task_running = 1
             task.save()
             session_id = task.report_name.series_parameter
@@ -126,14 +128,16 @@ def run_algo():
                 df.apply(insert_to_model, axis=1)
 
             task.task_completion_date = timezone.now()
-            task.report_name.last_updated = timezone.now()
+            report.last_updated = timezone.now()
             task.task_queued = 0
             task.task_running = 0
             task.save()
+            report.save()
         except:
             task.task_queued = 0
             task.task_running = 0
-            task.report_name.error_status = 'SQL failed to run'
+            report.error_status = 'SQL failed to run'
+            report.save()
             task.save()  
 
             # More tasks can be checked for using IF statement here...
