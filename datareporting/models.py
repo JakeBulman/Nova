@@ -7,8 +7,11 @@ class Reports(models.Model):
     report_name = models.CharField(max_length=30,null=True)
     last_triggered = models.DateTimeField(null=True)
     last_updated = models.DateTimeField(null=True)
+    parameter_name = models.CharField(max_length=30,null=True)
     series_parameter = models.CharField(max_length=30,null=True)
+    row_count = models.IntegerField(default=0)
     error_status = models.CharField(max_length=30,null=True)
+    active_refresh = models.BooleanField(default=False)
 
 class ManualTaskQueue(models.Model):
     report_name = models.ForeignKey(Reports, on_delete=models.CASCADE,  related_name='task_queue')
@@ -53,3 +56,41 @@ class meps_comp_entries(models.Model):
     sex_code = models.CharField(max_length=4,null=True)
     date_of_birth = models.CharField(max_length=24,null=True)
     national_id = models.CharField(max_length=23,null=True)
+
+class ciedirect_enquiry(models.Model):
+    sessid = models.CharField(max_length=8,null=True)
+    enquiryid = models.CharField(max_length=10,null=True)
+    epsenquiryid = models.CharField(max_length=9,null=True)
+
+class ciedirect_enquirystatus(models.Model):
+    enquiryid = models.CharField(max_length=10,null=True)
+    enquirystatus = models.CharField(max_length=50,null=True)
+    datetime = models.DateField()
+
+class centre_enquiry_requests(models.Model):
+    sid = models.CharField(max_length=10,null=True)
+    ses_sid = models.CharField(max_length=8,null=True)
+    cnu_id = models.CharField(max_length=8,null=True)
+    status = models.CharField(max_length=2,null=True)
+    created_datetime = models.DateField()
+    completed_datetime = models.DateField()
+
+class enquiry_request_parts(models.Model):
+    sid = models.CharField(max_length=15,null=True)
+    cer_sid = models.CharField(max_length=15,null=True)
+    es_service_code = models.CharField(max_length=5,null=True)
+    booked_in_error_ind = models.CharField(max_length=5,null=True)
+
+class enquiry_components(models.Model):
+    sid = models.CharField(max_length=15,null=True)
+    ccm_ass_code = models.CharField(max_length=5,null=True)
+    ccm_asv_ver_no = models.CharField(max_length=5,null=True)
+    ccm_com_id = models.CharField(max_length=5,null=True)
+    erp_sid = models.CharField(max_length=15,null=True)
+
+class all_products(models.Model):
+    ses_sid = models.CharField(max_length=15,null=True)
+    ass_code = models.CharField(max_length=5,null=True)
+    asv_ver_no = models.CharField(max_length=5,null=True)
+    com_id = models.CharField(max_length=5,null=True)
+    qua_name = models.CharField(max_length=50,null=True)
