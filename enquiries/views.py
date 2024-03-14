@@ -50,14 +50,20 @@ def ear_home_view(request,*args, **kwargs):
 		}
 
 	user_status = models.TaskUserPrimary.objects.get(task_user_id=user).primary_status
-	if user_status == 'CO':
-		return render(request, "enquiries/main_templates/home_ear_coordinator.html", context=context, )
-	elif user_status == 'TL':
-		return render(request, "enquiries/main_templates/home_ear_tl.html", context=context, )
-	elif user_status == 'AD':
-		return render(request, "enquiries/main_templates/home_ear_admin.html", context=context, )
+	
+	if request.htmx:
+		print('htmx')
+		return render(request, 'enquiries/htmx_partials/alpha_pill_count.html', context)
+	else:
+		print('not htmx')
+		if user_status == 'CO':
+			return render(request, "enquiries/main_templates/home_ear_coordinator.html", context=context, )
+		elif user_status == 'TL':
+			return render(request, "enquiries/main_templates/home_ear_tl.html", context=context, )
+		elif user_status == 'AD':
+			return render(request, "enquiries/main_templates/home_ear_admin.html", context=context, )
 
-	return render(request, "enquiries/main_templates/home_ear_restricted.html", context=context, )
+		return render(request, "enquiries/main_templates/home_ear_restricted.html", context=context, )
 
 
 def ear_home_view_team_alpha(request,*args, **kwargs):

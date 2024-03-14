@@ -1,0 +1,7 @@
+<div id="alpha-pill">
+{% if alpha_count.count > 0 %}
+<span class="badge rounded-pill bg-primary">{{ alpha_count.count }} Tasks Waiting</span>
+{% else %}
+<span class="badge rounded-pill bg-success">All Tasks Completed</span>
+{% endif %}
+</div>
