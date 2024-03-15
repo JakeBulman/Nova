@@ -9,9 +9,9 @@ class Reports(models.Model):
     last_updated = models.DateTimeField(null=True)
     parameter_name = models.CharField(max_length=30,null=True)
     series_parameter = models.CharField(max_length=30,null=True)
-    row_count = models.IntegerField(default=0)
+    row_count = models.IntegerField(default=0,null=True)
     error_status = models.CharField(max_length=30,null=True)
-    active_refresh = models.BooleanField(default=False)
+    active_refresh = models.BooleanField(default=False,null=True)
 
 class ManualTaskQueue(models.Model):
     report_name = models.ForeignKey(Reports, on_delete=models.CASCADE,  related_name='task_queue')
@@ -65,15 +65,15 @@ class ciedirect_enquiry(models.Model):
 class ciedirect_enquirystatus(models.Model):
     enquiryid = models.CharField(max_length=10,null=True)
     enquirystatus = models.CharField(max_length=50,null=True)
-    datetime = models.DateField()
+    datetime = models.DateField(null=True)
 
 class centre_enquiry_requests(models.Model):
     sid = models.CharField(max_length=10,null=True)
     ses_sid = models.CharField(max_length=8,null=True)
     cnu_id = models.CharField(max_length=8,null=True)
     status = models.CharField(max_length=2,null=True)
-    created_datetime = models.DateField()
-    completed_datetime = models.DateField()
+    created_datetime = models.DateField(null=True)
+    completed_datetime = models.DateField(null=True)
 
 class enquiry_request_parts(models.Model):
     sid = models.CharField(max_length=15,null=True)
