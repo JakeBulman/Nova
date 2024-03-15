@@ -48,6 +48,8 @@
                     <!--Status:-->
                     {% if report.num_running == 1 %}
                     <p style="font-weight: bold;">Status: Report Running...</br>
+                    {% elif report.num_queued == 1 %}
+                    <p style="font-weight: bold;">Status: Report Queued</br>
                     {% elif report.error_status %}
                     <p style="color: rgb(250, 0, 0);font-weight: bold;">Status: Error ({{ report.error_status }})</br>
                     {% else %}
