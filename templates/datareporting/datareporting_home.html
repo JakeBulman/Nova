@@ -38,10 +38,10 @@
                     </div>
 
                     <!--toggle switch:-->
-                    <form method="POST" action="{% url 'update_active_status' report.id %}">
-                        <input type="hidden" name="toggleStatus" id="toggleStatus" >
-                        <div class="form-check form-switch" >
-                            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onchange="this.form.submit()" name="toggleActive" {% if report.active_refresh == True %}checked{% endif %}>
+                    <form>
+                        <input type="hidden" name="toggleStatus" id="toggleStatus">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input"  hx-post="{% url 'update_active_status' report.id %}" hx-trigger="click" {% if report.active_refresh == True %}checked{% endif %}>
                         </div>
                     </form>
 

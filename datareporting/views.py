@@ -8,6 +8,7 @@ from openpyxl import load_workbook
 from django.db.models import Sum, Count, Q
 from django.utils import timezone
 from django.apps import apps
+from django.http import JsonResponse
 
 PageNotAnInteger = None
 EmptyPage = None
@@ -49,4 +50,5 @@ def report_update_status(request, report_id):
 	else:
 		toggle_status = True
 	models.Reports.objects.filter(id=report_id).update(active_refresh = toggle_status)
-	return redirect('datareporting_home')
+
+	
