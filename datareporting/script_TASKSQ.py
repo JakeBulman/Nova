@@ -168,7 +168,7 @@ def run_algo():
                         enquirystatus as enquirystatus,
                         cast(datetime as date) as datetime
                         from cie.ciedirect_enquirystatus
-                        where partition_year in ({parameter}) 
+                        where partition_year in >= {parameter}
                                             ''', conn)
                 
                 ciedirect_enquirystatus.objects.all().delete()
