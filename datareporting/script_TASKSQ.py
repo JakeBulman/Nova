@@ -166,7 +166,7 @@ def run_algo():
                         enquiryid as enquiryid,
                         
                         enquirystatus as enquirystatus,
-                        cast(datetime as date) as datetime
+                        datetime as datetime
                         from cie.ciedirect_enquirystatus
                         where partition_year in ({parameter}) 
                                             ''', conn)
@@ -190,8 +190,8 @@ def run_algo():
                         ses_sid as ses_sid,
                         cnu_id as cnu_id,
                         status as status,
-                        cast(created_datetime as date) as created_datetime,
-                        cast(completed_datetime as date) as completed_datetime
+                        created_datetime as created_datetime,
+                        completed_datetime as completed_datetime
 
                         from ar_meps_req_prd.centre_enquiry_requests
 

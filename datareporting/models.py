@@ -65,15 +65,15 @@ class ciedirect_enquiry(models.Model):
 class ciedirect_enquirystatus(models.Model):
     enquiryid = models.CharField(max_length=10,null=True)
     enquirystatus = models.CharField(max_length=50,null=True)
-    datetime = models.DateField(null=True)
+    datetime = models.DateTimeField(null=True)
 
 class centre_enquiry_requests(models.Model):
     sid = models.CharField(max_length=10,null=True)
     ses_sid = models.CharField(max_length=8,null=True)
     cnu_id = models.CharField(max_length=8,null=True)
     status = models.CharField(max_length=2,null=True)
-    created_datetime = models.DateField(null=True)
-    completed_datetime = models.DateField(null=True)
+    created_datetime = models.DateTimeField(null=True)
+    completed_datetime = models.DateTimeField(null=True)
 
 class enquiry_request_parts(models.Model):
     sid = models.CharField(max_length=15,null=True)
