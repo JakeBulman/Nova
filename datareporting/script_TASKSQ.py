@@ -223,7 +223,7 @@ def run_algo():
 
                         from ar_meps_req_prd.enquiry_request_parts
 
-                        where year(load_date) >= {parameter}
+                        where caom_ses_sid IN ({parameter})
                                             ''', conn)
                 
                 enquiry_request_parts.objects.all().delete()
