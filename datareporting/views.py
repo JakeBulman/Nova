@@ -8,6 +8,7 @@ from openpyxl import load_workbook
 from django.db.models import Sum, Count, Q
 from django.utils import timezone
 from django.apps import apps
+from django.http import JsonResponse
 
 PageNotAnInteger = None
 EmptyPage = None
@@ -17,7 +18,7 @@ EmptyPage = None
 def datareporting_home_view(request):
 	num_queued = Count("task_queue", filter=Q(task_queue__task_queued='1'))
 	num_running = Count("task_queue", filter=Q(task_queue__task_running='1'))
-	reports_queryset = models.Reports.objects.all().annotate(num_queued=num_queued, num_running=num_running)
+	reports_queryset = models.Reports.objects.all().annotate(num_queued=num_queued, num_running=num_running).order_by('id')
 
     # Get column names (I think it will be better to display this information in a different way):
 	for report in reports_queryset:
@@ -43,10 +44,11 @@ def run_data_load_view(request, report_id):
 	return redirect('datareporting_home')
 
 def report_update_status(request, report_id):
-	toggle_status = request.POST.get('toggleStatus')
-	if toggle_status == 'true':
-		toggle_status = True
-	else:
+	toggle_status = models.Reports.objects.get(id=report_id).active_refresh
+	if toggle_status == True:
 		toggle_status = False
+	else:
+		toggle_status = True
 	models.Reports.objects.filter(id=report_id).update(active_refresh = toggle_status)
-	return redirect('datareporting_home')
+
+	
