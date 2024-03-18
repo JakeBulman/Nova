@@ -53,7 +53,7 @@ def ear_home_view(request,*args, **kwargs):
 	
 	if request.htmx:
 		print('htmx')
-		return render(request, 'enquiries/htmx_partials/alpha_pill_count.html', context)
+		return render(request, 'enquiries/htmx_partials/homepage_pill_count.html', context)
 	else:
 		print('not htmx')
 		if user_status == 'CO':

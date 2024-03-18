@@ -1,0 +1,102 @@
+<div id="alpha-pill" 
+hx-target="#alpha-pill" 
+hx-get="{% url 'enquiries_home' %}" 
+hx-trigger="every 10s" 
+hx-swap="outerHTML">
+{% if alpha_count.count > 0 %}
+<span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ alpha_count.count }} Tasks Waiting</span>
+{% else %}
+<span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+{% endif %}
+</div>
+
+<div id="gamma-pill" 
+hx-target="#gamma-pill" 
+hx-get="{% url 'enquiries_home' %}" 
+hx-trigger="every 10s" 
+hx-swap="outerHTML" 
+hx-swap-oob="true">
+{% if gamma_count.count > 0 %}
+<span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ gamma_count.count }} Tasks Waiting</span>
+{% else %}
+<span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+{% endif %}
+</div>
+
+<div id="delta-pill" 
+hx-target="#delta-pill" 
+hx-get="{% url 'enquiries_home' %}" 
+hx-trigger="every 10s" 
+hx-swap="outerHTML" 
+hx-swap-oob="true">
+{% if delta_count.count > 0 %}
+<span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ delta_count.count }} Tasks Waiting</span>
+{% else %}
+<span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+{% endif %}
+</div>
+
+<div id="kappa-pill" 
+hx-target="#kappa-pill" 
+hx-get="{% url 'enquiries_home' %}" 
+hx-trigger="every 10s" 
+hx-swap="outerHTML" 
+hx-swap-oob="true">
+{% if kappa_count.count > 0 %}
+<span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ kappa_count.count }} Tasks Waiting</span>
+{% else %}
+<span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+{% endif %}
+</div>
+
+<div id="lambda-pill" 
+hx-target="#lambda-pill" 
+hx-get="{% url 'enquiries_home' %}" 
+hx-trigger="every 10s" 
+hx-swap="outerHTML" 
+hx-swap-oob="true">
+{% if lambda_count.count > 0 %}
+<span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ lambda_count.count }} Tasks Waiting</span>
+{% else %}
+<span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+{% endif %}
+</div>
+
+<div id="sigma-pill" 
+hx-target="#sigma-pill" 
+hx-get="{% url 'enquiries_home' %}" 
+hx-trigger="every 10s" 
+hx-swap="outerHTML" 
+hx-swap-oob="true">
+{% if sigma_count.count > 0 %}
+<span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ sigma_count.count }} Tasks Waiting</span>
+{% else %}
+<span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+{% endif %}
+</div>
+
+<div id="omega-pill" 
+hx-target="#omega-pill" 
+hx-get="{% url 'enquiries_home' %}" 
+hx-trigger="every 10s" 
+hx-swap="outerHTML" 
+hx-swap-oob="true">
+{% if omega_count.count > 0 %}
+<span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ omega_count.count }} Tasks Waiting</span>
+{% else %}
+<span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+{% endif %}
+</div>
+
+<div id="mytask-pill" 
+hx-target="#mytask-pill" 
+hx-get="{% url 'enquiries_home' %}" 
+hx-trigger="every 10s" 
+hx-swap="outerHTML" 
+hx-swap-oob="true">
+{% if mytask_count.count > 0 %}
+<span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ mytask_count.count }} Tasks Waiting</span>
+{% else %}
+<span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+{% endif %}
+</div>
