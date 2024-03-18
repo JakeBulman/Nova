@@ -3,18 +3,18 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-class Reports(models.Model):
-    report_name = models.CharField(max_length=30,null=True)
+class Datasets(models.Model):
+    dataset_name = models.CharField(max_length=30,null=True)
     last_triggered = models.DateTimeField(null=True)
     last_updated = models.DateTimeField(null=True)
     parameter_name = models.CharField(max_length=30,null=True)
-    series_parameter = models.CharField(max_length=30,null=True)
+    parameter = models.CharField(max_length=30,null=True)
     row_count = models.IntegerField(default=0,null=True)
     error_status = models.CharField(max_length=30,null=True)
     active_refresh = models.BooleanField(default=False,null=True)
 
 class ManualTaskQueue(models.Model):
-    report_name = models.ForeignKey(Reports, on_delete=models.CASCADE,  related_name='task_queue')
+    dataset = models.ForeignKey(Datasets, on_delete=models.CASCADE, related_name='task_queue')
     task_creation_date = models.DateTimeField(auto_now_add=True)
     task_completion_date = models.DateTimeField(null=True)
     task_queued = models.IntegerField(default=1)
@@ -94,3 +94,15 @@ class all_products(models.Model):
     asv_ver_no = models.CharField(max_length=5,null=True)
     com_id = models.CharField(max_length=5,null=True)
     qua_name = models.CharField(max_length=50,null=True)
+
+class Test(models.Model):
+    Test = models.CharField(max_length=1,null=True)
+
+class Reports(models.Model):
+    report_name = models.CharField(max_length=20,null=True)
+    active = models.BooleanField(default=False,null=True)
+
+class Report_Datasets(models.Model):
+    report = models.ForeignKey(Reports, on_delete=models.CASCADE, related_name='datasets')
+    dataset = models.ForeignKey(Datasets, on_delete=models.CASCADE, related_name='datasets')
+    report_parameter = models.CharField(max_length=20,null=True)

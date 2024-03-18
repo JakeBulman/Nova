@@ -1,0 +1,168 @@
+{% extends 'nova_core/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div id="copy-message" style="display: none; position: fixed; top: 5; width: 100%; text-align: center; background-color: #00d1b2; color: white; padding: 10px 0; z-index: 100;">
+    Information copied to clipboard.
+</div>
+
+<!--Button to add report (need to create the actual form, url, view, etc...):-->
+<form action="{% url 'new_dataset' %}" method="post">
+    <button type="submit" style="border: none; background: none; cursor: pointer;">
+        <img src="{% static 'admin/img/plus.png' %}" style="width: 20px; height: 20px;">
+    </button>
+</form>
+
+<!--Main Title:-->
+<h1 class="display-5 text-center pt-4 mb-4 ">Data Loading</h1>
+
+<!--Search Bar:-->
+<div class="search-container text-center pt-3">
+    <input type="text" id="searchInput" placeholder="Search Datasets..." class="form-control w-25 mx-auto">
+</div>
+
+
+<div class="container">
+    <div class="row mx-2"> 
+        <div class="col d-flex justify-content-center flex-wrap">
+            {% for dataset in datasets_queryset %}
+            <div class="card m-1 shadow-lg" style="width: 18rem; " >
+                <div class="card-body d-flex flex-column">
+
+                    <!--Title and Info:-->
+                    <div class="info-and-title">
+                        <h5 class="card-title" style="margin-right: 5px;">{{ dataset.dataset_name }}</h5>
+                        <div class="image-hover">
+                            <img src="{% static 'admin/img/info.png' %}" class="copy-info" data-columns="{{ dataset.columns|join:', ' }}" style="width: 20px; height: 20px; position: relative; top: -3px; cursor: pointer;">
+                            <div class="hover-box">{{ dataset.columns|join:', ' }}</div>
+                        </div>
+                    </div>
+
+                    <!--toggle switch:-->
+                    <form>
+                        <input type="hidden" name="toggleStatus" id="toggleStatus">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input"  hx-post="{% url 'update_active_status' dataset.id %}" hx-trigger="click" {% if dataset.active_refresh == True %}checked{% endif %}>
+                        </div>
+                    </form>
+
+                    <!--Status:-->
+                    {% if dataset.num_running == 1 %}
+                    <p style="font-weight: bold;">Status: Dataset Running...</br>
+                    {% elif dataset.num_queued == 1 %}
+                    <p style="font-weight: bold;">Status: Dataset Queued</br>
+                    {% elif dataset.error_status %}
+                    <p style="color: rgb(250, 0, 0);font-weight: bold;">Status: Error ({{ dataset.error_status }})</br>
+                    {% else %}
+                    <p style="font-weight: bold;">Status: OK</br>
+                    {% endif %}
+
+                    <!--Dataset Info:-->
+                    <p class="card-text text-muted">
+                        Last Updated: {{ dataset.last_updated|date:"d/m/y H:i" }}</br>
+                        Rows: {{ dataset.row_count }}
+                    </p>
+
+                    <!--Pull Data:-->
+                    <form method="POST" action="{% url 'run_data_load' dataset.id %}">
+                        <label for="parameter">{{ dataset.parameter_name }}:</label><br>
+                        <input name="parameter" id="parameter" value="{{ dataset.parameter }}" type="text" class="form-control mb-2">
+                        <div style="text-align: center;">
+                            {% if dataset.num_queued or dataset.num_running %}
+                            <button disabled type="submit" class="btn btn-warning" style="width:225px">Pull Data</button>
+                            {% else %}
+                            <button type="submit" class="btn btn-warning" style="width:225px">Pull Data</button>
+                            {% endif %}
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+ 
+<!--Script for filtering:-->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        var searchInput = document.getElementById("searchInput");
+    
+        searchInput.addEventListener("keyup", function() {
+            var searchQuery = searchInput.value.toLowerCase();
+    
+            var cards = document.querySelectorAll(".card");
+    
+            cards.forEach(function(card) {
+                var datasetName = card.querySelector(".card-title").textContent.toLowerCase();
+    
+                if (datasetName.includes(searchQuery)) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+    });
+</script>
+
+<!--Script to copy dateset columns info:-->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var copyInfoImages = document.querySelectorAll('.copy-info');
+
+        copyInfoImages.forEach(function(image) {
+            image.addEventListener('click', function() {
+                var textToCopy = this.getAttribute('data-columns');
+
+                navigator.clipboard.writeText(textToCopy).then(function() {
+                    var copyMessage = document.getElementById('copy-message');
+                    copyMessage.style.display = 'block';
+
+                    setTimeout(function() {
+                        copyMessage.style.display = 'none';
+                    }, 3000);
+                }).catch(function(err) {
+                    console.error('Could not copy text: ', err);
+                });
+            });
+        });
+    });
+</script>
+
+<!--CSS malarkey:-->
+<style>
+  .info-and-title {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    }
+
+    .image-hover {
+    position: relative;
+    display: inline-block;
+}
+
+.hover-box {
+    display: none;
+    position: absolute;
+    z-index: 10;
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 10px;
+    width: 200px;
+    top: 25px;
+    left: 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+
+.image-hover:hover .hover-box {
+    display: block;
+}
+
+ </style>
+    
+{% endblock %}

@@ -15,7 +15,7 @@ if os.getenv('DJANGO_DEVELOPMENT') == 'true':
     path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
-elif os.getenv('DJANGO_DEVELOPMENT2') == 'true':
+elif os.getenv('DJANGO_DEVELOPMENT_RYAN') == 'true':
     print('DEV - Ryan')
     path = os.path.join('C:\\Dev\\Nova\\Nova')
     sys.path.append(path)
@@ -39,18 +39,19 @@ from django.contrib.auth.models import User
 def run_algo():
 
     for task in ManualTaskQueue.objects.all().filter(task_queued=1, task_running=0):
-        report = task.report_name
+        noSQL = False
+        dataset = task.dataset
         try:
-            report.error_status = None
-            report.save()
+            dataset.error_status = None
+            dataset.save()
             task.task_running = 1
             task.save()
-            parameter = task.report_name.series_parameter
+            parameter = task.dataset.parameter
             if parameter is None:
                 parameter = 0
 
             #meps_comp_entries:
-            if task.report_name.report_name == 'meps_comp_entries':
+            if task.dataset.dataset_name == 'meps_comp_entries':
                 #Get datalake data
                 with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
                     df = pd.read_sql(f'''
@@ -136,7 +137,7 @@ def run_algo():
                 )
 
             #cie_ciedirect_enquiry:
-            if task.report_name.report_name == 'ciedirect_enquiry':
+            elif task.dataset.dataset_name == 'ciedirect_enquiry':
                 #Get datalake data
                 with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
                     df = pd.read_sql(f'''
@@ -158,13 +159,12 @@ def run_algo():
                     )
 
             #ciedirect_enquirystatus:
-            if task.report_name.report_name == 'ciedirect_enquirystatus':
+            elif task.dataset.dataset_name == 'ciedirect_enquirystatus':
                 #Get datalake data
                 with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
                     df = pd.read_sql(f'''
                         select 
                         enquiryid as enquiryid,
-                        
                         enquirystatus as enquirystatus,
                         datetime as datetime
                         from cie.ciedirect_enquirystatus
@@ -181,7 +181,7 @@ def run_algo():
                     )
 
              #centre_enquiry_requests:
-            if task.report_name.report_name == 'centre_enquiry_requests':
+            elif task.dataset.dataset_name == 'centre_enquiry_requests':
                 #Get datalake data
                 with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
                     df = pd.read_sql(f'''
@@ -211,7 +211,7 @@ def run_algo():
                     )
 
              #enquiry_request_parts:
-            if task.report_name.report_name == 'enquiry_request_parts':
+            elif task.dataset.dataset_name == 'enquiry_request_parts':
                 #Get datalake data
                 with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
                     df = pd.read_sql(f'''
@@ -237,7 +237,7 @@ def run_algo():
                     )
 
              #enquiry_components:
-            if task.report_name.report_name == 'enquiry_components':
+            elif task.dataset.dataset_name == 'enquiry_components':
                 #Get datalake data
                 with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
                     df = pd.read_sql(f'''
@@ -265,7 +265,7 @@ def run_algo():
                     )
 
              #all_products:
-            if task.report_name.report_name == 'all_products':
+            elif task.dataset.dataset_name == 'all_products':
                 #Get datalake data
                 with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
                     df = pd.read_sql(f'''
@@ -292,31 +292,35 @@ def run_algo():
                         qua_name = row['qua_name'],
                     )
 
-            df.apply(insert_to_model, axis=1)
+            else:
+                noSQL = True
+
+            if noSQL == False:
+                df.apply(insert_to_model, axis=1)
+                Row_Count = len(df)
+                dataset.row_count = Row_Count
+                if Row_Count == 0:
+                    dataset.error_status = 'No Data In Table'
+                else:
+                    dataset.error_status = None
+            else:
+                dataset.error_status = 'No SQL defined'
 
             task.task_completion_date = timezone.now()
-            report.last_updated = timezone.now()
-            Row_Count = len(df)
-            report.row_count = Row_Count
-            if Row_Count == 0:
-                report.error_status = 'No Data In Table'
-            else:
-                report.error_status = None
+            dataset.last_updated = timezone.now()
             task.task_queued = 0
             task.task_running = 0
             task.save()
-            report.save()
+            dataset.save()
         except Exception as e:
             task.task_queued = 0
             task.task_running = 0
-            report.error_status = 'SQL Failed To Run'
-            report.save()
+            dataset.error_status = 'SQL Failed To Run'
+            dataset.save()
             task.save()  
             print(e)
 
             # More tasks can be checked for using IF statement here...
-
-
 
 run_algo()
 

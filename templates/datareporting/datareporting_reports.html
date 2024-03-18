@@ -1,0 +1,78 @@
+{% extends 'nova_core/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div id="copy-message" style="display: none; position: fixed; top: 5; width: 100%; text-align: center; background-color: #00d1b2; color: white; padding: 10px 0; z-index: 100;">
+    Information copied to clipboard.
+</div>
+
+<!--Button to add report (need to create the actual form, url, view, etc...):-->
+<form action="{% url 'new_report' %}" method="post">
+    <button type="submit" style="border: none; background: none; cursor: pointer;">
+        <img src="{% static 'admin/img/plus.png' %}" style="width: 20px; height: 20px;">
+    </button>
+</form>
+
+<!--Main Title:-->
+<h1 class="display-5 text-center pt-4 mb-4 ">Reports</h1>
+
+<!--Search Bar:-->
+<div class="search-container text-center pt-3">
+    <input type="text" id="searchInput" placeholder="Search Reports..." class="form-control w-25 mx-auto">
+</div>
+
+<div class="container">
+    <div class="row mx-2"> 
+        <div class="col d-flex justify-content-center flex-wrap">
+            {% for report in reports_queryset %}
+            <div class="card m-1 shadow-lg" style="width: 18rem; " >
+                <div class="card-body d-flex flex-column">
+
+                    <!--Title and Info:-->
+                        <h5 class="card-title" style="margin-right: 5px;">{{ report.report_name }}</h5>
+
+                    <!--active slider:-->
+                    <form>
+                        <input type="hidden" name="toggleStatus" id="toggleStatus">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input"  hx-post="{% url 'update_report_active_status' report.id %}" hx-trigger="click" {% if report.active == True %}checked{% endif %}>
+                        </div>
+                    </form>
+
+                    <form method="POST" action="{% url 'report_datasets' report.id %}">
+                        <button type="submit" class="btn btn-warning" style="width:225px">View Datasets</button>
+                    </form>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+ 
+<!--Script for filtering:-->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        var searchInput = document.getElementById("searchInput");
+    
+        searchInput.addEventListener("keyup", function() {
+            var searchQuery = searchInput.value.toLowerCase();
+    
+            var cards = document.querySelectorAll(".card");
+    
+            cards.forEach(function(card) {
+                var datasetName = card.querySelector(".card-title").textContent.toLowerCase();
+    
+                if (datasetName.includes(searchQuery)) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

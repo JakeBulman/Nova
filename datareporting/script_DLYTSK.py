@@ -4,6 +4,7 @@ import django
 from openpyxl import load_workbook
 import pandas as pd
 import time
+from django.utils import timezone
 
 start_time = time.time()
 
@@ -12,7 +13,7 @@ if os.getenv('DJANGO_DEVELOPMENT') == 'true':
     path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
-elif os.getenv('DJANGO_DEVELOPMENT2') == 'true':
+elif os.getenv('DJANGO_DEVELOPMENT_RYAN') == 'true':
     print('DEV - Ryan')
     path = os.path.join('C:\\Dev\\Nova\\Nova')
     sys.path.append(path)
@@ -32,7 +33,6 @@ django.setup()
 
 from datareporting.models import *
 
-for report in Reports.objects.all().filter(active_refresh = True):
-       new_task = ManualTaskQueue(report_name=report)
-
+for dataset in Datasets.objects.all().filter(active_refresh = True):
+       new_task = ManualTaskQueue(dataset=dataset)
        new_task.save()
