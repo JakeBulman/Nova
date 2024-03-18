@@ -41,7 +41,13 @@
         </div>
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">My Tasks</h5>
-          {% if mytask.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          <div id="mytask-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if mytask_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ mytask_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
           <p class="card-text"> </p>
         </div>
         <div class="card-footer d-flex flex-column">
@@ -104,10 +110,13 @@
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">Alpha</h5>          
           <p class="card-text">Checks</p>
-          <div id="alpha-pill-container" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML">
-              {% include 'enquiries/htmx_partials/alpha_pill_count.html' %}
+          <div id="alpha-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
+              {% if alpha_count.count > 0 %}
+              <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ alpha_count.count }} Tasks Waiting</span>
+              {% else %}
+              <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+              {% endif %}
           </div>
-
         </div>
         <div class="card-footer d-flex flex-column">
           <a href="{% url 'ear_home_view_team_alpha' %}" class="mt-auto btn btn-outline-primary">Go to Alpha</a>
@@ -122,7 +131,13 @@
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">Gamma</h5>
           <p class="card-text">Marking</p>
-          {% if gamma_count.count > 0 %}<span class="badge rounded-pill bg-primary">{{ gamma_count.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          <div id="gamma-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if gamma_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ gamma_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
         </div>
         <div class="card-footer d-flex flex-column">
           <a href="{% url 'ear_home_view_team_gamma' %}" class="mt-auto btn btn-outline-primary">Go to Gamma</a>
@@ -136,7 +151,13 @@
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">Delta</h5>
           <p class="card-text">Hardcopy</p>
-          {% if delta_count.count > 0 %}<span class="badge rounded-pill bg-primary">{{ delta_count.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          <div id="delta-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if delta_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ delta_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
         </div>
         <div class="card-footer d-flex flex-column">
           <a href="{% url 'ear_home_view_team_delta' %}" class="mt-auto btn btn-outline-primary">Go to Delta</a>
@@ -150,7 +171,13 @@
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">Kappa</h5>
           <p class="card-text">Clerical</p>
-          {% if kappa_count.count > 0 %}<span class="badge rounded-pill bg-primary">{{ kappa_count.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          <div id="kappa-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if kappa_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ kappa_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
         </div>
         <div class="card-footer d-flex flex-column">
           <a href="{% url 'ear_home_view_team_kappa' %}" class="mt-auto btn btn-outline-primary">Go to Kappa</a>
@@ -164,7 +191,13 @@
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">Lambda</h5>
           <p class="card-text">RPA</p>
-          {% if lambda_count.count > 0 %}<span class="badge rounded-pill bg-primary">{{ lambda_count.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          <div id="lambda-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if lambda_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ lambda_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
         </div>
         <div class="card-footer d-flex flex-column">
           <a href="{% url 'ear_home_view_team_lambda' %}" class="mt-auto btn btn-outline-primary">Go to Lambda</a>
@@ -178,7 +211,13 @@
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">Sigma</h5>
           <p class="card-text">Scripts</p>
-          {% if sigma_count.count > 0 %}<span class="badge rounded-pill bg-primary">{{ sigma_count.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          <div id="sigma-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if sigma_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ sigma_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
         </div>
         <div class="card-footer d-flex flex-column">
           <a href="{% url 'ear_home_view_team_sigma' %}" class="mt-auto btn btn-outline-primary">Go to Sigma</a>
@@ -192,7 +231,13 @@
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">Omega</h5>
           <p class="card-text">Grading</p>
-          {% if omega_count.count > 0 %}<span class="badge rounded-pill bg-primary">{{ omega_count.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          <div id="omega-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if omega_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ omega_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
         </div>
         <div class="card-footer d-flex flex-column">
           <a href="{% url 'ear_home_view_team_omega' %}" class="mt-auto btn btn-outline-primary">Go to Omega</a>
