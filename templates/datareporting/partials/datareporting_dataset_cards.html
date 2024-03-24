@@ -1,0 +1,58 @@
+<div id="dataset-status" hx-target="#dataset-status" hx-swap="outerHTML">
+
+     <!--Containers:-->
+    <div class="container">
+        <div class="row mx-2"> 
+            <div class="col d-flex justify-content-center flex-wrap">
+                {% for dataset in datasets_queryset %}
+                <div class="card m-1 shadow-lg" style="width: 18rem; " >
+                    <div class="card-body d-flex flex-column">
+    
+                        <!--Title:-->
+                        <div class="info-and-title">
+                            <h5 class="card-title" style="margin-right: 5px;">{{ dataset.dataset_name }}</h5>
+                        </div>
+    
+                        <!--Status:-->
+                        {% if dataset.num_running == 1 %}
+                            <p style="font-weight: bold;">Status: Dataset Running...</br>
+                        {% elif dataset.num_queued == 1 %}
+                            <p style="font-weight: bold;">Status: Dataset Queued</br>
+                        {% elif dataset.error_status %}
+                            <p style="color: rgb(250, 0, 0);font-weight: bold;">Status: Error ({{ dataset.error_status }})</br>
+                        {% elif not dataset.active_dataset %}
+                            <p style="font-weight: bold;">Status: Inactive</br>  
+                        {% else %}
+                            <p style="font-weight: bold;">Status: OK</br>
+                        {% endif %}  
+    
+                        <!--Dataset Info:-->
+                        <p class="card-text text-muted">
+                            Last Updated: {{ dataset.last_updated|date:"d/m/y H:i" }}</br>
+                            Parameter: {{ dataset.parameter_name }}</br>
+                            Rows: {{ dataset.row_count }}
+                        </p>
+    
+                        <form method="POST" action="{% url 'dataset_details' dataset.id %}">
+                            <div style="text-align: center; margin-bottom: 5px;">
+                                    <button type="submit" class="btn btn-warning" style="width:225px">Details</button>
+                            </div>
+                        </form>
+    
+                        <!--Pull Data:-->
+                        <form  hx-post="{% url 'queue_dataset' dataset.id%}" method="POST" hx-target="#dataset-status" hx-swap="outerHTML">
+                            <div style="text-align: center;">
+                                {% if dataset.num_queued or dataset.num_running %}
+                                    <button disabled type="submit" class="btn btn-info" style="width:225px">Queue Dataset</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-info" style="width:225px">Queue Dataset</button>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>                 
+</div>

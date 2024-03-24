@@ -2,37 +2,56 @@
 {% load static %}
 
 {% block content %}
+{% include 'datareporting/datareporting_navbar.html' %}
 
 <!--Main Title:-->
-<h1 class="display-5 text-center pt-4 mb-4 ">Home</h1>
+<h1 class="display-5 text-center pt-4 mb-2 ">Home</h1>
 
 <div class="container">
     <div class="row mx-2"> 
         <div class="col d-flex justify-content-center flex-wrap">
-            <form method="POST" action="{% url 'reports' %}">
-                <button type="submit" class="btn btn-primary m-1 shadow-lg" style="width: 20rem;">
-                    <div class="d-flex justify-content-center align-items-center">
-                        <div class="text-center">
-                            <div class="info-and-title">
-                                <h5 class="card-title">Reports</h5>
-                            </div>
-                        </div>
+
+            <div class="card m-1 shadow-lg" style="width: 18rem; " >
+                <div class="card-body d-flex flex-column">
+
+                    <div class="info-and-title">
+                        <h5 class="card-title  text-center mb-2" style="margin-right: 5px;">Reports</h5>
                     </div>
-                </button>
-            </form>
-            <form method="POST" action="{% url 'datasets' %}">
-                <button type="submit" class="btn btn-primary m-1 shadow-lg" style="width: 20rem;">
-                    <div class="d-flex justify-content-center align-items-center">
-                        <div class="text-center">
-                            <div class="info-and-title">
-                                <h5 class="card-title">Datasets</h5>
-                            </div>
-                        </div>
+                    
+                    <p class="card-text text-muted text-center">
+                        Report Count: {{ report_count }}</br>
+                        Active Reports: {{ active_report_count }}</br>
+                    </p>
+
+                    <div class="text-center mt-auto">
+                        <a href="{% url 'reports' %}" class="btn btn-primary">View Reports</a>
                     </div>
-                </button>
-            </form>
+
+                </div>
+            </div>
+
+            <div class="card m-1 shadow-lg" style="width: 18rem; " >
+                <div class="card-body d-flex flex-column">
+
+                    <div class="info-and-title">
+                        <h5 class="card-title text-center mb-2" style="margin-right: 5px;">Datasets</h5>
+                    </div>
+
+                    <p class="card-text text-muted text-center">
+                        Dataset Count: {{ dataset_count }}</br>
+                        Queued Datasets: {{ queued_dataset_count }}</br>
+                    </p>
+
+                    <div class="text-center mt-auto">
+                        <a href="{% url 'datasets' %}" class="btn btn-primary">View Datasets</a>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
-    
+
+
 {% endblock %}

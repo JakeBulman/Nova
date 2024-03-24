@@ -1,0 +1,24 @@
+{% extends 'nova_core/base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'datareporting/datareporting_navbar.html' %}
+
+<!--Main Title:-->
+<h1 class="display-5 text-center mt-4 mb-4 ">Dataset Processing</h1>
+
+<div class="container-fluid mt-2">
+    <div class="row justify-content-center" >
+        <div class="text-center col-md-12">
+            {% if total_num_queued == 0 or script_status == True%}
+                <a href="{% url 'run_data_pull' %}" class="btn btn-warning ml-3 disabled" style="vertical-align: middle; width: 150px;">Run Data Pull</a>
+            {% else %}
+                <a href="{% url 'run_data_pull' %}" class="btn btn-warning ml-3" style="vertical-align: middle; width: 150px;">Run Data Pull</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% include 'datareporting/partials/datareporting_processing_time.html' %}
+
+{% endblock %}

@@ -3,16 +3,19 @@
 
 {% block content %}
 {% include 'datareporting/datareporting_navbar.html' %}
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="row">
         <div class="col-md-4 offset-md-4">
             <div class="text-center mt-1 mb-3">
-                <h2>Add New Dataset</h2>
+                <h2>Amend Dataset</h2>
             </div>
-            <form hx-post="{% url 'add_dataset' %}" method="POST" hx-target="#messages-container" hx-swap="outerHTML">
+            <div class="text-center mt-1 mb-2">
+                <a href="{% url 'delete_dataset_page' dataset_info.id %}" class="btn btn-danger" style="vertical-align: middle;">Delete</a>
+            </div>
+            <form hx-post="{% url 'update_dataset' dataset_info.id %}" method="POST" hx-target="#messages-container" hx-swap="outerHTML">
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label for="datasetName">Dataset Name</label>
-                    <input type="text" class="form-control" id="datasetName" name="datasetName" placeholder="Enter report name" required>
+                    <input type="text" class="form-control" id="newDatasetName" name="newDatasetName" value="{{ dataset_info.dataset_name }}" required>
                 </div>
 
                 <div class="container-fluid">
@@ -21,34 +24,32 @@
                         <div class="col-md-9" style="padding-right: 5px; padding-left: 0;">
                             <div class="form-group" style="margin-bottom: 20px;">
                                 <label for="datasetName">Parameter Name</label>
-                                <input type="text" class="form-control" id="parameterName" name="parameterName" placeholder="Enter parameter name" required>
+                                <input type="text" class="form-control" id="newParameterName" name="newParameterName" value="{{ dataset_info.parameter_name }}" required>
                             </div>
                         </div>
 
                         <div class="col-md-3" style="padding-right: 0; padding-left: 5px;">
                             <div class="form-group" >
                                 <label for="exampleSelect">Operator</label>
-                                <select class="form-control" style="text-align: center;" id="selectedOperator" name ="selectedOperator">
-                                    <option>=</option>
-                                    <option>>=</option>
+                                <select class="form-control" style="text-align: center;" id="newSelectedOperator" name="newSelectedOperator">
+                                    <option {% if dataset_info.operator == "=" %}selected{% endif %}>=</option>
+                                    <option {% if dataset_info.operator == ">=" %}selected{% endif %}>>=</option>
                                 </select>
                             </div>
                         </div> 
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="datasetName">SQL Statement</label>
-                    <textarea class="form-control" id="sqlStatement" name="sqlStatement" rows = "10" placeholder="Enter SQL statement." required></textarea>
+                    <textarea class="form-control" id="newSqlStatement" name="newSqlStatement" rows = "10" required>{{ dataset_info.sql }}</textarea>
                 </div>
-            </br>
-
-            {% include 'datareporting/partials/datareporting_messages.html' %}
-
-            <div class="text-center mt-1 mb-2">
-                <button id="submitButton" type="submit" class="btn btn-primary" style="width:225px;">Submit</button>
-            </div>
                 
+                {% include 'datareporting/partials/datareporting_messages.html' %}
+                
+                <div class="text-center mt-2 mb-2">
+                    <button id="submitButton" type="submit" class="btn btn-primary">Update</button>
+                </div>
             </form>
         </div>
     </div>
@@ -71,8 +72,5 @@
         });
     });
     </script>
-
-    <script type="text/javascript" src="Scripts/jquery-2.1.1.min.js"></script>
-    <script type="text/javascript" src="Scripts/bootstrap.min.js"></script>
 
 {% endblock %}

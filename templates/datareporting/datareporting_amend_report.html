@@ -4,43 +4,52 @@
 {% block content %}
 {% include 'datareporting/datareporting_navbar.html' %}
 <div class="justify-content-center">
-    <h1 class="text-center pt-4 mb-4 ">Add New Report</h1>
+    <h1 class="text-center pt-4 mb-4 ">Amend Report</h1>
 </div>
-<form class="col-md-10 mx-auto form-group" hx-post="{% url 'add_report' %}" method="POST" hx-target="#messages-container" hx-swap="outerHTML">
+<div class="text-center mt-1 mb-2">
+    <a href="{% url 'delete_report_page' report_info.id%}" class="btn btn-danger" style="vertical-align: middle;">Delete</a>
+</div>
+<form class="col-md-10 mx-auto form-group" hx-post="{% url 'update_report' report_info.id%}" method="POST" hx-target="#messages-container" hx-swap="outerHTML">
     <div class="row">
         <div class="col-md-4 mx-auto form-group">
             <label for="newReportName">Report Name</label>
-            <input type="text" class="form-control" id="newReportName" name="newReportName" placeholder="Enter report name" required>
+            <input type="text" class="form-control" id="newReportName" name="newReportName" value="{{ report_info.report_name }}" required>
         </div>
     </div>
     <div class="text-center mt-3 mb-2">
-        <button type="submit" id="submitButton" class="btn btn-primary" style="width:225px;" disabled>Submit</button>
+        <button type="submit" id="submitButton" class="btn btn-warning" style="width:225px;" disabled>Update</button>
     </div>
 
     <div class="col-md-4 offset-md-4">
         {% include 'datareporting/partials/datareporting_messages.html' %}
     </div>
 
-    <div class="search-container col-md-5 mx-auto text-center pt-2">
+    <div class="search-container col-md-5 mx-auto text-center pt-3">
         <input type="text" id="searchInput" placeholder="Search Datasets..." class="form-control  mx-auto">
     </div>
     <table class="table table-bordered table-striped table-hover" style="margin-left: auto; margin-right: auto;">
         <thead class="thead-light">
             <th style="text-align: center; width: 5%;" scope="col" >Select</th>
-            <th style="text-align: center; width: 50%;" scope="col" >Dataset</th>
-            <th style="text-align: center; width: 25%;" scope="col" >Parameter</th>
-            <th style="text-align: center; width: 25%;" scope="col" >Value</th>
+            <th style="text-align: center; width: 30%;" scope="col" >Dataset</th>
+            <th style="text-align: center; width: 15%;" scope="col" >Parameter</th>
+            <th style="text-align: center; width: 10%;" scope="col" >Operator</th>
+            <th style="text-align: center; width: 15%;" scope="col" >Value</th>
         </thead>
         <tbody>
             {% for dataset in datasets_queryset %}
                 <tr>
-                    <td style="text-align: center; vertical-align: middle; width: 5%;"><input type="checkbox" name="selected_dataset" value="{{ dataset.id }}"></td>
-                    <td style="text-align: center; vertical-align: middle; width: 25%;">{{ dataset.dataset_name }}</td>
-                    <td style="text-align: center; vertical-align: middle; width: 25%;">{{ dataset.parameter_name }}</td>
-                    <td style="text-align: center; vertical-align: middle; width: 25%;"><input type="text" name="dataset_parameter_{{ dataset.id }}" placeholder = "Enter parameter value" form-control mb-1></td>
+                    <td style="text-align: center; vertical-align: middle;">
+                        <input type="checkbox" name="selected_dataset" value="{{ dataset.id }}" {% if dataset.id in selected_datasets_ids %}checked{% endif %}>
+                    </td>
+                    <td style="text-align: center; vertical-align: middle; ">{{ dataset.dataset_name }}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{ dataset.parameter_name }}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{ dataset.operator }}</td>
+                    <td style="text-align: center; vertical-align: middle;">
+                        <input style="text-align: center; vertical-align: middle;" type="text" name="dataset_parameter_{{ dataset.id }}" placeholder="Enter parameter value" class="form-control mb-1" value="{% for report_dataset in report_dataset_queryset %}{% if report_dataset.dataset_id == dataset.id %}{{ report_dataset.report_parameter }}{% endif %}{% endfor %}">
+                    </td>
                 </tr>
             {% endfor %}
-        </tbody>
+        </tbody>        
     </table>
 </form>
 
@@ -85,30 +94,6 @@
     
         checkboxes.forEach(function(checkbox) {
             checkbox.addEventListener('change', updateButtonState);
-        });
-    });
-</script>
-
-<!--Script for required values :-->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const checkboxes = document.querySelectorAll('.dataset-checkbox');
-        
-        checkboxes.forEach(function(checkbox) {
-            checkbox.addEventListener('change', function() {
-                // Get the dataset ID from the data attribute of the checkbox
-                const datasetId = this.getAttribute('data-dataset-id');
-                
-                // Find the corresponding input field using the dataset ID
-                const inputField = document.querySelector('.dataset-parameter[data-dataset-id="' + datasetId + '"]');
-                
-                // If the checkbox is checked, set the input field as required; otherwise, remove the required attribute
-                if (this.checked) {
-                    inputField.setAttribute('required', 'required');
-                } else {
-                    inputField.removeAttribute('required');
-                }
-            });
         });
     });
 </script>

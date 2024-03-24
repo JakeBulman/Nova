@@ -2,20 +2,36 @@
 {% load static %}
 
 {% block content %}
+{% include 'datareporting/datareporting_navbar.html' %}
+<h1 class="display-5 text-center mt-5 mb-4">{{ report_info.report_name }}</h1>
 
-<h1 class="display-5 text-center mt-5 mb-5">{{ report_info.report_name }}</h1>
+<form method="POST" action="{% url 'amend_report' report_info.id%}" >
+    <div class="text-center mb-3" >
+        <button type="submit" class="btn btn-warning" style="width:225px;">Amend Report</button>
+    </div>
+</form>
 
-<form method="POST" action="{% url 'update_parameter_values'%}"></form>
+<div class="col-md-4 offset-md-4">
+    {% include 'datareporting/partials/datareporting_messages.html' %}
+</div>
+
+<form method="POST" hx-post="{% url 'update_parameter_values' report_info.id %}" hx-target="#messages-container" hx-swap="outerHTML">
     <table class="table table-bordered table-striped table-hover" style="width: 50%; margin-left: auto; margin-right: auto;">
         <thead class="thead-light">
             <th style="text-align: center; width: 25%;" scope="col" >Dataset</th>
+            <th style="text-align: center; width: 25%;" scope="col" >Parameter</th>
+            <th style="text-align: center; width: 25%;" scope="col" >Operator</th>
             <th style="text-align: center; width: 25%;" scope="col" >Value</th>
         </thead>
         <tbody>
             {% for record in report_datasets_queryset %}
                 <tr>
-                    <td style="text-align: center; vertical-align: middle; width: 25%;">{{ record.dataset.dataset_name }}</td>
-                    <td style="text-align: center; vertical-align: middle; width: 25%;"><input name="dataset_parameter" id="dataset_parameter" value="{{ record.report_parameter }}" type="text" class="form-control mb-1" ></td>
+                    <td style="text-align: center; vertical-align: middle; width: 25%;">
+                        <a href="{% url 'dataset_details' record.dataset.id %}">{{ record.dataset.dataset_name }}</a>
+                    </td>
+                    <td style="text-align: center; vertical-align: middle; width: 25%;">{{ record.dataset.parameter_name }}</td>
+                    <td style="text-align: center; vertical-align: middle; width: 25%;">{{ record.dataset.operator }}</td>
+                    <td style="text-align: center; vertical-align: middle; width: 25%;"><input name="dataset_parameter_{{ record.id }}" id="dataset_parameter" value="{{ record.report_parameter }}" type="text" class="form-control mb-1"></td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -24,8 +40,5 @@
         <button type="submit" class="btn btn-warning" style="width:225px;">Update Values</button>
     </div>
 </form>
-<div class="text-center">
-    <button type="submit" class="btn btn-warning" style="width:225px;">Add Dataset</button>
-</div>
 
 {% endblock %}

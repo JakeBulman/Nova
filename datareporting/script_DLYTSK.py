@@ -33,6 +33,8 @@ django.setup()
 
 from datareporting.models import *
 
-for dataset in Datasets.objects.all().filter(active_refresh = True):
-       new_task = ManualTaskQueue(dataset=dataset)
-       new_task.save()
+active_dataset_ids = Report_Datasets.objects.filter(report__active=True).values_list('dataset_id', flat=True).distinct()
+active_datasets = Datasets.objects.filter(id__in=active_dataset_ids)
+
+for dataset in active_datasets:
+    ManualTaskQueue.objects.create(dataset=dataset)

@@ -7,8 +7,12 @@ from openpyxl import load_workbook
 import pyodbc
 import pandas as pd
 import time
+from django.apps import apps
+from sqlalchemy import create_engine
+import psycopg2 
+import io
 
-start_time = time.time()
+from django.db.models import Min
 
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
     print('DEV')
@@ -34,296 +38,70 @@ else:
 django.setup()
 
 from datareporting.models import *
-from django.contrib.auth.models import User
 
-def run_algo():
+for task in ManualTaskQueue.objects.all().filter(task_queued=1, task_running=0).order_by('id'):
+    dataset = task.dataset
+    dataset_name = dataset.dataset_name
+    dataset_sql = task.dataset.sql
+    parameter_name = dataset.parameter_name
+    operator = dataset.operator
 
-    for task in ManualTaskQueue.objects.all().filter(task_queued=1, task_running=0):
-        noSQL = False
-        dataset = task.dataset
-        try:
-            dataset.error_status = None
-            dataset.save()
-            task.task_running = 1
-            task.save()
-            parameter = task.dataset.parameter
-            if parameter is None:
-                parameter = 0
+    report_parameters = Report_Datasets.objects.filter(dataset_id=dataset.id, report__active = True)
+    concatenated_parameters = ', '.join(["'"+str(rp.report_parameter)+"'" for rp in report_parameters])
 
-            #meps_comp_entries:
-            if task.dataset.dataset_name == 'meps_comp_entries':
-                #Get datalake data
-                with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-                    df = pd.read_sql(f'''
-                        select distinct
-                            centre_id as centre_id,
-                            sap_centre_id as sap_centre_id,
-                            c4c_centre_id as c4c_centre_id,
-                            centre_name as centre_name,
-                            cno_postcode as cno_postcode,
-                            cno_country as cno_country,
-                            cand_uniq_id as cand_uniq_id,
-                            school_or_private as school_or_private,
-                            cand_ses_id as cand_ses_id,
-                            ses_sid as ses_sid,
-                            ses_name as ses_name,
-                            ses_month as ses_month,
-                            ses_year as ses_year,
-                            financial_year as financial_year,
-                            qualif as qualif,
-                            ass_code as ass_code,
-                            ass_ver_no as ass_ver_no,
-                            opt_code as opt_code,
-                            comp_list as comp_list,
-                            comp_id as comp_id,
-                            kpi_entries_comp as kpi_entries_comp,
-                            qua_name_sh as qua_name_sh,
-                            ass_name_sh as ass_name_sh,
-                            opt_name as opt_name,
-                            retake_ind as retake_ind,
-                            exam_start_date as exam_start_date,
-                            exam_time_of_day as exam_time_of_day,
-                            datetime_received as datetime_received,
-                            create_datetime as create_datetime,
-                            mod_timestamp as mod_timestamp,
-                            sid as sid,
-                            name as name,
-                            sex_code as sex_code,
-                            date_of_birth as date_of_birth,
-                            national_id as national_id
-                        from cie.meps_comp_entries
-                        where ses_sid in ({parameter}) 
-                                            ''', conn)
+    try:
+        dataset.error_status = None
+        dataset.save()
+        task.task_running = 1
+        task.save()
+        
+        if concatenated_parameters != '':
 
-                meps_comp_entries.objects.all().delete()
+            with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+                if operator == '=':
+                    df = pd.read_sql(f'''{dataset_sql} where {parameter_name} in ({concatenated_parameters})''', conn)
+                    
+                elif operator == '>=':
+                    min_parameter = report_parameters.aggregate(Min('report_parameter'))
+                    min_parameter_value = min_parameter['report_parameter__min']
+                    print(min_parameter_value)
+                    df = pd.read_sql(f'''{dataset_sql} where {parameter_name} >= {min_parameter_value}''', conn)
+            
+            engine = create_engine('postgresql+psycopg2://postgres:jman@localhost:5432/myproject')
 
-                def insert_to_model(row):
-                    meps_comp_entries.objects.create(
-                        centre_id = row['centre_id'],
-                        sap_centre_id = row['sap_centre_id'],
-                        c4c_centre_id = row['c4c_centre_id'],
-                        centre_name = row['centre_name'],
-                        cno_postcode = row['cno_postcode'],
-                        cno_country = row['cno_country'],
-                        cand_uniq_id = row['cand_uniq_id'],
-                        school_or_private = row['school_or_private'],
-                        cand_ses_id = row['cand_ses_id'],
-                        ses_sid = row['ses_sid'],
-                        ses_name = row['ses_name'],
-                        ses_month = row['ses_month'],
-                        ses_year = row['ses_year'],
-                        financial_year = row['financial_year'],
-                        qualif = row['qualif'],
-                        ass_code = row['ass_code'],
-                        ass_ver_no = row['ass_ver_no'],
-                        opt_code = row['opt_code'],
-                        comp_list = row['comp_list'],
-                        comp_id = row['comp_id'],
-                        kpi_entries_comp = row['kpi_entries_comp'],
-                        qua_name_sh = row['qua_name_sh'],
-                        ass_name_sh = row['ass_name_sh'],
-                        opt_name = row['opt_name'],
-                        retake_ind = row['retake_ind'],
-                        exam_start_date = row['exam_start_date'],
-                        exam_time_of_day = row['exam_time_of_day'],
-                        datetime_received = row['datetime_received'],
-                        create_datetime = row['create_datetime'],
-                        mod_timestamp = row['mod_timestamp'],
-                        sid = row['sid'],
-                        name = row['name'],
-                        sex_code = row['sex_code'],
-                        date_of_birth = row['date_of_birth'],
-                        national_id = row['national_id'],
-                )
+            # Drop old table and create new empty table
+            df.head(0).to_sql(f'datareporting_dataset_{dataset_name}', engine, if_exists='replace',index=False)
 
-            #cie_ciedirect_enquiry:
-            elif task.dataset.dataset_name == 'ciedirect_enquiry':
-                #Get datalake data
-                with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-                    df = pd.read_sql(f'''
-                        select 
-                        sessid as sessid,
-                        enquiryid as enquiryid,
-                        epsenquiryid as epsenquiryid
-                        from cie.ciedirect_enquiry
-                        where sessid in ({parameter}) 
-                                            ''', conn)
-                
-                ciedirect_enquiry.objects.all().delete()
+            conn = engine.raw_connection()
+            cur = conn.cursor()
+            output = io.StringIO()
+            df.to_csv(output, sep='\t', header=False, index=False)
+            output.seek(0)
+            contents = output.getvalue()
+            cur.copy_from(output, f'datareporting_dataset_{dataset_name}', null="")
+            conn.commit()
+            cur.close()
+            conn.close()
 
-                def insert_to_model(row):
-                    ciedirect_enquiry.objects.create(
-                        sessid = row['sessid'],
-                        enquiryid = row['enquiryid'],
-                        epsenquiryid = row['epsenquiryid'],
-                    )
+            dataset_size = len(df)
 
-            #ciedirect_enquirystatus:
-            elif task.dataset.dataset_name == 'ciedirect_enquirystatus':
-                #Get datalake data
-                with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-                    df = pd.read_sql(f'''
-                        select 
-                        enquiryid as enquiryid,
-                        enquirystatus as enquirystatus,
-                        datetime as datetime
-                        from cie.ciedirect_enquirystatus
-                        where partition_year in ({parameter}) 
-                                            ''', conn)
-                
-                ciedirect_enquirystatus.objects.all().delete()
+            dataset.row_count= dataset_size
+        
+        task.task_completion_date = timezone.now()
+        dataset.last_updated = timezone.now()
+        task.task_queued = 0
+        task.task_running = 0
+        task.save()
+        dataset.save()
 
-                def insert_to_model(row):
-                    ciedirect_enquirystatus.objects.create(
-                        enquiryid = row['enquiryid'],
-                        enquirystatus = row['enquirystatus'],
-                        datetime = row['datetime'],
-                    )
+    except Exception as e:
+        task.task_queued = 0
+        task.task_running = 0
+        dataset.error_status = 'SQL Failed To Run'
+        dataset.save()
+        task.save()  
+        print(e)
 
-             #centre_enquiry_requests:
-            elif task.dataset.dataset_name == 'centre_enquiry_requests':
-                #Get datalake data
-                with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-                    df = pd.read_sql(f'''
-                        select
-                        sid as sid,
-                        ses_sid as ses_sid,
-                        cnu_id as cnu_id,
-                        status as status,
-                        created_datetime as created_datetime,
-                        completed_datetime as completed_datetime
-
-                        from ar_meps_req_prd.centre_enquiry_requests
-
-                        where ses_sid IN ({parameter}) 
-                                            ''', conn)
-                
-                centre_enquiry_requests.objects.all().delete()
-
-                def insert_to_model(row):
-                    centre_enquiry_requests.objects.create(
-                        sid = row['sid'],
-                        ses_sid = row['ses_sid'],
-                        cnu_id = row['cnu_id'],
-                        status = row['status'],
-                        created_datetime = row['created_datetime'],
-                        completed_datetime = row['completed_datetime'],
-                    )
-
-             #enquiry_request_parts:
-            elif task.dataset.dataset_name == 'enquiry_request_parts':
-                #Get datalake data
-                with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-                    df = pd.read_sql(f'''
-                        select 
-                        sid as sid,
-                        cer_sid as cer_sid,
-                        es_service_code as es_service_code,
-                        booked_in_error_ind as booked_in_error_ind
-
-                        from ar_meps_req_prd.enquiry_request_parts
-
-                        where caom_ses_sid IN ({parameter})
-                                            ''', conn)
-                
-                enquiry_request_parts.objects.all().delete()
-
-                def insert_to_model(row):
-                    enquiry_request_parts.objects.create(
-                        sid = row['sid'],
-                        cer_sid = row['cer_sid'],
-                        es_service_code = row['es_service_code'],
-                        booked_in_error_ind = row['booked_in_error_ind'],
-                    )
-
-             #enquiry_components:
-            elif task.dataset.dataset_name == 'enquiry_components':
-                #Get datalake data
-                with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-                    df = pd.read_sql(f'''
-                        select 
-                        sid as sid,
-                        ccm_ass_code as ccm_ass_code,
-                        ccm_asv_ver_no as ccm_asv_ver_no,
-                        ccm_com_id as ccm_com_id,
-                        erp_sid as erp_sid
-
-                        from ar_meps_req_prd.enquiry_components
-
-                        where ccm_ses_sid IN ({parameter})
-                                            ''', conn)
-                
-                enquiry_components.objects.all().delete()
-
-                def insert_to_model(row):
-                    enquiry_components.objects.create(
-                        sid = row['sid'],
-                        ccm_ass_code = row['ccm_ass_code'],
-                        ccm_asv_ver_no = row['ccm_asv_ver_no'],
-                        ccm_com_id = row['ccm_com_id'],
-                        erp_sid = row['erp_sid']
-                    )
-
-             #all_products:
-            elif task.dataset.dataset_name == 'all_products':
-                #Get datalake data
-                with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-                    df = pd.read_sql(f'''
-                        select
-                        ses_sid as ses_sid,
-                        ass_code as ass_code,
-                        asv_ver_no as asv_ver_no,
-                        com_id as com_id,
-                        qua_name as qua_name
-
-                        from ar_sts_sts.all_products
-
-                        where ses_sid IN ({parameter})
-                                            ''', conn)
-                
-                all_products.objects.all().delete()
-
-                def insert_to_model(row):
-                    all_products.objects.create(
-                        ses_sid = row['ses_sid'],
-                        ass_code = row['ass_code'],
-                        asv_ver_no = row['asv_ver_no'],
-                        com_id = row['com_id'],
-                        qua_name = row['qua_name'],
-                    )
-
-            else:
-                noSQL = True
-
-            if noSQL == False:
-                df.apply(insert_to_model, axis=1)
-                Row_Count = len(df)
-                dataset.row_count = Row_Count
-                if Row_Count == 0:
-                    dataset.error_status = 'No Data In Table'
-                else:
-                    dataset.error_status = None
-            else:
-                dataset.error_status = 'No SQL defined'
-
-            task.task_completion_date = timezone.now()
-            dataset.last_updated = timezone.now()
-            task.task_queued = 0
-            task.task_running = 0
-            task.save()
-            dataset.save()
-        except Exception as e:
-            task.task_queued = 0
-            task.task_running = 0
-            dataset.error_status = 'SQL Failed To Run'
-            dataset.save()
-            task.save()  
-            print(e)
-
-            # More tasks can be checked for using IF statement here...
-
-run_algo()
-
-end_time = time.time()
-execution_time = end_time - start_time
-print("Script execution time:", execution_time, "seconds")
+script_info = Script_Info.objects.get(script = 'TASKSQ')
+script_info.running = False
+script_info.save()

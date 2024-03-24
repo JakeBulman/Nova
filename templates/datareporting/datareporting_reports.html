@@ -2,20 +2,24 @@
 {% load static %}
 
 {% block content %}
-
-<div id="copy-message" style="display: none; position: fixed; top: 5; width: 100%; text-align: center; background-color: #00d1b2; color: white; padding: 10px 0; z-index: 100;">
-    Information copied to clipboard.
-</div>
-
-<!--Button to add report (need to create the actual form, url, view, etc...):-->
-<form action="{% url 'new_report' %}" method="post">
-    <button type="submit" style="border: none; background: none; cursor: pointer;">
-        <img src="{% static 'admin/img/plus.png' %}" style="width: 20px; height: 20px;">
-    </button>
-</form>
+{% include 'datareporting/datareporting_navbar.html' %}
 
 <!--Main Title:-->
-<h1 class="display-5 text-center pt-4 mb-4 ">Reports</h1>
+<h1 class="display-5 text-center pt-4 mb-2 ">Reports</h1>
+
+<div style="width: 50%; margin: 0 auto;">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} my-3 text-center pt-3" style="font-size: 1rem; color: #444444; border-radius: 10px; padding: 10px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div class="text-center pt-2 mb-2">
+    <a href="{% url 'new_report' %}" class="btn btn-primary ml-3" style="vertical-align: middle;">Add New Report</a>
+</div>
 
 <!--Search Bar:-->
 <div class="search-container text-center pt-3">
