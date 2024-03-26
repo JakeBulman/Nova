@@ -52,10 +52,8 @@ def ear_home_view(request,*args, **kwargs):
 	user_status = models.TaskUserPrimary.objects.get(task_user_id=user).primary_status
 	
 	if request.htmx:
-		print('htmx')
 		return render(request, 'enquiries/htmx_partials/homepage_pill_count.html', context)
 	else:
-		print('not htmx')
 		if user_status == 'CO':
 			return render(request, "enquiries/main_templates/home_ear_coordinator.html", context=context, )
 		elif user_status == 'TL':
@@ -386,7 +384,7 @@ def task_completion_view(request):
 
 def user_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
+	queryset = models.User.objects.exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
 	teams = models.TaskTeams.objects.all().order_by('id')
 	context = {"users": queryset, "teams":teams}
 	return render(request, "enquiries/main_templates/enquiries_user_list.html", context=context)
@@ -394,20 +392,16 @@ def user_list_view(request):
 def user_tasks_view(request, userid=None):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_assigned_to=userid, script_tasks__task_completion_date__isnull=True).order_by('script_tasks__task_assigned_date')
-	print(ec_queryset)
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+
+	history_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_assigned_to=userid, script_tasks__task_completion_date__isnull=False).order_by('script_tasks__task_completion_date')
+	history_queryset_paged = Paginator(history_queryset,20,0,True)
 	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj, "original_user":int(userid)}
-	print(userid)
-	return render(request, "enquiries/main_templates/enquiries_task_user_list.html", context=context) 
+	page_obj = history_queryset_paged.get_page(page_number)  # returns the desired page object
+	context = {"cer": ec_queryset, "history":page_obj, "original_user":int(userid)}
+	if request.htmx:
+		return render(request, "enquiries/htmx_partials/user_task_history.html", context=context) 
+	else:
+		return render(request, "enquiries/main_templates/enquiries_task_user_list.html", context=context) 
 
 def self_assign_task_view(request, task_id=None):
 	#Get username to filter tasks
@@ -415,7 +409,6 @@ def self_assign_task_view(request, task_id=None):
 	if request.user.is_authenticated:
 		username =request.user
 	#Set the  task to this user
-	print(task_id)
 	if task_id is not None:
 		models.TaskManager.objects.filter(id=task_id).update(task_assigned_to=username)
 		models.TaskManager.objects.filter(id=task_id).update(task_assigned_date=timezone.now())
@@ -433,7 +426,6 @@ def assign_task_user_view(request, user_id=None, task_id=None):
 	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
 	redirect_address = request.POST.get('page_location')
 	enquiry_id = request.POST.get('enquiry_id')
-	print(redirect_address)
 	context = {"users": queryset, "original_user":user_id, "task_id":task_id, "redirect_address":redirect_address, "enquiry_id":enquiry_id}	
 	return render(request, "enquiries/main_templates/enquiries_user_select.html", context=context)
 	#return redirect('user_tasks', user_id)
@@ -441,7 +433,6 @@ def assign_task_user_view(request, user_id=None, task_id=None):
 def assign_task_user_selected_view(request, user_id=None, task_id=None, selected_user=None):
 	models.TaskManager.objects.filter(pk=task_id).update(task_assigned_to=User.objects.get(pk=selected_user),task_queued=0,task_assigned_date=timezone.now())
 	redirect_address = request.POST.get('page_location')
-	print(redirect_address)
 	if redirect_address == 'my_tasks':
 		return redirect('my_tasks')
 	elif redirect_address == 'task_assignment':
@@ -802,7 +793,8 @@ def pexmch_task_complete(request):
 	script_id = request.POST.get('script_id')
 	task_id = request.POST.get('task_id')
 	enquiry_id = request.POST.get('enquiry_id')
-	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='MANAPP',task_completion_date = None).exists():
+	#if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='MANAPP',task_completion_date = None).exists():
+	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='AUTAPP',task_completion_date = None).exists():
 		for i in range(1,50):
 			pexmch = request.POST.get('pexmch'+str(i))
 			if pexmch:
@@ -815,7 +807,8 @@ def pexmch_task_complete(request):
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
 			#change to AUTAPP once testing complete
-			task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+			#task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+			task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
 			task_assigned_to = None,
 			task_assigned_date = None,
 			task_completion_date = None
@@ -1741,11 +1734,13 @@ def iec_pass_view(request, enquiry_id=None):
 						)
 				else:
 				#create a new task for the next step (AUTAPP)
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
+					#if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='AUTAPP',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
 							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-							task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+							#task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+							task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
 							task_assigned_to = None,
 							task_assigned_date = None,
 							task_completion_date = None
@@ -1893,11 +1888,13 @@ def iec_pass_all_view(request):
 							)
 					else:
 					#create a new task for the next step (AUTAPP)
-						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
+						#if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='AUTAPP',task_completion_date = None).exists():
 							models.TaskManager.objects.create(
 								enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 								ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-								task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+								#task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+								task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
 								task_assigned_to = None,
 								task_assigned_date = None,
 								task_completion_date = None
@@ -2062,11 +2059,13 @@ def iec_issue_view(request, enquiry_id=None):
 						)
 				else:
 				#create a new task for the next step (AUTAPP)
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
+					#if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='AUTAPP',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
 							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-							task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+							#task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+							task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
 							task_assigned_to = None,
 							task_assigned_date = None,
 							task_completion_date = None

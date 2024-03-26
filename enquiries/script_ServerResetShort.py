@@ -52,6 +52,9 @@ def load_core_tables():
 
     insert_to_model()
 
+
     end_time = datetime.datetime.now()
     print(end_time - start_time)
 
+# clear_tables()
+# load_core_tables()
