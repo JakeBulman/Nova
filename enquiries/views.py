@@ -30,7 +30,7 @@ def ear_home_view(request,*args, **kwargs):
 	delta_tasks = ['NRMACC',]
 	kappa_tasks = ['CLERIC',]
 	sigma_tasks = []
-	omega_tasks = ['BOTMAF','GRDREL','NEGCON','PDACON','PEACON','PUMCON','GRDREJ','MRKAMD','GRDCON','GRDCHG','OUTCON',]
+	omega_tasks = ['BOTMAF','GRDREL','NEGCON','PDACON','PEACON','PUMCON','GRDREJ','MRKAMD','GRDCON','GRDCHG','OUTCON','ESMSCR']
 	lambda_tasks = ['BOTAPP','BOTMAR',]
 
 	alpha_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=alpha_tasks, enquiry_tasks__task_completion_date__isnull=True)
@@ -187,12 +187,13 @@ def ear_home_view_team_omega(request,*args, **kwargs):
 	grdchga_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDCHG', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	outcon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True)
 	outcona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	esmscr_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMSCR', enquiry_tasks__task_completion_date__isnull=True)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
 	context = {"session_desc":session_desc, "mytask":mytask_count, "grdrel":grdrel_count, "grdrela":grdrela_count, "negcon":negcon_count, "negcona":negcona_count, "pdacon":pdacon_count, "pdacona":pdacona_count, 
 		"peacon":peacon_count, "peacona":peacona_count, "pumcon":pumcon_count, "pumcona":pumcona_count, "grdrej":grdrej_count, "grdreja":grdreja_count, "mrkamd":mrkamd_count, 
-		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count
-		, "outcon":outcon_count, "outcona":outcona_count
+		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count,
+		"esmscr":esmscr_count,"outcon":outcon_count, "outcona":outcona_count
 		}
 
 	return render(request, "enquiries/main_templates/home_ear_omega.html", context=context, )
@@ -2353,6 +2354,82 @@ def omrche_download_view(request, download_id=None):
 	models.OmrcheDownloads.objects.filter(pk=download_id).update(download_count = str(downloads))
 
 	return FileResponse(document, as_attachment=True)
+
+
+
+
+def esmscr_list_view(request):
+	ec_queryset = models.EsmscrDownloads.objects.order_by('-uploaded_at')
+	ec_queryset_paged = Paginator(ec_queryset,20,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries/task_lists/enquiries_esmscr.html", context=context)
+
+def esmscr_create_view(request):
+	ec_queryset = models.TaskManager.objects.filter(task_id='ESMSCR', task_completion_date__isnull=True)[:50]
+	if ec_queryset.count() > 0:
+		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
+		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
+		print(file_location)
+		username = None
+		if request.user.is_authenticated:
+			username =request.user		
+		with open(file_location, 'w', newline='') as file:
+			file.truncate()
+			writer = csv.writer(file)
+			writer.writerow(['Assessment','Component ID','Centre','Candidate No'])
+			for s in ec_queryset:
+				syll = s.ec_sid.eps_ass_code
+				comp = s.ec_sid.eps_com_id
+				candidate = s.ec_sid.erp_sid.eps_cand_id
+				centre = s.ec_sid.erp_sid.eps_centre_id
+				writer.writerow([syll,comp,candidate,centre])
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSCR').update(task_completion_date=timezone.now())
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSCR').update(task_assigned_date=timezone.now())
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSCR').update(task_assigned_to=username)
+				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='SCRREN',task_completion_date = None).exists():
+					models.TaskManager.objects.create(
+						enquiry_id = s.enquiry_id,
+						ec_sid = s.ec_sid,
+						task_id = models.TaskTypes.objects.get(task_id = 'SCRREN'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+					)
+
+		models.EsmscrDownloads.objects.create(
+			document = file_location,
+			file_name = file_timestamp,
+			download_count = 0,
+			archive_count = 0
+			)
+		
+			#Get username to filter tasks
+
+		
+
+
+	return redirect('esmscr_list')
+
+def esmscr_download_view(request, download_id=None):
+	# 
+	document = models.EsmscrDownloads.objects.get(pk=download_id).document
+	downloads = int(models.EsmscrDownloads.objects.get(pk=download_id).download_count) + 1
+	models.EsmscrDownloads.objects.filter(pk=download_id).update(download_count = str(downloads))
+
+	return FileResponse(document, as_attachment=True)
+
+
+
+
 
 
 

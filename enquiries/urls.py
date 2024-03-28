@@ -108,6 +108,10 @@ urlpatterns = [
     path('omrche_list', views.omrche_list_view, name='omrche_list'),
     path('omrche_create', views.omrche_create_view, name='omrche_create'),
     path('omrche_download/<str:download_id>', views.omrche_download_view, name='omrche_download'),
+    #Download ESMSCR to file location
+    path('esmscr_list', views.esmscr_list_view, name='esmscr_list'),
+    path('exmscr_create', views.esmscr_create_view, name='exmscr_create'),
+    path('exmscr_download/<str:download_id>', views.esmscr_download_view, name='exmscr_download'),
     #Control Examiner SAL breaches
     path('exmsla_list', views.exmsla_list_view, name='exmsla_list'),
     #Re-do Examiner SAL breaches
