@@ -1615,141 +1615,150 @@ def iec_pass_view(request, enquiry_id=None):
 		#Get scripts for this enquiry ID, this is a join from EC to ERP
 		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 		for s in Scripts:
-			#Check for pre-emptive scaled marks
-			if models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).exists():
-				kbr = models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).first().kbr_code
-			else:
-				kbr = None
-			print('KBR GO')
-			if kbr == 'SM' and s.erp_sid.cer_sid.ministry_flag == 'MU':
-				#Create confirmed MIS
-				print('SM')
-				eb_sid = models.EnquiryComponentElements.objects.get(ec_sid=s.ec_sid).eb_sid.eb_sid
-				if models.MisReturnData.objects.filter(ec_sid=s.ec_sid).exists():
-					models.MisReturnData.objects.filter(ec_sid=s.ec_sid).update(
-						eb_sid = models.EnquiryBatches.objects.get(eb_sid=eb_sid),
-						ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
-						original_exm = None,
-						rev_exm = '01.01',
-						original_mark = None,
-						mark_status = 'Confirmed',
-						revised_mark = 0,
-						justification_code = None,
-						remark_reason = None,
-						remark_concern_reason = None
-					)
-				else:
-					models.MisReturnData.objects.create(
-						eb_sid = models.EnquiryBatches.objects.get(eb_sid=eb_sid),
-						ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
-						original_exm = None,
-						rev_exm = '01.01',
-						original_mark = None,
-						mark_status = 'Confirmed',
-						revised_mark = 0,
-						justification_code = None,
-						remark_reason = None,
-						remark_concern_reason = None
-					)
-
-				#Assign script to PE
-				try:
-					principal_exm = models.EnquiryPersonnelDetails.objects.filter(exm_examiner_no='01.01',ass_code=s.eps_ass_code,com_id=s.eps_com_id,enpe_sid__currently_valid=True).first().enpe_sid
-				except:
-					principal_exm = None
-				if models.ScriptApportionment.objects.filter(ec_sid=s.ec_sid,apportionment_invalidated=0,script_marked=1).exists():
-					print('Script already apportioned')
-				else:
-					models.ScriptApportionment.objects.create(
-						enpe_sid = principal_exm,
-						ec_sid = s
-						#script_marked is default to 1
-	)
-
-			
-				#Create BOTAPP and MKWAIT
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='BOTAPP',task_completion_date = None).exists():
+			#Check is ASR/ASC and send to script requesting
+			if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR':
+				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
 					models.TaskManager.objects.create(
-					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-					task_id = models.TaskTypes.objects.get(task_id = 'BOTAPP'),
-					task_assigned_to = User.objects.get(username='RPABOT'),
-					task_assigned_date = timezone.now(),
-					task_completion_date = None
-					)	
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MKWAIT',task_completion_date = None).exists():
-					models.TaskManager.objects.create(
-					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-					task_id = models.TaskTypes.objects.get(task_id = 'MKWAIT'),
-					task_assigned_to = User.objects.get(username='NovaServer'),
-					task_assigned_date = timezone.now(),
-					task_completion_date = None
-					)			
-				continue
-
-
-			if s.script_type == 'MIC - MU' or s.script_type == 'MIC - SEAB':
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='LOCMAR',task_completion_date = None).exists():
-					models.TaskManager.objects.create(
-					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-					task_id = models.TaskTypes.objects.get(task_id = 'LOCMAR'),
-					task_assigned_to = None,
-					task_assigned_date = None,
-					task_completion_date = None
-					)		
-				continue	
-			if s.script_type == 'Multiple Choice':
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
-					models.TaskManager.objects.create(
-					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-					task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
-					task_assigned_to = None,
-					task_assigned_date = None,
-					task_completion_date = None
-					)		
-				continue	
-			if '1' in s.erp_sid.service_code:
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
-					models.TaskManager.objects.create(
-					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-					task_id = models.TaskTypes.objects.get(task_id = 'CLERIC'),
-					task_assigned_to = None,
-					task_assigned_date = None,
-					task_completion_date = None
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
 					)
 			else:
-				if models.EnquiryComponentsExaminerChecks.objects.filter(ec_sid = s.ec_sid).count() > 0:
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='PEXMCH',task_completion_date = None).exists():
+				#Check for pre-emptive scaled marks
+				if models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).exists():
+					kbr = models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).first().kbr_code
+				else:
+					kbr = None
+				print('KBR GO')
+				if kbr == 'SM' and s.erp_sid.cer_sid.ministry_flag == 'MU':
+					#Create confirmed MIS
+					print('SM')
+					eb_sid = models.EnquiryComponentElements.objects.get(ec_sid=s.ec_sid).eb_sid.eb_sid
+					if models.MisReturnData.objects.filter(ec_sid=s.ec_sid).exists():
+						models.MisReturnData.objects.filter(ec_sid=s.ec_sid).update(
+							eb_sid = models.EnquiryBatches.objects.get(eb_sid=eb_sid),
+							ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
+							original_exm = None,
+							rev_exm = '01.01',
+							original_mark = None,
+							mark_status = 'Confirmed',
+							revised_mark = 0,
+							justification_code = None,
+							remark_reason = None,
+							remark_concern_reason = None
+						)
+					else:
+						models.MisReturnData.objects.create(
+							eb_sid = models.EnquiryBatches.objects.get(eb_sid=eb_sid),
+							ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
+							original_exm = None,
+							rev_exm = '01.01',
+							original_mark = None,
+							mark_status = 'Confirmed',
+							revised_mark = 0,
+							justification_code = None,
+							remark_reason = None,
+							remark_concern_reason = None
+						)
+					#Assign script to PE
+					try:
+						principal_exm = models.EnquiryPersonnelDetails.objects.filter(exm_examiner_no='01.01',ass_code=s.eps_ass_code,com_id=s.eps_com_id,enpe_sid__currently_valid=True).first().enpe_sid
+					except:
+						principal_exm = None
+					if models.ScriptApportionment.objects.filter(ec_sid=s.ec_sid,apportionment_invalidated=0,script_marked=1).exists():
+						print('Script already apportioned')
+					else:
+						models.ScriptApportionment.objects.create(
+							enpe_sid = principal_exm,
+							ec_sid = s
+							#script_marked is default to 1
+							)
+					#Create BOTAPP and MKWAIT
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='BOTAPP',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
 						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-						task_id = models.TaskTypes.objects.get(task_id = 'PEXMCH'),
+						task_id = models.TaskTypes.objects.get(task_id = 'BOTAPP'),
+						task_assigned_to = User.objects.get(username='RPABOT'),
+						task_assigned_date = timezone.now(),
+						task_completion_date = None
+						)	
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MKWAIT',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'MKWAIT'),
+						task_assigned_to = User.objects.get(username='NovaServer'),
+						task_assigned_date = timezone.now(),
+						task_completion_date = None
+						)			
+					continue
+
+
+				if s.script_type == 'MIC - MU' or s.script_type == 'MIC - SEAB':
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='LOCMAR',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'LOCMAR'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+						)		
+					continue	
+				if s.script_type == 'Multiple Choice':
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+						)		
+					continue	
+				if '1' in s.erp_sid.service_code:
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'CLERIC'),
 						task_assigned_to = None,
 						task_assigned_date = None,
 						task_completion_date = None
 						)
 				else:
-				#create a new task for the next step (AUTAPP)
-					#if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='AUTAPP',task_completion_date = None).exists():
-						models.TaskManager.objects.create(
+					if models.EnquiryComponentsExaminerChecks.objects.filter(ec_sid = s.ec_sid).count() > 0:
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='PEXMCH',task_completion_date = None).exists():
+							models.TaskManager.objects.create(
 							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-							#task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
-							task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
+							task_id = models.TaskTypes.objects.get(task_id = 'PEXMCH'),
 							task_assigned_to = None,
 							task_assigned_date = None,
 							task_completion_date = None
-						)
-						models.EnquiryComponentsPreviousExaminers.objects.create(
-							cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-							ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
-							exm_position = models.EnquiryComponentsHistory.objects.get(ec_sid=s.ec_sid).exm_position
-						)
+							)
+					else:
+					#create a new task for the next step (AUTAPP)
+						#if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='AUTAPP',task_completion_date = None).exists():
+							models.TaskManager.objects.create(
+								enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+								ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+								#task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+								task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
+								task_assigned_to = None,
+								task_assigned_date = None,
+								task_completion_date = None
+							)
+							models.EnquiryComponentsPreviousExaminers.objects.create(
+								cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+								ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
+								exm_position = models.EnquiryComponentsHistory.objects.get(ec_sid=s.ec_sid).exm_position
+							)
 		#Get username to filter tasks
 		username = None
 		if request.user.is_authenticated:
@@ -1770,6 +1779,205 @@ def iec_pass_all_view(request):
 					#Get scripts for this enquiry ID, this is a join from EC to ERP
 			Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 			for s in Scripts:
+				#Check is ASR/ASC and send to script requesting
+				if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR':
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+						)
+				else:
+					#Check for pre-emptive scaled marks
+					if models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).exists():
+						kbr = models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).first().kbr_code
+					else:
+						kbr = None
+					if kbr == 'SM' and s.erp_sid.cer_sid.ministry_flag == 'MU':
+						#Create confirmed MIS
+						print('SM')
+						eb_sid = models.EnquiryComponentElements.objects.get(ec_sid=s.ec_sid).eb_sid.eb_sid
+						if models.MisReturnData.objects.filter(ec_sid=s.ec_sid).exists():
+							models.MisReturnData.objects.filter(ec_sid=s.ec_sid).update(
+								eb_sid = models.EnquiryBatches.objects.get(eb_sid=eb_sid),
+								ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
+								original_exm = None,
+								rev_exm = '01.01',
+								original_mark = None,
+								mark_status = 'Confirmed',
+								revised_mark = 0,
+								justification_code = None,
+								remark_reason = None,
+								remark_concern_reason = None
+							)
+						else:
+							models.MisReturnData.objects.create(
+								eb_sid = models.EnquiryBatches.objects.get(eb_sid=eb_sid),
+								ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
+								original_exm = None,
+								rev_exm = '01.01',
+								original_mark = None,
+								mark_status = 'Confirmed',
+								revised_mark = 0,
+								justification_code = None,
+								remark_reason = None,
+								remark_concern_reason = None
+							)
+
+						#Assign script to PE
+						try:
+							principal_exm = models.EnquiryPersonnelDetails.objects.filter(exm_examiner_no='01.01',ass_code=s.eps_ass_code,com_id=s.eps_com_id,enpe_sid__currently_valid=True).first().enpe_sid
+						except:
+							principal_exm = None
+						if models.ScriptApportionment.objects.filter(ec_sid=s.ec_sid,apportionment_invalidated=0,script_marked=1).exists():
+							print('Script already apportioned')
+						else:
+							models.ScriptApportionment.objects.create(
+								enpe_sid = principal_exm,
+								ec_sid = s
+								#script_marked is default to 1
+			)
+
+					
+						#Create BOTAPP and MKWAIT
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='BOTAPP',task_completion_date = None).exists():
+							models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'BOTAPP'),
+							task_assigned_to = User.objects.get(username='RPABOT'),
+							task_assigned_date = timezone.now(),
+							task_completion_date = None
+							)	
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MKWAIT',task_completion_date = None).exists():
+							models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'MKWAIT'),
+							task_assigned_to = User.objects.get(username='NovaServer'),
+							task_assigned_date = timezone.now(),
+							task_completion_date = None
+							)			
+						continue
+
+
+					if s.script_type == 'MIC - MU' or s.script_type == 'MIC - SEAB' or s.script_type == 'MIC - BR':
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='LOCMAR',task_completion_date = None).exists():
+							models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'LOCMAR'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+							)		
+						continue	
+					if s.script_type == 'Multiple Choice':
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
+							models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+							)	
+						continue
+					if '1' in s.erp_sid.service_code:
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
+							models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'CLERIC'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+							)
+					else:
+						if models.EnquiryComponentsExaminerChecks.objects.filter(ec_sid = s.ec_sid).count() > 0:
+							if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='PEXMCH',task_completion_date = None).exists():
+								models.TaskManager.objects.create(
+								enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+								ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+								task_id = models.TaskTypes.objects.get(task_id = 'PEXMCH'),
+								task_assigned_to = None,
+								task_assigned_date = None,
+								task_completion_date = None
+								)
+						else:
+						#create a new task for the next step (AUTAPP)
+							#if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
+							if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='AUTAPP',task_completion_date = None).exists():
+								models.TaskManager.objects.create(
+									enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+									ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+									#task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+									task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
+									task_assigned_to = None,
+									task_assigned_date = None,
+									task_completion_date = None
+								)
+								models.EnquiryComponentsPreviousExaminers.objects.create(
+									cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+									ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
+									exm_position = models.EnquiryComponentsHistory.objects.get(ec_sid=s.ec_sid).exm_position
+								)
+				#complete the task
+			if request.user.is_authenticated:
+				username =request.user
+				models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_assigned_to=username)
+				models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_assigned_date=timezone.now())
+			#complete the task
+			models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
+
+	return redirect('enquiries_list')
+
+def iec_fail_view(request, enquiry_id=None):
+	if enquiry_id is not None and request.method == 'POST':	
+		#complete the tasks
+		models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_completion_date=None).update(task_assigned_to=User.objects.get(username='NovaServer'),task_completion_date=timezone.now(),task_assigned_date=timezone.now())
+		#No need for script id, BIE is handled at Enquiry Level
+		if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='SETBIE',task_completion_date = None).exists():
+			this_task = models.TaskManager.objects.create(
+				enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+				ec_sid = None,
+				task_id = models.TaskTypes.objects.get(task_id = 'SETBIE'),
+				task_assigned_to = None,
+				task_assigned_date = None,
+				task_completion_date = None
+			)
+			this_task.refresh_from_db()
+			models.SetBIEAudit.objects.create(
+				rpa_task_key = models.TaskManager.objects.get(pk=this_task.pk),
+				failure_reason = request.POST.get('rpa_fail')
+			)
+		
+
+	if request.POST.get('page_source')=='detail':
+		return redirect('enquiries_detail', enquiry_id)
+	else:
+		return redirect('enquiries_list')
+
+def iec_issue_view(request, enquiry_id=None):
+	if enquiry_id is not None and request.method == 'POST':
+		#Get scripts for this enquiry ID, this is a join from EC to ERP
+		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
+		for s in Scripts:
+			#Check is ASR/ASC and send to script requesting
+			if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR':
+				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
+					models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+					)
+			else:
 				#Check for pre-emptive scaled marks
 				if models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).exists():
 					kbr = models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).first().kbr_code
@@ -1807,10 +2015,7 @@ def iec_pass_all_view(request):
 						)
 
 					#Assign script to PE
-					try:
-						principal_exm = models.EnquiryPersonnelDetails.objects.filter(exm_examiner_no='01.01',ass_code=s.eps_ass_code,com_id=s.eps_com_id,enpe_sid__currently_valid=True).first().enpe_sid
-					except:
-						principal_exm = None
+					principal_exm = models.EnquiryPersonnelDetails.objects.filter(exm_examiner_no='01.01',ass_code=s.eps_ass_code,com_id=s.eps_com_id,enpe_sid__currently_valid=True).first().enpe_sid
 					if models.ScriptApportionment.objects.filter(ec_sid=s.ec_sid,apportionment_invalidated=0,script_marked=1).exists():
 						print('Script already apportioned')
 					else:
@@ -1842,8 +2047,7 @@ def iec_pass_all_view(request):
 						)			
 					continue
 
-
-				if s.script_type == 'MIC - MU' or s.script_type == 'MIC - SEAB' or s.script_type == 'MIC - BR':
+				if s.script_type == 'MIC - MU' or s.script_type == 'MIC - SEAB':
 					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='LOCMAR',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
 						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
@@ -1904,177 +2108,6 @@ def iec_pass_all_view(request):
 								ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
 								exm_position = models.EnquiryComponentsHistory.objects.get(ec_sid=s.ec_sid).exm_position
 							)
-				#complete the task
-			if request.user.is_authenticated:
-				username =request.user
-				models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_assigned_to=username)
-				models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_assigned_date=timezone.now())
-			#complete the task
-			models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
-
-	return redirect('enquiries_list')
-
-def iec_fail_view(request, enquiry_id=None):
-	if enquiry_id is not None and request.method == 'POST':	
-		#complete the tasks
-		models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_completion_date=None).update(task_assigned_to=User.objects.get(username='NovaServer'),task_completion_date=timezone.now(),task_assigned_date=timezone.now())
-		#No need for script id, BIE is handled at Enquiry Level
-		if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='SETBIE',task_completion_date = None).exists():
-			this_task = models.TaskManager.objects.create(
-				enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-				ec_sid = None,
-				task_id = models.TaskTypes.objects.get(task_id = 'SETBIE'),
-				task_assigned_to = None,
-				task_assigned_date = None,
-				task_completion_date = None
-			)
-			this_task.refresh_from_db()
-			models.SetBIEAudit.objects.create(
-				rpa_task_key = models.TaskManager.objects.get(pk=this_task.pk),
-				failure_reason = request.POST.get('rpa_fail')
-			)
-		
-
-	if request.POST.get('page_source')=='detail':
-		return redirect('enquiries_detail', enquiry_id)
-	else:
-		return redirect('enquiries_list')
-
-def iec_issue_view(request, enquiry_id=None):
-	if enquiry_id is not None and request.method == 'POST':
-		#Get scripts for this enquiry ID, this is a join from EC to ERP
-		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
-		for s in Scripts:
-			#Check for pre-emptive scaled marks
-			if models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).exists():
-				kbr = models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).first().kbr_code
-			else:
-				kbr = None
-			if kbr == 'SM' and s.erp_sid.cer_sid.ministry_flag == 'MU':
-				#Create confirmed MIS
-				print('SM')
-				eb_sid = models.EnquiryComponentElements.objects.get(ec_sid=s.ec_sid).eb_sid.eb_sid
-				if models.MisReturnData.objects.filter(ec_sid=s.ec_sid).exists():
-					models.MisReturnData.objects.filter(ec_sid=s.ec_sid).update(
-						eb_sid = models.EnquiryBatches.objects.get(eb_sid=eb_sid),
-						ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
-						original_exm = None,
-						rev_exm = '01.01',
-						original_mark = None,
-						mark_status = 'Confirmed',
-						revised_mark = 0,
-						justification_code = None,
-						remark_reason = None,
-						remark_concern_reason = None
-					)
-				else:
-					models.MisReturnData.objects.create(
-						eb_sid = models.EnquiryBatches.objects.get(eb_sid=eb_sid),
-						ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
-						original_exm = None,
-						rev_exm = '01.01',
-						original_mark = None,
-						mark_status = 'Confirmed',
-						revised_mark = 0,
-						justification_code = None,
-						remark_reason = None,
-						remark_concern_reason = None
-					)
-
-				#Assign script to PE
-				principal_exm = models.EnquiryPersonnelDetails.objects.filter(exm_examiner_no='01.01',ass_code=s.eps_ass_code,com_id=s.eps_com_id,enpe_sid__currently_valid=True).first().enpe_sid
-				if models.ScriptApportionment.objects.filter(ec_sid=s.ec_sid,apportionment_invalidated=0,script_marked=1).exists():
-					print('Script already apportioned')
-				else:
-					models.ScriptApportionment.objects.create(
-						enpe_sid = principal_exm,
-						ec_sid = s
-						#script_marked is default to 1
-	)
-
-			
-				#Create BOTAPP and MKWAIT
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='BOTAPP',task_completion_date = None).exists():
-					models.TaskManager.objects.create(
-					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-					task_id = models.TaskTypes.objects.get(task_id = 'BOTAPP'),
-					task_assigned_to = User.objects.get(username='RPABOT'),
-					task_assigned_date = timezone.now(),
-					task_completion_date = None
-					)	
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MKWAIT',task_completion_date = None).exists():
-					models.TaskManager.objects.create(
-					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-					task_id = models.TaskTypes.objects.get(task_id = 'MKWAIT'),
-					task_assigned_to = User.objects.get(username='NovaServer'),
-					task_assigned_date = timezone.now(),
-					task_completion_date = None
-					)			
-				continue
-
-			if s.script_type == 'MIC - MU' or s.script_type == 'MIC - SEAB':
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='LOCMAR',task_completion_date = None).exists():
-					models.TaskManager.objects.create(
-					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-					task_id = models.TaskTypes.objects.get(task_id = 'LOCMAR'),
-					task_assigned_to = None,
-					task_assigned_date = None,
-					task_completion_date = None
-					)		
-				continue	
-			if s.script_type == 'Multiple Choice':
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
-					models.TaskManager.objects.create(
-					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-					task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
-					task_assigned_to = None,
-					task_assigned_date = None,
-					task_completion_date = None
-					)	
-				continue
-			if '1' in s.erp_sid.service_code:
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
-					models.TaskManager.objects.create(
-					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-					task_id = models.TaskTypes.objects.get(task_id = 'CLERIC'),
-					task_assigned_to = None,
-					task_assigned_date = None,
-					task_completion_date = None
-					)
-			else:
-				if models.EnquiryComponentsExaminerChecks.objects.filter(ec_sid = s.ec_sid).count() > 0:
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='PEXMCH',task_completion_date = None).exists():
-						models.TaskManager.objects.create(
-						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-						task_id = models.TaskTypes.objects.get(task_id = 'PEXMCH'),
-						task_assigned_to = None,
-						task_assigned_date = None,
-						task_completion_date = None
-						)
-				else:
-				#create a new task for the next step (AUTAPP)
-					#if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='AUTAPP',task_completion_date = None).exists():
-						models.TaskManager.objects.create(
-							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-							#task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
-							task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
-							task_assigned_to = None,
-							task_assigned_date = None,
-							task_completion_date = None
-						)
-						models.EnquiryComponentsPreviousExaminers.objects.create(
-							cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-							ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
-							exm_position = models.EnquiryComponentsHistory.objects.get(ec_sid=s.ec_sid).exm_position
-						)
 		#Get username to filter tasks
 		username = None
 		if request.user.is_authenticated:

@@ -31,27 +31,6 @@ def run_algo():
     start_time = datetime.datetime.now()
     print("Start Time:" + str(datetime.datetime.now()))
 
-    # for app_task in TaskManager.objects.filter(task_id='AUTAPP', task_completion_date__isnull=True):
-    #     enquiry_id = app_task.enquiry_id.enquiry_id
-    #     task_pk = app_task.pk
-    #     script_id = app_task.ec_sid.ec_sid
-
-    # #create a new task for the next step (AUTAPP)
-    #     if not TaskManager.objects.filter(ec_sid=script_id, task_id='MANAPP',task_completion_date = None).exists():
-    #         TaskManager.objects.create(
-    #             enquiry_id = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-    #             ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id),
-    #             task_id = TaskTypes.objects.get(task_id = 'MANAPP'),
-    #             task_assigned_to = None,
-    #             task_assigned_date = None,
-    #             task_completion_date = None
-    #         )
-    #         EnquiryComponentsPreviousExaminers.objects.create(
-    #             cer_sid = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-    #             ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-    #             exm_position = EnquiryComponentsHistory.objects.get(ec_sid=script_id).exm_position
-    #         )
-
 
     for app_task in TaskManager.objects.filter(task_id='AUTAPP', task_completion_date__isnull=True):
         task_pk = app_task.pk
