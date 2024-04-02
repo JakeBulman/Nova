@@ -3,7 +3,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    
+  <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/htmx.org/dist/ext/debug.js"></script>
 
     {% compress css %}
         <link href="{% static 'admin/css/custom.scss' %}" rel="stylesheet" type="text/x-scss">
@@ -20,7 +21,7 @@
     <title>Nova</title>
     <link rel="icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
 </head>
-<body style="background-color:#ffffff;" onload="javascript:setTimeout(function(){ location.reload(); },15000);">
+<body style="background-color:#ffffff;">
   {% include 'nova_core/base_navbar.html' %}
 
 
@@ -33,18 +34,28 @@
 
 <div class="row mx-2 text-center">
   <div class="col d-flex justify-content-center">
-    <div class="card m-3 shadow-lg" style="width: 18rem; ">
-      <img class="card-img-top" src="{% static 'admin/img/mytask-icon.png' %}" alt="EAR Icon">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">My Tasks</h5>
-        {% if mytask.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-        <p class="card-text"> </p>
-        <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
+    <div class="card-group my-3">
+      <div class="card shadow-lg" style="width: 18rem; ">
+        <div class="card-header">
+          <img class="card-img-top" src="{% static 'admin/img/mytask-icon.png' %}" alt="EAR Icon">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">My Tasks</h5>
+          <div id="mytask-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if mytask_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ mytask_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
+          <p class="card-text"> </p>
+        </div>
+        <div class="card-footer d-flex flex-column">
+          <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
+        </div>
       </div>
     </div>
-
+  </div>
 </div>
-
-
 </body>
 </html>

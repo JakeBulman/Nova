@@ -31,7 +31,6 @@ from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryReques
 
 def run_algo():
     import os
-    print(os.listdir("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\\"))
     for file in os.listdir("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\\"):
         filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\\", file)
         new_filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\COMPLETE\\", file)
@@ -55,22 +54,17 @@ def run_algo():
                 continue
 
             eb_sid = sheet["I2"].value
-            print("Batch: " + str(eb_sid))
             ec_sid = None
-            print(str(EnquiryComponentElements.objects.filter(eb_sid=eb_sid).exists()))
             if EnquiryComponentElements.objects.filter(eb_sid=eb_sid).exists():
                 ec_sid = EnquiryComponentElements.objects.filter(eb_sid=eb_sid).first().ec_sid.ec_sid
                 task_enquiry_id = EnquiryComponentElements.objects.filter(eb_sid=eb_sid).first().ec_sid.erp_sid.cer_sid.enquiry_id
 
             task_pk = None
-            print("Script: " + str(ec_sid))
             try:
                 expected_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.get(ec_sid=ec_sid, apportionment_invalidated=0).enpe_sid).first()
                 
                 if TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).exists():
                     task_pk = TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).first().pk
-                    print("Task PK" + str(task_pk))
-                print(str(expected_exm.exm_examiner_no).strip()==str(sheet["E4"].value).strip())
                 if task_pk is not None and str(expected_exm.exm_examiner_no).strip()==str(sheet["E4"].value).strip():
                     if MisReturnData.objects.filter(ec_sid=ec_sid).exists():
                         MisReturnData.objects.filter(ec_sid=ec_sid).update(
@@ -129,7 +123,6 @@ def run_algo():
                     ScriptApportionment.objects.filter(ec_sid=ec_sid).update(script_marked=0)
 
                 else:
-                    print("Expected:" + expected_exm.exm_examiner_no)
                     #Move file to error folder
                     shutil.move(filename, error_filename)
 

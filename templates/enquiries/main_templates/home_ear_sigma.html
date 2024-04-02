@@ -48,6 +48,14 @@
             <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
           </div>
         </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">ESM Scripts Download</h5>
+            {% if esmscr.count > 0 %}<span class="badge rounded-pill bg-primary">{{ esmscr.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            <p class="card-text">Download a script request CSV</p>
+            <a href="{% url 'esmscr_list' %}" class="mt-auto btn btn-outline-primary">ESM Downloads</a>
+          </div>
+        </div>
       </div>
     </div>
   </body>

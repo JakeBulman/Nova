@@ -29,10 +29,11 @@ def ear_home_view(request,*args, **kwargs):
 	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF',]
 	delta_tasks = ['NRMACC',]
 	kappa_tasks = ['CLERIC',]
-	sigma_tasks = []
-	omega_tasks = ['BOTMAF','GRDREL','NEGCON','PDACON','PEACON','PUMCON','GRDREJ','MRKAMD','GRDCON','GRDCHG','OUTCON','ESMSCR']
+	sigma_tasks = ['ESMSCR']
+	omega_tasks = ['BOTMAF','GRDREL','NEGCON','PDACON','PEACON','PUMCON','GRDREJ','MRKAMD','GRDCON','GRDCHG','OUTCON',]
 	lambda_tasks = ['BOTAPP','BOTMAR',]
 
+	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
 	alpha_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=alpha_tasks, enquiry_tasks__task_completion_date__isnull=True)
 	gamma_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=gamma_tasks, enquiry_tasks__task_completion_date__isnull=True)
 	delta_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=delta_tasks, enquiry_tasks__task_completion_date__isnull=True)
@@ -40,11 +41,9 @@ def ear_home_view(request,*args, **kwargs):
 	sigma_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=sigma_tasks, enquiry_tasks__task_completion_date__isnull=True)
 	omega_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=omega_tasks, enquiry_tasks__task_completion_date__isnull=True)
 	lambda_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=lambda_tasks, enquiry_tasks__task_completion_date__isnull=True)
-	
-	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
-	context = {"session_desc":session_desc, "mytask":mytask_count,
+	context = {"session_desc":session_desc, "mytask_count":mytask_count,
 			"alpha_count":alpha_count, "gamma_count":gamma_count, "delta_count":delta_count, "kappa_count":kappa_count, 
 			"sigma_count":sigma_count, "omega_count":omega_count, "lambda_count":lambda_count,
 		}
@@ -187,13 +186,13 @@ def ear_home_view_team_omega(request,*args, **kwargs):
 	grdchga_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDCHG', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	outcon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True)
 	outcona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
-	esmscr_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMSCR', enquiry_tasks__task_completion_date__isnull=True)
+	
 
 	session_desc = models.EarServerSettings.objects.first().session_description
 	context = {"session_desc":session_desc, "mytask":mytask_count, "grdrel":grdrel_count, "grdrela":grdrela_count, "negcon":negcon_count, "negcona":negcona_count, "pdacon":pdacon_count, "pdacona":pdacona_count, 
 		"peacon":peacon_count, "peacona":peacona_count, "pumcon":pumcon_count, "pumcona":pumcona_count, "grdrej":grdrej_count, "grdreja":grdreja_count, "mrkamd":mrkamd_count, 
 		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count,
-		"esmscr":esmscr_count,"outcon":outcon_count, "outcona":outcona_count
+		"outcon":outcon_count, "outcona":outcona_count
 		}
 
 	return render(request, "enquiries/main_templates/home_ear_omega.html", context=context, )
@@ -204,9 +203,10 @@ def ear_home_view_team_sigma(request,*args, **kwargs):
 		user = request.user
 	
 	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
+	esmscr_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMSCR', enquiry_tasks__task_completion_date__isnull=True)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
-	context = {"session_desc":session_desc, "mytask":mytask_count,
+	context = {"session_desc":session_desc, "mytask":mytask_count,"esmscr":esmscr_count,
 		}
 
 	return render(request, "enquiries/main_templates/home_ear_sigma.html", context=context, )
@@ -961,6 +961,16 @@ def cleric_task_complete(request):
 					task_assigned_date = timezone.now(),
 					task_completion_date = None
 				)
+		if models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id).erp_sid.service_code == '1S':
+			if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='ESMSCR',task_completion_date = None).exists():
+				models.TaskManager.objects.create(
+					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id),
+					task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
+					task_assigned_to = None,
+					task_assigned_date = None,
+					task_completion_date = None
+				)
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='CLERIC').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
@@ -1475,7 +1485,7 @@ def enquiries_detail(request, enquiry_id=None):
 	if enquiry_id is not None:	
 		cer_queryset = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
 		task_queryset = models.TaskManager.objects.filter(enquiry_id=enquiry_id).order_by('task_creation_date')
-		excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE']
+		excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE','SCRREN']
 		complete_list = ['COMPLT','SETBIE']
 		marking_list = ['NEWMIS','CLERIC','LOCMAR']
 		apportionment_list = ['AUTAPP','MANAPP']
@@ -2361,6 +2371,7 @@ def omrche_download_view(request, download_id=None):
 def esmscr_list_view(request):
 	ec_queryset = models.EsmscrDownloads.objects.order_by('-uploaded_at')
 	ec_queryset_paged = Paginator(ec_queryset,20,0,True)
+	esmscr_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMSCR', enquiry_tasks__task_completion_date__isnull=True).count()
 	page_number = request.GET.get('page')
 	try:
 		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
@@ -2370,7 +2381,7 @@ def esmscr_list_view(request):
 	except EmptyPage:
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
+	context = {"cer": page_obj,"esmscr_count":esmscr_count}
 	return render(request, "enquiries/task_lists/enquiries_esmscr.html", context=context)
 
 def esmscr_create_view(request):

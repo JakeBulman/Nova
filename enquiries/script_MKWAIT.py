@@ -43,7 +43,18 @@ def run_algo():
                 task_assigned_date = timezone.now(),
                 task_completion_date = None
             )
+        script_id = task.ec_sid.ec_sid
+        if EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id).erp_sid.service_code == '1S':
+            if not TaskManager.objects.filter(ec_sid=script_id, task_id='ESMSCR',task_completion_date = None).exists():
+                TaskManager.objects.create(
+					enquiry_id = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=task.enquiry_id.enquiry_id),
+					ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id),
+					task_id = TaskTypes.objects.get(task_id = 'ESMSCR'),
+					task_assigned_to = None,
+					task_assigned_date = None,
+					task_completion_date = None
+				)
                 
-            TaskManager.objects.filter(pk=task.pk,task_id='MKWAIT').update(task_completion_date=timezone.now())   
+        TaskManager.objects.filter(pk=task.pk,task_id='MKWAIT').update(task_completion_date=timezone.now())   
 
 run_algo()

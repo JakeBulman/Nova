@@ -3,7 +3,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    
+  <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/htmx.org/dist/ext/debug.js"></script>
 
     {% compress css %}
         <link href="{% static 'admin/css/custom.scss' %}" rel="stylesheet" type="text/x-scss">
@@ -20,7 +21,7 @@
     <title>Nova</title>
     <link rel="icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
 </head>
-<body style="background-color:#ffffff;" onload="javascript:setTimeout(function(){ location.reload(); },15000);">
+<body style="background-color:#ffffff;">
   {% include 'nova_core/base_navbar.html' %}
 
 
@@ -33,102 +34,202 @@
 
 <div class="row mx-2 text-center">
   <div class="col d-flex justify-content-center">
-    <div class="card m-3 shadow-lg" style="width: 18rem; ">
-      <img class="card-img-top" src="{% static 'admin/img/mytask-icon.png' %}" alt="EAR Icon">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">My Tasks</h5>
-        {% if mytask.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-        <p class="card-text"> </p>
-        <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
-      </div>
-    </div>
-    <div class="card m-3 shadow-lg" style="width: 18rem; ">
-      <img class="card-img-top" src="{% static 'admin/img/search-icon.png' %}" alt="Search Icon">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">Enquiry Search</h5>
-        <p class="card-text"> </p>
-        <form class="row g-3  d-grid" method="POST" action='/enquiries/enquiries_detail_search'>
-          <div class="col-auto">
-            <input name="enquiry_id" id="enquiry_id" type="text" class="form-control" placeholder="Enquiry No.">
+    <div class="card-group my-3">
+      <div class="card shadow-lg" style="width: 18rem; ">
+        <div class="card-header">
+          <img class="card-img-top" src="{% static 'admin/img/mytask-icon.png' %}" alt="EAR Icon">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">My Tasks</h5>
+          <div id="mytask-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if mytask_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ mytask_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
           </div>
-          <button type="submit" class="btn btn-outline-primary">Search</button>
-        </form>
+          <p class="card-text"> </p>
+        </div>
+        <div class="card-footer d-flex flex-column">
+          <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
+        </div>
       </div>
-    </div>
-    <div class="card m-3 shadow-lg" style="width: 18rem; ">
-      <img class="card-img-top" src="{% static 'admin/img/mytask-icon.png' %}" alt="EAR Icon">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">Task Manager</h5>
-        <p class="card-text">A list of tasks currently assigned to other users.</p>
-        <a href="{% url 'user-list' %}" class="mt-auto btn btn-outline-primary">Go to Tasks</a>
+      <div class="card shadow-lg" style="width: 18rem; ">
+        <div class="card-header">
+          <img class="card-img-top" src="{% static 'admin/img/search-icon.png' %}" alt="Search Icon">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Enquiry Search</h5>
+          <p class="card-text"> </p>
+        </div>
+          <form class="row g-3" method="POST" action='/enquiries/enquiries_detail_search'>
+            <div class="col d-flex flex-column justify-content-center w-75 mx-3">
+              <input name="enquiry_id" id="enquiry_id" type="text" class="form-control" placeholder="Enquiry No.">
+            </div>
+            <div class="card-footer d-flex flex-column">
+              <button type="submit" class="btn btn-outline-primary">Search</button>
+            </div>
+          </form>
+        
+      </div>
+      <div class="card shadow-lg" style="width: 18rem; ">
+        <div class="card-header">
+          <img class="card-img-top" src="{% static 'admin/img/mytask-icon.png' %}" alt="EAR Icon">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Task Manager</h5>
+          <p class="card-text">A list of tasks currently assigned to other users.</p>
+        </div>
+        <div class="card-footer d-flex flex-column">
+          <a href="{% url 'user-list' %}" class="mt-auto btn btn-outline-primary">Go to Tasks</a>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-
 <div class="row mx-2 text-center">
   <div class="col d-flex justify-content-center">
-    <div class="card m-3 shadow-lg" style="width: 18rem; ">
-      <img class="card-img-top" src="{% static 'admin/img/alpha-icon.png' %}" alt="Examiner availability Icon">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">Alpha</h5>
-        {% if cer.count > 0 %}<span class="badge rounded-pill bg-primary">{{ cer.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-        <span class="badge rounded-pill bg-success"></span>
-        <p class="card-text"> </p>
-        <a href="{% url 'panel_list' %}" class="mt-auto btn btn-outline-primary">Go to Alpha</a>
+    <div class="card-group my-3">
+      <div class="card shadow-lg" style="width: 18rem; ">
+        <div class="card-header">
+          <img class="card-img-top" src="{% static 'admin/img/alpha-icon.png' %}" alt="Examiner availability Icon">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Alpha</h5>          
+          <p class="card-text">Checks</p>
+          <div id="alpha-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
+              {% if alpha_count.count > 0 %}
+              <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ alpha_count.count }} Tasks Waiting</span>
+              {% else %}
+              <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+              {% endif %}
+          </div>
+        </div>
+        <div class="card-footer d-flex flex-column">
+          <a href="{% url 'ear_home_view_team_alpha' %}" class="mt-auto btn btn-outline-primary">Go to Alpha</a>
+        </div>
       </div>
-    </div>
 
 
-    <div class="card m-3 shadow-lg" style="width: 18rem; ">
-      <img class="card-img-top" src="{% static 'admin/img/gamma-icon.png' %}" alt="Examiner availability Icon">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">Gamma</h5>
-        {% if cer.count > 0 %}<span class="badge rounded-pill bg-primary">{{ cer.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-        <span class="badge rounded-pill bg-success"></span>
-        <p class="card-text"> </p>
-        <a href="{% url 'examiner_list' %}" class="mt-auto btn btn-outline-primary">Go to Gamma</a>
+      <div class="card shadow-lg" style="width: 18rem; ">
+        <div class="card-header">
+          <img class="card-img-top" src="{% static 'admin/img/gamma-icon.png' %}" alt="Examiner availability Icon">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Gamma</h5>
+          <p class="card-text">Marking</p>
+          <div id="gamma-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if gamma_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ gamma_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-footer d-flex flex-column">
+          <a href="{% url 'ear_home_view_team_gamma' %}" class="mt-auto btn btn-outline-primary">Go to Gamma</a>
+        </div>
       </div>
-    </div>
 
-    <div class="card m-3 shadow-lg" style="width: 18rem; ">
-      <img class="card-img-top" src="{% static 'admin/img/delta-icon.png' %}" alt="IEC Icon">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">Delta</h5>
-        {% if cer.count > 0 %}<span class="badge rounded-pill bg-primary">{{ cer.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-        <p class="card-text"> </p>
-        <a href="{% url 'enquiries_list' %}" class="mt-auto btn btn-outline-primary">Go to Delta</a>
+      <div class="card shadow-lg" style="width: 18rem; ">
+        <div class="card-header">
+          <img class="card-img-top" src="{% static 'admin/img/delta-icon.png' %}" alt="IEC Icon">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Delta</h5>
+          <p class="card-text">Hardcopy</p>
+          <div id="delta-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if delta_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ delta_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-footer d-flex flex-column">
+          <a href="{% url 'ear_home_view_team_delta' %}" class="mt-auto btn btn-outline-primary">Go to Delta</a>
+        </div>
       </div>
-    </div>
 
-    <div class="card m-3 shadow-lg" style="width: 18rem; ">
-      <img class="card-img-top" src="{% static 'admin/img/kappa-icon.png' %}" alt="EAR Icon">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">Kappa</h5>
-        {% if esmcsv.count > 0 %}<span class="badge rounded-pill bg-primary">{{ esmcsv.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-        <p class="card-text"> </p>
-        <a href="{% url 'esmcsv_list' %}" class="mt-auto btn btn-outline-primary">Go to Kappa</a>
+      <div class="card shadow-lg" style="width: 18rem; ">
+        <div class="card-header">
+          <img class="card-img-top" src="{% static 'admin/img/kappa-icon.png' %}" alt="EAR Icon">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Kappa</h5>
+          <p class="card-text">Clerical</p>
+          <div id="kappa-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if kappa_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ kappa_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-footer d-flex flex-column">
+          <a href="{% url 'ear_home_view_team_kappa' %}" class="mt-auto btn btn-outline-primary">Go to Kappa</a>
+        </div>
       </div>
-    </div>
 
-    <div class="card m-3 shadow-lg" style="width: 18rem; ">
-      <img class="card-img-top" src="{% static 'admin/img/sigma-icon.png' %}" alt="EAR Icon">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">Sigma</h5>
-        {% if omrche.count > 0 %}<span class="badge rounded-pill bg-primary">{{ omrche.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-        <p class="card-text"> </p>
-        <a href="{% url 'omrche_list' %}" class="mt-auto btn btn-outline-primary">Go to Sigma</a>
+      <div class="card shadow-lg" style="width: 18rem; ">
+        <div class="card-header">
+          <img class="card-img-top" src="{% static 'admin/img/lambda-icon.png' %}" alt="EAR Icon">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Lambda</h5>
+          <p class="card-text">RPA</p>
+          <div id="lambda-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if lambda_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ lambda_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-footer d-flex flex-column">
+          <a href="{% url 'ear_home_view_team_lambda' %}" class="mt-auto btn btn-outline-primary">Go to Lambda</a>
+        </div>
       </div>
-    </div>
 
-    <div class="card m-3 shadow-lg" style="width: 18rem; ">
-      <img class="card-img-top" src="{% static 'admin/img/omega-icon.png' %}" alt="EAR Icon">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">Omega</h5>
-        {% if omrche.count > 0 %}<span class="badge rounded-pill bg-primary">{{ omrche.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-        <p class="card-text"> </p>
-        <a href="{% url 'omrche_list' %}" class="mt-auto btn btn-outline-primary">Go to Omega</a>
+      <div class="card shadow-lg" style="width: 18rem; ">
+        <div class="card-header">
+          <img class="card-img-top" src="{% static 'admin/img/sigma-icon.png' %}" alt="EAR Icon">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Sigma</h5>
+          <p class="card-text">Scripts</p>
+          <div id="sigma-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if sigma_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ sigma_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-footer d-flex flex-column">
+          <a href="{% url 'ear_home_view_team_sigma' %}" class="mt-auto btn btn-outline-primary">Go to Sigma</a>
+        </div>
+      </div>
+
+      <div class="card shadow-lg" style="width: 18rem; ">
+        <div class="card-header">
+          <img class="card-img-top" src="{% static 'admin/img/omega-icon.png' %}" alt="EAR Icon">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Omega</h5>
+          <p class="card-text">Grading</p>
+          <div id="omega-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+            {% if omega_count.count > 0 %}
+            <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ omega_count.count }} Tasks Waiting</span>
+            {% else %}
+            <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-footer d-flex flex-column">
+          <a href="{% url 'ear_home_view_team_omega' %}" class="mt-auto btn btn-outline-primary">Go to Omega</a>
+        </div>
       </div>
     </div>
   </div>
