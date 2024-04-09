@@ -41,21 +41,25 @@ def run_algo():
             if EnquiryComponents.objects.filter(erp_sid__eps_centre_id=centre,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand).exists():
                 #fetch out ids based on cent/syll/comp/cand
                 script = EnquiryComponents.objects.get(erp_sid__eps_centre_id=centre,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand)
-                print(script.ec_sid)
                 if TaskManager.objects.filter(ec_sid=script.ec_sid,task_id='SCRREN', task_completion_date__isnull=True).exists():
                     task = TaskManager.objects.get(ec_sid=script.ec_sid,task_id='SCRREN')
                     enquiry_id = script.erp_sid.cer_sid.enquiry_id
-
-                    print(task)
-
                     #take backup copy of the file
                     shutil.copy(os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\From ESM\\", file), os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\From ESM\Completed\\", file))
-
                     #copy file to next location with new name
                     new_name = '_'.join([centre,'COS',enquiry_id,syll,comp,cand]) + '.pdf'
-                    print(new_name)
                     shutil.move(os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\From ESM\\", file), os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\To Check\\", new_name))
-
+                if '1' in EnquiryComponents.objects.only('ec_sid').get(ec_sid=script.ec_sid).erp_sid.service_code:
+                    if not TaskManager.objects.filter(ec_sid=script.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
+                        TaskManager.objects.create(
+                            enquiry_id = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=script.erp_sid.cer_sid.enquiry_id),
+                            ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=script.ec_sid),
+                            task_id = TaskTypes.objects.get(task_id = 'CLERIC'),
+                            task_assigned_to = None,
+                            task_assigned_date = None,
+                            task_completion_date = None
+                        )
+                else:
                     TaskManager.objects.create(
                         enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
                         ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
@@ -64,6 +68,7 @@ def run_algo():
                         task_assigned_date = None,
                         task_completion_date = None
                     )
-                    TaskManager.objects.filter(pk=task.pk,task_id='SCRREN').update(task_completion_date=timezone.now())   
+                #Complete task
+                TaskManager.objects.filter(pk=task.pk,task_id='SCRREN').update(task_completion_date=timezone.now())   
 
 run_algo()

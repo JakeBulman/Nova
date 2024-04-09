@@ -112,6 +112,9 @@ urlpatterns = [
     path('esmscr_list', views.esmscr_list_view, name='esmscr_list'),
     path('exmscr_create', views.esmscr_create_view, name='exmscr_create'),
     path('exmscr_download/<str:download_id>', views.esmscr_download_view, name='exmscr_download'),
+    #Clerical Checks main screen
+    path('scrren_list', views.scrren_list_view, name='scrren_list'),
+    path('scrren_sendback', views.scrren_sendback_view, name='scrren_sendback'),
     #Control Examiner SAL breaches
     path('exmsla_list', views.exmsla_list_view, name='exmsla_list'),
     #Re-do Examiner SAL breaches

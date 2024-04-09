@@ -97,7 +97,7 @@ def run_algo():
             early_mark_tolerance = MarkTolerances.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id).first().mark_tolerance
 
         if not ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id,eps_ses_sid=task.ec_sid.eps_ses_sid).exists():
-            print("No mark available")
+            print("No scaled mark available - see JB")
             mis_data.error_status = "No mark available"
             mis_data.save()
             TaskManager.objects.create(

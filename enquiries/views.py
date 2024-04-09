@@ -29,7 +29,7 @@ def ear_home_view(request,*args, **kwargs):
 	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF',]
 	delta_tasks = ['NRMACC',]
 	kappa_tasks = ['CLERIC',]
-	sigma_tasks = ['ESMSCR']
+	sigma_tasks = ['ESMSCR','ESMSC2','SCRCHE','SCRREC']
 	omega_tasks = ['BOTMAF','GRDREL','NEGCON','PDACON','PEACON','PUMCON','GRDREJ','MRKAMD','GRDCON','GRDCHG','OUTCON',]
 	lambda_tasks = ['BOTAPP','BOTMAR',]
 
@@ -204,9 +204,10 @@ def ear_home_view_team_sigma(request,*args, **kwargs):
 	
 	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
 	esmscr_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMSCR', enquiry_tasks__task_completion_date__isnull=True)
+	scrren_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SCRREN', enquiry_tasks__task_completion_date__isnull=True)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
-	context = {"session_desc":session_desc, "mytask":mytask_count,"esmscr":esmscr_count,
+	context = {"session_desc":session_desc, "mytask":mytask_count,"esmscr":esmscr_count,"scrren":scrren_count,
 		}
 
 	return render(request, "enquiries/main_templates/home_ear_sigma.html", context=context, )
@@ -253,7 +254,7 @@ def my_tasks_view(request):
 	if request.user.is_authenticated:
 		user = request.user
 
-	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE']
+	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR']
 	primary_team = models.TaskUserPrimary.objects.get(task_user=user).primary_team
 	secondary_team_set = models.TaskUserSecondary.objects.filter(task_user=user)
 	secondary_teams = []
@@ -320,7 +321,7 @@ def new_task_view(request):
 	username = None
 	if request.user.is_authenticated:
 		username =request.user
-	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE']
+	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR']
 	primary_team = models.TaskUserPrimary.objects.get(task_user=username).primary_team
 	secondary_team_set = models.TaskUserSecondary.objects.filter(task_user=username)
 	secondary_teams = []
@@ -961,15 +962,16 @@ def cleric_task_complete(request):
 					task_assigned_date = timezone.now(),
 					task_completion_date = None
 				)
-		if models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id).erp_sid.service_code == '1S':
-			if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='ESMSCR',task_completion_date = None).exists():
+		script = models.EnquiryComponents.objects.get(ec_sid=script_id)
+		if script.erp_sid.service_code == '1S':
+			if not models.TaskManager.objects.filter(ec_sid=script.ec_sid, task_id='SCRREN',task_completion_date = None).exists():
 				models.TaskManager.objects.create(
-					enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-					ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id),
-					task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
-					task_assigned_to = None,
-					task_assigned_date = None,
-					task_completion_date = None
+				enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+				ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=script.ec_sid),
+				task_id = models.TaskTypes.objects.get(task_id = 'SCRREN'),
+				task_assigned_to = None,
+				task_assigned_date = None,
+				task_completion_date = None
 				)
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='CLERIC').update(task_completion_date=timezone.now())    
@@ -1354,14 +1356,6 @@ def grdrej_task_complete(request):
 			task_assigned_date = None,
 			task_completion_date = None
 		)
-		# models.TaskManager.objects.create(
-		# 	enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-		# 	ec_sid = None,
-		# 	task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
-		# 	task_assigned_to = None,
-		# 	task_assigned_date = None,
-		# 	task_completion_date = None
-		# )
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='GRDREJ').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
@@ -1480,12 +1474,31 @@ def complete_bie_view(request, enquiry_id=None):
 		print(t_check)
 	return redirect('my_tasks')
 
+def scrren_sendback_view(request):
+	task_id = request.POST.get('task_id')
+	print(task_id)
+	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
+	script_id = models.TaskManager.objects.get(pk=task_id).ec_sid.ec_sid
+	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='SCRREN').exclude(task_completion_date=None).exists():
+		if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='ESMCSV',task_completion_date = None).exists():
+			models.TaskManager.objects.create(
+				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+				task_id = models.TaskTypes.objects.get(task_id = 'ESMCSV'),
+				task_assigned_to = None,
+				task_assigned_date = None,
+				task_completion_date = None
+			)
+		#complete the task
+		models.TaskManager.objects.filter(pk=task_id,task_id='SCRREN').update(task_completion_date=timezone.now())    
+	return redirect('scrren_list')
+
 def enquiries_detail(request, enquiry_id=None):
 	cer_queryset = None
 	if enquiry_id is not None:	
 		cer_queryset = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
 		task_queryset = models.TaskManager.objects.filter(enquiry_id=enquiry_id).order_by('task_creation_date')
-		excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE','SCRREN']
+		excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR']
 		complete_list = ['COMPLT','SETBIE']
 		marking_list = ['NEWMIS','CLERIC','LOCMAR']
 		apportionment_list = ['AUTAPP','MANAPP']
@@ -1627,7 +1640,7 @@ def iec_pass_view(request, enquiry_id=None):
 		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 		for s in Scripts:
 			#Check is ASR/ASC and send to script requesting
-			if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR':
+			if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR' or '1' in s.erp_sid.service_code:
 				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
 					models.TaskManager.objects.create(
 						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
@@ -1731,45 +1744,34 @@ def iec_pass_view(request, enquiry_id=None):
 						task_completion_date = None
 						)		
 					continue	
-				if '1' in s.erp_sid.service_code:
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
+				if models.EnquiryComponentsExaminerChecks.objects.filter(ec_sid = s.ec_sid).count() > 0:
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='PEXMCH',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
 						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-						task_id = models.TaskTypes.objects.get(task_id = 'CLERIC'),
+						task_id = models.TaskTypes.objects.get(task_id = 'PEXMCH'),
 						task_assigned_to = None,
 						task_assigned_date = None,
 						task_completion_date = None
 						)
 				else:
-					if models.EnquiryComponentsExaminerChecks.objects.filter(ec_sid = s.ec_sid).count() > 0:
-						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='PEXMCH',task_completion_date = None).exists():
-							models.TaskManager.objects.create(
+				#create a new task for the next step (AUTAPP)
+					#if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='AUTAPP',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
 							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-							task_id = models.TaskTypes.objects.get(task_id = 'PEXMCH'),
+							#task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
+							task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
 							task_assigned_to = None,
 							task_assigned_date = None,
 							task_completion_date = None
-							)
-					else:
-					#create a new task for the next step (AUTAPP)
-						#if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MANAPP',task_completion_date = None).exists():
-						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='AUTAPP',task_completion_date = None).exists():
-							models.TaskManager.objects.create(
-								enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-								ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-								#task_id = models.TaskTypes.objects.get(task_id = 'MANAPP'),
-								task_id = models.TaskTypes.objects.get(task_id = 'AUTAPP'),
-								task_assigned_to = None,
-								task_assigned_date = None,
-								task_completion_date = None
-							)
-							models.EnquiryComponentsPreviousExaminers.objects.create(
-								cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-								ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
-								exm_position = models.EnquiryComponentsHistory.objects.get(ec_sid=s.ec_sid).exm_position
-							)
+						)
+						models.EnquiryComponentsPreviousExaminers.objects.create(
+							cer_sid = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.get(ec_sid=s.ec_sid),
+							exm_position = models.EnquiryComponentsHistory.objects.get(ec_sid=s.ec_sid).exm_position
+						)
 		#Get username to filter tasks
 		username = None
 		if request.user.is_authenticated:
@@ -1791,7 +1793,7 @@ def iec_pass_all_view(request):
 			Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 			for s in Scripts:
 				#Check is ASR/ASC and send to script requesting
-				if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR':
+				if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR' or '1' in s.erp_sid.service_code:
 					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
 							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
@@ -1897,7 +1899,7 @@ def iec_pass_all_view(request):
 							task_completion_date = None
 							)	
 						continue
-					if '1' in s.erp_sid.service_code:
+					if s.erp_sid.service_code == '1':
 						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
 							models.TaskManager.objects.create(
 							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
@@ -1978,7 +1980,7 @@ def iec_issue_view(request, enquiry_id=None):
 		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 		for s in Scripts:
 			#Check is ASR/ASC and send to script requesting
-			if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR':
+			if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR' or '1' in s.erp_sid.service_code:
 				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
 					models.TaskManager.objects.create(
 						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
@@ -2080,7 +2082,7 @@ def iec_issue_view(request, enquiry_id=None):
 						task_completion_date = None
 						)	
 					continue
-				if '1' in s.erp_sid.service_code:
+				if s.erp_sid.service_code == '1':
 					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
 						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
@@ -2415,7 +2417,6 @@ def esmscr_create_view(request):
 						task_assigned_date = None,
 						task_completion_date = None
 					)
-
 		models.EsmscrDownloads.objects.create(
 			document = file_location,
 			file_name = file_timestamp,
@@ -2442,7 +2443,11 @@ def esmscr_download_view(request, download_id=None):
 
 
 
-
+def scrren_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='SCRREN', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	context = {"cer": ec_queryset,}
+	return render(request, "enquiries/task_lists/enquiries_scrren.html", context=context)
 
 
 def exmsla_list_view(request):
