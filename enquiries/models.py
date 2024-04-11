@@ -318,6 +318,13 @@ class EsmscrDownloads(models.Model):
     archive_count = models.CharField(max_length=3, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
+class Esmsc2Downloads(models.Model):
+    document = models.FileField(upload_to='documents/')
+    file_name = models.CharField(max_length=50, null=True)
+    download_count = models.CharField(max_length=3, null=True)
+    archive_count = models.CharField(max_length=3, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
 class EarServerSettings(models.Model):
     session_id_list = models.TextField(default='')
     enquiry_id_list = models.TextField(default='')

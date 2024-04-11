@@ -204,10 +204,11 @@ def ear_home_view_team_sigma(request,*args, **kwargs):
 	
 	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
 	esmscr_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMSCR', enquiry_tasks__task_completion_date__isnull=True)
+	esmsc2_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMSC2', enquiry_tasks__task_completion_date__isnull=True)
 	scrren_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SCRREN', enquiry_tasks__task_completion_date__isnull=True)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
-	context = {"session_desc":session_desc, "mytask":mytask_count,"esmscr":esmscr_count,"scrren":scrren_count,
+	context = {"session_desc":session_desc, "mytask":mytask_count,"esmscr":esmscr_count,"esmsc2":esmsc2_count,"scrren":scrren_count,
 		}
 
 	return render(request, "enquiries/main_templates/home_ear_sigma.html", context=context, )
@@ -254,7 +255,7 @@ def my_tasks_view(request):
 	if request.user.is_authenticated:
 		user = request.user
 
-	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR']
+	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR']
 	primary_team = models.TaskUserPrimary.objects.get(task_user=user).primary_team
 	secondary_team_set = models.TaskUserSecondary.objects.filter(task_user=user)
 	secondary_teams = []
@@ -321,7 +322,7 @@ def new_task_view(request):
 	username = None
 	if request.user.is_authenticated:
 		username =request.user
-	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR']
+	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR']
 	primary_team = models.TaskUserPrimary.objects.get(task_user=username).primary_team
 	secondary_team_set = models.TaskUserSecondary.objects.filter(task_user=username)
 	secondary_teams = []
@@ -963,16 +964,15 @@ def cleric_task_complete(request):
 					task_completion_date = None
 				)
 		script = models.EnquiryComponents.objects.get(ec_sid=script_id)
-		if script.erp_sid.service_code == '1S':
-			if not models.TaskManager.objects.filter(ec_sid=script.ec_sid, task_id='SCRREN',task_completion_date = None).exists():
-				models.TaskManager.objects.create(
-				enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-				ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=script.ec_sid),
-				task_id = models.TaskTypes.objects.get(task_id = 'SCRREN'),
-				task_assigned_to = None,
-				task_assigned_date = None,
-				task_completion_date = None
-				)
+		if not models.TaskManager.objects.filter(ec_sid=script.ec_sid, task_id='SCRAUD',task_completion_date = None).exists():
+			models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=script.ec_sid),
+			task_id = models.TaskTypes.objects.get(task_id = 'SCRAUD'),
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+			)
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='CLERIC').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
@@ -1498,7 +1498,7 @@ def enquiries_detail(request, enquiry_id=None):
 	if enquiry_id is not None:	
 		cer_queryset = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
 		task_queryset = models.TaskManager.objects.filter(enquiry_id=enquiry_id).order_by('task_creation_date')
-		excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR']
+		excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR']
 		complete_list = ['COMPLT','SETBIE']
 		marking_list = ['NEWMIS','CLERIC','LOCMAR']
 		apportionment_list = ['AUTAPP','MANAPP']
@@ -2349,6 +2349,17 @@ def omrche_create_view(request):
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='OMRCHE').update(task_completion_date=timezone.now())
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='OMRCHE').update(task_assigned_date=timezone.now())
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='OMRCHE').update(task_assigned_to=username)
+				#Check is ASR/ASC and send to script requesting
+				if 'S' in s.ec_sid.erp_sid.service_code:
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRSCR',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=s.enquiry_id.enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'OMRSCR'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+						)
 
 		models.OmrcheDownloads.objects.create(
 			document = file_location,
@@ -2426,9 +2437,6 @@ def esmscr_create_view(request):
 		
 			#Get username to filter tasks
 
-		
-
-
 	return redirect('esmscr_list')
 
 def esmscr_download_view(request, download_id=None):
@@ -2436,6 +2444,74 @@ def esmscr_download_view(request, download_id=None):
 	document = models.EsmscrDownloads.objects.get(pk=download_id).document
 	downloads = int(models.EsmscrDownloads.objects.get(pk=download_id).download_count) + 1
 	models.EsmscrDownloads.objects.filter(pk=download_id).update(download_count = str(downloads))
+
+	return FileResponse(document, as_attachment=True)
+
+
+def esmsc2_list_view(request):
+	ec_queryset = models.Esmsc2Downloads.objects.order_by('-uploaded_at')
+	ec_queryset_paged = Paginator(ec_queryset,20,0,True)
+	esmsc2_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMSC2', enquiry_tasks__task_completion_date__isnull=True).count()
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,"esmsc2_count":esmsc2_count}
+	return render(request, "enquiries/task_lists/enquiries_esmsc2.html", context=context)
+
+def esmsc2_create_view(request):
+	ec_queryset = models.TaskManager.objects.filter(task_id='ESMSC2', task_completion_date__isnull=True)[:50]
+	if ec_queryset.count() > 0:
+		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
+		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
+		print(file_location)
+		username = None
+		if request.user.is_authenticated:
+			username =request.user		
+		with open(file_location, 'w', newline='') as file:
+			file.truncate()
+			writer = csv.writer(file)
+			writer.writerow(['Assessment','Component ID','Centre','Candidate No'])
+			for s in ec_queryset:
+				syll = s.ec_sid.eps_ass_code
+				comp = s.ec_sid.eps_com_id
+				candidate = s.ec_sid.erp_sid.eps_cand_id
+				centre = s.ec_sid.erp_sid.eps_centre_id
+				writer.writerow([syll,comp,candidate,centre])
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSC2').update(task_completion_date=timezone.now())
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSC2').update(task_assigned_date=timezone.now())
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSC2').update(task_assigned_to=username)
+				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='SCRREN',task_completion_date = None).exists():
+					models.TaskManager.objects.create(
+						enquiry_id = s.enquiry_id,
+						ec_sid = s.ec_sid,
+						task_id = models.TaskTypes.objects.get(task_id = 'SCRREN'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+					)
+		models.Esmsc2Downloads.objects.create(
+			document = file_location,
+			file_name = file_timestamp,
+			download_count = 0,
+			archive_count = 0
+			)
+		
+			#Get username to filter tasks
+
+
+	return redirect('esmsc2_list')
+
+def esmsc2_download_view(request, download_id=None):
+	# 
+	document = models.Esmsc2Downloads.objects.get(pk=download_id).document
+	downloads = int(models.Esmsc2Downloads.objects.get(pk=download_id).download_count) + 1
+	models.Esmsc2Downloads.objects.filter(pk=download_id).update(download_count = str(downloads))
 
 	return FileResponse(document, as_attachment=True)
 

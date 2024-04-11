@@ -49,7 +49,8 @@ def run_algo():
                     #copy file to next location with new name
                     new_name = '_'.join([centre,'COS',enquiry_id,syll,comp,cand]) + '.pdf'
                     shutil.move(os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\From ESM\\", file), os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\To Check\\", new_name))
-                if '1' in EnquiryComponents.objects.only('ec_sid').get(ec_sid=script.ec_sid).erp_sid.service_code:
+                service_code = EnquiryComponents.objects.only('ec_sid').get(ec_sid=script.ec_sid).erp_sid.service_code
+                if service_code == 'ASC' or service_code == 'ASR' or '1' in service_code:
                     if not TaskManager.objects.filter(ec_sid=script.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
                         TaskManager.objects.create(
                             enquiry_id = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=script.erp_sid.cer_sid.enquiry_id),

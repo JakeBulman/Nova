@@ -112,6 +112,10 @@ urlpatterns = [
     path('esmscr_list', views.esmscr_list_view, name='esmscr_list'),
     path('exmscr_create', views.esmscr_create_view, name='exmscr_create'),
     path('exmscr_download/<str:download_id>', views.esmscr_download_view, name='exmscr_download'),
+    #Download ESMSC2 to file location
+    path('esmsc2_list', views.esmsc2_list_view, name='esmsc2_list'),
+    path('exmsc2_create', views.esmsc2_create_view, name='exmsc2_create'),
+    path('exmsc2_download/<str:download_id>', views.esmsc2_download_view, name='exmsc2_download'),
     #Clerical Checks main screen
     path('scrren_list', views.scrren_list_view, name='scrren_list'),
     path('scrren_sendback', views.scrren_sendback_view, name='scrren_sendback'),
