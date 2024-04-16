@@ -38,21 +38,17 @@ def run_algo():
         #does script exist for all comps in enq
         for file in os.listdir("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\\"):
             if file.endswith(".pdf"):
-                print(file)
                 centre = file.split('_')[0]
                 enquiry_id = file.split('_')[2]
                 syll = file.split('_')[3]
                 comp = file.split('_')[4]
                 cand = file.split('_')[5].split('.')[0]
-
-                print(' '.join([centre,enquiry_id,syll,comp,cand]))
                 script_id = None
                 if EnquiryComponents.objects.filter(erp_sid__eps_centre_id=centre,erp_sid__cer_sid=enquiry_id,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand).exists():
                     #fetch out ids based on cent/enq/syll/comp/cand
                     script_id = EnquiryComponents.objects.get(erp_sid__eps_centre_id=centre,erp_sid__cer_sid=enquiry_id,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand).ec_sid
                     #check if all prior checks are complete
-                    task_type = ['CLERIC','SCRCHE','SCRREC']
-                    print('Script found')
+                    task_type = ['CLERIC','SCRCHE','SCRREQ']
                     if not TaskManager.objects.filter(task_id__in=task_type, ec_sid=script_id, task_completion_date__isnull=True).exists():   
                         if script_id not in comp_list_scraud:
                             comp_list_scraud.append(script_id)

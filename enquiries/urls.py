@@ -55,6 +55,8 @@ urlpatterns = [
     path('task_manager/cleric_task/<str:task_id>', views.cleric_task, name='cleric-task'), 
     path('task_manager/scrche_task/complete', views.scrche_task_complete, name='scrche-complete'),
     path('task_manager/scrche_task/<str:task_id>', views.scrche_task, name='scrche-task'), 
+    path('task_manager/scrreq_task/complete', views.scrreq_task_complete, name='scrreq-complete'),
+    path('task_manager/scrreq_task/<str:task_id>', views.scrreq_task, name='scrreq-task'), 
     path('task_manager/botapf_task/complete', views.botapf_task_complete, name='botapf-complete'),
     path('task_manager/botapf_task/<str:task_id>', views.botapf_task, name='botapf-task'),  
     path('task_manager/botmaf_task/complete', views.botmaf_task_complete, name='botmaf-complete'),
@@ -70,6 +72,7 @@ urlpatterns = [
     path('task_manager/pdacon_task/complete', views.pdacon_task_complete, name='pdacon-complete'),
     path('task_manager/pdacon_task/<str:task_id>', views.pdacon_task, name='pdacon-task'), 
     path('task_manager/peacon_task/complete', views.peacon_task_complete, name='peacon-complete'),
+    path('task_manager/peacon_task/new_scrreq', views.new_scrreq, name='new-scrreq'),
     path('task_manager/peacon_task/<str:task_id>', views.peacon_task, name='peacon-task'), 
     path('task_manager/pumcon_task/complete', views.pumcon_task_complete, name='pumcon-complete'),
     path('task_manager/pumcon_task/<str:task_id>', views.pumcon_task, name='pumcon-task'), 
@@ -104,6 +107,8 @@ urlpatterns = [
     path('cleric_list', views.cleric_list_view, name='cleric_list'),
     #Script Checks main screen
     path('scrche_list', views.scrche_list_view, name='scrche_list'),
+    #Script Re-requests main screen
+    path('scrreq_list', views.scrreq_list_view, name='scrreq_list'),
     #Download ESMCSV to file location
     path('esmcsv_list', views.esmcsv_list_view, name='esmcsv_list'),
     path('exmsla_create', views.esmcsv_create_view, name='exmsla_create'),

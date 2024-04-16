@@ -29,7 +29,7 @@ def ear_home_view(request,*args, **kwargs):
 	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF',]
 	delta_tasks = ['NRMACC',]
 	kappa_tasks = ['CLERIC',]
-	sigma_tasks = ['ESMSCR','ESMSC2','SCRCHE','SCRREC']
+	sigma_tasks = ['ESMSCR','ESMSC2','SCRCHE','SCRREQ']
 	omega_tasks = ['BOTMAF','GRDREL','NEGCON','PDACON','PEACON','PUMCON','GRDREJ','MRKAMD','GRDCON','GRDCHG','OUTCON',]
 	lambda_tasks = ['BOTAPP','BOTMAR',]
 
@@ -208,9 +208,11 @@ def ear_home_view_team_sigma(request,*args, **kwargs):
 	scrren_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SCRREN', enquiry_tasks__task_completion_date__isnull=True)
 	scrche_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SCRCHE', enquiry_tasks__task_completion_date__isnull=True)
 	scrchea_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SCRCHE', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	scrreq_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SCRREQ', enquiry_tasks__task_completion_date__isnull=True)
+	scrreqa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SCRREQ', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
-	context = {"session_desc":session_desc, "mytask":mytask_count,"esmscr":esmscr_count,"esmsc2":esmsc2_count,"scrren":scrren_count,"scrche":scrche_count, "scrchea":scrchea_count,
+	context = {"session_desc":session_desc, "mytask":mytask_count,"esmscr":esmscr_count,"esmsc2":esmsc2_count,"scrren":scrren_count,"scrche":scrche_count, "scrchea":scrchea_count,"scrreq":scrreq_count, "scrreqa":scrreqa_count,
 		}
 
 	return render(request, "enquiries/main_templates/home_ear_sigma.html", context=context, )
@@ -292,6 +294,8 @@ def task_router_view(request, task_id):
 		return redirect('cleric-task', task_id=task_id)
 	if task_type == "SCRCHE":
 		return redirect('scrche-task', task_id=task_id)
+	if task_type == "SCRREQ":
+		return redirect('scrreq-task', task_id=task_id)
 	if task_type == "EXMSLA":
 		return redirect('exmsla-task', task_id=task_id)
 	if task_type == "REMAPP":
@@ -1011,6 +1015,19 @@ def scrche_task_complete(request):
 	models.TaskManager.objects.filter(pk=task_id,task_id='SCRCHE').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
 
+def scrreq_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	issue_reason = None
+	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
+		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
+	context = {"task_id":task_id, "task":task_queryset, "issue_reason":issue_reason, }
+	return render(request, "enquiries/task_singles/enquiries_task_scrreq.html", context=context)
+
+def scrreq_task_complete(request):
+	task_id = request.POST.get('task_id')
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='SCRREQ').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
 
 def botapf_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
@@ -1298,6 +1315,23 @@ def peacon_task_complete(request):
 	#complete the task
 	models.TaskManager.objects.filter(pk=task_id,task_id='PEACON').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
+
+def new_scrreq(request):
+	print('Start')
+	task_id = request.POST.get('task_id')
+	print(task_id)
+	script_id = models.TaskManager.objects.get(pk=task_id).ec_sid.ec_sid
+	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
+	if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='SCRREQ',task_completion_date = None).exists():
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			task_id = models.TaskTypes.objects.get(task_id = 'SCRREQ'),
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+	return redirect('peacon-task', task_id)
 
 def pdacon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
@@ -2258,6 +2292,22 @@ def scrche_list_view(request):
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
 	return render(request, "enquiries/task_lists/enquiries_scrche.html", context=context)
+
+def scrreq_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='SCRREQ', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries/task_lists/enquiries_scrreq.html", context=context)
 
 def locmar_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.

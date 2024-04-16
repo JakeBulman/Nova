@@ -80,6 +80,14 @@
             <a href="{% url 'scrche_list' %}" class="mt-auto btn btn-outline-primary">Go to Queue</a>
           </div>
         </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Script Re-requests - 2S</h5>
+            {% if scrreq.count > 0 %}<span class="badge rounded-pill bg-primary">{{ scrreq.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            <p class="card-text">Queue for scripts waiting for re-request from ESM.</p>
+            <a href="{% url 'scrreq_list' %}" class="mt-auto btn btn-outline-primary">Go to Queue</a>
+          </div>
+        </div>
       </div>
     </div>
   </body>
