@@ -53,6 +53,8 @@ urlpatterns = [
     path('task_manager/locmar_task/<str:task_id>', views.locmar_task, name='locmar-task'), 
     path('task_manager/cleric_task/complete', views.cleric_task_complete, name='cleric-complete'),
     path('task_manager/cleric_task/<str:task_id>', views.cleric_task, name='cleric-task'), 
+    path('task_manager/scrche_task/complete', views.scrche_task_complete, name='scrche-complete'),
+    path('task_manager/scrche_task/<str:task_id>', views.scrche_task, name='scrche-task'), 
     path('task_manager/botapf_task/complete', views.botapf_task_complete, name='botapf-complete'),
     path('task_manager/botapf_task/<str:task_id>', views.botapf_task, name='botapf-task'),  
     path('task_manager/botmaf_task/complete', views.botmaf_task_complete, name='botmaf-complete'),
@@ -100,6 +102,8 @@ urlpatterns = [
     path('locmar_list', views.locmar_list_view, name='locmar_list'),
     #Clerical Checks main screen
     path('cleric_list', views.cleric_list_view, name='cleric_list'),
+    #Script Checks main screen
+    path('scrche_list', views.scrche_list_view, name='scrche_list'),
     #Download ESMCSV to file location
     path('esmcsv_list', views.esmcsv_list_view, name='esmcsv_list'),
     path('exmsla_create', views.esmcsv_create_view, name='exmsla_create'),
@@ -116,7 +120,7 @@ urlpatterns = [
     path('esmsc2_list', views.esmsc2_list_view, name='esmsc2_list'),
     path('exmsc2_create', views.esmsc2_create_view, name='exmsc2_create'),
     path('exmsc2_download/<str:download_id>', views.esmsc2_download_view, name='exmsc2_download'),
-    #Clerical Checks main screen
+    #Script waiting list
     path('scrren_list', views.scrren_list_view, name='scrren_list'),
     path('scrren_sendback', views.scrren_sendback_view, name='scrren_sendback'),
     #Control Examiner SAL breaches
