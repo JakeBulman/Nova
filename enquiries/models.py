@@ -83,6 +83,8 @@ class EnquiryComponentsHistory(models.Model):
     current_mark = models.CharField(max_length=5,null=True)
     ear_mark = models.CharField(max_length=5,null=True)
     ear_mark_alt =models.CharField(max_length=5,null=True)
+    omr_batch = models.CharField(max_length=10,null=True)
+    omr_position = models.CharField(max_length=10,null=True)
 
 class EnquiryComponentsExaminerChecks(models.Model):
     cer_sid = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_pexmch',null=True)
@@ -305,6 +307,13 @@ class EsmcsvDownloads(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class OmrcheDownloads(models.Model):
+    document = models.FileField(upload_to='documents/')
+    file_name = models.CharField(max_length=50, null=True)
+    download_count = models.CharField(max_length=3, null=True)
+    archive_count = models.CharField(max_length=3, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+class OmrscrDownloads(models.Model):
     document = models.FileField(upload_to='documents/')
     file_name = models.CharField(max_length=50, null=True)
     download_count = models.CharField(max_length=3, null=True)

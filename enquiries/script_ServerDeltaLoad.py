@@ -674,7 +674,9 @@ def load_core_tables():
                         kbr.reason as kbr_reason,
                         wrm.mark as current_mark,
                         ec.ccm_measure as ear_mark,
-                        ec.ccm_outcome as ear_mark_alt
+                        ec.ccm_outcome as ear_mark_alt,
+                        mld.batch as omr_batch,
+                        mld.position as omr_position
                         from ar_meps_req_prd.enquiry_components ec
                         left join ar_meps_req_prd.enquiry_request_parts erp
                         on erp.sid = ec.erp_sid
@@ -690,6 +692,8 @@ def load_core_tables():
                         on wrm.spp_sid = spp.sid
                         left join ar_meps_mark_prd.keyed_batch_reason kbr
                         on kbr.code = wrm.kbr_code
+                        left join ar_meps_mark_prd.mark_load_details mld
+                        on wrm.mld_sid = mld.sid
                         where ec.ccm_ses_sid in ({session_id}) 
                                 ''', conn)
 
@@ -709,6 +713,8 @@ def load_core_tables():
             current_mark = row['current_mark'],
             ear_mark = row['ear_mark'],
             ear_mark_alt = row['ear_mark_alt'],
+            omr_batch = row['omr_batch'],
+            omr_position = row['omr_position'],
             )
 
         else:

@@ -117,6 +117,10 @@ urlpatterns = [
     path('omrche_list', views.omrche_list_view, name='omrche_list'),
     path('omrche_create', views.omrche_create_view, name='omrche_create'),
     path('omrche_download/<str:download_id>', views.omrche_download_view, name='omrche_download'),
+        #Download OMRSCR to file location
+    path('omrscr_list', views.omrscr_list_view, name='omrscr_list'),
+    path('omrscr_create', views.omrscr_create_view, name='omrscr_create'),
+    path('omrscr_download/<str:download_id>', views.omrscr_download_view, name='omrscr_download'),
     #Download ESMSCR to file location
     path('esmscr_list', views.esmscr_list_view, name='esmscr_list'),
     path('exmscr_create', views.esmscr_create_view, name='exmscr_create'),

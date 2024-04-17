@@ -66,6 +66,14 @@
         </div>
         <div class="card m-3 shadow-lg" style="width: 18rem; ">
           <div class="card-body d-flex flex-column">
+            <h5 class="card-title">OMR CSV Download</h5>
+            {% if omrscr.count > 0 %}<span class="badge rounded-pill bg-primary">{{ omrscr.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            <p class="card-text">Download for examiner access to RM</p>
+            <a href="{% url 'omrscr_list' %}" class="mt-auto btn btn-outline-primary">OMR Downloads</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
             <h5 class="card-title">Script Renaming Queue</h5>
             {% if scrren.count > 0 %}<span class="badge rounded-pill bg-primary">{{ scrren.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             <p class="card-text">Queue for scripts waiting to be returned from ESM and renamed.</p>

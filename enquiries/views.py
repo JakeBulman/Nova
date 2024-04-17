@@ -10,6 +10,8 @@ import csv, os
 from django.db.models import Sum, Count
 from django.contrib.auth.models import User
 from django.db.models.functions import Cast, Substr
+import dateutil.parser
+
 
 #special imports
 from . import script_ServerResetShort as srs
@@ -29,7 +31,7 @@ def ear_home_view(request,*args, **kwargs):
 	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF',]
 	delta_tasks = ['NRMACC',]
 	kappa_tasks = ['CLERIC',]
-	sigma_tasks = ['ESMSCR','ESMSC2','SCRCHE','SCRREQ']
+	sigma_tasks = ['ESMSCR','ESMSC2','SCRCHE','SCRREQ','OMRSCR']
 	omega_tasks = ['BOTMAF','GRDREL','NEGCON','PDACON','PEACON','PUMCON','GRDREJ','MRKAMD','GRDCON','GRDCHG','OUTCON',]
 	lambda_tasks = ['BOTAPP','BOTMAR',]
 
@@ -102,6 +104,7 @@ def ear_home_view_team_gamma(request,*args, **kwargs):
 	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
 	esmcsv_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMCSV', enquiry_tasks__task_completion_date__isnull=True)
 	omrche_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OMRCHE', enquiry_tasks__task_completion_date__isnull=True)
+
 	manapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MANAPP', enquiry_tasks__task_completion_date__isnull=True)
 	manapp_count_assigned = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MANAPP', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	botapp_fail_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTAPF', enquiry_tasks__task_completion_date__isnull=True)
@@ -205,6 +208,7 @@ def ear_home_view_team_sigma(request,*args, **kwargs):
 	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
 	esmscr_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMSCR', enquiry_tasks__task_completion_date__isnull=True)
 	esmsc2_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMSC2', enquiry_tasks__task_completion_date__isnull=True)
+	omrscr_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OMRSCR', enquiry_tasks__task_completion_date__isnull=True)
 	scrren_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SCRREN', enquiry_tasks__task_completion_date__isnull=True)
 	scrche_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SCRCHE', enquiry_tasks__task_completion_date__isnull=True)
 	scrchea_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SCRCHE', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
@@ -212,7 +216,7 @@ def ear_home_view_team_sigma(request,*args, **kwargs):
 	scrreqa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SCRREQ', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
-	context = {"session_desc":session_desc, "mytask":mytask_count,"esmscr":esmscr_count,"esmsc2":esmsc2_count,"scrren":scrren_count,"scrche":scrche_count, "scrchea":scrchea_count,"scrreq":scrreq_count, "scrreqa":scrreqa_count,
+	context = {"session_desc":session_desc, "mytask":mytask_count,"esmscr":esmscr_count,"esmsc2":esmsc2_count,"omrscr":omrscr_count,"scrren":scrren_count,"scrche":scrche_count, "scrchea":scrchea_count,"scrreq":scrreq_count, "scrreqa":scrreqa_count,
 		}
 
 	return render(request, "enquiries/main_templates/home_ear_sigma.html", context=context, )
@@ -259,7 +263,7 @@ def my_tasks_view(request):
 	if request.user.is_authenticated:
 		user = request.user
 
-	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR']
+	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR','OMRSCR']
 	primary_team = models.TaskUserPrimary.objects.get(task_user=user).primary_team
 	secondary_team_set = models.TaskUserSecondary.objects.filter(task_user=user)
 	secondary_teams = []
@@ -330,7 +334,7 @@ def new_task_view(request):
 	username = None
 	if request.user.is_authenticated:
 		username =request.user
-	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR']
+	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR','OMRSCR']
 	primary_team = models.TaskUserPrimary.objects.get(task_user=username).primary_team
 	secondary_team_set = models.TaskUserSecondary.objects.filter(task_user=username)
 	secondary_teams = []
@@ -1566,7 +1570,7 @@ def enquiries_detail(request, enquiry_id=None):
 	if enquiry_id is not None:	
 		cer_queryset = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
 		task_queryset = models.TaskManager.objects.filter(enquiry_id=enquiry_id).order_by('task_creation_date')
-		excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR']
+		excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR','OMRSCR']
 		complete_list = ['COMPLT','SETBIE']
 		marking_list = ['NEWMIS','CLERIC','LOCMAR']
 		apportionment_list = ['AUTAPP','MANAPP']
@@ -1707,6 +1711,30 @@ def iec_pass_view(request, enquiry_id=None):
 		#Get scripts for this enquiry ID, this is a join from EC to ERP
 		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 		for s in Scripts:
+			if s.script_type == 'Multiple Choice':
+				services = ['1','1S','ASC','ASR']
+				if s.erp_sid.service_code in services:
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRSCR',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=s.erp_sid.cer_sid.enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'OMRSCR'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+						)
+					continue
+				else:
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+						)		
+					continue
 			#Check is ASR/ASC and send to script requesting
 			if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR' or '1' in s.erp_sid.service_code:
 				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
@@ -1800,18 +1828,7 @@ def iec_pass_view(request, enquiry_id=None):
 						task_assigned_date = None,
 						task_completion_date = None
 						)		
-					continue	
-				if s.script_type == 'Multiple Choice':
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
-						models.TaskManager.objects.create(
-						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-						task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
-						task_assigned_to = None,
-						task_assigned_date = None,
-						task_completion_date = None
-						)		
-					continue	
+					continue		
 				if models.EnquiryComponentsExaminerChecks.objects.filter(ec_sid = s.ec_sid).count() > 0:
 					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='PEXMCH',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
@@ -1861,6 +1878,30 @@ def iec_pass_all_view(request):
 			Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 			for s in Scripts:
 				#Check is ASR/ASC and send to script requesting
+				if s.script_type == 'Multiple Choice':
+					services = ['1','1S','ASC','ASR']
+					if s.erp_sid.service_code in services:
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRSCR',task_completion_date = None).exists():
+							models.TaskManager.objects.create(
+								enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=s.erp_sid.cer_sid.enquiry_id),
+								ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+								task_id = models.TaskTypes.objects.get(task_id = 'OMRSCR'),
+								task_assigned_to = None,
+								task_assigned_date = None,
+								task_completion_date = None
+							)
+						continue
+					else:
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
+							models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+							)		
+						continue	
 				if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR' or '1' in s.erp_sid.service_code:
 					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
@@ -1920,7 +1961,7 @@ def iec_pass_all_view(request):
 								enpe_sid = principal_exm,
 								ec_sid = s
 								#script_marked is default to 1
-			)
+								)
 
 					
 						#Create BOTAPP and MKWAIT
@@ -1956,17 +1997,7 @@ def iec_pass_all_view(request):
 							task_completion_date = None
 							)		
 						continue	
-					if s.script_type == 'Multiple Choice':
-						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
-							models.TaskManager.objects.create(
-							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-							task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
-							task_assigned_to = None,
-							task_assigned_date = None,
-							task_completion_date = None
-							)	
-						continue
+
 					if s.erp_sid.service_code == '1':
 						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
 							models.TaskManager.objects.create(
@@ -2047,6 +2078,30 @@ def iec_issue_view(request, enquiry_id=None):
 		#Get scripts for this enquiry ID, this is a join from EC to ERP
 		Scripts = models.EnquiryComponents.objects.filter(erp_sid__cer_sid = enquiry_id)
 		for s in Scripts:
+			if s.script_type == 'Multiple Choice':
+				services = ['1','1S','ASC','ASR']
+				if s.erp_sid.service_code in services:
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRSCR',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=s.erp_sid.cer_sid.enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'OMRSCR'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+						)
+					continue
+				else:
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+						)		
+					continue	
 			#Check is ASR/ASC and send to script requesting
 			if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR' or '1' in s.erp_sid.service_code:
 				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
@@ -2104,7 +2159,7 @@ def iec_issue_view(request, enquiry_id=None):
 							enpe_sid = principal_exm,
 							ec_sid = s
 							#script_marked is default to 1
-		)
+							)
 
 				
 					#Create BOTAPP and MKWAIT
@@ -2139,17 +2194,6 @@ def iec_issue_view(request, enquiry_id=None):
 						task_completion_date = None
 						)		
 					continue	
-				if s.script_type == 'Multiple Choice':
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRCHE',task_completion_date = None).exists():
-						models.TaskManager.objects.create(
-						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-						task_id = models.TaskTypes.objects.get(task_id = 'OMRCHE'),
-						task_assigned_to = None,
-						task_assigned_date = None,
-						task_completion_date = None
-						)	
-					continue
 				if s.erp_sid.service_code == '1':
 					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
@@ -2449,17 +2493,6 @@ def omrche_create_view(request):
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='OMRCHE').update(task_completion_date=timezone.now())
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='OMRCHE').update(task_assigned_date=timezone.now())
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='OMRCHE').update(task_assigned_to=username)
-				#Check is ASR/ASC and send to script requesting
-				if 'S' in s.ec_sid.erp_sid.service_code:
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='OMRSCR',task_completion_date = None).exists():
-						models.TaskManager.objects.create(
-							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=s.enquiry_id.enquiry_id),
-							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-							task_id = models.TaskTypes.objects.get(task_id = 'OMRSCR'),
-							task_assigned_to = None,
-							task_assigned_date = None,
-							task_completion_date = None
-						)
 
 		models.OmrcheDownloads.objects.create(
 			document = file_location,
@@ -2478,6 +2511,80 @@ def omrche_download_view(request, download_id=None):
 
 	return FileResponse(document, as_attachment=True)
 
+
+def omrscr_list_view(request):
+	ec_queryset = models.OmrscrDownloads.objects.order_by('-uploaded_at')
+	ec_queryset_paged = Paginator(ec_queryset,20,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries/task_lists/enquiries_omrscr.html", context=context)
+
+def omrscr_create_view(request):
+	ec_queryset = models.TaskManager.objects.order_by('enquiry_id__enquiry_deadline__enquiry_deadline').filter(task_id='OMRSCR', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__eb_sid__isnull=False)
+	if ec_queryset.count() > 0:
+		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + "_OMRSCR.csv"
+		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
+		print(file_location)
+		username = None
+		if request.user.is_authenticated:
+			username =request.user		
+		with open(file_location, 'w', newline='') as file:
+			file.truncate()
+			writer = csv.writer(file)
+			#writer.writerow(['enquiry_no','batch','centre','candidate','syllcomp','session','service'])
+			writer.writerow(['Date Enquiry Booked','OMR Batch','OMR Position','Syllabus','Comp','Centre','Candidate Number','Batch Number'])
+			for s in ec_queryset:
+				enquiry_book_date = s.enquiry_id.eps_creation_date.date()
+				print(s.enquiry_id.eps_creation_date)
+				print(enquiry_book_date)
+				omr_batch = models.EnquiryComponentsHistory.objects.get(ec_sid = s.ec_sid).omr_batch
+				omr_position = models.EnquiryComponentsHistory.objects.get(ec_sid = s.ec_sid).omr_position
+				syll = s.ec_sid.eps_ass_code
+				comp = s.ec_sid.eps_com_id
+				centre = s.ec_sid.erp_sid.eps_centre_id
+				candidate = s.ec_sid.erp_sid.eps_cand_id
+				batch = models.EnquiryComponentElements.objects.get(ec_sid = s.ec_sid).eb_sid.eb_sid
+				
+				writer.writerow([enquiry_book_date,omr_batch,omr_position,syll,comp,centre,candidate,batch])
+				
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='OMRSCR').update(task_completion_date=timezone.now())
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='OMRSCR').update(task_assigned_date=timezone.now())
+				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='OMRSCR').update(task_assigned_to=username)
+				#Next chain step is 
+				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
+					models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=s.enquiry_id.enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'CLERIC'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
+					)
+
+		models.OmrscrDownloads.objects.create(
+			document = file_location,
+			file_name = file_timestamp,
+			download_count = 0,
+			archive_count = 0
+			)
+
+	return redirect('omrscr_list')
+
+def omrscr_download_view(request, download_id=None):
+	# 
+	document = models.OmrscrDownloads.objects.get(pk=download_id).document
+	downloads = int(models.OmrscrDownloads.objects.get(pk=download_id).download_count) + 1
+	models.OmrscrDownloads.objects.filter(pk=download_id).update(download_count = str(downloads))
+
+	return FileResponse(document, as_attachment=True)
 
 
 
@@ -2498,7 +2605,7 @@ def esmscr_list_view(request):
 	return render(request, "enquiries/task_lists/enquiries_esmscr.html", context=context)
 
 def esmscr_create_view(request):
-	ec_queryset = models.TaskManager.objects.filter(task_id='ESMSCR', task_completion_date__isnull=True)[:50]
+	ec_queryset = models.TaskManager.objects.order_by('enquiry_id__enquiry_deadline__enquiry_deadline').filter(task_id='ESMSCR', task_completion_date__isnull=True)[:50]
 	if ec_queryset.count() > 0:
 		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
 		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
@@ -2565,7 +2672,7 @@ def esmsc2_list_view(request):
 	return render(request, "enquiries/task_lists/enquiries_esmsc2.html", context=context)
 
 def esmsc2_create_view(request):
-	ec_queryset = models.TaskManager.objects.filter(task_id='ESMSC2', task_completion_date__isnull=True)[:50]
+	ec_queryset = models.TaskManager.objects.order_by('enquiry_id__enquiry_deadline__enquiry_deadline').filter(task_id='ESMSC2', task_completion_date__isnull=True)[:50]
 	if ec_queryset.count() > 0:
 		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
 		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
