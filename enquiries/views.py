@@ -28,7 +28,7 @@ def ear_home_view(request,*args, **kwargs):
 		user = request.user
 
 	alpha_tasks = ['INITCH','SETBIE']
-	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF',]
+	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF','MUPREX',]
 	delta_tasks = ['NRMACC',]
 	kappa_tasks = ['CLERIC',]
 	sigma_tasks = ['ESMSCR','ESMSC2','SCRCHE','SCRREQ','OMRSCR']
@@ -123,13 +123,15 @@ def ear_home_view_team_gamma(request,*args, **kwargs):
 	remappa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='REMAPP', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	remapf_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='REMAPF', enquiry_tasks__task_completion_date__isnull=True)
 	remapfa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='REMAPF', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	muprex_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MUPREX', enquiry_tasks__task_completion_date__isnull=True)
+	muprexa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MUPREX', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
 	context = {"session_desc":session_desc, "mytask":mytask_count, "manapp": manapp_count, "manappa": manapp_count_assigned, 
 	     "botapf":botapp_fail_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count, 
 		"misvrf":misvrf_count, "misvrfa":misvrfa_count,	"pexmch":pexmch_count, "pexmcha":pexmcha_count, "locmar":locmar_count, "locmara":locmara_count, 
 		"esmcsv":esmcsv_count, "omrche":omrche_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, 
-		"remapf":remapf_count, "remapfa":remapfa_count,
+		"remapf":remapf_count, "remapfa":remapfa_count, "muprex":muprex_count, "muprexa":muprexa_count,
 		}
 
 	return render(request, "enquiries/main_templates/home_ear_gamma.html", context=context, )
@@ -296,6 +298,8 @@ def task_router_view(request, task_id):
 		return redirect('locmar-task', task_id=task_id)
 	if task_type == "CLERIC":
 		return redirect('cleric-task', task_id=task_id)
+	if task_type == "MUPREX":
+		return redirect('muprex-task', task_id=task_id)
 	if task_type == "SCRCHE":
 		return redirect('scrche-task', task_id=task_id)
 	if task_type == "SCRREQ":
@@ -986,7 +990,28 @@ def cleric_task_complete(request):
 			task_completion_date = None
 			)
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='SCRCHE').update(task_completion_date=timezone.now())    
+	models.TaskManager.objects.filter(pk=task_id,task_id='CLERIC').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+def muprex_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
+	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
+	examiner_queryset = models.UniqueCreditor.objects.filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code).order_by('creditors__exm_per_details__exm_examiner_no')
+	issue_reason = None
+	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
+		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "task_comments":task_comments, "issue_reason":issue_reason}
+	return render(request, "enquiries/task_singles/enquiries_task_muprex.html", context=context)
+
+def muprex_task_complete(request):
+	task_id = request.POST.get('task_id')
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='MUPREX').update(task_completion_date=timezone.now())    
 	return redirect('my_tasks')
 
 def scrche_task(request, task_id=None):
@@ -1570,7 +1595,7 @@ def enquiries_detail(request, enquiry_id=None):
 	if enquiry_id is not None:	
 		cer_queryset = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
 		task_queryset = models.TaskManager.objects.filter(enquiry_id=enquiry_id).order_by('task_creation_date')
-		excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR','OMRSCR']
+		excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR','OMRSCR','MKWAIT']
 		complete_list = ['COMPLT','SETBIE']
 		marking_list = ['NEWMIS','CLERIC','LOCMAR']
 		apportionment_list = ['AUTAPP','MANAPP']
@@ -1796,7 +1821,7 @@ def iec_pass_view(request, enquiry_id=None):
 							ec_sid = s
 							#script_marked is default to 1
 							)
-					#Create BOTAPP and MKWAIT
+					#Create BOTAPP and MKWAIT and MUPREX
 					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='BOTAPP',task_completion_date = None).exists():
 						models.TaskManager.objects.create(
 						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
@@ -1813,6 +1838,15 @@ def iec_pass_view(request, enquiry_id=None):
 						task_id = models.TaskTypes.objects.get(task_id = 'MKWAIT'),
 						task_assigned_to = User.objects.get(username='NovaServer'),
 						task_assigned_date = timezone.now(),
+						task_completion_date = None
+						)	
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MUPREX',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'MUPREX'),
+						task_assigned_to = None,
+						task_assigned_date = None,
 						task_completion_date = None
 						)			
 					continue
@@ -1982,7 +2016,16 @@ def iec_pass_all_view(request):
 							task_assigned_to = User.objects.get(username='NovaServer'),
 							task_assigned_date = timezone.now(),
 							task_completion_date = None
-							)			
+							)		
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MUPREX',task_completion_date = None).exists():
+							models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'MUPREX'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+							)		
 						continue
 
 
@@ -2180,6 +2223,15 @@ def iec_issue_view(request, enquiry_id=None):
 						task_assigned_to = User.objects.get(username='NovaServer'),
 						task_assigned_date = timezone.now(),
 						task_completion_date = None
+						)	
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='MUPREX',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+						task_id = models.TaskTypes.objects.get(task_id = 'MUPREX'),
+						task_assigned_to = None,
+						task_assigned_date = None,
+						task_completion_date = None
 						)			
 					continue
 
@@ -2320,6 +2372,22 @@ def cleric_list_view(request):
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
 	return render(request, "enquiries/task_lists/enquiries_cleric.html", context=context)
+
+def muprex_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='MUPREX', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries/task_lists/enquiries_muprex.html", context=context)
 
 def scrche_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.

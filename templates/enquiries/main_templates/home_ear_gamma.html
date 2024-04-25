@@ -161,6 +161,15 @@
             <a href="{% url 'rpa_apportionment_failure' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
           </div>
         </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">MU Prempt Exm Checks</h5>
+            {% if muprex.count > 0 %}<span class="badge rounded-pill bg-primary">{{ muprex.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if muprexa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ muprexa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Tasks awaiting updates to the examiner payment log.</p>
+            <a href="{% url 'muprex_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+          </div>
+        </div>
       </div>
     </div>
   </body>

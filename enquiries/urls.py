@@ -84,6 +84,8 @@ urlpatterns = [
     path('task_manager/grdcon_task/<str:task_id>', views.grdcon_task, name='grdcon-task'), 
     path('task_manager/grdchg_task/complete', views.grdchg_task_complete, name='grdchg-complete'),
     path('task_manager/grdchg_task/<str:task_id>', views.grdchg_task, name='grdchg-task'),   
+    path('task_manager/muprex_task/complete', views.muprex_task_complete, name='muprex-complete'),
+    path('task_manager/muprex_task/<str:task_id>', views.muprex_task, name='muprex-task'),
 
     ### Task List Control ### 
 
@@ -152,6 +154,8 @@ urlpatterns = [
     path('grdrej_list', views.grdrej_list_view, name='grdrej_list'),
     #Mark Amendments main screen
     path('mrkamd_list', views.mrkamd_list_view, name='mrkamd_list'),
+    #MU examiners main screen
+    path('muprex_list', views.muprex_list_view, name='muprex_list'),
     #Release for OUTCON
     path('outcon_create', views.outcon_create_view, name='outcon_create'),
 
