@@ -75,7 +75,7 @@ def load_core_tables():
                 eps_ack_letter_ind = row['eps_ack_letter_ind'],
                 eps_ses_sid = row['eps_ses_sid'],
                 centre_id = row['centre_id'],
-                created_by = row['created_by'],
+                created_by = row['created_by'][:50],
                 cie_direct_id = row['cie_direct_id'], 
             )
         else:
@@ -87,7 +87,7 @@ def load_core_tables():
                 eps_ack_letter_ind = row['eps_ack_letter_ind'],
                 eps_ses_sid = row['eps_ses_sid'],
                 centre_id = row['centre_id'],
-                created_by = row['created_by'],
+                created_by = row['created_by'][:50],
                 cie_direct_id = row['cie_direct_id'],
                 ministry_flag = None
             )
@@ -148,7 +148,7 @@ def load_core_tables():
                 eps_comp_ind = row['eps_comp_ind'],
                 eps_script_measure = row['eps_script_measure'],
                 booked_in_error_ind = row['booked_in_error_ind'],
-                stud_name = row['stud_name'],
+                stud_name = row['stud_name'][:100],
                 grade_confirmed_ind = row['grade_confirmed_ind'],
                 grade_changed_ind = row['grade_changed_ind']
         )
@@ -168,7 +168,7 @@ def load_core_tables():
                     eps_comp_ind = None,
                     eps_script_measure = 1,
                     booked_in_error_ind = row['booked_in_error_ind'],
-                    stud_name = row['stud_name'],
+                    stud_name = row['stud_name'][:100],
                     grade_confirmed_ind = row['grade_confirmed_ind']
                 )
             except:
@@ -219,9 +219,9 @@ def load_core_tables():
                 eps_ass_ver_no = row['eps_ass_ver_no'],
                 eps_com_id = row['eps_com_id'],
                 eps_qual_id = row['eps_qual_id'],
-                eps_qual_name = row['eps_qual_name'],
-                eps_ass_name = row['eps_ass_name'],
-                eps_comp_name = row['eps_comp_name'],
+                eps_qual_name = row['eps_qual_name'][:50],
+                eps_ass_name = row['eps_ass_name'][:50],
+                eps_comp_name = row['eps_comp_name'][:50],
                 ccm_measure = row['ccm_measure'],
             )
         else:
@@ -235,9 +235,9 @@ def load_core_tables():
                     eps_ass_ver_no = row['eps_ass_ver_no'],
                     eps_com_id = row['eps_com_id'],
                     eps_qual_id = row['eps_qual_id'],
-                    eps_qual_name = row['eps_qual_name'],
-                    eps_ass_name = row['eps_ass_name'],
-                    eps_comp_name = row['eps_comp_name'],
+                    eps_qual_name = row['eps_qual_name'][:50],
+                    eps_ass_name = row['eps_ass_name'][:50],
+                    eps_comp_name = row['eps_comp_name'][:50],
                     ccm_measure = row['ccm_measure'],
                 )
             except:
@@ -396,7 +396,7 @@ def load_core_tables():
         if EnquiryComponentElements.objects.filter(ec_sid=row['ec_sid']).exists():
             EnquiryComponentElements.objects.filter(ec_sid=row['ec_sid']).update(
                 ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
-                ece_status = row['ece_status'],
+                ece_status = row['ece_status'][:20],
                 eb_sid = EnquiryBatches.objects.only('eb_sid').filter(eb_sid=row['eb_sid']).first(),
                 clerical_mark = row['clerical_mark'],
                 mark_after_enquiry = row['mark_after_enquiry'],
@@ -410,7 +410,7 @@ def load_core_tables():
             try:
                 EnquiryComponentElements.objects.create(
                     ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
-                    ece_status = row['ece_status'],
+                    ece_status = row['ece_status'][:20],
                     eb_sid = EnquiryBatches.objects.only('eb_sid').filter(eb_sid=row['eb_sid']).first(),
                     clerical_mark = row['clerical_mark'],
                     mark_after_enquiry = row['mark_after_enquiry'],
@@ -514,21 +514,21 @@ def load_core_tables():
             UniqueCreditor.objects.filter(exm_creditor_no = row['exm_creditor_no']).update(
                 exm_creditor_no = row['exm_creditor_no'],
                 per_sid = row['per_sid'],
-                exm_title = row['exm_title'],
-                exm_initials = row['exm_initials'],
-                exm_surname = row['exm_surname'],
-                exm_forename = row['exm_forename'],
-                exm_email = row['exm_email'],
+                exm_title = row['exm_title'][:20],
+                exm_initials = row['exm_initials'][:50],
+                exm_surname = row['exm_surname'][:50],
+                exm_forename = row['exm_forename'][:50],
+                exm_email = row['exm_email'][:50],
             )
         else:
             UniqueCreditor.objects.create(
                 exm_creditor_no = row['exm_creditor_no'],
                 per_sid = row['per_sid'],
-                exm_title = row['exm_title'],
-                exm_initials = row['exm_initials'],
-                exm_surname = row['exm_surname'],
-                exm_forename = row['exm_forename'],
-                exm_email = row['exm_email'],
+                exm_title = row['exm_title'][:20],
+                exm_initials = row['exm_initials'][:50],
+                exm_surname = row['exm_surname'][:50],
+                exm_forename = row['exm_forename'][:50],
+                exm_email = row['exm_email'][:50],
             )
 
     df.apply(insert_to_model_enpe, axis=1)
@@ -623,7 +623,7 @@ def load_core_tables():
                 sp_sid = row['sp_sid'],
                 ass_code = row['ass_code'],
                 com_id = row['com_id'],
-                sp_name = row['sp_name'],
+                sp_name = row['sp_name'][:100],
                 sp_ses_sid = row['sp_ses_sid'],
                 sp_use_esm_ind = row['sp_use_esm_ind'],
                 session = row['session'],
@@ -640,7 +640,7 @@ def load_core_tables():
                 sp_sid = row['sp_sid'],
                 ass_code = row['ass_code'],
                 com_id = row['com_id'],
-                sp_name = row['sp_name'],
+                sp_name = row['sp_name'][:100],
                 sp_ses_sid = row['sp_ses_sid'],
                 sp_use_esm_ind = row['sp_use_esm_ind'],
                 session = row['session'],
@@ -709,7 +709,7 @@ def load_core_tables():
             eps_cand_no = row['cand_no'],
             exm_position = row['exm_position'],
             kbr_code = row['kbr_code'],
-            kbr_reason = row['kbr_reason'],
+            kbr_reason = row['kbr_reason'][:50],
             current_mark = row['current_mark'],
             ear_mark = row['ear_mark'],
             ear_mark_alt = row['ear_mark_alt'],
@@ -729,7 +729,7 @@ def load_core_tables():
                 eps_cand_no = row['cand_no'],
                 exm_position = row['exm_position'],
                 kbr_code = row['kbr_code'],
-                kbr_reason = row['kbr_reason'],
+                kbr_reason = row['kbr_reason'][:50],
                 current_mark = row['current_mark'],
                 ear_mark = row['ear_mark'],
                 ear_mark_alt = row['ear_mark_alt'],
@@ -788,7 +788,7 @@ def load_core_tables():
             eps_cand_no = row['eps_cand_no'],
             exm_position = row['exm_position'],
             kbr_code = row['kbr_code'],
-            kbr_reason = row['kbr_reason'],
+            kbr_reason = row['kbr_reason'][:50],
             )
 
         else:
@@ -803,7 +803,7 @@ def load_core_tables():
                 eps_cand_no = row['eps_cand_no'],
                 exm_position = row['exm_position'],
                 kbr_code = row['kbr_code'],
-                kbr_reason = row['kbr_reason'],
+                kbr_reason = row['kbr_reason'][:50],
                 )
             except:
                 pass
