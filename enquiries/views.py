@@ -553,6 +553,7 @@ def nrmacc_task(request, task_id=None):
 	task_comp_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_com_id
 	examiner_queryset = models.UniqueCreditor.objects.annotate(script_count=Sum("creditors__apportion_examiner__script_marked")).filter(creditors__exm_per_details__ass_code = task_ass_code, creditors__exm_per_details__com_id = task_comp_code, creditors__currently_valid=True).order_by('creditors__exm_per_details__exm_examiner_no')
 	panel_notes = ''
+	remapp_check = False
 	if models.ExaminerPanels.objects.filter(ass_code=task_ass_code,com_id=task_comp_code).exists():
 		panel_notes = models.ExaminerPanels.objects.get(ass_code=task_ass_code,com_id=task_comp_code).panel_notes
 	issue_reason = None
@@ -562,7 +563,9 @@ def nrmacc_task(request, task_id=None):
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
 		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
-	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "panel_notes":panel_notes, "task_comments":task_comments, "issue_reason":issue_reason}
+	if models.TaskManager.objects.filter(ec_sid=task_queryset.ec_sid.ec_sid, task_id='REMAPP').exists():
+		remapp_check = True
+	context = {"task_id":task_id, "task":task_queryset, "ep":examiner_queryset, "panel_notes":panel_notes, "task_comments":task_comments, "issue_reason":issue_reason, "remapp_check":remapp_check}
 	return render(request, "enquiries/task_singles/enquiries_task_nrmacc.html", context=context)
 
 def nrmacc_task_complete(request):
@@ -1199,15 +1202,16 @@ def remapp_task_complete(request):
 			ec_sid =  script_obj
 			#script_marked is default to 1
 		)
-		models.TaskManager.objects.create(
-			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiries__enquiry_parts__ec_sid=apportion_script_id),
-			ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
-			task_id = models.TaskTypes.objects.get(task_id = 'REMAPF'),
-			task_assigned_to = None,
-			task_assigned_date = None,
-			task_completion_date = None
-		)
 		if models.EnquiryComponents.objects.get(ec_sid=apportion_script_id).script_type == "RM Assessor":
+			#07/05/2024 REMAPF suppressed to only occur for RM scripts
+			models.TaskManager.objects.create(
+				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiries__enquiry_parts__ec_sid=apportion_script_id),
+				ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),
+				task_id = models.TaskTypes.objects.get(task_id = 'REMAPF'),
+				task_assigned_to = None,
+				task_assigned_date = None,
+				task_completion_date = None
+			)
 			models.TaskManager.objects.create(
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=apportion_enquiry_id),
 				ec_sid = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id),

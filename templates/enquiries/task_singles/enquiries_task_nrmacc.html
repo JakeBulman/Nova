@@ -87,9 +87,10 @@
             <div>1. Please request the hard copy script for the above enquiry.</div>
             <div>2. Please complete the EPS apportionment process for the above enquiry.</div>
             <div>3. Please send the hard copy script for the above enquiry to the examiner. If the examiner is no longer available, see below before completing the task.</div>
+            {% if issue_reason %}<h2 class="text-center text-primary m-3">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
+            {% if remapp_check %}<h2 class="text-center text-danger mb-3">This script is undergoing a reapportionment</h2>{% endif %}
         </div>
     </div>
-    {% if issue_reason %}<h2 class="text-center text-primary mb-3">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
 
 
         <div class="col text-center ms-3 me-5 bg-light text-dark rounded">
