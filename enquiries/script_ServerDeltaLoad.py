@@ -39,7 +39,7 @@ def load_core_tables():
     session_id = EarServerSettings.objects.first().session_id_list
     enquiry_id_list = EarServerSettings.objects.first().enquiry_id_list
     if enquiry_id_list != '':
-        enquiry_id_list = ' and sid in (' + enquiry_id_list + ')'
+        enquiry_id_list = ' and cer.sid in (' + enquiry_id_list + ')'
 
     print("ENQ:" + enquiry_id_list)
 
@@ -60,7 +60,7 @@ def load_core_tables():
             left join ar_meps_req_prd.enquiry_request_parts erp
             on erp.cer_sid = cer.sid
             where ses_sid in ({session_id}) 
-            and erp.es_service_code in ('1','1S','2','2P','2PS','2S','ASC','ASR')
+            and erp.es_service_code in ('1','1S','2','2P','2PS','2S','ASC','ASR','3')
             {enquiry_id_list}
                                 ''', conn)
         print(df)
@@ -698,6 +698,10 @@ def load_core_tables():
                                 ''', conn)
 
     def insert_to_model_enpee(row):
+        try:
+            kbr_reason = row['kbr_reason'][:50]
+        except:
+            kbr_reason = ''
         if EnquiryComponentsHistory.objects.filter(ec_sid=row['ec_sid']).exists():
             EnquiryComponentsHistory.objects.filter(ec_sid=row['ec_sid']).update(
             cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
@@ -709,7 +713,7 @@ def load_core_tables():
             eps_cand_no = row['cand_no'],
             exm_position = row['exm_position'],
             kbr_code = row['kbr_code'],
-            kbr_reason = row['kbr_reason'][:50],
+            kbr_reason = kbr_reason,
             current_mark = row['current_mark'],
             ear_mark = row['ear_mark'],
             ear_mark_alt = row['ear_mark_alt'],
@@ -729,7 +733,7 @@ def load_core_tables():
                 eps_cand_no = row['cand_no'],
                 exm_position = row['exm_position'],
                 kbr_code = row['kbr_code'],
-                kbr_reason = row['kbr_reason'][:50],
+                kbr_reason = kbr_reason,
                 current_mark = row['current_mark'],
                 ear_mark = row['ear_mark'],
                 ear_mark_alt = row['ear_mark_alt'],
@@ -961,7 +965,7 @@ def load_core_tables():
             left join ar_meps_req_prd.enquiry_request_parts erp
             on erp.cer_sid = cer.sid
             where ses_sid in ({session_id}) 
-            and erp.es_service_code not in ('1','1S','2','2P','2PS','2S','ASC','ASR')
+            and erp.es_service_code not in ('1','1S','2','2P','2PS','2S','ASC','ASR','3')
             {enquiry_id_list}
                                 ''', conn)
         print(df)

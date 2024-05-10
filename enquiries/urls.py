@@ -41,6 +41,8 @@ urlpatterns = [
     path('task_manager/setbie_task/<str:enquiry_id>/bie-complete/', views.complete_bie_view, name="bie-complete"),
     path('task_manager/nrmacc_task/complete', views.nrmacc_task_complete, name='nrmacc-complete'),
     path('task_manager/nrmacc_task/<str:task_id>', views.nrmacc_task, name='nrmacc-task'), 
+    path('task_manager/s3send_task/complete', views.s3send_task_complete, name='s3send-complete'),
+    path('task_manager/s3send_task/<str:task_id>', views.s3send_task, name='s3send-task'), 
     path('task_manager/manual_mis', views.manual_mis, name='manual-mis'),
     path('task_manager/manual_mis_complete', views.manual_mis_complete, name='manual-mis-complete'),
     path('task_manager/misvrm_task/complete', views.misvrm_task_complete, name='misvrm-complete'),
@@ -97,6 +99,8 @@ urlpatterns = [
     path('manapp_list', views.manapp_list_view, name='manapp_list'),
     #Non-RM main screen
     path('nrmacc_list', views.nrmacc_list_view, name='nrmacc_list'),
+    #Service 3 main screen
+    path('s3send_list', views.s3send_list_view, name='s3send_list'),
     #MIS vs RM main screen
     path('misvrm_list', views.misvrm_list_view, name='misvrm_list'),
     #MIS vs RM recheck main screen

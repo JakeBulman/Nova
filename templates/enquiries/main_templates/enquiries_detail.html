@@ -272,7 +272,38 @@
                                     <h5 class="card-title position-absolute top-0 start-0 display-1 text-info text-start">{{ z.eps_com_id }}</h5>
                                     <h5 class="card-title text-end">Script ID {{ z.ec_sid }}</h5>
                                     {% for b in z.script_id.all %}
-                                    <h5 class="card-title text-end">Batch ID {{ b.eb_sid.eb_sid }}</h5>
+                                        <h5 class="card-title text-end">Batch ID {{ b.eb_sid.eb_sid }}</h5>
+                                    {% endfor %}
+                                    <h5 class="card-title text-end text-info">Examiner Details:</h5>
+                                    {% for e in z.apportion_script.all %}
+                                        {% if e.apportionment_invalidated ==  0 %}
+                                            <a class="card-title text-end" href='/enquiries/examiner_detail/{{ e.enpe_sid.per_sid.per_sid }}'>{{ e.enpe_sid.per_sid.exm_creditor_no }} - {{ e.enpe_sid.per_sid.exm_forename }} {{ e.enpe_sid.per_sid.exm_surname }}</a>
+                                            {%if e.script_mark_entered == 1 %} 
+                                            <div class="text-end"><button type="submit" title="Reapportion" class="btn btn-danger btn-sm" style="width:200px"
+                                            data-bs-toggle="modal" data-bs-target="#exampleModal{{z.ec_sid}}">Reapportion Script</button></div>
+                                            {% else %}
+                                                <div class="text-end"><button disabled type="submit" class="btn btn-danger btn-sm" style="width:200px">Reapportion Script</button></div>
+                                            {% endif %}
+                                                <div class="modal fade" id="exampleModal{{z.ec_sid}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel">Reapportion Script - {{z.ec_sid}}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form method="POST" action="{% url 'exmsla-complete' %}" class="text-end">
+                                                            <input name="script_id" id="script_id" value={{z.ec_sid}} type="hidden" class="form-control">
+                                                            <input name="enquiry_id" id="enquiry_id" value={{cer.enquiry_id}} type="hidden" class="form-control">
+                                                            <input name="per_sid" id="per_sid" value={{e.enpe_sid.per_sid.per_sid}} type="hidden" class="form-control">
+                                                            <input name="source" id="source" value="enquiry" type="hidden" class="form-control">
+                                                            <button type="submit" class="btn btn-danger" style="width:200px">Reapportion Script</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                        {% endif %}
                                     {% endfor %}
                                     </div>
                                     <div class="row text-left">

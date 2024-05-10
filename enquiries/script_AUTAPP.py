@@ -153,41 +153,51 @@ def run_algo():
                         ec_sid =  script_obj
                         #script_marked is default to 0
                     )
-
-                    if EnquiryComponents.objects.get(ec_sid=script_id).script_type == "RM Assessor":
-                        TaskManager.objects.create(
-                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                            ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                            task_id = TaskTypes.objects.get(task_id = 'BOTAPP'),
-                            task_assigned_to = User.objects.get(username='RPABOT'),
-                            task_assigned_date = timezone.now(),
-                            task_completion_date = None
-                        )
-                        TaskManager.objects.create(
-                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                            ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                            task_id = TaskTypes.objects.get(task_id = 'NEWMIS'),
-                            task_assigned_to = User.objects.get(username='NovaServer'),
-                            task_assigned_date = timezone.now(),
-                            task_completion_date = None
-                        )
-                        TaskManager.objects.create(
-                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                            ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                            task_id = TaskTypes.objects.get(task_id = 'ESMCSV'),
-                            task_assigned_to = None,
-                            task_assigned_date = None,
-                            task_completion_date = None
-                        )
+                    if EnquiryComponents.objects.get(ec_sid=script_id).erp_sid.service_code == '3':
+                        if not TaskManager.objects.filter(ec_sid=script_id, task_id='S3SEND',task_completion_date = None).exists():
+                            TaskManager.objects.create(
+                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+                                ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
+                                task_id = TaskTypes.objects.get(task_id = 'S3SEND'),
+                                task_assigned_to = None,
+                                task_assigned_date = None,
+                                task_completion_date = None
+                            )	
                     else:
-                        TaskManager.objects.create(
-                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                            ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                            task_id = TaskTypes.objects.get(task_id = 'NRMACC'),
-                            task_assigned_to = None,
-                            task_assigned_date = None,
-                            task_completion_date = None
-                        )		
+                        if EnquiryComponents.objects.get(ec_sid=script_id).script_type == "RM Assessor":
+                            TaskManager.objects.create(
+                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+                                ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
+                                task_id = TaskTypes.objects.get(task_id = 'BOTAPP'),
+                                task_assigned_to = User.objects.get(username='RPABOT'),
+                                task_assigned_date = timezone.now(),
+                                task_completion_date = None
+                            )
+                            TaskManager.objects.create(
+                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+                                ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
+                                task_id = TaskTypes.objects.get(task_id = 'NEWMIS'),
+                                task_assigned_to = User.objects.get(username='NovaServer'),
+                                task_assigned_date = timezone.now(),
+                                task_completion_date = None
+                            )
+                            TaskManager.objects.create(
+                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+                                ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
+                                task_id = TaskTypes.objects.get(task_id = 'ESMCSV'),
+                                task_assigned_to = None,
+                                task_assigned_date = None,
+                                task_completion_date = None
+                            )
+                        else:
+                            TaskManager.objects.create(
+                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
+                                ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
+                                task_id = TaskTypes.objects.get(task_id = 'NRMACC'),
+                                task_assigned_to = None,
+                                task_assigned_date = None,
+                                task_completion_date = None
+                            )		
                 else:
                     #AUTAPP not successful, send to manual apportionement
                     TaskManager.objects.create(
