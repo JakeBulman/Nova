@@ -279,10 +279,10 @@
                                         {% if e.apportionment_invalidated ==  0 %}
                                             <a class="card-title text-end" href='/enquiries/examiner_detail/{{ e.enpe_sid.per_sid.per_sid }}'>{{ e.enpe_sid.per_sid.exm_creditor_no }} - {{ e.enpe_sid.per_sid.exm_forename }} {{ e.enpe_sid.per_sid.exm_surname }}</a>
                                             {%if e.script_mark_entered == 1 %} 
-                                            <div class="text-end"><button type="submit" title="Reapportion" class="btn btn-danger btn-sm" style="width:200px"
+                                            <div class="text-end"><button type="submit" title="Reapportion" class="btn btn-danger btn-sm mb-2" style="width:200px"
                                             data-bs-toggle="modal" data-bs-target="#exampleModal{{z.ec_sid}}">Reapportion Script</button></div>
                                             {% else %}
-                                                <div class="text-end"><button disabled type="submit" class="btn btn-danger btn-sm" style="width:200px">Reapportion Script</button></div>
+                                                <div class="text-end"><button disabled type="submit" class="btn btn-danger btn-sm mb-2" style="width:200px">Reapportion Script</button></div>
                                             {% endif %}
                                                 <div class="modal fade" id="exampleModal{{z.ec_sid}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                     <div class="modal-dialog modal-dialog-centered">
