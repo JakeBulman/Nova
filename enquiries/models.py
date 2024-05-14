@@ -257,6 +257,8 @@ class ScriptApportionment(models.Model):
     script_mark_entered = models.IntegerField(default=1)
     apportionment_invalidated = models.IntegerField(default=0)
 
+    #Apportionment staging table
+
 class ScriptApportionmentExtension(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='script_extension')
     task_id = models.ForeignKey(TaskManager, on_delete=models.SET_NULL, null=True, related_name='task_extension')
