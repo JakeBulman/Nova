@@ -3105,7 +3105,7 @@ def mrkamd_list_view(request):
 
 def enquiries_rpa_apportion_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTAPP', script_tasks__task_completion_date__isnull=True, script_id__eb_sid__created_date__isnull=False).order_by('ec_sid')
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTAPP', script_tasks__task_completion_date__isnull=True, script_id__eb_sid__created_date__isnull=False).order_by('erp_sid__cer_sid__enquiry_deadline__enquiry_deadline')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -3166,7 +3166,7 @@ def enquiries_rpa_apportion_failure_view(request):
 
 def enquiries_rpa_marks_keying_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTMAR', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTMAR', script_tasks__task_completion_date__isnull=True).order_by('erp_sid__cer_sid__enquiry_deadline__enquiry_deadline')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:

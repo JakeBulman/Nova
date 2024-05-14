@@ -56,7 +56,7 @@ def run_algo():
                 task_completion_date = None
             )      
         else:        
-            examiner_detail_obj = EnquiryPersonnelDetails.objects.filter(ass_code=script_obj.eps_ass_code,com_id=script_obj.eps_com_id).order_by('exm_creditor_no')
+            examiner_detail_obj = EnquiryPersonnelDetails.objects.filter(ass_code=script_obj.eps_ass_code,com_id=script_obj.eps_com_id,session=app_task.enquiry_id.eps_ses_sid).order_by('exm_creditor_no')
             exms_list = []
             for exm in examiner_detail_obj:
                 #load examiners for this script into array
