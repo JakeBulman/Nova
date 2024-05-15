@@ -258,6 +258,16 @@ class ScriptApportionment(models.Model):
     apportionment_invalidated = models.IntegerField(default=0)
 
     #Apportionment staging table
+class DjangoStagingTable(models.Model):
+    enpe_sid = models.ForeignKey(EnquiryPersonnel, to_field='enpe_sid', on_delete=models.SET_NULL, null=True, related_name='staging_examiner')
+    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='staging_script') 
+    eb_sid = models.ForeignKey(EnquiryBatches, to_field='eb_sid', on_delete=models.SET_NULL, null=True, related_name='staging_batch')
+    per_sid = models.CharField(max_length=20, null=True)
+    pan_sid = models.CharField(max_length=20, null=True)
+    copied_to_est = models.IntegerField(default=0)
+    error_status = models.CharField(max_length=50, null=True)
+    comments = models.CharField(max_length=50, null=True)
+
 
 class ScriptApportionmentExtension(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='script_extension')
