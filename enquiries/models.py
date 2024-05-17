@@ -258,7 +258,7 @@ class ScriptApportionment(models.Model):
     apportionment_invalidated = models.IntegerField(default=0)
 
     #Apportionment staging table
-class DjangoStagingTable(models.Model):
+class DjangoStagingTableAPP(models.Model):
     enpe_sid = models.ForeignKey(EnquiryPersonnel, to_field='enpe_sid', on_delete=models.SET_NULL, null=True, related_name='staging_examiner')
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='staging_script') 
     eb_sid = models.ForeignKey(EnquiryBatches, to_field='eb_sid', on_delete=models.SET_NULL, null=True, related_name='staging_batch')
@@ -268,6 +268,15 @@ class DjangoStagingTable(models.Model):
     error_status = models.CharField(max_length=50, null=True)
     comments = models.CharField(max_length=50, null=True)
 
+class DjangoStagingTableMAR(models.Model):
+    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='staging_script') 
+    eb_sid = models.ForeignKey(EnquiryBatches, to_field='eb_sid', on_delete=models.SET_NULL, null=True, related_name='staging_batch')
+    outcome_status = models.CharField(max_length=8, null=True)
+    final_mark = models.IntegerField(null=True)
+    justification_code = models.IntegerField(null=True)
+    copied_to_est = models.IntegerField(default=0)
+    error_status = models.CharField(max_length=50, null=True)
+    comments = models.CharField(max_length=50, null=True)
 
 class ScriptApportionmentExtension(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='script_extension')

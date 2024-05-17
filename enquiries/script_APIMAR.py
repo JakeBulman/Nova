@@ -26,7 +26,7 @@ from enquiries.models import TaskManager, ScriptApportionment,EnquiryComponentEl
 from django.contrib.auth.models import User
 
 def run_algo():
-    for task in TaskManager.objects.filter(task_id='APIAPP', task_completion_date__isnull=True):
+    for task in TaskManager.objects.filter(task_id='APIMAR', task_completion_date__isnull=True):
 
         script_apportion_details = ScriptApportionment.objects.get(ec_sid=task.ec_sid.ec_sid,apportionment_invalidated=0)
 
