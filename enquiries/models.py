@@ -260,8 +260,8 @@ class ScriptApportionment(models.Model):
     #Apportionment staging table
 class DjangoStagingTableAPP(models.Model):
     enpe_sid = models.ForeignKey(EnquiryPersonnel, to_field='enpe_sid', on_delete=models.SET_NULL, null=True, related_name='staging_examiner')
-    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='staging_script') 
-    eb_sid = models.ForeignKey(EnquiryBatches, to_field='eb_sid', on_delete=models.SET_NULL, null=True, related_name='staging_batch')
+    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='staging_script_app') 
+    eb_sid = models.ForeignKey(EnquiryBatches, to_field='eb_sid', on_delete=models.SET_NULL, null=True, related_name='staging_batch_app')
     per_sid = models.CharField(max_length=20, null=True)
     pan_sid = models.CharField(max_length=20, null=True)
     copied_to_est = models.IntegerField(default=0)
@@ -269,8 +269,8 @@ class DjangoStagingTableAPP(models.Model):
     comments = models.CharField(max_length=50, null=True)
 
 class DjangoStagingTableMAR(models.Model):
-    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='staging_script') 
-    eb_sid = models.ForeignKey(EnquiryBatches, to_field='eb_sid', on_delete=models.SET_NULL, null=True, related_name='staging_batch')
+    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='staging_script_mar') 
+    eb_sid = models.ForeignKey(EnquiryBatches, to_field='eb_sid', on_delete=models.SET_NULL, null=True, related_name='staging_batch_mar')
     outcome_status = models.CharField(max_length=8, null=True)
     final_mark = models.IntegerField(null=True)
     justification_code = models.IntegerField(null=True)
