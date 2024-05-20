@@ -170,6 +170,15 @@
             <a href="{% url 'muprex_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
           </div>
         </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Hard Copy Scripts</h5>
+            {% if nrmscs.count > 0 %}<span class="badge rounded-pill bg-primary">{{ nrmscs.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if nrmscsa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ nrmscsa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Saving and renaming Hard Copy into the correct folder.</p>
+            <a href="{% url 'muprex_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+          </div>
+        </div>
       </div>
     </div>
   </body>

@@ -28,7 +28,7 @@ def ear_home_view(request,*args, **kwargs):
 		user = request.user
 
 	alpha_tasks = ['INITCH','SETBIE']
-	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF','MUPREX',]
+	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF','MUPREX','NRMSCS']
 	delta_tasks = ['NRMACC','S3SEND','S3CONF']
 	kappa_tasks = ['CLERIC',]
 	sigma_tasks = ['ESMSCR','ESMSC2','SCRCHE','SCRREQ','OMRSCR']
@@ -97,7 +97,7 @@ def ear_home_view_team_delta(request,*args, **kwargs):
 
 
 	session_desc = models.EarServerSettings.objects.first().session_description
-	context = {"session_desc":session_desc, "mytask":mytask_count, "nrmacc":nrmacc_count, "nrmacca":nrmacca_count, 
+	context = {"session_desc":session_desc, "mytask":mytask_count, "nrmacc":nrmacc_count, "nrmacca":nrmacca_count,  
 			"s3send":s3send_count, "s3senda":s3senda_count, "s3conf":s3conf_count, "s3confa":s3confa_count}
 
 	return render(request, "enquiries/main_templates/home_ear_delta.html", context=context, )
@@ -110,7 +110,8 @@ def ear_home_view_team_gamma(request,*args, **kwargs):
 	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
 	esmcsv_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='ESMCSV', enquiry_tasks__task_completion_date__isnull=True)
 	omrche_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OMRCHE', enquiry_tasks__task_completion_date__isnull=True)
-
+	nrmscs_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NRMSCS', enquiry_tasks__task_completion_date__isnull=True)
+	nrmscsa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NRMSCS', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)	
 	manapp_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MANAPP', enquiry_tasks__task_completion_date__isnull=True)
 	manapp_count_assigned = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MANAPP', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	botapp_fail_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTAPF', enquiry_tasks__task_completion_date__isnull=True)
@@ -133,7 +134,7 @@ def ear_home_view_team_gamma(request,*args, **kwargs):
 	muprexa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MUPREX', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
-	context = {"session_desc":session_desc, "mytask":mytask_count, "manapp": manapp_count, "manappa": manapp_count_assigned, 
+	context = {"session_desc":session_desc, "mytask":mytask_count, "manapp": manapp_count, "manappa": manapp_count_assigned, "nrmscs":nrmscs_count, "nrmscsa":nrmscsa_count,
 	     "botapf":botapp_fail_count, "botmaf":botmar_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count, 
 		"misvrf":misvrf_count, "misvrfa":misvrfa_count,	"pexmch":pexmch_count, "pexmcha":pexmcha_count, "locmar":locmar_count, "locmara":locmara_count, 
 		"esmcsv":esmcsv_count, "omrche":omrche_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, 
@@ -294,6 +295,8 @@ def task_router_view(request, task_id):
 		return redirect('manual-apportionment-task', task_id=task_id)
 	if task_type == "NRMACC":
 		return redirect('nrmacc-task', task_id=task_id)
+	if task_type == "NRMSCS":
+		return redirect('nrmscs-task', task_id=task_id)
 	if task_type == "S3SEND":
 		return redirect('s3send-task', task_id=task_id)
 	if task_type == "S3CONF":
@@ -619,6 +622,38 @@ def nrmacc_task_complete(request):
 		models.TaskManager.objects.filter(pk=task_id,task_id='NRMACC').update(task_completion_date=timezone.now())    
 		return redirect('my_tasks')
 	
+
+def nrmscs_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+
+	#Get task_id for this enquiry if it has SETBIE
+	issue_reason = None
+	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
+		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "issue_reason":issue_reason, "task_comments":task_comments}
+	return render(request, "enquiries/task_singles/enquiries_task_nrmscs.html", context=context)
+
+def nrmscs_task_complete(request):
+	script_id = request.POST.get('script_id')
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	script_id = models.TaskManager.objectstask_id
+	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='SCRCHE',task_completion_date = None).exists():
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			task_id = models.TaskTypes.objects.get(task_id = 'SCRCHE'),
+			task_assigned_to = None,
+			task_assigned_date = None,
+			task_completion_date = None
+		)
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='NRMSCS').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
 
 
 def s3send_task(request, task_id=None):
@@ -2449,6 +2484,12 @@ def nrmacc_list_view(request):
 	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='NRMACC', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')	
 	context = {"cer": ec_queryset,}
 	return render(request, "enquiries/task_lists/enquiries_nrmacc.html", context=context)
+
+def nrmscs_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='NRMSCS', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')	
+	context = {"cer": ec_queryset,}
+	return render(request, "enquiries/task_lists/enquiries_nrmscs.html", context=context)
 
 def s3send_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
