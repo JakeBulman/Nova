@@ -9,31 +9,53 @@
             <tr class="text-center">
               <th>Enquiry ID</th>
               <th>Script ID</th>
-              <th>Session Name</th>
+              <th>Session</th>
               <th>Batch ID</th>
               <th>Task Creation Date</th>
-              <th>Task Owner</th>
-              <th>Task Assignment Date</th>
               <th>Send Back</th>
+              <th>Comments</th>
             </tr>
-            {% for x in cer %}
-                {% for y in x.script_tasks.all %}
+            {% for y in cer %}
                     {% if y.task_id.task_id == 'SCRREN' and y.task_completion_date == None %}
                     <tr class="text-center">
                       <td><a href='/enquiries/enquiries_detail/{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}'>{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}</a></td> 
                       <td>{{ y.ec_sid.ec_sid }}</td>
-                      <td>{{ x.eps_ses_name }}</td>
-                      {% for s in x.script_id.all %}<td>{{ s.eb_sid.eb_sid }}</td>{% empty %}<td>None</td>{% endfor %}
+                      <td>{{ y.ec_sid.eps_ses_name }}</td>
+                      {% for s in y.ec_sid.script_id.all %}<td>{{ s.eb_sid.eb_sid }}</td>{% empty %}<td>None</td>{% endfor %}
                       <td>{{ y.task_creation_date }}</td>
-                      <td>{{ y.task_assigned_to }}</td>
-                      <td>{{ y.task_assigned_date }}</td>
                       <td><form method="POST" action="{% url 'scrren_sendback' %}" class="text-center">
                         <input name="task_id" id="task_id" value={{y.id}} type="hidden" class="form-control">
                         <button type="submit" class="btn btn-outline-warning" style="width:120px">Send Back</button>
                       </form></td>
+                      <td><form method="POST" action="{% url 'add_task_comment' %}" class="form-inline">
+                        <input name="task_id" id="task_id" value={{y.id}} type="hidden" class="form-control">
+                        <input name="task_source" id="task_source" value="scrren" type="hidden" class="form-control">
+                        {% if y.comment_field %}
+                        <div class="container">
+                          <div class="row">
+                            <div class="col-8">
+                              <input name="task_comment" id="task_comment" value="{{y.comment_field}}" type="text" class="form-control">
+                            </div>
+                            <div class="col-4">
+                              <button type="submit" class="btn btn-primary" onClick="this.form.submit(); this.disabled=true;" style="width:180px">Update Comment</button>
+                            </div>
+                          </div>
+                        </div>
+                        {% else %}
+                        <div class="container">
+                          <div class="row">
+                            <div class="col-8">
+                              <input name="task_comment" id="task_comment" value="" type="text" class="form-control">
+                            </div>
+                            <div class="col-4">
+                              <button type="submit" class="btn btn-success" onClick="this.form.submit(); this.disabled=true;" style="width:180px">Add Comment</button>
+                            </div>
+                          </div>
+                        </div>
+                        {% endif %}
+                      </form></td>    
                     </tr>
                     {% endif %}
-                {% endfor %}
             {% endfor %}
         </table>
     </div>

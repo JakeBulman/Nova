@@ -11,6 +11,7 @@ from django.db.models import Sum, Count
 from django.contrib.auth.models import User
 from django.db.models.functions import Cast, Substr
 import dateutil.parser
+from django.db.models import OuterRef, Subquery, Max
 
 
 #special imports
@@ -317,6 +318,8 @@ def task_router_view(request, task_id):
 		return redirect('scrche-task', task_id=task_id)
 	if task_type == "SCRREQ":
 		return redirect('scrreq-task', task_id=task_id)
+	if task_type == "SCRREN":
+		return redirect('scrren_list')
 	if task_type == "EXMSLA":
 		return redirect('exmsla-task', task_id=task_id)
 	if task_type == "REMAPP":
@@ -395,8 +398,21 @@ def new_task_comment_view(request):
 
 	#get this task, assuming valid
 	task = models.TaskManager.objects.get(pk=task_id)
-
-	if task_id is not None:
+	if task.task_id.task_id == 'SCRREN':
+		try:
+			models.TaskComments.objects.filter(task_pk = task).first().task_pk
+			models.TaskComments.objects.filter(task_pk = task).update(
+				task_pk = task,
+				task_comment_text = task_comment,
+				task_comment_user = username
+			)		
+		except:
+			models.TaskComments.objects.create(
+				task_pk = task,
+				task_comment_text = task_comment,
+				task_comment_user = username
+			)			
+	elif task_id is not None:
 		models.TaskComments.objects.create(
 			task_pk = task,
 			task_comment_text = task_comment,
@@ -2968,7 +2984,8 @@ def esmsc2_download_view(request, download_id=None):
 
 def scrren_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='SCRREN', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	comment = models.TaskComments.objects.filter(task_pk_id=OuterRef('pk'))
+	ec_queryset = models.TaskManager.objects.annotate(comment_field=Subquery(comment.values('task_comment_text'))).filter(task_id='SCRREN', task_completion_date__isnull=True).order_by('ec_sid')
 	context = {"cer": ec_queryset,}
 	return render(request, "enquiries/task_lists/enquiries_scrren.html", context=context)
 
