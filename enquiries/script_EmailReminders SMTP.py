@@ -128,14 +128,14 @@ try:
 
           <h3>Enquiry About Results – Review of Marking </h3>
 
-          <p>We have been asked to provide a check on the marking accuracy for the candidates detailed in the below listed batches. These scripts have been uploaded to your RM Assessor work list or will have been sent in a separate email including the batch number in the subject line. The Mark Input Sheets for these batches can be found on your Secure Exchange account. Your attention is directed to the Instructions and Guidance already issued, but for ease of access here is a brief bullet point summary of the process:</p>
+          <p>We have been asked to provide a check on the marking accuracy for the candidates detailed in the below listed batches. These scripts have been uploaded to your RM Assessor work list or will have been sent in a separate email including the batch number in the subject line. The Mark Input Sheets for these batches can be found on your Secure Exchange account. Please note that for March 2024 ‘NEW’ and revised sections are available in ‘Enquiries about Results Instructions for examiners marking on screen’. Your attention is directed to the Instructions and Guidance already issued, but for ease of access here is a brief bullet point summary of the process:</p>
                               
           <ol>
           <li>
           Receive this email and review outstanding batches listed under Worklist      
           </li>                  
           <li>
-          Find batch in Secure Exchange folder /CI/EAR/Examiners/Examiner-(your examiner number)      
+          Find batch in Secure Exchange folder /CI/EAR/Examiners/Examiner-(your examiner number). Secure Exchange: https://exchange.cambridgeinternational.org/human.aspx?r=2137397631&arg12=home                       
           </li> 
           <li>
           Download batch     

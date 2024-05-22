@@ -70,7 +70,7 @@
               <th>Task Creation Date</th>
               <th>Task Owner</th>
               <th>Task Assignment Date</th>
-              <th>Assignment</th>
+              <th colspan="2">Assignment</th>
             </tr>
             {% for x in cer %}
                 {% for y in x.script_tasks.all %}
@@ -91,6 +91,10 @@
                             <button type="submit" class="btn btn-outline-primary" style="width:120px">Assign to Me</button>
                           {% endif %}
                       </form></td>
+                      <td><form method="POST" action="{% url 'assign-task-user' task_id=y.id  user_id=request.user.id %}" class="text-center">
+                        <input name="page_location" id="page_location" value="remapp_list" type="hidden" class="form-control">
+                        <button type="submit" class="btn btn-outline-warning" style="width:120px">Assign To</button>
+                    </form></td>
                     </tr>
                     {% endif %}
                 {% endfor %}

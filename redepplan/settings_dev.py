@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'mathfilters',
+    'django_htmx',
     # 'django_celery_beat',
     # 'django_celery',
     'pages',
@@ -50,6 +51,8 @@ INSTALLED_APPS = [
     #Represents the EAR program
     'indianexm',
     #represent Indian Examiner Payments
+    'datareporting',
+    #data being pulled into 
     
 ]
 
@@ -61,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
 ]
 
 ROOT_URLCONF = 'redepplan.urls'

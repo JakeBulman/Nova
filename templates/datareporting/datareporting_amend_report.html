@@ -1,0 +1,102 @@
+{% extends 'nova_core/base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'datareporting/datareporting_navbar.html' %}
+<div class="justify-content-center">
+    <h1 class="text-center pt-4 mb-4 ">Amend Report</h1>
+</div>
+<div class="text-center mt-1 mb-2">
+    <a href="{% url 'delete_report_page' report_info.id%}" class="btn btn-danger" style="vertical-align: middle;">Delete</a>
+</div>
+<form class="col-md-10 mx-auto form-group" hx-post="{% url 'update_report' report_info.id%}" method="POST" hx-target="#messages-container" hx-swap="outerHTML">
+    <div class="row">
+        <div class="col-md-4 mx-auto form-group">
+            <label for="newReportName">Report Name</label>
+            <input type="text" class="form-control" id="newReportName" name="newReportName" value="{{ report_info.report_name }}" required>
+        </div>
+    </div>
+    <div class="text-center mt-3 mb-2">
+        <button type="submit" id="submitButton" class="btn btn-warning" style="width:225px;" disabled>Update</button>
+    </div>
+
+    <div class="col-md-4 offset-md-4">
+        {% include 'datareporting/partials/datareporting_messages.html' %}
+    </div>
+
+    <div class="search-container col-md-5 mx-auto text-center pt-3">
+        <input type="text" id="searchInput" placeholder="Search Datasets..." class="form-control  mx-auto">
+    </div>
+    <table class="table table-bordered table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+        <thead class="thead-light">
+            <th style="text-align: center; width: 5%;" scope="col" >Select</th>
+            <th style="text-align: center; width: 30%;" scope="col" >Dataset</th>
+            <th style="text-align: center; width: 15%;" scope="col" >Parameter</th>
+            <th style="text-align: center; width: 10%;" scope="col" >Operator</th>
+            <th style="text-align: center; width: 15%;" scope="col" >Value</th>
+        </thead>
+        <tbody>
+            {% for dataset in datasets_queryset %}
+                <tr>
+                    <td style="text-align: center; vertical-align: middle;">
+                        <input type="checkbox" name="selected_dataset" value="{{ dataset.id }}" {% if dataset.id in selected_datasets_ids %}checked{% endif %}>
+                    </td>
+                    <td style="text-align: center; vertical-align: middle; ">{{ dataset.dataset_name }}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{ dataset.parameter_name }}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{ dataset.operator }}</td>
+                    <td style="text-align: center; vertical-align: middle;">
+                        <input style="text-align: center; vertical-align: middle;" type="text" name="dataset_parameter_{{ dataset.id }}" placeholder="Enter parameter value" class="form-control mb-1" value="{% for report_dataset in report_dataset_queryset %}{% if report_dataset.dataset_id == dataset.id %}{{ report_dataset.report_parameter }}{% endif %}{% endfor %}">
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>        
+    </table>
+</form>
+
+<!--Script for filtering:-->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var searchInput = document.getElementById("searchInput");
+
+        searchInput.addEventListener("keyup", function() {
+            var searchQuery = searchInput.value.toLowerCase();
+
+            var tableRows = document.querySelectorAll("table tbody tr");
+
+            tableRows.forEach(function(row) {
+                var datasetName = row.cells[1].textContent.toLowerCase();
+
+                if (datasetName.includes(searchQuery)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none"; 
+                }
+            });
+        });
+    });
+</script>
+
+<!--Script for submit button:-->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const reportNameInput = document.getElementById('newReportName');
+        const checkboxes = document.querySelectorAll('input[name="selected_dataset"]');
+        const submitButton = document.getElementById('submitButton');
+    
+        function updateButtonState() {
+            const isReportNameFilled = reportNameInput.value.trim() !== '';
+            const isAnyCheckboxChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+    
+            submitButton.disabled = !(isReportNameFilled && isAnyCheckboxChecked);
+        }
+    
+        reportNameInput.addEventListener('input', updateButtonState);
+    
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', updateButtonState);
+        });
+    });
+</script>
+
+
+{% endblock %}

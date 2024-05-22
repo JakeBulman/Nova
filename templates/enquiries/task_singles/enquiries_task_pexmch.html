@@ -64,6 +64,7 @@
                 <div>Please check RM and indicate which examiners have seen this script previously.</div>
                 <div class="fw-bold">Fill in as many examiners as required, including the original examiner if this is still valid.</div>
                 <div>Choosing no examiners is a valid submission.</div>
+                {% if issue_reason %}<h2 class="text-center text-primary mb-3">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
             </div>
         </div>
 

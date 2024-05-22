@@ -2,177 +2,178 @@
 
 {% block content %}
 
-<h1 class="display-5 text-center mb-3">EAR - Enquiry Details - {{ cer.enquiry_id }}</h1>
+<style type="text/css">
+    .container-fluid.custom-container {
+      padding: 0 50px;
+    }
+</style>
 
+<h1 class="display-5 mb-4 mt-3 mx-5 text-center">EAR - Enquiry Details - {{ cer.enquiry_id }}</h1>
 
+    <div class="container-fluid">
+        <div class="row text-center mb-3">
+            <div class="col-3 text-center text-dark ms-5 me-3 bg-light rounded">
+                <div class="card my-3">
+                    <div class="col">
+                        {% if bie_status == 'SETBIE' %}
+                        <h2 class="text-center text-danger">THIS ENQUIRY IS CANCELLED</h2>
+                        {% else %}
+                        <h2 style="opacity: 0.0;" class="text-center text-danger">THIS ENQUIRY IS CANCELLED</h2>
+                        {% endif %}
 
+                        {% if issue_reason %}<h2 class="text-center text-primary">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
 
+                        {% if bie_status != 'SETBIE' %}
 
-    {% for y in cer.enquiries.all %}
-    <div class="container">
+                        {% if enquiry_prioritised %}
+                        <form method="POST" action="{% url 'prioritise-enquiry' enquiry_id=cer.enquiry_id %}">
+                            <button type="submit" title="Prioritise Enquiry" class="btn btn-success w-75 my-2">Deprioritise Enquiry</button>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <label for="priority_reason" class="col-form-label-lg" style="font-weight: bold; color: rgb(0, 134, 0);">Priority Reason:</label>
+                                </div>
+                                <div class="col-4">
+                                    <input disabled name="priority_reason" id="priority_reason" type="text" value="{{enquiry_prioritised.priority_reason}}" class="form-control">
+                                </div>
+                            </div>
 
-        <div class="row text-center mb-5">
-            {% if bie_status == 'SETBIE' %}
-                <h2 class="text-center text-danger">THIS ENQUIRY IS CANCELLED</h2>
-            {% else %}
-            <h2 style="opacity: 0.0;" class="text-center text-danger">THIS ENQUIRY IS CANCELLED</h2>
-            {% endif %}
+                        <br>
 
-            {% if issue_reason %}<h2 class="text-center text-primary">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
+                        </form>
 
-            {% if bie_status != 'SETBIE' %}
+                        {% else %}
+                        <form method="POST" action="{% url 'prioritise-enquiry' enquiry_id=cer.enquiry_id %}">
+                            <button type="submit" title="Prioritise Enquiry" class="btn btn-outline-success w-75 my-2">Prioritise Enquiry</button>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <label for="priority_reason" class="col-form-label-lg" style="font-weight: bold; color: rgb(0, 134, 0);">Priority Reason:</label>
+                                </div>
+                                <div class="col-4">
+                                    <input name="priority_reason" id="priority_reason" type="text" class="form-control">
+                                    <input name="priority_status" id="priority_status" value="prioritise" type="hidden" class="form-control">
+                                </div>
+                            </div>
 
-                {% if enquiry_prioritised %}
-                <form method="POST" action="{% url 'prioritise-enquiry' enquiry_id=cer.enquiry_id %}">
-                    <button type="submit" title="Prioritise Enquiry" class="btn btn-success my-2" style="width:1000px">Deprioritise Enquiry</button>
-                    <div class="row text-center">
-                        <div class="col-3"></div>
-                        <div class="col-3">
-                            <label for="priority_reason" class="col-form-label-lg" style="font-weight: bold; color: rgb(0, 134, 0);">Priority Reason:</label>
+                        <br>
+
+                        </form>
+
+                        {% endif %}
+
+                        {% if enquiry_paused %}
+                        <form method="POST" action="{% url 'pause-enquiry' enquiry_id=cer.enquiry_id %}">
+                            <button type="submit" title="Pause Enquiry" class="btn btn-warning w-75 my-2">Unpause Enquiry</button>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <label for="pause_reason" class="col-form-label-lg" style="font-weight: bold; color: rgb(255, 153, 0);">Pause Reason:</label>
+                                </div>
+                                <div class="col-4">
+                                    <input disabled name="pause_reason" id="pause_reason" type="text" value="{{enquiry_paused.pause_reason}}" class="form-control">
+                                </div>
+                            </div>
+
+                        <br>
+                        </form>
+
+                        {% else %}
+                        <form method="POST" action="{% url 'pause-enquiry' enquiry_id=cer.enquiry_id %}">
+                            <button type="submit" title="Pause Enquiry" class="btn btn-outline-warning w-75 my-2">Pause Enquiry</button>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <label for="pause_reason" class="col-form-label-lg" style="font-weight: bold; color: rgb(255, 153, 0);">Pause Reason:</label>
+                                </div>
+                                <div class="col-4">
+                                    <input name="pause_reason" id="pause_reason" type="text" class="form-control">
+                                    <input name="pause_status" id="pause_status" value="pause" type="hidden" class="form-control">
+                                </div>
+                            </div>
+
+                            <br>
+                        </form>
+                        {% endif %}
+
+                        <div class="text-center mt-2">
+                                <button type="submit" title="Fail" class="btn btn-outline-danger text-center w-75"
+                                data-bs-toggle="modal" data-bs-target="#exampleModal{{cer.enquiry_id}}">Cancel Enquiry</button>
                         </div>
-                        <div class="col-3">
-                            <input disabled name="priority_reason" id="priority_reason" type="text" value="{{enquiry_prioritised.priority_reason}}" class="form-control">
+                        <div class="text-center my-4">
+                            <button type="submit" title="Issue" class="btn btn-outline-primary text-center w-75"
+                            data-bs-toggle="modal" data-bs-target="#issueModal{{cer.enquiry_id}}">Set Issue</button>
                         </div>
-                    </div>
 
-                <br>
 
-                </form>
-
-                {% else %}
-                <form method="POST" action="{% url 'prioritise-enquiry' enquiry_id=cer.enquiry_id %}">
-                    <button type="submit" title="Prioritise Enquiry" class="btn btn-outline-success my-2" style="width:1000px">Prioritise Enquiry</button>
-                    <div class="row text-center">
-                        <div class="col-3"></div>
-                        <div class="col-3">
-                            <label for="priority_reason" class="col-form-label-lg" style="font-weight: bold; color: rgb(0, 134, 0);">Priority Reason:</label>
+                        <div class="modal fade" id="exampleModal{{cer.enquiry_id}}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Set BIE Reason - {{cer.enquiry_id}}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                <form method="POST" action="{% url 'iec-fail' enquiry_id=cer.enquiry_id %}">
+                                    <input name="rpa_fail" id="listed" type="hidden" class="form-control" placeholder="Enquiry No.">
+                                    <div class="mb-3">
+                                    <label for="message-text" class="col-form-label">Failure Reason:</label>
+                                    <textarea class="form-control" id="message-text" name="rpa_fail"></textarea>
+                                    </div>
+                                    <button type="submit" title="Pass" class="btn btn-outline-primary" style="width:150px" data-bs-dismiss="modal">Continue</button>
+                                    <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
+                                </form>
+                                </div>
+                            </div>
+                            </div>
                         </div>
-                        <div class="col-3">
-                            <input name="priority_reason" id="priority_reason" type="text" class="form-control">
-                            <input name="priority_status" id="priority_status" value="prioritise" type="hidden" class="form-control">
+
+                        <div class="modal fade" id="issueModal{{cer.enquiry_id}}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="issueModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Set Issue Reason - {{x.enquiry_id}}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                <form method="POST" action="{% url 'set-issue' enquiry_id=cer.enquiry_id %}">
+                                    <input name="rpa_fail" id="listed" type="hidden" class="form-control" placeholder="Enquiry No.">
+                                    <div class="mb-3">
+                                    <label for="message-text" class="col-form-label">Issue Reason:</label>
+                                    <textarea class="form-control" id="message-text" name="rpa_fail"></textarea>
+                                    </div>
+                                    <button type="submit" title="Pass" class="btn btn-outline-primary" style="width:150px" data-bs-dismiss="modal">Continue</button>
+                                </form>
+                                </div>
+                            </div>
+                            </div>
                         </div>
-                    </div>
 
-                <br>
 
-                </form>
-
-                {% endif %}
-
-                {% if enquiry_paused %}
-                <form method="POST" action="{% url 'pause-enquiry' enquiry_id=cer.enquiry_id %}">
-                    <button type="submit" title="Pause Enquiry" class="btn btn-warning my-2" style="width:1000px">Unpause Enquiry</button>
-                    <div class="row text-center">
-                        <div class="col-3"></div>
-                        <div class="col-3">
-                            <label for="pause_reason" class="col-form-label-lg" style="font-weight: bold; color: rgb(255, 153, 0);">Pause Reason:</label>
-                        </div>
-                        <div class="col-3">
-                            <input disabled name="pause_reason" id="pause_reason" type="text" value="{{enquiry_paused.pause_reason}}" class="form-control">
-                        </div>
-                    </div>
-
-                <br>
-                </form>
-
-                {% else %}
-                <form method="POST" action="{% url 'pause-enquiry' enquiry_id=cer.enquiry_id %}">
-                    <button type="submit" title="Pause Enquiry" class="btn btn-outline-warning my-2" style="width:1000px">Pause Enquiry</button>
-                    <div class="row text-center">
-                        <div class="col-3"></div>
-                        <div class="col-3">
-                            <label for="pause_reason" class="col-form-label-lg" style="font-weight: bold; color: rgb(255, 153, 0);">Pause Reason:</label>
-                        </div>
-                        <div class="col-3">
+                        {% else %}
+                        <form method="POST" action="{% url 'prioritise-enquiry' enquiry_id=cer.enquiry_id %}">
+                            <button disabled type="submit" title="Prioritise Enquiry" class="btn btn-outline-secondary my-2" style="width:1000px">Prioritise Enquiry</button>
+                            <input name="prioritise_reason" id="prioritise_reason" type="text" class="form-control">
+                            <input name="prioritise_status" id="prioritise_status" value="prioritise" type="hidden" class="form-control">
+                        </form>
+                        <form method="POST" action="{% url 'pause-enquiry' enquiry_id=cer.enquiry_id %}">
+                            <button disabled type="submit" title="Pause Enquiry" class="btn btn-outline-secondary my-2" style="width:1000px">Pause Enquiry</button>
                             <input name="pause_reason" id="pause_reason" type="text" class="form-control">
                             <input name="pause_status" id="pause_status" value="pause" type="hidden" class="form-control">
-                        </div>
+                        </form>
+                        <form method="POST" action="{% url 'iec-fail' enquiry_id=cer.enquiry_id %}">
+                            <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
+                            <button disabled type="submit" title="Cancel Enquiry" class="btn btn-outline-secondary my-2" style="width:1000px">Cancel Enquiry</button>
+                        </form>
+                        <form method="POST" action="{% url 'set-issue' enquiry_id=cer.enquiry_id %}">
+                            <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
+                            <button disabled type="submit" title="Set Issue" class="btn btn-outline-secondary my-2" style="width:1000px">Set Issue</button>
+                        </form>
+                        
+                        {% endif %}
                     </div>
-
-                    <br>
-                </form>
-                {% endif %}
-
-                <div class="text-center mt-2">
-                        <button type="submit" title="Fail" class="btn btn-outline-danger text-center" style="width:1000px"
-                        data-bs-toggle="modal" data-bs-target="#exampleModal{{cer.enquiry_id}}">Cancel Enquiry</button>
                 </div>
-                <div class="text-center mt-4">
-                    <button type="submit" title="Issue" class="btn btn-outline-primary text-center" style="width:1000px"
-                    data-bs-toggle="modal" data-bs-target="#issueModal{{cer.enquiry_id}}">Set Issue</button>
-                </div>
-
-
-                                <div class="modal fade" id="exampleModal{{cer.enquiry_id}}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Set BIE Reason - {{cer.enquiry_id}}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                        <form method="POST" action="{% url 'iec-fail' enquiry_id=cer.enquiry_id %}">
-                                            <input name="rpa_fail" id="listed" type="hidden" class="form-control" placeholder="Enquiry No.">
-                                            <div class="mb-3">
-                                            <label for="message-text" class="col-form-label">Failure Reason:</label>
-                                            <textarea class="form-control" id="message-text" name="rpa_fail"></textarea>
-                                            </div>
-                                            <button type="submit" title="Pass" class="btn btn-outline-primary" style="width:150px" data-bs-dismiss="modal">Continue</button>
-                                            <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
-                                        </form>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-
-                                <div class="modal fade" id="issueModal{{cer.enquiry_id}}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="issueModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Set Issue Reason - {{x.enquiry_id}}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                        <form method="POST" action="{% url 'set-issue' enquiry_id=cer.enquiry_id %}">
-                                            <input name="rpa_fail" id="listed" type="hidden" class="form-control" placeholder="Enquiry No.">
-                                            <div class="mb-3">
-                                            <label for="message-text" class="col-form-label">Issue Reason:</label>
-                                            <textarea class="form-control" id="message-text" name="rpa_fail"></textarea>
-                                            </div>
-                                            <button type="submit" title="Pass" class="btn btn-outline-primary" style="width:150px" data-bs-dismiss="modal">Continue</button>
-                                        </form>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-
-
-            {% else %}
-            <form method="POST" action="{% url 'prioritise-enquiry' enquiry_id=cer.enquiry_id %}">
-                <button disabled type="submit" title="Prioritise Enquiry" class="btn btn-outline-secondary my-2" style="width:1000px">Prioritise Enquiry</button>
-                <input name="prioritise_reason" id="prioritise_reason" type="text" class="form-control">
-                <input name="prioritise_status" id="prioritise_status" value="prioritise" type="hidden" class="form-control">
-            </form>
-            <form method="POST" action="{% url 'pause-enquiry' enquiry_id=cer.enquiry_id %}">
-                <button disabled type="submit" title="Pause Enquiry" class="btn btn-outline-secondary my-2" style="width:1000px">Pause Enquiry</button>
-                <input name="pause_reason" id="pause_reason" type="text" class="form-control">
-                <input name="pause_status" id="pause_status" value="pause" type="hidden" class="form-control">
-            </form>
-            <form method="POST" action="{% url 'iec-fail' enquiry_id=cer.enquiry_id %}">
-                <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
-                <button disabled type="submit" title="Cancel Enquiry" class="btn btn-outline-secondary my-2" style="width:1000px">Cancel Enquiry</button>
-            </form>
-            <form method="POST" action="{% url 'set-issue' enquiry_id=cer.enquiry_id %}">
-                <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
-                <button disabled type="submit" title="Set Issue" class="btn btn-outline-secondary my-2" style="width:1000px">Set Issue</button>
-            </form>
-            {% endif %}
-        </div>
-
-        <div class="row text-center">
-            <div class="col-4">
-                <h4>Enquiry Summary</h4>
+            </div>
+            <div class="col text-center ms-3 me-3 bg-light text-dark rounded">
+                <h4 class="my-2">Enquiry Summary</h4>
                 <table class="table table-sm table-bordered table-hover">
+                    {% for y in cer.enquiries.all %}
                     <tr class="text-center">
                         <th>Service Code</th>
                         <td>{{ y.service_code }}</td>
@@ -202,6 +203,12 @@
                         <td>{{ cer.eps_creation_date }}</td>
                     </tr>
                     <tr class="text-center">
+                        <th>Enquiry SLA Date</th>
+                        {% for dl in cer.enquiry_deadline.all %}
+                        <td>{{ dl.original_enquiry_deadline }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="text-center">
                         <th>Enquiry Completion Date</th>
                         <td>{{ cer.eps_completion_date }}</td>
                     </tr>
@@ -209,39 +216,182 @@
                         <th>EPS BIE Indicator</th>
                         <td>{{ y.booked_in_error_ind }}</td>
                     </tr>
+                    {% endfor %}
                 </table>
+                <h4 class="my-2">Enquiry Progress</h4>
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="progress mb-2" style="height: 20px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{enq_progress}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <h4 class="card-title text-dark text-centre">{{enq_stage}}</h4>
+                    </div>
+                </div>
             </div>
-            <div class="col-8">
-                <h4>Enquiry Task History</h4>
-                <table class="table table-sm table-bordered table-hover">
-                    <tr class="text-center">
-                        <th>Script ID</th>
-                        <th>Component</th>
-                        <th>Task Type</th>
-                        <th>Task Creation Date</th>
-                        <th>Current Task Owner</th>
-                        <th>Task Assign Date</th>
-                        <th>Task Completion Date</th>
-                    </tr>
-                {% for t in tasks %}
-                    <tr class="text-center">
-                    <td>{{ t.ec_sid.ec_sid }}</td>
-                    <td>{{ t.ec_sid.eps_com_id }}</td>
-                    <td>{{ t.task_id.task_id }}</td>
-                    <td>{{ t.task_creation_date|date:"d/m/y H:i" }}</td>
-                    <td>{{ t.task_assigned_to }}</td>
-                    <td>{{ t.task_assigned_date|date:"d/m/y H:i" }}</td>
-                    <td>{{ t.task_completion_date|date:"d/m/y H:i" }}</td>
-                    </tr>
-                {% endfor %}
-
-                </table>
+            <div class="col text-center ms-3 me-5 bg-light text-dark rounded">
+                <h4 class="my-2">Enquiry Task History</h4>
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table table-sm table-bordered table-hover">
+                            <tr class="text-center">
+                                <th>Task Type</th>
+                                <th>Task Creation Date</th>
+                                <th>Current Task Owner</th>
+                                <th>Task Assign Date</th>
+                                <th>Task Completion Date</th>
+                            </tr>
+                        {% for t in tasks %}
+                            {% if not t.ec_sid.ec_sid %}
+                            <tr class="text-center">
+                            <td>{{ t.task_id.task_id }}</td>
+                            <td>{{ t.task_creation_date|date:"d/m/y H:i" }}</td>
+                            <td>{{ t.task_assigned_to }}</td>
+                            <td>{{ t.task_assigned_date|date:"d/m/y H:i" }}</td>
+                            <td>{{ t.task_completion_date|date:"d/m/y H:i" }}</td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
 
+
+
+        <div class="row text-center mb-5">
+            <div class="col text-center my-4 ms-5 me-5  bg-light text-dark rounded">
+                <h4 class="my-2">Component Task History</h4>
+                <div class="row text-center mb-5 overflow-auto flex-nowrap">
+                    {% for y in cer.enquiries.all %}
+                    {% for z in y.enquiry_parts.all|dictsort:"eps_com_id" %}  
+                        <div class="col-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                    <h5 class="card-title position-absolute top-0 start-0 display-1 text-info text-start">{{ z.eps_com_id }}</h5>
+                                    <h5 class="card-title text-end">Script ID {{ z.ec_sid }}</h5>
+                                    {% for b in z.script_id.all %}
+                                        <h5 class="card-title text-end">Batch ID {{ b.eb_sid.eb_sid }}</h5>
+                                    {% endfor %}
+                                    <h5 class="card-title text-end text-info">Examiner Details:</h5>
+                                    {% for e in z.apportion_script.all %}
+                                        {% if e.apportionment_invalidated ==  0 %}
+                                            <a class="card-title text-end" href='/enquiries/examiner_detail/{{ e.enpe_sid.per_sid.per_sid }}'>{{ e.enpe_sid.per_sid.exm_creditor_no }} - {{ e.enpe_sid.per_sid.exm_forename }} {{ e.enpe_sid.per_sid.exm_surname }}</a>
+                                            {%if e.script_mark_entered == 1 %} 
+                                            <div class="text-end"><button type="submit" title="Reapportion" class="btn btn-danger btn-sm mb-2" style="width:200px"
+                                            data-bs-toggle="modal" data-bs-target="#exampleModal{{z.ec_sid}}">Reapportion Script</button></div>
+                                            {% else %}
+                                                <div class="text-end"><button disabled type="submit" class="btn btn-danger btn-sm mb-2" style="width:200px">Reapportion Script</button></div>
+                                            {% endif %}
+                                                <div class="modal fade" id="exampleModal{{z.ec_sid}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel">Reapportion Script - {{z.ec_sid}}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form method="POST" action="{% url 'exmsla-complete' %}" class="text-end">
+                                                            <input name="script_id" id="script_id" value={{z.ec_sid}} type="hidden" class="form-control">
+                                                            <input name="enquiry_id" id="enquiry_id" value={{cer.enquiry_id}} type="hidden" class="form-control">
+                                                            <input name="per_sid" id="per_sid" value={{e.enpe_sid.per_sid.per_sid}} type="hidden" class="form-control">
+                                                            <input name="source" id="source" value="enquiry" type="hidden" class="form-control">
+                                                            <button type="submit" class="btn btn-danger" style="width:200px">Reapportion Script</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </div>
+                                    <div class="row text-left">
+                                    {% for t in tasks %}
+                                        {% if t.ec_sid.eps_com_id ==  z.eps_com_id and t.task_completion_date == None and t.task_id.task_id not in excluded_task_list %}
+                                        <div class="col-6">
+                                            <div class="card me-2 my-2">
+                                                <div class="card-body">
+                                                    <h5 class="card-title text-start">{{t.task_id.task_id}}</h5>
+                                                    <h6 class="card-subtitle mb-2 text-muted text-start">Task Assigned: {{ t.task_assigned_to }}</h6>
+                                                    <h6 class="card-subtitle mb-2 text-muted text-start">Task Created: {{ t.task_creation_date|date:"d/m/y" }}</h6>
+                                                    <div class="row">
+                                                        <div class="col-4 g-0">
+                                                            <form method="POST" action="{% url 'task-router' t.id %}">
+                                                                <input name="task_type" id="task_type" value='{{t.task_id.task_id}}' type="hidden" class="form-control">
+                                                                <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
+                                                                <button type="submit" class="btn btn-primary btn-sm w-100">To Task</button>
+                                                            </form>
+                                                        </div>
+                                                        <div class="col-4">
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-outline-warning btn-sm dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                  Assignment
+                                                                </button>
+                                                                <ul class="dropdown-menu">
+                                                                <li><form method="POST" action="{% url 'self-assign-task' task_id=t.id %}">
+                                                                    <input name="page_location" id="page_location" value="enquiry_detail" type="hidden" class="form-control">
+                                                                    <input name="enquiry_id" id="enquiry_id" value={{cer.enquiry_id}} type="hidden" class="form-control">
+                                                                    <button type="submit"class="btn btn-sm btn-primary dropdown-item">Assign Self</button>
+                                                                </form></li>
+                                                                <div class="dropdown-divider"></div>
+                                                                <li><form method="POST" action="{% url 'assign-task-user' task_id=t.id  user_id=request.user.id %}">
+                                                                    <input name="page_location" id="page_location" value="enquiry_detail" type="hidden" class="form-control">
+                                                                    <input name="enquiry_id" id="enquiry_id" value={{cer.enquiry_id}} type="hidden" class="form-control">
+                                                                    <button type="submit"class="btn btn-sm btn-warning dropdown-item">Assign To</button>
+                                                                </form></li>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </div>
+                                    <div class="accordion" id="accordionExample">
+                                        <div class="accordion-item">
+                                          <h2 class="accordion-header" id="headingOne">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ z.ec_sid }}" aria-expanded="true" aria-controls="collapse{{ z.ec_sid }}">
+                                              Component Task History
+                                            </button>
+                                          </h2>
+                                          <div id="collapse{{ z.ec_sid }}" class="accordion-collapse collapse" aria-labelledby="headingOne">
+                                            <div class="accordion-body">
+                                                <table class="table table-sm table-bordered table-hover">
+                                                    <tr class="text-center">
+                                                        <th>Task Type</th>
+                                                        <th>Task Creation Date</th>
+                                                        <th>Current Task Owner</th>
+                                                        <th>Task Assign Date</th>
+                                                        <th>Task Completion Date</th>
+                                                    </tr>
+                                                    {% for t in tasks %}
+                                                        {% if t.ec_sid.eps_com_id ==  z.eps_com_id %}
+                                                        <tr class="text-center">
+                                                        <td>{{ t.task_id.task_id }}</td>
+                                                        <td>{{ t.task_creation_date|date:"d/m/y H:i" }}</td>
+                                                        <td>{{ t.task_assigned_to }}</td>
+                                                        <td>{{ t.task_assigned_date|date:"d/m/y H:i" }}</td>
+                                                        <td>{{ t.task_completion_date|date:"d/m/y H:i" }}</td>
+                                                        </tr>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </table>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
     </div>
-
-    {% endfor %}
-
 
 {% endblock %}

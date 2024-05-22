@@ -1,0 +1,13 @@
+<div id="messages-container" hx-target="#messages-container" hx-swap="outerHTML" >
+    {% if last_message %}
+        {% if message_type == 'Success' %}
+            <div class="alert alert-success" style="font-size: 1rem; color: #444444;">
+                {{ last_message }}
+            </div>
+        {% else %}
+            <div class="alert alert-danger mt-2" style="font-size: 1rem; color: red;">
+                {{ last_message }}
+            </div>
+        {% endif %}
+    {% endif %}
+</div>

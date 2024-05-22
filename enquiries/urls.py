@@ -4,6 +4,13 @@ from . import views
 urlpatterns = [
     #Home view for EARs
     path('home', views.ear_home_view, name='enquiries_home'),
+    path('ear_home_view_team_alpha', views.ear_home_view_team_alpha, name='ear_home_view_team_alpha'),
+    path('ear_home_view_team_delta', views.ear_home_view_team_delta, name='ear_home_view_team_delta'),
+    path('ear_home_view_team_gamma', views.ear_home_view_team_gamma, name='ear_home_view_team_gamma'),
+    path('ear_home_view_team_kappa', views.ear_home_view_team_kappa, name='ear_home_view_team_kappa'),
+    path('ear_home_view_team_lambda', views.ear_home_view_team_lambda, name='ear_home_view_team_lambda'),
+    path('ear_home_view_team_omega', views.ear_home_view_team_omega, name='ear_home_view_team_omega'),
+    path('ear_home_view_team_sigma', views.ear_home_view_team_sigma, name='ear_home_view_team_sigma'),
 
     #Server reset hidden options
     path('server_options', views.server_options_view, name='server_options'),
@@ -22,6 +29,7 @@ urlpatterns = [
     path('task_manager/new_task', views.new_task_view, name='new-task'),
     path('task_manager/add_new_comment', views.new_task_comment_view, name='add_task_comment'),
     path('task_manager/remove_new_comment', views.remove_task_comment_view, name='remove_task_comment'),
+    path('task_manager/task_completion', views.task_completion_view, name='task_completion'),
     path('task_manager/user_list', views.user_list_view, name='user-list'),
     path('user_tasks/<str:userid>/', views.user_tasks_view, name='user_tasks'),
     path('task_manager/self_assign_task/<str:task_id>', views.self_assign_task_view, name='self-assign-task'),
@@ -33,6 +41,10 @@ urlpatterns = [
     path('task_manager/setbie_task/<str:enquiry_id>/bie-complete/', views.complete_bie_view, name="bie-complete"),
     path('task_manager/nrmacc_task/complete', views.nrmacc_task_complete, name='nrmacc-complete'),
     path('task_manager/nrmacc_task/<str:task_id>', views.nrmacc_task, name='nrmacc-task'), 
+    path('task_manager/nrmscs_task/complete', views.nrmscs_task_complete, name='nrmscs-complete'),
+    path('task_manager/nrmscs_task/<str:task_id>', views.nrmscs_task, name='nrmscs-task'), 
+    path('task_manager/s3send_task/complete', views.s3send_task_complete, name='s3send-complete'),
+    path('task_manager/s3send_task/<str:task_id>', views.s3send_task, name='s3send-task'), 
     path('task_manager/manual_mis', views.manual_mis, name='manual-mis'),
     path('task_manager/manual_mis_complete', views.manual_mis_complete, name='manual-mis-complete'),
     path('task_manager/misvrm_task/complete', views.misvrm_task_complete, name='misvrm-complete'),
@@ -45,6 +57,10 @@ urlpatterns = [
     path('task_manager/locmar_task/<str:task_id>', views.locmar_task, name='locmar-task'), 
     path('task_manager/cleric_task/complete', views.cleric_task_complete, name='cleric-complete'),
     path('task_manager/cleric_task/<str:task_id>', views.cleric_task, name='cleric-task'), 
+    path('task_manager/scrche_task/complete', views.scrche_task_complete, name='scrche-complete'),
+    path('task_manager/scrche_task/<str:task_id>', views.scrche_task, name='scrche-task'), 
+    path('task_manager/scrreq_task/complete', views.scrreq_task_complete, name='scrreq-complete'),
+    path('task_manager/scrreq_task/<str:task_id>', views.scrreq_task, name='scrreq-task'), 
     path('task_manager/botapf_task/complete', views.botapf_task_complete, name='botapf-complete'),
     path('task_manager/botapf_task/<str:task_id>', views.botapf_task, name='botapf-task'),  
     path('task_manager/botmaf_task/complete', views.botmaf_task_complete, name='botmaf-complete'),
@@ -60,6 +76,7 @@ urlpatterns = [
     path('task_manager/pdacon_task/complete', views.pdacon_task_complete, name='pdacon-complete'),
     path('task_manager/pdacon_task/<str:task_id>', views.pdacon_task, name='pdacon-task'), 
     path('task_manager/peacon_task/complete', views.peacon_task_complete, name='peacon-complete'),
+    path('task_manager/peacon_task/new_scrreq', views.new_scrreq, name='new-scrreq'),
     path('task_manager/peacon_task/<str:task_id>', views.peacon_task, name='peacon-task'), 
     path('task_manager/pumcon_task/complete', views.pumcon_task_complete, name='pumcon-complete'),
     path('task_manager/pumcon_task/<str:task_id>', views.pumcon_task, name='pumcon-task'), 
@@ -71,6 +88,8 @@ urlpatterns = [
     path('task_manager/grdcon_task/<str:task_id>', views.grdcon_task, name='grdcon-task'), 
     path('task_manager/grdchg_task/complete', views.grdchg_task_complete, name='grdchg-complete'),
     path('task_manager/grdchg_task/<str:task_id>', views.grdchg_task, name='grdchg-task'),   
+    path('task_manager/muprex_task/complete', views.muprex_task_complete, name='muprex-complete'),
+    path('task_manager/muprex_task/<str:task_id>', views.muprex_task, name='muprex-task'),
 
     ### Task List Control ### 
 
@@ -82,6 +101,10 @@ urlpatterns = [
     path('manapp_list', views.manapp_list_view, name='manapp_list'),
     #Non-RM main screen
     path('nrmacc_list', views.nrmacc_list_view, name='nrmacc_list'),
+    #Non-RM main screen
+    path('nrmscs_list', views.nrmscs_list_view, name='nrmscs_list'),
+    #Service 3 main screen
+    path('s3send_list', views.s3send_list_view, name='s3send_list'),
     #MIS vs RM main screen
     path('misvrm_list', views.misvrm_list_view, name='misvrm_list'),
     #MIS vs RM recheck main screen
@@ -92,6 +115,10 @@ urlpatterns = [
     path('locmar_list', views.locmar_list_view, name='locmar_list'),
     #Clerical Checks main screen
     path('cleric_list', views.cleric_list_view, name='cleric_list'),
+    #Script Checks main screen
+    path('scrche_list', views.scrche_list_view, name='scrche_list'),
+    #Script Re-requests main screen
+    path('scrreq_list', views.scrreq_list_view, name='scrreq_list'),
     #Download ESMCSV to file location
     path('esmcsv_list', views.esmcsv_list_view, name='esmcsv_list'),
     path('exmsla_create', views.esmcsv_create_view, name='exmsla_create'),
@@ -100,6 +127,21 @@ urlpatterns = [
     path('omrche_list', views.omrche_list_view, name='omrche_list'),
     path('omrche_create', views.omrche_create_view, name='omrche_create'),
     path('omrche_download/<str:download_id>', views.omrche_download_view, name='omrche_download'),
+        #Download OMRSCR to file location
+    path('omrscr_list', views.omrscr_list_view, name='omrscr_list'),
+    path('omrscr_create', views.omrscr_create_view, name='omrscr_create'),
+    path('omrscr_download/<str:download_id>', views.omrscr_download_view, name='omrscr_download'),
+    #Download ESMSCR to file location
+    path('esmscr_list', views.esmscr_list_view, name='esmscr_list'),
+    path('exmscr_create', views.esmscr_create_view, name='exmscr_create'),
+    path('exmscr_download/<str:download_id>', views.esmscr_download_view, name='exmscr_download'),
+    #Download ESMSC2 to file location
+    path('esmsc2_list', views.esmsc2_list_view, name='esmsc2_list'),
+    path('exmsc2_create', views.esmsc2_create_view, name='exmsc2_create'),
+    path('exmsc2_download/<str:download_id>', views.esmsc2_download_view, name='exmsc2_download'),
+    #Script waiting list
+    path('scrren_list', views.scrren_list_view, name='scrren_list'),
+    path('scrren_sendback', views.scrren_sendback_view, name='scrren_sendback'),
     #Control Examiner SAL breaches
     path('exmsla_list', views.exmsla_list_view, name='exmsla_list'),
     #Re-do Examiner SAL breaches
@@ -120,6 +162,8 @@ urlpatterns = [
     path('grdrej_list', views.grdrej_list_view, name='grdrej_list'),
     #Mark Amendments main screen
     path('mrkamd_list', views.mrkamd_list_view, name='mrkamd_list'),
+    #MU examiners main screen
+    path('muprex_list', views.muprex_list_view, name='muprex_list'),
     #Release for OUTCON
     path('outcon_create', views.outcon_create_view, name='outcon_create'),
 

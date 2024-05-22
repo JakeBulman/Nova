@@ -28,9 +28,8 @@ from django.contrib.auth.models import User
 
 def run_algo():
 
-    for task in ManualTaskQueue.objects.all().filter(task_queued=1):
-        task.task_completion_date = timezone.now()
-        task.task_queued = 0
+    for task in ManualTaskQueue.objects.all().filter(task_queued=1, task_running=0):
+        task.task_running = 1
         task.save()
         if task.task_type == 'MARTOL':
             filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Tolerances.xlsx")
@@ -48,6 +47,11 @@ def run_algo():
                         eps_com_id = str(row[1]).zfill(2),
                         mark_tolerance = row[2]
                     )
-            
+        task.task_completion_date = timezone.now()
+        task.task_queued = 0
+        task.task_running = 0
+        task.save()
+
+        # More tasks can be checked for using IF statement here...
 
 run_algo()

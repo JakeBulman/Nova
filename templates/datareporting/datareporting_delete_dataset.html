@@ -1,0 +1,27 @@
+{% extends 'nova_core/base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'datareporting/datareporting_navbar.html' %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+            <div class="text-center mt-1 mb-3">
+                <h2>Delete Dataset</h2>
+            </div>
+
+            <div class="text-center mt-1 mb-2">
+                Are you sure you want to delete <b>{{ dataset_info.dataset_name }}</b>?
+            </div>
+
+            <div class="text-center mt-1 mb-2">
+                <div class="d-flex justify-content-center">
+                    <div class="mx-1">
+                        <a href="{% url 'confirm_delete_dataset' dataset_info.id %}" class="btn btn-danger btn-block" style="width: 100px;"><b>Yes</b></a>
+                    </div>
+                    <div class="mx-1">
+                        <a href="{% url 'amend_dataset' dataset_info.id %}" class="btn btn-success btn-block" style="width: 100px;"><b>No</b></a>
+                    </div>
+                </div>
+            </div>
+{% endblock %}

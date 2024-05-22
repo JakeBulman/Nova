@@ -23,6 +23,8 @@
             <td>{{ x.task_count }}</td>
             <td><form method="POST" action="{% url 'assign-task-user-selected' task_id=task_id user_id=original_user selected_user=x.id %}" class="text-center">
               <input name="username" id="username" value="{{ x.username }}" type="hidden" class="form-control">
+              <input name="page_location" id="page_location" value="{{ redirect_address }}" type="hidden" class="form-control">
+              <input name="enquiry_id" id="enquiry_id" value={{enquiry_id}} type="hidden" class="form-control">
               <button type="submit" class="btn btn-outline-warning" style="width:200px">Select User</button>
             </form></td>
           </tr>

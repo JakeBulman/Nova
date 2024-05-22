@@ -40,6 +40,7 @@
                 </table>
                 <h5>Task Instruction</h5>
                 <div>Please check the grade found below and confirm the principle examiner agrees with the change.</div>
+                {% if issue_reason %}<h2 class="text-center text-primary mb-3">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
 
                 <table class="table table-sm table-bordered table-hover text-center mt-3">
                     <tr class="text-center">
@@ -153,45 +154,48 @@
     </div>
 </div>
     <div class="row text-center mt-5">
+        <form method="POST" action="{% url 'new-scrreq' %}" class="text-center">
+        <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+        <button type="submit" class="btn btn-warning btn-lg mt-2" style="width:300px">Request New COS</button>
+        <p>This does not complete the task.</p>
+        </form>
+    </div>  
+    <div class="row text-center mt-3">
         <form method="POST" action="{% url 'peacon-complete' %}" class="text-center">
         <input name="task_status" id="task_status" value="Pass" type="hidden" class="form-control">
         <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
         <button type="submit" class="btn btn-success btn-lg my-2" style="width:300px">Progress Grade Change</button>
         </form>
     </div>  
-
-    <div class="row text-center m-3">
+    <div class="row text-center mt-3">
         <div class="col-lg-3 align-self-center"></div>
         <div class="col-lg-6 align-self-center">
-            <button type="submit" title="Fail" class="btn btn-danger btn-lg my-4" style="width:300px"
+            <button type="submit" title="Fail" class="btn btn-danger btn-lg my-2" style="width:300px"
             data-bs-toggle="modal" data-bs-target="#exampleModal{{ task.enquiry_id.enquiry_id }}">Reject Grade Change</button>
         </div>
-    
-    
-    
         <div class="modal fade" id="exampleModal{{ task.enquiry_id.enquiry_id }}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-        <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Set Rejection Reason - {{ task.enquiry_id.enquiry_id }}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <form method="POST" action="{% url 'peacon-complete' %}" class="text-center">
-            <input name="task_status" id="task_status" value="Fail" type="hidden" class="form-control">
-            <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
-            <div class="mb-3">
-            <label for="message-text" class="col-form-label">Failure Reason:</label>
-            <textarea class="form-control" id="message-text" name="rpa_fail"></textarea>
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Set Rejection Reason - {{ task.enquiry_id.enquiry_id }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="{% url 'peacon-complete' %}" class="text-center">
+                            <input name="task_status" id="task_status" value="Fail" type="hidden" class="form-control">
+                            <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                            <div class="mb-3">
+                                <label for="message-text" class="col-form-label">Failure Reason:</label>
+                                <textarea class="form-control" id="message-text" name="rpa_fail"></textarea>
+                            </div>
+                            <button type="submit" title="Pass" class="btn btn-outline-primary" style="width:150px" data-bs-dismiss="modal">Continue</button>
+                            <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
+                        </form>
+                    </div>
+                </div>
             </div>
-            <button type="submit" title="Pass" class="btn btn-outline-primary" style="width:150px" data-bs-dismiss="modal">Continue</button>
-            <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
-        </form>
         </div>
-        </div>
-        </div>
-        </div>
-    <div class="col-lg-3 align-self-center"></div>
+        <div class="col-lg-3 align-self-center"></div>
     </div>   
 
 </div>

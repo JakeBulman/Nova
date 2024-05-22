@@ -83,6 +83,8 @@ class EnquiryComponentsHistory(models.Model):
     current_mark = models.CharField(max_length=5,null=True)
     ear_mark = models.CharField(max_length=5,null=True)
     ear_mark_alt =models.CharField(max_length=5,null=True)
+    omr_batch = models.CharField(max_length=10,null=True)
+    omr_position = models.CharField(max_length=10,null=True)
 
 class EnquiryComponentsExaminerChecks(models.Model):
     cer_sid = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_pexmch',null=True)
@@ -255,6 +257,27 @@ class ScriptApportionment(models.Model):
     script_mark_entered = models.IntegerField(default=1)
     apportionment_invalidated = models.IntegerField(default=0)
 
+    #Apportionment staging table
+class DjangoStagingTableAPP(models.Model):
+    enpe_sid = models.ForeignKey(EnquiryPersonnel, to_field='enpe_sid', on_delete=models.SET_NULL, null=True, related_name='staging_examiner')
+    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='staging_script_app') 
+    eb_sid = models.ForeignKey(EnquiryBatches, to_field='eb_sid', on_delete=models.SET_NULL, null=True, related_name='staging_batch_app')
+    per_sid = models.CharField(max_length=20, null=True)
+    pan_sid = models.CharField(max_length=20, null=True)
+    copied_to_est = models.IntegerField(default=0)
+    error_status = models.CharField(max_length=50, null=True)
+    comments = models.CharField(max_length=50, null=True)
+
+class DjangoStagingTableMAR(models.Model):
+    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='staging_script_mar') 
+    eb_sid = models.ForeignKey(EnquiryBatches, to_field='eb_sid', on_delete=models.SET_NULL, null=True, related_name='staging_batch_mar')
+    outcome_status = models.CharField(max_length=8, null=True)
+    final_mark = models.IntegerField(null=True)
+    justification_code = models.IntegerField(null=True)
+    copied_to_est = models.IntegerField(default=0)
+    error_status = models.CharField(max_length=50, null=True)
+    comments = models.CharField(max_length=50, null=True)
+
 class ScriptApportionmentExtension(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='script_extension')
     task_id = models.ForeignKey(TaskManager, on_delete=models.SET_NULL, null=True, related_name='task_extension')
@@ -305,6 +328,27 @@ class EsmcsvDownloads(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class OmrcheDownloads(models.Model):
+    document = models.FileField(upload_to='documents/')
+    file_name = models.CharField(max_length=50, null=True)
+    download_count = models.CharField(max_length=3, null=True)
+    archive_count = models.CharField(max_length=3, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+class OmrscrDownloads(models.Model):
+    document = models.FileField(upload_to='documents/')
+    file_name = models.CharField(max_length=50, null=True)
+    download_count = models.CharField(max_length=3, null=True)
+    archive_count = models.CharField(max_length=3, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+class EsmscrDownloads(models.Model):
+    document = models.FileField(upload_to='documents/')
+    file_name = models.CharField(max_length=50, null=True)
+    download_count = models.CharField(max_length=3, null=True)
+    archive_count = models.CharField(max_length=3, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+class Esmsc2Downloads(models.Model):
     document = models.FileField(upload_to='documents/')
     file_name = models.CharField(max_length=50, null=True)
     download_count = models.CharField(max_length=3, null=True)
@@ -381,3 +425,4 @@ class ManualTaskQueue(models.Model):
     task_creation_date = models.DateTimeField(auto_now_add=True)
     task_completion_date = models.DateTimeField(null=True)
     task_queued = models.IntegerField(default=1)
+    task_running = models.IntegerField(default=0)

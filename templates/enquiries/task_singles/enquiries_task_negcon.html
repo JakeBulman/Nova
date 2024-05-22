@@ -40,6 +40,7 @@
                 </table>
                 <h5>Task Instruction</h5>
                 <div>Please check the grade found below and confirm the grade is a positive change.</div>
+                {% if issue_reason %}<h2 class="text-center text-primary mb-3">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
 
                 <table class="table table-sm table-bordered table-hover text-center mt-3">
                     <tr class="text-center">

@@ -39,7 +39,7 @@ def load_core_tables():
     session_id = EarServerSettings.objects.first().session_id_list
     enquiry_id_list = EarServerSettings.objects.first().enquiry_id_list
     if enquiry_id_list != '':
-        enquiry_id_list = ' and sid in (' + enquiry_id_list + ')'
+        enquiry_id_list = ' and cer.sid in (' + enquiry_id_list + ')'
 
     print("ENQ:" + enquiry_id_list)
 
@@ -60,7 +60,7 @@ def load_core_tables():
             left join ar_meps_req_prd.enquiry_request_parts erp
             on erp.cer_sid = cer.sid
             where ses_sid in ({session_id}) 
-            and erp.es_service_code in ('1','1S','2','2P','2PS','2S')
+            and erp.es_service_code in ('1','1S','2','2P','2PS','2S','ASC','ASR','3')
             {enquiry_id_list}
                                 ''', conn)
         print(df)
@@ -75,7 +75,7 @@ def load_core_tables():
                 eps_ack_letter_ind = row['eps_ack_letter_ind'],
                 eps_ses_sid = row['eps_ses_sid'],
                 centre_id = row['centre_id'],
-                created_by = row['created_by'],
+                created_by = row['created_by'][:50],
                 cie_direct_id = row['cie_direct_id'], 
             )
         else:
@@ -87,7 +87,7 @@ def load_core_tables():
                 eps_ack_letter_ind = row['eps_ack_letter_ind'],
                 eps_ses_sid = row['eps_ses_sid'],
                 centre_id = row['centre_id'],
-                created_by = row['created_by'],
+                created_by = row['created_by'][:50],
                 cie_direct_id = row['cie_direct_id'],
                 ministry_flag = None
             )
@@ -148,7 +148,7 @@ def load_core_tables():
                 eps_comp_ind = row['eps_comp_ind'],
                 eps_script_measure = row['eps_script_measure'],
                 booked_in_error_ind = row['booked_in_error_ind'],
-                stud_name = row['stud_name'],
+                stud_name = row['stud_name'][:100],
                 grade_confirmed_ind = row['grade_confirmed_ind'],
                 grade_changed_ind = row['grade_changed_ind']
         )
@@ -168,7 +168,7 @@ def load_core_tables():
                     eps_comp_ind = None,
                     eps_script_measure = 1,
                     booked_in_error_ind = row['booked_in_error_ind'],
-                    stud_name = row['stud_name'],
+                    stud_name = row['stud_name'][:100],
                     grade_confirmed_ind = row['grade_confirmed_ind']
                 )
             except:
@@ -219,9 +219,9 @@ def load_core_tables():
                 eps_ass_ver_no = row['eps_ass_ver_no'],
                 eps_com_id = row['eps_com_id'],
                 eps_qual_id = row['eps_qual_id'],
-                eps_qual_name = row['eps_qual_name'],
-                eps_ass_name = row['eps_ass_name'],
-                eps_comp_name = row['eps_comp_name'],
+                eps_qual_name = row['eps_qual_name'][:50],
+                eps_ass_name = row['eps_ass_name'][:50],
+                eps_comp_name = row['eps_comp_name'][:50],
                 ccm_measure = row['ccm_measure'],
             )
         else:
@@ -235,9 +235,9 @@ def load_core_tables():
                     eps_ass_ver_no = row['eps_ass_ver_no'],
                     eps_com_id = row['eps_com_id'],
                     eps_qual_id = row['eps_qual_id'],
-                    eps_qual_name = row['eps_qual_name'],
-                    eps_ass_name = row['eps_ass_name'],
-                    eps_comp_name = row['eps_comp_name'],
+                    eps_qual_name = row['eps_qual_name'][:50],
+                    eps_ass_name = row['eps_ass_name'][:50],
+                    eps_comp_name = row['eps_comp_name'][:50],
                     ccm_measure = row['ccm_measure'],
                 )
             except:
@@ -259,81 +259,83 @@ def load_core_tables():
 
     print("EC loaded:" + str(datetime.datetime.now()))
 
-        # # Get datalake data - Enquiry Request Parts
-    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
-        df = pd.read_sql(f'''
-        select 
-            c.sessionassessmentcomponentid,
-            a.assessmentcode as eps_ass_code,
-            a.componentid as eps_com_id,
-            c.centrenumber as eps_cnu_id,
-            c.candidatenumber as eps_cand_no,
-            s.sessionid as eps_ses_id,
-            c.mark as raw_mark,
-            c.assessormark as assessor_mark,
-            c.finalmark as final_mark,
-            c.examinernumber as exm_examiner_no,
-            case
-            when c.assessormark is not null then assessormark 
-            else c.mark
-            end as scaled_mark,
-            case
-            when assessormark is not null then "Scaled" 
-            when assessormark is null then "No scaling"
-            end as original_exm_scaled
-        from cie.ods_CandidateMarkElementMarks as c
-        left join cie.ods_sessionassessmentcomponents as s
-        on c.sessionassessmentcomponentid=s.sessionassessmentcomponentid
-        left join cie.ods_assessmentcomponents as a
-        on s.assessmentcomponentid=a.assessmentcomponentid
-        inner join 
-        (select cer.cnu_id, ec.ccm_ass_code, ec.ccm_com_id, ec.ccm_cand_no, ec.ccm_ses_sid from ar_meps_req_prd.centre_enquiry_requests cer
-        left join ar_meps_req_prd.enquiry_request_parts erp
-        on cer.sid=erp.cer_sid
-        left join ar_meps_req_prd.enquiry_components ec
-        on erp.sid=ec.erp_sid
-        ) req
-        on req.cnu_id = c.centrenumber
-        and req.ccm_ass_code = a.assessmentcode
-        and req.ccm_com_id = a.componentid
-        and req.ccm_cand_no = c.candidatenumber
-        and req.ccm_ses_sid = s.sessionid
+    #     # # Get datalake data - Enquiry Request Parts
+    # with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+    #     df = pd.read_sql(f'''
+    #     select 
+    #         c.sessionassessmentcomponentid,
+    #         a.assessmentcode as eps_ass_code,
+    #         a.componentid as eps_com_id,
+    #         c.centrenumber as eps_cnu_id,
+    #         c.candidatenumber as eps_cand_no,
+    #         s.sessionid as eps_ses_id,
+    #         c.mark as raw_mark,
+    #         c.assessormark as assessor_mark,
+    #         c.finalmark as final_mark,
+    #         c.examinernumber as exm_examiner_no,
+    #         case
+    #         when c.assessormark is not null then assessormark 
+    #         else c.mark
+    #         end as scaled_mark,
+    #         case
+    #         when assessormark is not null then "Scaled" 
+    #         when assessormark is null then "No scaling"
+    #         end as original_exm_scaled
+    #     from cie.ods_CandidateMarkElementMarks as c
+    #     left join cie.ods_sessionassessmentcomponents as s
+    #     on c.sessionassessmentcomponentid=s.sessionassessmentcomponentid
+    #     and c.sessionpartitionkey=s.sessionpartitionkey
+    #     left join cie.ods_assessmentcomponents as a
+    #     on s.assessmentcomponentid=a.assessmentcomponentid
         
-        where c.businessstreamid='02'
-            and s.isdeletedfromsource!=1
-            and c.isdeletedfromsource!=1
-            and a.isdeletedfromsource!=1
-            and c.examinernumber!=''
-            and s.sessionid in ({session_id}) 
-                                ''', conn)
+    #     inner join 
+    #     (select * from ar_meps_req_prd.centre_enquiry_requests cer
+    #     left join ar_meps_req_prd.enquiry_request_parts erp
+    #     on cer.sid=erp.cer_sid
+    #     left join ar_meps_req_prd.enquiry_components ec
+    #     on erp.sid=ec.erp_sid
+    #     ) req
+    #     on req.cnu_id = c.centrenumber
+    #     and req.ccm_ass_code = a.assessmentcode
+    #     and req.ccm_com_id = a.componentid
+    #     and req.caom_cand_no = c.candidatenumber
+    #     and req.ses_sid = s.sessionid
         
-    print("Scaled Marks prepped:" + str(datetime.datetime.now()))
+    #     where c.businessstreamid='02'
+    #         and s.isdeletedfromsource!=1
+    #         and c.isdeletedfromsource!=1
+    #         and a.isdeletedfromsource!=1
+    #         and c.examinernumber!=''
+    #         and s.sessionid in ({session_id}) 
+    #                             ''', conn)
         
-    ScaledMarks.objects.all().delete()
+    # print("Scaled Marks prepped:" + str(datetime.datetime.now()))
+        
+    # ScaledMarks.objects.all().delete()
 
-    print("Scaled Marks deleted:" + str(datetime.datetime.now()))
+    # print("Scaled Marks deleted:" + str(datetime.datetime.now()))
 
-    def insert_to_model_erp(row):
-        # try:
-        ScaledMarks.objects.create(
-            eps_ass_code = row['eps_ass_code'],
-            eps_com_id = row['eps_com_id'],
-            eps_cnu_id = row['eps_cnu_id'],
-            eps_cand_no = row['eps_cand_no'],
-            eps_ses_sid = row['eps_ses_id'],
-            raw_mark = row['raw_mark'],
-            assessor_mark  = row['assessor_mark'],
-            final_mark = row['final_mark'],
-            exm_examiner_no = row['exm_examiner_no'],
-            scaled_mark = row['scaled_mark'],
-            original_exm_scaled = row['original_exm_scaled'],
-            )
-        # except:
-        #     pass
+    # def insert_to_model_erp(row):
+    #     # try:
+    #     ScaledMarks.objects.create(
+    #         eps_ass_code = row['eps_ass_code'],
+    #         eps_com_id = row['eps_com_id'],
+    #         eps_cnu_id = row['eps_cnu_id'],
+    #         eps_cand_no = row['eps_cand_no'],
+    #         eps_ses_sid = row['eps_ses_id'],
+    #         raw_mark = row['raw_mark'],
+    #         assessor_mark  = row['assessor_mark'],
+    #         final_mark = row['final_mark'],
+    #         exm_examiner_no = row['exm_examiner_no'],
+    #         scaled_mark = row['scaled_mark'],
+    #         original_exm_scaled = row['original_exm_scaled'],
+    #         )
+    #     # except:
+    #     #     pass
 
-    df.apply(insert_to_model_erp, axis=1)
+    # df.apply(insert_to_model_erp, axis=1)
 
-    print("Scaled Marks loaded:" + str(datetime.datetime.now()))
+    # print("Scaled Marks loaded:" + str(datetime.datetime.now()))
 
     # # Get datalake data - Enquiry Batches
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
@@ -394,7 +396,7 @@ def load_core_tables():
         if EnquiryComponentElements.objects.filter(ec_sid=row['ec_sid']).exists():
             EnquiryComponentElements.objects.filter(ec_sid=row['ec_sid']).update(
                 ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
-                ece_status = row['ece_status'],
+                ece_status = row['ece_status'][:20],
                 eb_sid = EnquiryBatches.objects.only('eb_sid').filter(eb_sid=row['eb_sid']).first(),
                 clerical_mark = row['clerical_mark'],
                 mark_after_enquiry = row['mark_after_enquiry'],
@@ -408,7 +410,7 @@ def load_core_tables():
             try:
                 EnquiryComponentElements.objects.create(
                     ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
-                    ece_status = row['ece_status'],
+                    ece_status = row['ece_status'][:20],
                     eb_sid = EnquiryBatches.objects.only('eb_sid').filter(eb_sid=row['eb_sid']).first(),
                     clerical_mark = row['clerical_mark'],
                     mark_after_enquiry = row['mark_after_enquiry'],
@@ -512,21 +514,21 @@ def load_core_tables():
             UniqueCreditor.objects.filter(exm_creditor_no = row['exm_creditor_no']).update(
                 exm_creditor_no = row['exm_creditor_no'],
                 per_sid = row['per_sid'],
-                exm_title = row['exm_title'],
-                exm_initials = row['exm_initials'],
-                exm_surname = row['exm_surname'],
-                exm_forename = row['exm_forename'],
-                exm_email = row['exm_email'],
+                exm_title = row['exm_title'][:20],
+                exm_initials = row['exm_initials'][:50],
+                exm_surname = row['exm_surname'][:50],
+                exm_forename = row['exm_forename'][:50],
+                exm_email = row['exm_email'][:50],
             )
         else:
             UniqueCreditor.objects.create(
                 exm_creditor_no = row['exm_creditor_no'],
                 per_sid = row['per_sid'],
-                exm_title = row['exm_title'],
-                exm_initials = row['exm_initials'],
-                exm_surname = row['exm_surname'],
-                exm_forename = row['exm_forename'],
-                exm_email = row['exm_email'],
+                exm_title = row['exm_title'][:20],
+                exm_initials = row['exm_initials'][:50],
+                exm_surname = row['exm_surname'][:50],
+                exm_forename = row['exm_forename'][:50],
+                exm_email = row['exm_email'][:50],
             )
 
     df.apply(insert_to_model_enpe, axis=1)
@@ -621,7 +623,7 @@ def load_core_tables():
                 sp_sid = row['sp_sid'],
                 ass_code = row['ass_code'],
                 com_id = row['com_id'],
-                sp_name = row['sp_name'],
+                sp_name = row['sp_name'][:100],
                 sp_ses_sid = row['sp_ses_sid'],
                 sp_use_esm_ind = row['sp_use_esm_ind'],
                 session = row['session'],
@@ -638,7 +640,7 @@ def load_core_tables():
                 sp_sid = row['sp_sid'],
                 ass_code = row['ass_code'],
                 com_id = row['com_id'],
-                sp_name = row['sp_name'],
+                sp_name = row['sp_name'][:100],
                 sp_ses_sid = row['sp_ses_sid'],
                 sp_use_esm_ind = row['sp_use_esm_ind'],
                 session = row['session'],
@@ -672,7 +674,9 @@ def load_core_tables():
                         kbr.reason as kbr_reason,
                         wrm.mark as current_mark,
                         ec.ccm_measure as ear_mark,
-                        ec.ccm_outcome as ear_mark_alt
+                        ec.ccm_outcome as ear_mark_alt,
+                        mld.batch as omr_batch,
+                        mld.position as omr_position
                         from ar_meps_req_prd.enquiry_components ec
                         left join ar_meps_req_prd.enquiry_request_parts erp
                         on erp.sid = ec.erp_sid
@@ -688,10 +692,16 @@ def load_core_tables():
                         on wrm.spp_sid = spp.sid
                         left join ar_meps_mark_prd.keyed_batch_reason kbr
                         on kbr.code = wrm.kbr_code
+                        left join ar_meps_mark_prd.mark_load_details mld
+                        on wrm.mld_sid = mld.sid
                         where ec.ccm_ses_sid in ({session_id}) 
                                 ''', conn)
 
     def insert_to_model_enpee(row):
+        try:
+            kbr_reason = row['kbr_reason'][:50]
+        except:
+            kbr_reason = ''
         if EnquiryComponentsHistory.objects.filter(ec_sid=row['ec_sid']).exists():
             EnquiryComponentsHistory.objects.filter(ec_sid=row['ec_sid']).update(
             cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
@@ -703,10 +713,12 @@ def load_core_tables():
             eps_cand_no = row['cand_no'],
             exm_position = row['exm_position'],
             kbr_code = row['kbr_code'],
-            kbr_reason = row['kbr_reason'],
+            kbr_reason = kbr_reason,
             current_mark = row['current_mark'],
             ear_mark = row['ear_mark'],
             ear_mark_alt = row['ear_mark_alt'],
+            omr_batch = row['omr_batch'],
+            omr_position = row['omr_position'],
             )
 
         else:
@@ -721,7 +733,7 @@ def load_core_tables():
                 eps_cand_no = row['cand_no'],
                 exm_position = row['exm_position'],
                 kbr_code = row['kbr_code'],
-                kbr_reason = row['kbr_reason'],
+                kbr_reason = kbr_reason,
                 current_mark = row['current_mark'],
                 ear_mark = row['ear_mark'],
                 ear_mark_alt = row['ear_mark_alt'],
@@ -780,7 +792,7 @@ def load_core_tables():
             eps_cand_no = row['eps_cand_no'],
             exm_position = row['exm_position'],
             kbr_code = row['kbr_code'],
-            kbr_reason = row['kbr_reason'],
+            kbr_reason = row['kbr_reason'][:50],
             )
 
         else:
@@ -795,7 +807,7 @@ def load_core_tables():
                 eps_cand_no = row['eps_cand_no'],
                 exm_position = row['exm_position'],
                 kbr_code = row['kbr_code'],
-                kbr_reason = row['kbr_reason'],
+                kbr_reason = row['kbr_reason'][:50],
                 )
             except:
                 pass
@@ -953,7 +965,7 @@ def load_core_tables():
             left join ar_meps_req_prd.enquiry_request_parts erp
             on erp.cer_sid = cer.sid
             where ses_sid in ({session_id}) 
-            and erp.es_service_code not in ('1','1S','2','2P','2PS','2S')
+            and erp.es_service_code not in ('1','1S','2','2P','2PS','2S','ASC','ASR','3')
             {enquiry_id_list}
                                 ''', conn)
         print(df)
