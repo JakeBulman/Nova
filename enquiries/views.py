@@ -1461,10 +1461,10 @@ def iec_pass_view(request, enquiry_id=None):
 				kbr = models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).first().kbr_code
 			else:
 				kbr = None
+				continue
 			print('KBR GO')
-			if kbr == 'SM' and s.erp_sid.cer_sid.ministry_flag == 'MU':
+			if (kbr == 'SM' or kbr == 'PSM') and s.erp_sid.cer_sid.ministry_flag == 'MU':
 				#Create confirmed MIS
-				print('SM')
 				eb_sid = models.EnquiryComponentElements.objects.get(ec_sid=s.ec_sid).eb_sid.eb_sid
 				if models.MisReturnData.objects.filter(ec_sid=s.ec_sid).exists():
 					models.MisReturnData.objects.filter(ec_sid=s.ec_sid).update(
@@ -1614,7 +1614,7 @@ def iec_pass_all_view(request):
 					kbr = models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).first().kbr_code
 				else:
 					kbr = None
-				if kbr == 'SM' and s.erp_sid.cer_sid.ministry_flag == 'MU':
+				if (kbr == 'SM' or kbr == 'PSM') and s.erp_sid.cer_sid.ministry_flag == 'MU':
 					#Create confirmed MIS
 					print('SM')
 					eb_sid = models.EnquiryComponentElements.objects.get(ec_sid=s.ec_sid).eb_sid.eb_sid
@@ -1787,7 +1787,7 @@ def iec_issue_view(request, enquiry_id=None):
 				kbr = models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).first().kbr_code
 			else:
 				kbr = None
-			if kbr == 'SM' and s.erp_sid.cer_sid.ministry_flag == 'MU':
+			if (kbr == 'SM' or kbr == 'PSM') and s.erp_sid.cer_sid.ministry_flag == 'MU':
 				#Create confirmed MIS
 				print('SM')
 				eb_sid = models.EnquiryComponentElements.objects.get(ec_sid=s.ec_sid).eb_sid.eb_sid

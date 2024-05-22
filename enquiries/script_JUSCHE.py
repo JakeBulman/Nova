@@ -114,7 +114,10 @@ def run_algo():
             scaled_mark_set = ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id,eps_ses_sid=task.ec_sid.eps_ses_sid).first()
             print(mis_data.original_mark)
             scaled_mark = int(scaled_mark_set.scaled_mark.split('.')[0])
-            mis_mark = int(mis_data.original_mark.split('.')[0])
+            try:
+                mis_mark = int(mis_data.original_mark.split('.')[0])
+            except:
+                mis_mark = 0
             print(str(scaled_mark) + " " + str(mis_mark))
             scaled_mark_on_mis = str(scaled_mark) == str(mis_mark)
             print(scaled_mark_on_mis)
