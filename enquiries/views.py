@@ -3438,15 +3438,16 @@ def examiner_conflicts_edit_view(request, per_sid=None):
 		except:
 			existing_note = None
 		#if note does not exist, create it, else update it
+		conflict_string= str(request.POST.get('exm_conflicts')).upper()
 		if existing_note is None:
 			conflict_entry = models.ExaminerConflicts(
-				examiner_conflicts = request.POST.get('exm_conflicts'),
+				examiner_conflicts = conflict_string,
 				note_owner = username,
 			)
 			conflict_entry.save()
 			conflict_entry.creditor.add(exm)
 		else:
-			models.ExaminerConflicts.objects.filter(id=existing_note).update(examiner_conflicts=request.POST.get('exm_conflicts'))
+			models.ExaminerConflicts.objects.filter(id=existing_note).update(examiner_conflicts=conflict_string)
 	return redirect('examiner_detail', per_sid)
 
 def examiner_conflicts_delete(request, note_id=None):
