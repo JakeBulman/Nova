@@ -313,8 +313,6 @@ def load_core_tables():
             and a.isdeletedfromsource!=1
             and c.examinernumber!=''
             and s.sessionid in ({session_id}) 
-            
-        group by s.sessionid
                                 ''', conn)
         
     print("Scaled Marks prepped:" + str(datetime.datetime.now()))
