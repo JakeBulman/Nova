@@ -13,8 +13,11 @@ APIMAR_data = DjangoStagingTableMAR.objects.filter(copied_to_est=0) ##updateflag
 
 ##oracle creds
 
-oracle_dsn = cx_Oracle.makedsn() ##oracle_host, oracle_port, service_name
-oracle_conn = cx_Oracle.connect() ##oracle_user, oracle_password, dsn=oracle_dsn
+##oracle_dsn = cx_Oracle.makedsn() ##oracle_host, oracle_port, service_name -- novaoratest
+oracle_dsn = cx_Oracle.makedsn('sddevap180','1521','novaoratest')
+oracle_conn = cx_Oracle.connect(user='apitest123',password='testpassword',dsn=oracle_dsn)
+
+oracle_conn = cx_Oracle.connect() ##oracle_user, oracle_password, dsn=oracle_dsn -- apitest123, testpassword, dsn=oracle_dsn
 
 cursor = oracle_conn.cursor() 
 
@@ -23,7 +26,7 @@ for item in APIAPP_data:
         cursor.execute("""
             INSERT INTO :oracleDB (enpe_sid, ec_sid, eb_sid, per_sid, pan_sid) VALUES (:enpe_sid, :ec_sid, :eb_sid, :per_sid, :pan_sid)
     """,{
-        'oracleDB': 'dbname',
+        'oracleDB': 'APITEST123.APIAPP',
         'enpe_sid': item.enpe_sid,
         'ec_sid': item.ec_sid,
         'eb_sid': item.eb_sid,
@@ -60,7 +63,7 @@ for item in APIMAR_data:
         cursor.execute("""
             INSERT INTO :oracleDB (ec_sid, eb_sid, outcome_status, final_mark, justification_code) VALUES (:ec_sid, :eb_sid, :outcome_status, :final_mark, :justification_code)
     """,{
-         'oracleDB': 'dbname',
+         'oracleDB': 'APITEST123.APIMAR',
          'ec_sid': item.ec_sid,
          'eb_sid': item.eb_sid,
          'outcome_status': item.outcome_status,
@@ -93,6 +96,5 @@ for item in APIMAR_data:
 
 
 
-##add a column in the ear_stagingtbl that flags if there's an error (value e) -- will update when exception is caught
 ##send an email summary per day -- those not updated and has no errorflag
 
