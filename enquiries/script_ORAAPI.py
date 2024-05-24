@@ -24,20 +24,16 @@ django.setup()
 
 ##pull data from the final staging table and save it to a df
 from enquiries.models import DjangoStagingTableAPP, DjangoStagingTableMAR, TaskManager, CentreEnquiryRequests, EnquiryComponents, TaskTypes, RpaFailureAudit
-APIAPP_data = DjangoStagingTableAPP.objects.filter(copied_to_est=0) ##updateflag is the column that identifies if rows have been moved
-APIMAR_data = DjangoStagingTableMAR.objects.filter(copied_to_est=0) ##updateflag is the column that identifies if rows have been moved
-##APIMAR_data = DjangoStagingTableMAR.objects.filter()
+APIAPP_data = DjangoStagingTableAPP.objects.filter(copied_to_est=0) ##copied_to_est is the column that identifies if rows have been moved
+APIMAR_data = DjangoStagingTableMAR.objects.filter(copied_to_est=0) ##copied_to_est is the column that identifies if rows have been moved
 
 ##oracle creds
-
-##oracle_dsn = cx_Oracle.makedsn() ##oracle_host, oracle_port, service_name -- novaoratest
-#oracle_dsn = cx_Oracle.makedsn(host='sddevap180',port='1521',sid='novaoratest')
-#oracle_conn = cx_Oracle.connect(user='apitest123@NOVAORATEST',password='testpassword',dsn=oracle_dsn,mode = cx_Oracle.SYSDBA)
 oracle_conn = cx_Oracle.connect('apitest123/testpassword@sddevap180:1521/novaoratest', mode = cx_Oracle.SYSDBA)
 
 cursor = oracle_conn.cursor() 
 
 for item in APIAPP_data:
+    DjangoStagingTableAPP.objects.filter(pk=item.pk).update(error_status= '')
     print(item.enpe_sid.enpe_sid)
     print(item.ec_sid.ec_sid)
     print(item.eb_sid.eb_sid)
@@ -45,9 +41,8 @@ for item in APIAPP_data:
     print(item.pan_sid)
     try:
         cursor.execute("""
-            INSERT INTO :oracleDB (enpe_sid, ec_sid, eb_sid, per_sid, pan_sid) VALUES (:enpe_sid, :ec_sid, :eb_sid, :per_sid, :pan_sid)
+            INSERT INTO APITEST123.APIAPP (enpe_sid, ec_sid, eb_sid, per_sid, pan_sid) VALUES (:enpe_sid, :ec_sid, :eb_sid, :per_sid, :pan_sid)
     """,{
-        'oracleDB': 'APITEST123.APIAPP',
         'enpe_sid': item.enpe_sid.enpe_sid,
         'ec_sid': item.ec_sid.ec_sid,
         'eb_sid': item.eb_sid.eb_sid,
@@ -75,9 +70,6 @@ for item in APIAPP_data:
                     rpa_task_key = TaskManager.objects.get(pk=this_task.pk),
                     failure_reason = f"{e}"
                 )
-        #complete the task
-    TaskManager.objects.filter(ec_sid=script_id,task_id='APIAPP').update(task_completion_date=timezone.now())
-
 
 for item in APIMAR_data:
     try:
@@ -112,10 +104,6 @@ for item in APIMAR_data:
                     rpa_task_key = TaskManager.objects.get(pk=this_task.pk),
                     failure_reason = f"{e}"
                 )
-        #complete the task
-    TaskManager.objects.filter(ec_sid=script_id,task_id='APIMAR').update(task_completion_date=timezone.now())
-
-
 
 ##send an email summary per day -- those not updated and has no errorflag
 
