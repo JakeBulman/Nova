@@ -239,24 +239,24 @@ try:
 
   email = EmailMessage()
   email["From"] = "results.enquiries@cambridge.org"
-  email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org, sarah.endersby@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org"
+  email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org"
   email["Subject"] = "Review of Marking Worklist Emails - Sent Successfully"
   email.set_content("All emails have been sent successfully", subtype='html')
 
   smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
-  smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org", "sarah.endersby@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org"], email.as_string())
+  smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org"], email.as_string())
   smtp.quit()
 
   print('Finished Successfully')
 except:
   email = EmailMessage()
   email["From"] = "results.enquiries@cambridge.org"
-  email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org, sarah.endersby@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org"
+  email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org"
   email["Subject"] = "Review of Marking Worklist Emails - ERROR"
   email.set_content("Emails have not been sent successfully, please contact the system administrator for further details.", subtype='html')
 
   smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
-  smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org", "sarah.endersby@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org"], email.as_string())
+  smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org"], email.as_string())
   smtp.quit()
 
   print('Did not finish')
