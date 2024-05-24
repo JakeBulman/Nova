@@ -1,7 +1,24 @@
 import django
+import sys
 import os 
 import cx_Oracle
 from django.utils import timezone
+
+if os.getenv('DJANGO_DEVELOPMENT') == 'true':
+    print('DEV')
+    path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
+    sys.path.append(path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+elif os.getenv('DJANGO_PRODUCTION') == 'true':
+    print('PROD')
+    path = os.path.join('C:\\Dev\\Nova')
+    sys.path.append(path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
+else:
+    print('UAT - Check')
+    path = os.path.join('C:\\Dev\\nova')
+    sys.path.append(path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 
 django.setup() 
 
@@ -14,22 +31,26 @@ APIMAR_data = DjangoStagingTableMAR.objects.filter(copied_to_est=0) ##updateflag
 ##oracle creds
 
 ##oracle_dsn = cx_Oracle.makedsn() ##oracle_host, oracle_port, service_name -- novaoratest
-oracle_dsn = cx_Oracle.makedsn('sddevap180','1521','novaoratest')
-oracle_conn = cx_Oracle.connect(user='apitest123',password='testpassword',dsn=oracle_dsn)
-
-oracle_conn = cx_Oracle.connect() ##oracle_user, oracle_password, dsn=oracle_dsn -- apitest123, testpassword, dsn=oracle_dsn
+#oracle_dsn = cx_Oracle.makedsn(host='sddevap180',port='1521',sid='novaoratest')
+#oracle_conn = cx_Oracle.connect(user='apitest123@NOVAORATEST',password='testpassword',dsn=oracle_dsn,mode = cx_Oracle.SYSDBA)
+oracle_conn = cx_Oracle.connect('apitest123/testpassword@sddevap180:1521/novaoratest', mode = cx_Oracle.SYSDBA)
 
 cursor = oracle_conn.cursor() 
 
 for item in APIAPP_data:
+    print(item.enpe_sid.enpe_sid)
+    print(item.ec_sid.ec_sid)
+    print(item.eb_sid.eb_sid)
+    print(item.per_sid)
+    print(item.pan_sid)
     try:
         cursor.execute("""
             INSERT INTO :oracleDB (enpe_sid, ec_sid, eb_sid, per_sid, pan_sid) VALUES (:enpe_sid, :ec_sid, :eb_sid, :per_sid, :pan_sid)
     """,{
         'oracleDB': 'APITEST123.APIAPP',
-        'enpe_sid': item.enpe_sid,
-        'ec_sid': item.ec_sid,
-        'eb_sid': item.eb_sid,
+        'enpe_sid': item.enpe_sid.enpe_sid,
+        'ec_sid': item.ec_sid.ec_sid,
+        'eb_sid': item.eb_sid.eb_sid,
         'per_sid': item.per_sid,
         'pan_sid': item.pan_sid,
     })
@@ -37,7 +58,7 @@ for item in APIAPP_data:
         oracle_conn.commit()
         print("Data Transfer has been completed")
     except Exception as e:
-        script_id = item.ec_sid
+        script_id = item.ec_sid.ec_sid
         DjangoStagingTableAPP.objects.filter(pk=item.pk).update(error_status= f"{e}")
         if not TaskManager.objects.filter(ec_sid=EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id), task_id='BOTAPF',task_completion_date = None).exists():
                 this_task = TaskManager.objects.create(
