@@ -1,32 +1,51 @@
 import django
+import sys
 import os 
 import cx_Oracle
 from django.utils import timezone
+
+if os.getenv('DJANGO_DEVELOPMENT') == 'true':
+    print('DEV')
+    path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
+    sys.path.append(path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+elif os.getenv('DJANGO_PRODUCTION') == 'true':
+    print('PROD')
+    path = os.path.join('C:\\Dev\\Nova')
+    sys.path.append(path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
+else:
+    print('UAT - Check')
+    path = os.path.join('C:\\Dev\\nova')
+    sys.path.append(path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 
 django.setup() 
 
 ##pull data from the final staging table and save it to a df
 from enquiries.models import DjangoStagingTableAPP, DjangoStagingTableMAR, TaskManager, CentreEnquiryRequests, EnquiryComponents, TaskTypes, RpaFailureAudit
-APIAPP_data = DjangoStagingTableAPP.objects.filter(copied_to_est=0) ##updateflag is the column that identifies if rows have been moved
-APIMAR_data = DjangoStagingTableMAR.objects.filter(copied_to_est=0) ##updateflag is the column that identifies if rows have been moved
-##APIMAR_data = DjangoStagingTableMAR.objects.filter()
+APIAPP_data = DjangoStagingTableAPP.objects.filter(copied_to_est=0) ##copied_to_est is the column that identifies if rows have been moved
+APIMAR_data = DjangoStagingTableMAR.objects.filter(copied_to_est=0) ##copied_to_est is the column that identifies if rows have been moved
 
 ##oracle creds
-
-oracle_dsn = cx_Oracle.makedsn() ##oracle_host, oracle_port, service_name
-oracle_conn = cx_Oracle.connect() ##oracle_user, oracle_password, dsn=oracle_dsn
+oracle_conn = cx_Oracle.connect('apitest123/testpassword@sddevap180:1521/novaoratest', mode = cx_Oracle.SYSDBA)
 
 cursor = oracle_conn.cursor() 
 
 for item in APIAPP_data:
+    DjangoStagingTableAPP.objects.filter(pk=item.pk).update(error_status= '')
+    print(item.enpe_sid.enpe_sid)
+    print(item.ec_sid.ec_sid)
+    print(item.eb_sid.eb_sid)
+    print(item.per_sid)
+    print(item.pan_sid)
     try:
         cursor.execute("""
-            INSERT INTO :oracleDB (enpe_sid, ec_sid, eb_sid, per_sid, pan_sid) VALUES (:enpe_sid, :ec_sid, :eb_sid, :per_sid, :pan_sid)
+            INSERT INTO APITEST123.APIAPP (enpe_sid, ec_sid, eb_sid, per_sid, pan_sid) VALUES (:enpe_sid, :ec_sid, :eb_sid, :per_sid, :pan_sid)
     """,{
-        'oracleDB': 'dbname',
-        'enpe_sid': item.enpe_sid,
-        'ec_sid': item.ec_sid,
-        'eb_sid': item.eb_sid,
+        'enpe_sid': item.enpe_sid.enpe_sid,
+        'ec_sid': item.ec_sid.ec_sid,
+        'eb_sid': item.eb_sid.eb_sid,
         'per_sid': item.per_sid,
         'pan_sid': item.pan_sid,
     })
@@ -34,7 +53,7 @@ for item in APIAPP_data:
         oracle_conn.commit()
         print("Data Transfer has been completed")
     except Exception as e:
-        script_id = item.ec_sid
+        script_id = item.ec_sid.ec_sid
         DjangoStagingTableAPP.objects.filter(pk=item.pk).update(error_status= f"{e}")
         if not TaskManager.objects.filter(ec_sid=EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id), task_id='BOTAPF',task_completion_date = None).exists():
                 this_task = TaskManager.objects.create(
@@ -51,16 +70,13 @@ for item in APIAPP_data:
                     rpa_task_key = TaskManager.objects.get(pk=this_task.pk),
                     failure_reason = f"{e}"
                 )
-        #complete the task
-    TaskManager.objects.filter(ec_sid=script_id,task_id='APIAPP').update(task_completion_date=timezone.now())
-
 
 for item in APIMAR_data:
     try:
         cursor.execute("""
             INSERT INTO :oracleDB (ec_sid, eb_sid, outcome_status, final_mark, justification_code) VALUES (:ec_sid, :eb_sid, :outcome_status, :final_mark, :justification_code)
     """,{
-         'oracleDB': 'dbname',
+         'oracleDB': 'APITEST123.APIMAR',
          'ec_sid': item.ec_sid,
          'eb_sid': item.eb_sid,
          'outcome_status': item.outcome_status,
@@ -88,11 +104,6 @@ for item in APIMAR_data:
                     rpa_task_key = TaskManager.objects.get(pk=this_task.pk),
                     failure_reason = f"{e}"
                 )
-        #complete the task
-    TaskManager.objects.filter(ec_sid=script_id,task_id='APIMAR').update(task_completion_date=timezone.now())
 
-
-
-##add a column in the ear_stagingtbl that flags if there's an error (value e) -- will update when exception is caught
 ##send an email summary per day -- those not updated and has no errorflag
 

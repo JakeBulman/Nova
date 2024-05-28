@@ -22,7 +22,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, ScriptApportionment,EnquiryComponentElements, DjangoStagingTable
+from enquiries.models import TaskManager, ScriptApportionment,EnquiryComponentElements, DjangoStagingTableAPP
 from django.contrib.auth.models import User
 
 def run_algo():
@@ -43,8 +43,8 @@ def run_algo():
         print(per_sid)
         print(pan_sid)
 
-        if DjangoStagingTable.objects.filter(ec_sid=ec_sid,copied_to_est=0).exists():
-            DjangoStagingTable.objects.filter(ec_sid=ec_sid,copied_to_est=0).update(
+        if DjangoStagingTableAPP.objects.filter(ec_sid=ec_sid,copied_to_est=0).exists():
+            DjangoStagingTableAPP.objects.filter(ec_sid=ec_sid,copied_to_est=0).update(
                 enpe_sid = enpe_sid,
                 ec_sid = ec_sid,
                 eb_sid = eb_sid,
@@ -52,7 +52,7 @@ def run_algo():
                 pan_sid = pan_sid
             )
         else:
-            DjangoStagingTable.objects.create(
+            DjangoStagingTableAPP.objects.create(
                 enpe_sid = enpe_sid,
                 ec_sid = ec_sid,
                 eb_sid = eb_sid,
