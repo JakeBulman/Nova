@@ -41,6 +41,7 @@ def run_algo():
             if EnquiryComponents.objects.filter(erp_sid__eps_centre_id=centre,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand).exists():
                 #fetch out ids based on cent/syll/comp/cand
                 script = EnquiryComponents.objects.get(erp_sid__eps_centre_id=centre,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand)
+                print(script.ec_sid)
                 if TaskManager.objects.filter(ec_sid=script.ec_sid,task_id='SCRREN', task_completion_date__isnull=True).exists():
                     task = TaskManager.objects.get(ec_sid=script.ec_sid,task_id='SCRREN')
                     enquiry_id = script.erp_sid.cer_sid.enquiry_id

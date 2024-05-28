@@ -103,18 +103,12 @@ def run_algo():
                     #check for unavailability
                     exm_available = True
                     current_date = timezone.now().date()
-                    print("Unavailability for examiner:" + str(exm_creditor_no))
                     for ex_un_av in ExaminerAvailability.objects.filter(creditor__exm_creditor_no = exm_creditor_no):
                         start_date_minus_five = ex_un_av.unavailability_start_date - datetime.timedelta(days=5)
                         d0 = start_date_minus_five - current_date
-                        print(start_date_minus_five)
-                        print(d0)
                         d1 = ex_un_av.unavailability_end_date - current_date
-                        print(ex_un_av.unavailability_end_date)
-                        print(d1)
                         if d0.days < 0 and d1.days > 0:
                             exm_available = False
-                    print(exm_available)
                     if exm_available == False:
                         exm['rank'] = 4 #mark as non-viable
 
@@ -143,6 +137,8 @@ def run_algo():
             if sorted_exms_list_robin:
                 chosen_exm = sorted_exms_list_robin[0]['creditor']
                 print(str(script_id) + ' script id given to examiner ' + str(chosen_exm))
+                print('')
+                print('')
                 
                 if chosen_exm is not None:
                     
