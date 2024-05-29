@@ -658,7 +658,7 @@ def nrmscs_task_complete(request):
 	task_id = request.POST.get('task_id')
 	enquiry_id = request.POST.get('enquiry_id')
 	script_id = models.TaskManager.objectstask_id
-	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='SCRCHE',task_completion_date = None).exists():
+	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='SCRCHE').exists():
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id),
 			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
@@ -1938,15 +1938,26 @@ def iec_pass_view(request, enquiry_id=None):
 					continue
 			#Check is ASR/ASC and send to script requesting
 			if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR' or '1' in s.erp_sid.service_code:
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
-					models.TaskManager.objects.create(
-						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-						task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
-						task_assigned_to = None,
-						task_assigned_date = None,
-						task_completion_date = None
-					)
+				if s.script_type == 'RM Assessor':
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+						)
+				else:
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'CLERIC'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+						)
 			else:
 				#Check for pre-emptive scaled marks
 				if models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).exists():
@@ -2112,16 +2123,28 @@ def iec_pass_all_view(request):
 							task_completion_date = None
 							)		
 						continue	
+				#Check is ASR/ASC and send to script requesting
 				if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR' or '1' in s.erp_sid.service_code:
-					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
-						models.TaskManager.objects.create(
-							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-							task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
-							task_assigned_to = None,
-							task_assigned_date = None,
-							task_completion_date = None
-						)
+					if s.script_type == 'RM Assessor':
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
+							models.TaskManager.objects.create(
+								enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+								ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+								task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
+								task_assigned_to = None,
+								task_assigned_date = None,
+								task_completion_date = None
+							)
+					else:
+						if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
+							models.TaskManager.objects.create(
+								enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+								ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+								task_id = models.TaskTypes.objects.get(task_id = 'CLERIC'),
+								task_assigned_to = None,
+								task_assigned_date = None,
+								task_completion_date = None
+							)
 				else:
 					#Check for pre-emptive scaled marks
 					if models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).exists():
@@ -2323,15 +2346,26 @@ def iec_issue_view(request, enquiry_id=None):
 					continue	
 			#Check is ASR/ASC and send to script requesting
 			if s.erp_sid.service_code == 'ASC' or s.erp_sid.service_code == 'ASR' or '1' in s.erp_sid.service_code:
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
-					models.TaskManager.objects.create(
-						enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-						ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
-						task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
-						task_assigned_to = None,
-						task_assigned_date = None,
-						task_completion_date = None
-					)
+				if s.script_type == 'RM Assessor':
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='ESMSCR',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+						)
+				else:
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='CLERIC',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+							enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
+							ec_sid = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=s.ec_sid),
+							task_id = models.TaskTypes.objects.get(task_id = 'CLERIC'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+						)
 			else:
 				#Check for pre-emptive scaled marks
 				if models.EnquiryComponentsHistory.objects.filter(ec_sid=s.ec_sid).exists():
@@ -2945,7 +2979,7 @@ def esmsc2_create_view(request):
 				comp = s.ec_sid.eps_com_id
 				candidate = s.ec_sid.erp_sid.eps_cand_id
 				centre = s.ec_sid.erp_sid.eps_centre_id
-				writer.writerow([syll,comp,candidate,centre])
+				writer.writerow([syll,comp,centre,candidate])
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSC2').update(task_completion_date=timezone.now())
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSC2').update(task_assigned_date=timezone.now())
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSC2').update(task_assigned_to=username)

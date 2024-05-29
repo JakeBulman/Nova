@@ -46,6 +46,7 @@ def run_algo():
                 script_id = None
                 if EnquiryComponents.objects.filter(erp_sid__eps_centre_id=centre,erp_sid__cer_sid=enquiry_id,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand).exists():
                     #fetch out ids based on cent/enq/syll/comp/cand
+                    print(EnquiryComponents.objects.get(erp_sid__eps_centre_id=centre,erp_sid__cer_sid=enquiry_id,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand).erp_sid.cer_sid.enquiry_id)
                     script_id = EnquiryComponents.objects.get(erp_sid__eps_centre_id=centre,erp_sid__cer_sid=enquiry_id,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand).ec_sid
                     #check if all prior checks are complete
                     task_type = ['CLERIC','SCRCHE','SCRREQ']
@@ -53,40 +54,40 @@ def run_algo():
                         if script_id not in comp_list_scraud:
                             comp_list_scraud.append(script_id)
 
-        comp_list_full.sort()
-        comp_list_scraud.sort()
-        print(comp_list_full,comp_list_scraud)
-        scr_complete_check = comp_list_full == comp_list_scraud
-        
-        if scr_complete_check:
-            #Move files for this enquiry ID to final folder
-            for file in os.listdir("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\\"):
-                if file.endswith(".pdf"):
-                    print(file)
-                    centre = file.split('_')[0]
-                    enquiry_id = file.split('_')[2]
-                    syll = file.split('_')[3]
-                    comp = file.split('_')[4]
-                    cand = file.split('_')[5].split('.')[0]
-                    print(' '.join([centre,enquiry_id,syll,comp,cand]))
-                    if enquiry_id == task.enquiry_id.enquiry_id:
-                        #take backup copy of the file
-                        shutil.copy(os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\\", file), os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\Backup\\", file))
-                        #copy file to next location with new name
-                        new_name = '_'.join([centre,'COS',enquiry_id,syll,comp,cand]) + '.pdf'
-                        shutil.move(os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\\", file), os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\1.Series Folders\March 2024\\5. Scripts\\3. Ready for Upload\\", new_name))
+            comp_list_full.sort()
+            comp_list_scraud.sort()
+            print(comp_list_full,comp_list_scraud)
+            scr_complete_check = comp_list_full == comp_list_scraud
+            
+            if scr_complete_check:
+                #Move files for this enquiry ID to final folder
+                for file in os.listdir("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\\"):
+                    if file.endswith(".pdf"):
+                        print(file)
+                        centre = file.split('_')[0]
+                        enquiry_id = file.split('_')[2]
+                        syll = file.split('_')[3]
+                        comp = file.split('_')[4]
+                        cand = file.split('_')[5].split('.')[0]
+                        print(' '.join([centre,enquiry_id,syll,comp,cand]))
+                        if enquiry_id == task.enquiry_id.enquiry_id:
+                            #take backup copy of the file
+                            shutil.copy(os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\\", file), os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\Backup\\", file))
+                            #copy file to next location with new name
+                            new_name = '_'.join([centre,'COS',enquiry_id,syll,comp,cand]) + '.pdf'
+                            shutil.move(os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\\", file), os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\1.Series Folders\March 2024\\5. Scripts\\3. Ready for Upload\\", new_name))
 
-            #Marks tasks complete and continue chain
-            print(str(enquiry_id) + " passes SCRAUD")
-            TaskManager.objects.create(
-                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-                ec_sid = None,
-                task_id = TaskTypes.objects.get(task_id = 'LETSCR'),
-                task_assigned_to = None,
-                task_assigned_date = None,
-                task_completion_date = None
-            )
-                
-            TaskManager.objects.filter(pk=task.pk,task_id='SCRAUD').update(task_completion_date=timezone.now())   
+                #Marks tasks complete and continue chain
+                print(str(enquiry_id) + " passes SCRAUD")
+                TaskManager.objects.create(
+                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                    ec_sid = None,
+                    task_id = TaskTypes.objects.get(task_id = 'LETSCR'),
+                    task_assigned_to = None,
+                    task_assigned_date = None,
+                    task_completion_date = None
+                )
+                    
+                TaskManager.objects.filter(pk=task.pk,task_id='SCRAUD').update(task_completion_date=timezone.now())   
 
 run_algo()
