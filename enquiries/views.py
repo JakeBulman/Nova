@@ -2878,7 +2878,7 @@ def esmscr_create_view(request):
 				comp = s.ec_sid.eps_com_id
 				candidate = s.ec_sid.erp_sid.eps_cand_id
 				centre = s.ec_sid.erp_sid.eps_centre_id
-				writer.writerow([syll,comp,candidate,centre])
+				writer.writerow([syll,comp,centre,candidate])
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSCR').update(task_completion_date=timezone.now())
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSCR').update(task_assigned_date=timezone.now())
 				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSCR').update(task_assigned_to=username)
