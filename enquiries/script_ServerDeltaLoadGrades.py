@@ -209,20 +209,93 @@ def load_core_tables():
 
     # print("ECH loaded:" + str(datetime.datetime.now()))
 
-    for enquiry in CentreEnquiryRequests.objects.all():
-        enquiry_id = enquiry.enquiry_id
-        if not TaskManager.objects.filter(enquiry_id=enquiry_id,task_id_id = 'INITCH').exists():
-            TaskManager.objects.create(
-                enquiry_id = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
-                ec_sid = None,
-                task_id = TaskTypes.objects.get(task_id = 'INITCH'),
-                task_assigned_to = None,
-                task_assigned_date = None,
-                task_completion_date = None
+
+    # Get datalake data - ECH
+    with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        df = pd.read_sql(f'''
+                        SELECT distinct
+                        cer.sid as cer_sid,
+                        ec.sid as ec_sid,
+                        wrm.ses_sid as ses_sid,
+                        wrm.ass_code as ass_code,
+                        wrm.com_id as com_id,
+                        wrm.cnu_id as cnu_id,
+                        wrm.cand_no as cand_no,
+                        spp.examiner_no as exm_position,
+                        wrm.kbr_code as kbr_code,
+                        kbr.reason as kbr_reason,
+                        wrm.mark as current_mark,
+                        ec.ccm_measure as ear_mark,
+                        ec.ccm_outcome as ear_mark_alt,
+                        mld.batch as omr_batch,
+                        mld.position as omr_position
+                        from ar_meps_req_prd.enquiry_components ec
+                        left join ar_meps_req_prd.enquiry_request_parts erp
+                        on erp.sid = ec.erp_sid
+                        left join ar_meps_req_prd.centre_enquiry_requests cer
+                        on cer.sid = erp.cer_sid
+                        left join ar_meps_mark_prd.working_raw_marks wrm
+                        on wrm.ses_sid = ec.ccm_ses_sid
+                        and wrm.ass_code = ec.ccm_ass_code
+                        and wrm.com_id = ec.ccm_com_id
+                        and wrm.cand_no = ec.ccm_cand_no
+                        and wrm.cnu_id = ec.ccm_cnu_id
+                        left join ar_meps_pan_prd.session_panel_positions spp
+                        on wrm.spp_sid = spp.sid
+                        left join ar_meps_mark_prd.keyed_batch_reason kbr
+                        on kbr.code = wrm.kbr_code
+                        left join ar_meps_mark_prd.mark_load_details mld
+                        on wrm.mld_sid = mld.sid
+                        where ec.ccm_ses_sid in ({session_id}) 
+                                ''', conn)
+
+    def insert_to_model_enpee(row):
+        try:
+            kbr_reason = row['kbr_reason'][:50]
+        except:
+            kbr_reason = ''
+        if EnquiryComponentsHistory.objects.filter(ec_sid=row['ec_sid']).exists():
+            EnquiryComponentsHistory.objects.filter(ec_sid=row['ec_sid']).update(
+            cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
+            ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
+            eps_ses_sid = row['ses_sid'],
+            eps_ass_code = row['ass_code'],
+            eps_com_id = row['com_id'],
+            eps_cnu_id = row['cnu_id'],
+            eps_cand_no = row['cand_no'],
+            exm_position = row['exm_position'],
+            kbr_code = row['kbr_code'],
+            kbr_reason = kbr_reason,
+            current_mark = row['current_mark'],
+            ear_mark = row['ear_mark'],
+            ear_mark_alt = row['ear_mark_alt'],
+            omr_batch = row['omr_batch'],
+            omr_position = row['omr_position'],
             )
 
-    print("IEC loaded:" + str(datetime.datetime.now()))
+        else:
+            try:
+                EnquiryComponentsHistory.objects.create(
+                cer_sid = CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=row['cer_sid']),
+                ec_sid = EnquiryComponents.objects.only('ec_sid').get(ec_sid=row['ec_sid']),
+                eps_ses_sid = row['ses_sid'],
+                eps_ass_code = row['ass_code'],
+                eps_com_id = row['com_id'],
+                eps_cnu_id = row['cnu_id'],
+                eps_cand_no = row['cand_no'],
+                exm_position = row['exm_position'],
+                kbr_code = row['kbr_code'],
+                kbr_reason = kbr_reason,
+                current_mark = row['current_mark'],
+                ear_mark = row['ear_mark'],
+                ear_mark_alt = row['ear_mark_alt'],
+                )
+            except:
+                pass
+                
+    df.apply(insert_to_model_enpee, axis=1)
 
+    print("ECH loaded:" + str(datetime.datetime.now()))
 
     end_time = datetime.datetime.now()
     print(end_time - start_time)
