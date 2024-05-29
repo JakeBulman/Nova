@@ -20,17 +20,17 @@ else:
 
 django.setup()
 
-from enquiries.models import EsmcsvDownloads
+from enquiries.models import EsmscrDownloads
 
 def run_algo():
-    for task in EsmcsvDownloads.objects.filter(archive_count=0):
-        document = EsmcsvDownloads.objects.get(pk=task.pk).document
-        file_name = EsmcsvDownloads.objects.get(pk=task.pk).file_name
-        new_file_name = "\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\ESM CSV\\" + file_name
+    for task in EsmscrDownloads.objects.filter(archive_count=0):
+        document = EsmscrDownloads.objects.get(pk=task.pk).document
+        file_name = EsmscrDownloads.objects.get(pk=task.pk).file_name
+        new_file_name = "\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\Script Request CSV\\" + file_name
         print(document)
         with open(new_file_name, 'wb') as actual_file:
             actual_file.write(document.read())
-        archives = int(EsmcsvDownloads.objects.get(pk=task.pk).archive_count) + 1
-        EsmcsvDownloads.objects.filter(pk=task.pk).update(archive_count = str(archives))
+        archives = int(EsmscrDownloads.objects.get(pk=task.pk).archive_count) + 1
+        EsmscrDownloads.objects.filter(pk=task.pk).update(archive_count = str(archives))
 
 run_algo()
