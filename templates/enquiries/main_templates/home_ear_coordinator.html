@@ -108,8 +108,8 @@
           <img class="card-img-top" src="{% static 'admin/img/alpha-icon.png' %}" alt="Examiner availability Icon">
         </div>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Alpha</h5>          
-          <p class="card-text">Checks</p>
+          <h5 class="card-title">Checks & Examiners</h5>          
+          <p class="card-text">Alpha</p>
           <div id="alpha-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
               {% if alpha_count.count > 0 %}
               <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ alpha_count.count }} Tasks Waiting</span>
@@ -129,9 +129,9 @@
           <img class="card-img-top" src="{% static 'admin/img/gamma-icon.png' %}" alt="Examiner availability Icon">
         </div>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Gamma</h5>
-          <p class="card-text">Marking</p>
-          <div id="gamma-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+          <h5 class="card-title">Marking</h5>
+          <p class="card-text">Gamma</p>
+          <div id="gamma-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
             {% if gamma_count.count > 0 %}
             <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ gamma_count.count }} Tasks Waiting</span>
             {% else %}
@@ -149,9 +149,9 @@
           <img class="card-img-top" src="{% static 'admin/img/delta-icon.png' %}" alt="IEC Icon">
         </div>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Delta</h5>
-          <p class="card-text">Hardcopy</p>
-          <div id="delta-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+          <h5 class="card-title">Hardcopy & Service 3</h5>
+          <p class="card-text">Delta</p>
+          <div id="delta-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
             {% if delta_count.count > 0 %}
             <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ delta_count.count }} Tasks Waiting</span>
             {% else %}
@@ -169,9 +169,9 @@
           <img class="card-img-top" src="{% static 'admin/img/kappa-icon.png' %}" alt="EAR Icon">
         </div>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Kappa</h5>
-          <p class="card-text">Clerical</p>
-          <div id="kappa-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+          <h5 class="card-title">Clerical Checks</h5>
+          <p class="card-text">Kappa</p>
+          <div id="kappa-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
             {% if kappa_count.count > 0 %}
             <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ kappa_count.count }} Tasks Waiting</span>
             {% else %}
@@ -189,9 +189,9 @@
           <img class="card-img-top" src="{% static 'admin/img/lambda-icon.png' %}" alt="EAR Icon">
         </div>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Lambda</h5>
-          <p class="card-text">RPA</p>
-          <div id="lambda-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+          <h5 class="card-title">RPA</h5>
+          <p class="card-text">Lambda</p>
+          <div id="lambda-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
             {% if lambda_count.count > 0 %}
             <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ lambda_count.count }} Tasks Waiting</span>
             {% else %}
@@ -209,9 +209,9 @@
           <img class="card-img-top" src="{% static 'admin/img/sigma-icon.png' %}" alt="EAR Icon">
         </div>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Sigma</h5>
-          <p class="card-text">Scripts</p>
-          <div id="sigma-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+          <h5 class="card-title">Scripts Services</h5>
+          <p class="card-text">Sigma</p>
+          <div id="sigma-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
             {% if sigma_count.count > 0 %}
             <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ sigma_count.count }} Tasks Waiting</span>
             {% else %}
@@ -229,9 +229,9 @@
           <img class="card-img-top" src="{% static 'admin/img/omega-icon.png' %}" alt="EAR Icon">
         </div>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Omega</h5>
-          <p class="card-text">Grading</p>
-          <div id="omega-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+          <h5 class="card-title">Grading</h5>
+          <p class="card-text">Omega</p>
+          <div id="omega-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
             {% if omega_count.count > 0 %}
             <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ omega_count.count }} Tasks Waiting</span>
             {% else %}
@@ -245,7 +245,21 @@
       </div>
     </div>
   </div>
+</div>
 
+
+
+<div class="row mt-5 text-center">
+  <div class="col d-flex justify-content-center">
+    <h5>Morning Load Status:</h5>
+  </div>
+</div>
+<div class="row mt-2 text-center">
+  <div class="col d-flex justify-content-center">
+    <div id="delta-load" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 3s" hx-swap="innerHTML"  hx-swap-oob="true">
+      <div>{{delta_load_status}}</div>
+    </div>
+  </div>
 </div>
 
 

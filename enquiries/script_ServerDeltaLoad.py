@@ -34,6 +34,7 @@ def load_core_tables():
 
     start_time = datetime.datetime.now()
     print("Start Time:" + str(datetime.datetime.now()))
+    EarServerSettings.objects.update(delta_load_status='Delta Load Starting, first table loading')
 
     #Limits enquiries to session or enquiry list
     session_id = EarServerSettings.objects.first().session_id_list
@@ -94,6 +95,7 @@ def load_core_tables():
 
     df.apply(insert_to_model_cer, axis=1)
     print("CER loaded:" + str(datetime.datetime.now()))
+    EarServerSettings.objects.update(delta_load_status='Table 1 of 15 loaded, Centre Enquiry Requests')
 
     for enquiry in CentreEnquiryRequests.objects.all():
         centre_id = enquiry.centre_id
@@ -176,7 +178,7 @@ def load_core_tables():
 
     df.apply(insert_to_model_erp, axis=1)
 
-
+    EarServerSettings.objects.update(delta_load_status='Table 2 of 15 loaded, Enquiry Request Parts')
     print("ERP loaded:" + str(datetime.datetime.now()))
 
     # # Get datalake data - Enquiry Components
@@ -256,7 +258,7 @@ def load_core_tables():
 
         EnquiryComponents.objects.filter(eps_ass_code=ass_code,eps_com_id=comp_id).update(script_type=script_type)
 
-
+    EarServerSettings.objects.update(delta_load_status='Table 3 of 15 loaded, Enquiry Components')
     print("EC loaded:" + str(datetime.datetime.now()))
 
         # # Get datalake data - Enquiry Request Parts
@@ -342,6 +344,7 @@ def load_core_tables():
     df.apply(insert_to_model_erp, axis=1)
 
     print("Scaled Marks loaded:" + str(datetime.datetime.now()))
+    EarServerSettings.objects.update(delta_load_status='Table 4 of 15 loaded, Scaled Marks')
 
     # # Get datalake data - Enquiry Batches
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
@@ -377,6 +380,7 @@ def load_core_tables():
 
     df.apply(insert_to_model_eb, axis=1)
     print("EB loaded:" + str(datetime.datetime.now()))
+    EarServerSettings.objects.update(delta_load_status='Table 5 of 15 loaded, Enquiry Batches')
 
     #Get datalake data - Enquiry Components
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
@@ -433,7 +437,7 @@ def load_core_tables():
     df.apply(insert_to_model_ec, axis=1)
 
     print("ECE loaded:" + str(datetime.datetime.now()))
-
+    EarServerSettings.objects.update(delta_load_status='Table 6 of 15 loaded, Enquiry Component Elements')
 
 
    # Get datalake data - Panels
@@ -491,6 +495,7 @@ def load_core_tables():
     df.apply(insert_to_model_enpee, axis=1)
 
     print("ECM_PAN loaded:" + str(datetime.datetime.now()))
+    EarServerSettings.objects.update(delta_load_status='Table 7 of 15 loaded, Examiner Panels')
 
     # Get datalake data - Unique Creditors
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
@@ -539,7 +544,7 @@ def load_core_tables():
 
     df.apply(insert_to_model_enpe, axis=1)
     print("UC loaded:" + str(datetime.datetime.now()))
-
+    EarServerSettings.objects.update(delta_load_status='Table 8 of 15 loaded, Unique Creditors')
 
 
     # Get datalake data - Enquiry Personnel
@@ -585,7 +590,7 @@ def load_core_tables():
             examiner.save()
 
     print("EPNE loaded:" + str(datetime.datetime.now()))
-
+    EarServerSettings.objects.update(delta_load_status='Table 9 of 15 loaded, Enquiry Personnel')
 
     # Get datalake data - Enquiry Personnel - Extended
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
@@ -662,7 +667,7 @@ def load_core_tables():
     df.apply(insert_to_model_enpee, axis=1)
 
     print("EPD loaded:" + str(datetime.datetime.now()))
-
+    EarServerSettings.objects.update(delta_load_status='Table 10 of 15 loaded, Enquiry Personnel Details')
 
     # Get datalake data - ECH
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
@@ -750,7 +755,7 @@ def load_core_tables():
     df.apply(insert_to_model_enpee, axis=1)
 
     print("ECH loaded:" + str(datetime.datetime.now()))
-
+    EarServerSettings.objects.update(delta_load_status='Table 11 of 15 loaded, Enquiry Component History')
 
     # Get datalake data - Enquiry Personnel - Extended
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
@@ -821,7 +826,7 @@ def load_core_tables():
     df.apply(insert_to_model_enpee, axis=1)
 
     print("EPNE2 loaded:" + str(datetime.datetime.now()))
-
+    EarServerSettings.objects.update(delta_load_status='Table 12 of 15 loaded, Enquiry Component Examiner Checks')
 
     #Limits enquiries to only non-completed
     session_id = EarServerSettings.objects.first().session_id_list
@@ -892,7 +897,7 @@ def load_core_tables():
 
     df.apply(insert_to_model_erp, axis=1)
 
-
+    EarServerSettings.objects.update(delta_load_status='Table 13 of 15 loaded, Enquiry Grades')
     print("EG loaded:" + str(datetime.datetime.now()))
 
     for enquiry in CentreEnquiryRequests.objects.all():
@@ -914,7 +919,7 @@ def load_core_tables():
             )
 
     print("ED loaded:" + str(datetime.datetime.now()))
-
+    EarServerSettings.objects.update(delta_load_status='Table 14 of 15 loaded, Enquiry Deadlines')
 
     filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Tolerances.xlsx")
     workbook = load_workbook(filename)
@@ -933,7 +938,8 @@ def load_core_tables():
                     mark_tolerance = row[2]
                 )
 
-    print("ERP loaded:" + str(datetime.datetime.now()))
+    print("Tols loaded:" + str(datetime.datetime.now()))
+    EarServerSettings.objects.update(delta_load_status='Table 15 of 15 loaded, Enquiry Tolerances')
 
     for enquiry in CentreEnquiryRequests.objects.all():
         enquiry_id = enquiry.enquiry_id
@@ -949,11 +955,10 @@ def load_core_tables():
 
     print("IEC loaded:" + str(datetime.datetime.now()))
 
+    EarServerSettings.objects.update(delta_load_status='Delta Load Complete, IECs ready to process at '+str(datetime.datetime.now()))
 
+### LOAD EXTRAS DATA 
 
-### LOAD EXTRAS DATA
-
-    
     # # Get datalake data - Centre Enquiry Requests
     with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
         df = pd.read_sql(f'''

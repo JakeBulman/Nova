@@ -46,7 +46,8 @@ def ear_home_view(request,*args, **kwargs):
 	lambda_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id__in=lambda_tasks, enquiry_tasks__task_completion_date__isnull=True)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
-	context = {"session_desc":session_desc, "mytask_count":mytask_count,
+	delta_load_status = models.EarServerSettings.objects.first().delta_load_status
+	context = {"session_desc":session_desc, "delta_load_status":delta_load_status, "mytask_count":mytask_count,
 			"alpha_count":alpha_count, "gamma_count":gamma_count, "delta_count":delta_count, "kappa_count":kappa_count, 
 			"sigma_count":sigma_count, "omega_count":omega_count, "lambda_count":lambda_count,
 		}

@@ -100,3 +100,12 @@ hx-swap-oob="true">
 <span class="badge rounded-pill bg-success d-flex justify-content-center">All Tasks Completed</span>
 {% endif %}
 </div>
+
+<div id="delta-load" 
+hx-target="#delta-load" 
+hx-get="{% url 'enquiries_home' %}" 
+hx-trigger="every 10s" 
+hx-swap="outerHTML" 
+hx-swap-oob="true">
+{{delta_load_status}}
+</div>
