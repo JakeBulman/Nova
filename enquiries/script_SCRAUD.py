@@ -46,18 +46,19 @@ def run_algo():
                 script_id = None
                 if EnquiryComponents.objects.filter(erp_sid__eps_centre_id=centre,erp_sid__cer_sid=enquiry_id,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand).exists():
                     #fetch out ids based on cent/enq/syll/comp/cand
-                    print(EnquiryComponents.objects.get(erp_sid__eps_centre_id=centre,erp_sid__cer_sid=enquiry_id,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand).erp_sid.cer_sid.enquiry_id)
                     script_id = EnquiryComponents.objects.get(erp_sid__eps_centre_id=centre,erp_sid__cer_sid=enquiry_id,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand).ec_sid
+
                     #check if all prior checks are complete
-                    task_type = ['CLERIC','SCRCHE','SCRREQ']
+                    task_type = ['CLERIC','SCRCHE','SCRREQ','SCRREN','ESMSCR','ESMSC2','OMRSCR']
                     if not TaskManager.objects.filter(task_id__in=task_type, ec_sid=script_id, task_completion_date__isnull=True).exists():   
-                        if script_id not in comp_list_scraud:
+                        if script_id not in comp_list_scraud and script_id in comp_list_full:
                             comp_list_scraud.append(script_id)
 
             comp_list_full.sort()
             comp_list_scraud.sort()
             print(comp_list_full,comp_list_scraud)
             scr_complete_check = comp_list_full == comp_list_scraud
+            print(scr_complete_check)
             
             if scr_complete_check:
                 #Move files for this enquiry ID to final folder
