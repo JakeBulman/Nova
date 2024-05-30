@@ -249,6 +249,7 @@ try:
 
   print('Finished Successfully')
 except:
+  sender = "results.enquiries@cambridge.org"
   email = EmailMessage()
   email["From"] = "results.enquiries@cambridge.org"
   email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org"

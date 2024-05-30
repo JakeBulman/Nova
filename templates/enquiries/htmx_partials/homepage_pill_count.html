@@ -1,7 +1,7 @@
 <div id="alpha-pill" 
 hx-target="#alpha-pill" 
 hx-get="{% url 'enquiries_home' %}" 
-hx-trigger="every 10s" 
+hx-trigger="every 5s" 
 hx-swap="outerHTML">
 {% if alpha_count.count > 0 %}
 <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ alpha_count.count }} Tasks Waiting</span>
@@ -13,7 +13,6 @@ hx-swap="outerHTML">
 <div id="gamma-pill" 
 hx-target="#gamma-pill" 
 hx-get="{% url 'enquiries_home' %}" 
-hx-trigger="every 10s" 
 hx-swap="outerHTML" 
 hx-swap-oob="true">
 {% if gamma_count.count > 0 %}
@@ -26,7 +25,6 @@ hx-swap-oob="true">
 <div id="delta-pill" 
 hx-target="#delta-pill" 
 hx-get="{% url 'enquiries_home' %}" 
-hx-trigger="every 10s" 
 hx-swap="outerHTML" 
 hx-swap-oob="true">
 {% if delta_count.count > 0 %}
@@ -39,7 +37,6 @@ hx-swap-oob="true">
 <div id="kappa-pill" 
 hx-target="#kappa-pill" 
 hx-get="{% url 'enquiries_home' %}" 
-hx-trigger="every 10s" 
 hx-swap="outerHTML" 
 hx-swap-oob="true">
 {% if kappa_count.count > 0 %}
@@ -52,7 +49,6 @@ hx-swap-oob="true">
 <div id="lambda-pill" 
 hx-target="#lambda-pill" 
 hx-get="{% url 'enquiries_home' %}" 
-hx-trigger="every 10s" 
 hx-swap="outerHTML" 
 hx-swap-oob="true">
 {% if lambda_count.count > 0 %}
@@ -65,7 +61,6 @@ hx-swap-oob="true">
 <div id="sigma-pill" 
 hx-target="#sigma-pill" 
 hx-get="{% url 'enquiries_home' %}" 
-hx-trigger="every 10s" 
 hx-swap="outerHTML" 
 hx-swap-oob="true">
 {% if sigma_count.count > 0 %}
@@ -78,7 +73,6 @@ hx-swap-oob="true">
 <div id="omega-pill" 
 hx-target="#omega-pill" 
 hx-get="{% url 'enquiries_home' %}" 
-hx-trigger="every 10s" 
 hx-swap="outerHTML" 
 hx-swap-oob="true">
 {% if omega_count.count > 0 %}
@@ -91,7 +85,6 @@ hx-swap-oob="true">
 <div id="mytask-pill" 
 hx-target="#mytask-pill" 
 hx-get="{% url 'enquiries_home' %}" 
-hx-trigger="every 10s" 
 hx-swap="outerHTML" 
 hx-swap-oob="true">
 {% if mytask_count.count > 0 %}
@@ -104,7 +97,6 @@ hx-swap-oob="true">
 <div id="delta-load" 
 hx-target="#delta-load" 
 hx-get="{% url 'enquiries_home' %}" 
-hx-trigger="every 10s" 
 hx-swap="outerHTML" 
 hx-swap-oob="true">
 {{delta_load_status}}
