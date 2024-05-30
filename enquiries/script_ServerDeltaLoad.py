@@ -1162,7 +1162,17 @@ def load_core_tables():
 
         print("EC loaded:" + str(datetime.datetime.now()))
 
+        EarServerSettings.objects.update(delta_load_status='Delta Load completed at '+str(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S")))
+        email = EmailMessage()
+        email["From"] = "results.enquiries@cambridge.org"
+        email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,jonathon.east@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org,morgan.jones@cambridge.org"
+        email["Subject"] = "Morning Data Load - SUCCESS"
+        email.set_content("Morning load was successful, IECs are ready to be completed.", subtype='html')
 
+        sender = "results.enquiries@cambridge.org"
+        smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
+        smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org","jonathon.east@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org","morgan.jones@cambridge.org"], email.as_string())
+        smtp.quit()
 
 
         end_time = datetime.datetime.now()
@@ -1172,8 +1182,8 @@ def load_core_tables():
         email = EmailMessage()
         email["From"] = "results.enquiries@cambridge.org"
         email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,jonathon.east@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org,morgan.jones@cambridge.org"
-        email["Subject"] = "Review of Marking Worklist Emails - ERROR"
-        email.set_content("Emails have not been sent successfully, please contact the system administrator for further details.", subtype='html')
+        email["Subject"] = "Morning Data Load - ERROR"
+        email.set_content("Morning load has failed, please contact the system administrator for further details.", subtype='html')
 
         sender = "results.enquiries@cambridge.org"
         smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
