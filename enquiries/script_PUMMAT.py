@@ -37,4 +37,13 @@ def run_algo():
         )
 
         TaskManager.objects.filter(pk=task.pk,task_id='PUMMAT').update(task_completion_date=timezone.now())   
+
+    for task in TaskManager.objects.filter(task_id='LETSCR', task_completion_date__isnull=True):
+        enquiry_id = task.enquiry_id.enquiry_id
+        TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='LETSCR').update(task_completion_date=timezone.now())   
+
+    for task in TaskManager.objects.filter(task_id='COMPLT', task_completion_date__isnull=True):
+        enquiry_id = task.enquiry_id.enquiry_id
+        TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='COMPLT').update(task_completion_date=timezone.now())   
+
 run_algo()
