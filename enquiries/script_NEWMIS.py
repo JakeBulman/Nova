@@ -25,10 +25,11 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, EnquiryPersonnelDetails, ScriptApportionment, EnquiryComponentElements, CentreEnquiryRequests, EnquiryComponents, EnquiryComponentsHistory, TaskTypes, ScaledMarks
+from enquiries.models import TaskManager, EnquiryPersonnelDetails, ScriptApportionment, EnquiryComponentElements, CentreEnquiryRequests, EnquiryComponents, EnquiryComponentsHistory, TaskTypes, ScaledMarks, EarServerSettings
 from django.contrib.auth.models import User
 
 def run_algo():
+    sessions = str(EarServerSettings.objects.get(pk=1).session_id_list).split(',')
     for app_task in TaskManager.objects.filter(task_id='NEWMIS', task_completion_date__isnull=True):
         if ScriptApportionment.objects.filter(ec_sid=app_task.ec_sid.ec_sid, apportionment_invalidated=0).exists():
             #task data pulled in here
@@ -53,7 +54,7 @@ def run_algo():
             cand_name = app_task.ec_sid.erp_sid.stud_name
             original_exm = EnquiryComponentsHistory.objects.get(ec_sid=script_id).exm_position
             #TODO: This is dangerous as it assumes a specific apportionemtn and is part of a wider bug on duplicates
-            rev_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid).first().exm_examiner_no
+            rev_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid,session__in=sessions).first().exm_examiner_no
             #This is all to get the scaled mark
             scale_ass_code = app_task.ec_sid.eps_ass_code
             scale_comp_id = app_task.ec_sid.eps_com_id
