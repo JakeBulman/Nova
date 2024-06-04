@@ -27,10 +27,11 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, EnquiryBatches, EnquiryComponentElements, MisReturnData, ScriptApportionment, EnquiryPersonnelDetails, TaskTypes
+from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, EnquiryBatches, EnquiryComponentElements, MisReturnData, ScriptApportionment, EnquiryPersonnelDetails, TaskTypes, EarServerSettings
 
 def run_algo():
     import os
+    sessions = str(EarServerSettings.objects.get(pk=1).session_id_list).split(',')
     for file in os.listdir("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\\"):
         filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\\", file)
         new_filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Inbound\COMPLETE\\", file)
@@ -62,7 +63,7 @@ def run_algo():
             task_pk = None
             try:
                 expected_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.get(ec_sid=ec_sid, apportionment_invalidated=0).enpe_sid).first()
-                
+                # expected_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.get(ec_sid=ec_sid, apportionment_invalidated=0).enpe_sid,session__in=sessions).first()
                 if TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).exists():
                     task_pk = TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).first().pk
                 if task_pk is not None and str(expected_exm.exm_examiner_no).strip()==str(sheet["E4"].value).strip():
