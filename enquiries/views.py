@@ -3020,7 +3020,7 @@ def esmsc2_download_view(request, download_id=None):
 def scrren_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	comment = models.TaskComments.objects.filter(task_pk_id=OuterRef('pk'))
-	ec_queryset = models.TaskManager.objects.annotate(comment_field=Subquery(comment.values('task_comment_text'))).filter(task_id='SCRREN', task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset = models.TaskManager.objects.annotate(comment_field=Subquery(comment.values('task_comment_text'))).filter(task_id='SCRREN', task_completion_date__isnull=True).order_by('task_creation_date')
 	context = {"cer": ec_queryset,}
 	return render(request, "enquiries/task_lists/enquiries_scrren.html", context=context)
 
