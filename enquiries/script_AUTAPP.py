@@ -21,7 +21,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, EnquiryComponents, EnquiryComponentsPreviousExaminers, EnquiryPersonnelDetails, ScriptApportionment, CentreEnquiryRequests, ExaminerConflicts, ExaminerAvailability, SetIssueAudit, TaskTypes, ExaminerPanels, EnquiryComponentsExaminerChecks,EnquiryComponentsHistory
+from enquiries.models import TaskManager, EnquiryComponents, EnquiryComponentsPreviousExaminers, EnquiryPersonnelDetails, ScriptApportionment, CentreEnquiryRequests, ExaminerConflicts, ExaminerAvailability, SetIssueAudit, TaskTypes, ExaminerPanels, EnquiryComponentsExaminerChecks,EnquiryComponentsHistory, EarServerSettings
 from django.utils import timezone
 from django.db.models import Sum
 from django.contrib.auth.models import User
@@ -143,7 +143,8 @@ def run_algo():
                 if chosen_exm is not None:
                     
                     #per_sid = UniqueCreditor.objects.get(exm_creditor_no=chosen_exm).per_sid
-                    this_exm = EnquiryPersonnelDetails.objects.filter(exm_creditor_no=chosen_exm,ass_code=script_obj.eps_ass_code,com_id=script_obj.eps_com_id).first().enpe_sid
+                    sessions = str(EarServerSettings.objects.get(pk=1).session_id_list).split(',')
+                    this_exm = EnquiryPersonnelDetails.objects.filter(exm_creditor_no=chosen_exm,ass_code=script_obj.eps_ass_code,com_id=script_obj.eps_com_id,session__in=sessions).first().enpe_sid
                     ScriptApportionment.objects.create(
                         enpe_sid = this_exm,
                         ec_sid =  script_obj
