@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.db.models.functions import Cast, Substr
 import dateutil.parser
 from django.db.models import OuterRef, Subquery, Max
+import datetime
 
 
 #special imports
@@ -3102,7 +3103,7 @@ def esmsc2_list_view(request):
 	except EmptyPage:
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,"esmsc2_count":esmsc2_count}
+	context = {"cer": page_obj,"esmsc2_count":esmsc2_count,"esmsc2_count_24":esmsc2_count_24}
 	return render(request, "enquiries/task_lists/enquiries_esmsc2.html", context=context)
 
 def esmsc2_create_view(request):
@@ -3119,23 +3120,26 @@ def esmsc2_create_view(request):
 			writer = csv.writer(file)
 			writer.writerow(['Assessment','Component ID','Centre','Candidate No'])
 			for s in ec_queryset:
-				syll = s.ec_sid.eps_ass_code
-				comp = s.ec_sid.eps_com_id
-				candidate = s.ec_sid.erp_sid.eps_cand_id
-				centre = s.ec_sid.erp_sid.eps_centre_id
-				writer.writerow([syll,comp,centre,candidate])
-				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSC2').update(task_completion_date=timezone.now())
-				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSC2').update(task_assigned_date=timezone.now())
-				models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSC2').update(task_assigned_to=username)
-				if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='SCRREN',task_completion_date = None).exists():
-					models.TaskManager.objects.create(
-						enquiry_id = s.enquiry_id,
-						ec_sid = s.ec_sid,
-						task_id = models.TaskTypes.objects.get(task_id = 'SCRREN'),
-						task_assigned_to = None,
-						task_assigned_date = None,
-						task_completion_date = None
-					)
+				#Find MKWAIT completion, add 24hr delay
+				mkwait_complete = models.TaskManager.objects.filter(ec_sid=s.ec_sid.ec_sid,task_id='MKWAIT').order_by('task_completion_date').first().task_completion_date
+				if timezone.now() > mkwait_complete + datetime.timedelta(days=1):
+					syll = s.ec_sid.eps_ass_code
+					comp = s.ec_sid.eps_com_id
+					candidate = s.ec_sid.erp_sid.eps_cand_id
+					centre = s.ec_sid.erp_sid.eps_centre_id
+					writer.writerow([syll,comp,centre,candidate])
+					models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSC2').update(task_completion_date=timezone.now())
+					models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSC2').update(task_assigned_date=timezone.now())
+					models.TaskManager.objects.filter(ec_sid=s.ec_sid,task_id='ESMSC2').update(task_assigned_to=username)
+					if not models.TaskManager.objects.filter(ec_sid=s.ec_sid, task_id='SCRREN',task_completion_date = None).exists():
+						models.TaskManager.objects.create(
+							enquiry_id = s.enquiry_id,
+							ec_sid = s.ec_sid,
+							task_id = models.TaskTypes.objects.get(task_id = 'SCRREN'),
+							task_assigned_to = None,
+							task_assigned_date = None,
+							task_completion_date = None
+						)
 		models.Esmsc2Downloads.objects.create(
 			document = file_location,
 			file_name = file_timestamp,
