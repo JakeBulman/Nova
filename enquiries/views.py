@@ -3103,7 +3103,7 @@ def esmsc2_list_view(request):
 	except EmptyPage:
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,"esmsc2_count":esmsc2_count,"esmsc2_count_24":esmsc2_count_24}
+	context = {"cer": page_obj,"esmsc2_count":esmsc2_count}
 	return render(request, "enquiries/task_lists/enquiries_esmsc2.html", context=context)
 
 def esmsc2_create_view(request):
