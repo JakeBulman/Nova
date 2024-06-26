@@ -1,0 +1,146 @@
+{% load static %}
+{% load compress %}
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    {% compress css %}
+        <link href="{% static 'admin/css/custom.scss' %}" rel="stylesheet" type="text/x-scss">
+    {% endcompress %}
+    <script type="text/javascript">
+        function preventBack() {
+            window.history.forward(); 
+        }
+          
+        setTimeout("preventBack()", 0);
+          
+        window.onunload = function () { null };
+    </script>
+    <title>Nova</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
+</head>
+<body style="background-color:#ffffff;" onload="javascript:setTimeout(function(){ location.reload(); },15000);">
+{% include 'nova_core/base_navbar.html' %}
+
+<div class="container-fluid">
+    <div class="row text-center m-2">
+        <h1 class="display-5 text-center">EAR - My Cases</h1>
+    </div>
+    <div class="row text-center m-5">
+        {% if case_count == 0 %}
+        <form method="POST" action="{% url 'new-case' %}">
+            <input name="page_source" id="page_source" value="my_cases" type="hidden" class="form-control" placeholder="Enquiry No.">
+            <button disabled type="submit" title="New Case" class="btn btn-outline-secondary btn-lg my-2" style="width:500px">No cases in queue</button>
+        </form>
+        {% else %}
+            <form method="POST" action="{% url 'new-case' %}">
+                <input name="page_source" id="page_source" value="my_cases" type="hidden" class="form-control" placeholder="Enquiry No.">
+                <button type="submit" title="New Case" class="btn btn-primary btn-lg my-2" style="width:500px">Get New Case</button>
+            </form>
+        {% endif %}
+    </div>
+
+
+    <div class="row m-5">
+        <div class="col bg-light text-dark rounded">
+            {% if cases.count == 0 %}
+
+            <div class="text-center m-5">
+                <img class="rounded mx-auto d-block " src="{% static 'admin/img/empty-icon.png' %}" alt="Empty Icon">
+            </div>
+            <h5 class="display-5 text-center m-5">You currently have no cases assigned</h5>
+
+            {% else %}
+
+            <h5 class="display-6 m-3">New Cases</h5>
+
+            <div class="row ms-3">
+                {% for t in cases %}
+                    {% if t.task_queued == 0 %}
+                        <div class="card me-3 my-3" style="width: 25rem; ">
+                            <div class="card-body">
+                                <h3 class="card-title">Case {{t.id}}</h3>
+                                <h6 class="card-subtitle mb-2 mt-4 text-muted">Creditor: {{t.enpe_sid.per_sid.exm_creditor_no}}</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Exm Name: {{ t.enpe_sid.per_sid.exm_title }} {{ t.enpe_sid.per_sid.exm_forename }} {{ t.enpe_sid.per_sid.surname }}</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Exm Email:</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">{{ t.enpe_sid.per_sid.exm_email }}</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Case Created: {{ t.task_creation_date|date:"d/m/y" }}</h6>
+                                <div class="row">
+                                    <div class="col">
+                                        <form method="POST" action="{% url 'case_detail' t.id %}">
+                                            <input name="task_type" id="task_type" value='{{t.task_id.task_id}}' type="hidden" class="form-control">
+                                            <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
+                                            <button type="submit" class="btn btn-primary" style="width:335px">To Case</button>
+                                        </form>
+                                    </div>
+
+                                </div>
+                                <div class="row my-2">
+                                    <div class="col">
+                                        <form method="POST" action="{% url 'set_backlog_case' %}">
+                                            <input name="task_val" id="task_val" value='{{t.task_queued}}' type="hidden" class="form-control">
+                                            <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
+                                            <button type="submit" class="btn btn-warning" style="width:150px">Backlog</button>
+                                        </form>
+                                    </div>
+                                    <div class="col">
+                                        <form method="POST" action="{% url 'assign-case-user' case_id=t.id  user_id=request.user.id %}" class="text-center">
+                                            <input name="page_location" id="page_location" value="my_cases" type="hidden" class="form-control">
+                                            <button type="submit" class="btn btn-outline-primary" style="width:150px">Assign To</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="row m-5">
+        <div class="col bg-light text-dark rounded">
+            <h5 class="display-6 m-3">Backlog Cases</h5>
+            <div class="row ms-3">
+                {% for t in cases %}
+                    {% if t.task_queued == 1 %}
+                        <div class="card me-3 my-3" style="width: 25rem;">
+                            <div class="card-body">
+                                <h3 class="card-title">Case {{t.id}}</h3>
+                                <h6 class="card-subtitle mb-2 mt-4 text-muted">Creditor: {{t.enpe_sid.per_sid.exm_creditor_no}}</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Exm Name: {{ t.enpe_sid.per_sid.exm_title }} {{ t.enpe_sid.per_sid.exm_forename }} {{ t.enpe_sid.per_sid.surname }}</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Exm Email: {{ t.enpe_sid.per_sid.exm_email }}</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Case Created: {{ t.task_creation_date|date:"d/m/y" }}</h6>
+                                <div class="row">
+                                    <div class="col">
+                                        <form method="POST" action="{% url 'case_detail' t.id %}">
+                                            <input name="task_type" id="task_type" value='{{t.task_id.task_id}}' type="hidden" class="form-control">
+                                            <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
+                                            <button type="submit" class="btn btn-primary" style="width:335px">To Case</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="row my-2">
+                                    <div class="col">
+                                        <form method="POST" action="{% url 'set_backlog_case' %}">
+                                            <input name="task_val" id="task_val" value='{{t.task_queued}}' type="hidden" class="form-control">
+                                            <input name="task_id" id="task_id" value={{t.id}} type="hidden" class="form-control">
+                                            <button type="submit" class="btn btn-outline-warning" style="width:150px">Backlog</button>
+                                        </form>
+                                    </div>
+                                    <div class="col">
+                                        <form method="POST" action="{% url 'assign-case-user' case_id=t.id  user_id=request.user.id %}" class="text-center">
+                                            <input name="page_location" id="page_location" value="my_cases" type="hidden" class="form-control">
+                                            <button type="submit" class="btn btn-outline-primary" style="width:150px">Assign To</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

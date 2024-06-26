@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.db.models import Q, IntegerField
+from django.db.models import Q, QuerySet
 from django.conf import settings
 import csv, os
 from django.db.models import Sum, Count
@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.db.models.functions import Cast, Substr
 import dateutil.parser
 from django.db.models import OuterRef, Subquery, Max
-import datetime
+from datetime import datetime, timedelta, time
 
 
 #special imports
@@ -469,7 +469,7 @@ def self_assign_task_view(request, task_id=None):
 		return redirect('enquiries_detail', enquiry_id)
 	else:
 		return redirect(redirect_address)
-
+	
 def assign_task_user_view(request, user_id=None, task_id=None):
 	#grab the model rows (ordered by id), filter to required task and where not completed.
 	queryset = models.User.objects.filter(assigned_tasks__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
@@ -491,6 +491,106 @@ def assign_task_user_selected_view(request, user_id=None, task_id=None, selected
 		return redirect('enquiries_detail', enquiry_id)
 	else:
 		return redirect(redirect_address)
+	
+def my_cases_view(request):
+		#Get username to filter cases
+	user = None
+	if request.user.is_authenticated:
+		user = request.user
+	#Get task objects for this user
+	task_queryset = models.ExaminerOverdueCases.objects.filter(task_assigned_to=user,task_completion_date__isnull=True).order_by('task_creation_date')
+	task_count = models.ExaminerOverdueCases.objects.filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).count()
+	context = {"cases": task_queryset, "case_count": task_count}
+	return render(request, "enquiries/examiners/case_system/my_cases.html", context=context)
+	
+def self_assign_case_view(request, case_id=None):
+	#Get username to filter tasks
+	print(case_id)
+	username = None
+	if request.user.is_authenticated:
+		username =request.user
+	#Set the  task to this user
+	if case_id is not None:
+		models.ExaminerOverdueCases.objects.filter(id=case_id).update(task_assigned_to=username)
+		models.ExaminerOverdueCases.objects.filter(id=case_id).update(task_assigned_date=timezone.now())
+
+	return redirect('case_system')
+	
+def assign_case_user_view(request, user_id=None, case_id=None):
+	#grab the model rows (ordered by id), filter to required task and where not completed.
+	queryset = models.User.objects.filter(assigned_cases__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
+	redirect_address = request.POST.get('page_location')
+	enquiry_id = request.POST.get('enquiry_id')
+	context = {"users": queryset, "original_user":user_id, "case_id":case_id, "redirect_address":redirect_address, "enquiry_id":enquiry_id}	
+	return render(request, "enquiries/main_templates/enquiries_user_select_case.html", context=context)
+	#return redirect('user_tasks', user_id)
+
+def assign_case_user_selected_view(request, user_id=None, case_id=None, selected_user=None):
+	models.ExaminerOverdueCases.objects.filter(pk=case_id).update(task_assigned_to=User.objects.get(pk=selected_user),task_queued=0,task_assigned_date=timezone.now())
+	redirect_address = request.POST.get('page_location')
+
+	return redirect('case_system')
+	# if redirect_address == 'my_tasks':
+	# 	return redirect('my_tasks')
+	# elif redirect_address == 'task_assignment':
+	# 	return redirect('user_tasks', user_id)
+	# elif redirect_address == 'enquiry_detail':
+	# 	enquiry_id = request.POST.get('enquiry_id')
+	# 	return redirect('enquiries_detail', enquiry_id)
+	# else:
+	# 	return redirect(redirect_address)
+
+def new_case_view(request):
+	#Get username to filter tasks
+	username = None
+	if request.user.is_authenticated:
+		username =request.user
+	#Caclulate next task in the queue
+	if models.ExaminerOverdueCases.objects.filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exists():
+		print('primary')
+		next_task_id = models.ExaminerOverdueCases.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).first().pk
+	else:
+		print('none')
+		next_task_id = None
+	#Set the newest task to this user
+	if next_task_id is not None:
+		models.ExaminerOverdueCases.objects.filter(id=next_task_id).update(task_assigned_to=username,task_assigned_date=timezone.now())
+	return redirect('my_cases')
+
+def set_backlog_case(request):
+	task_id = request.POST.get('task_id')
+	task_val = request.POST.get('task_val')
+	if task_val == '0': 
+		set_val = 1
+	else: 
+		set_val = 0
+	models.ExaminerOverdueCases.objects.filter(id=task_id).update(task_queued=set_val)
+	return redirect('my_cases')
+
+def new_case_comment_view(request):
+	case_id = request.POST.get('case_id')
+	case_comment = request.POST.get('case_comment')
+	#get current user
+	username = None
+	if request.user.is_authenticated:
+		username =request.user
+
+	#get this task, assuming valid
+	case = models.ExaminerOverdueCases.objects.get(pk=case_id)
+	if case_id is not None:
+		models.CaseComments.objects.create(
+			case_pk = case,
+			case_comment_text = case_comment,
+			case_comment_user = username
+		)
+
+	return redirect('case_detail', case_id)
+
+def remove_case_comment_view(request):
+	case_id = request.POST.get('case_id')
+	comment_id = request.POST.get('comment_id')
+	models.CaseComments.objects.filter(pk=comment_id).update(case_comment_invalid=1)
+	return redirect('case_detail', case_id)
 		
 
 def setbie_task(request, task_id=None):
@@ -3668,6 +3768,58 @@ def examiner_email_edit_view(request, per_sid=None):
 		else:
 			models.ExaminerEmailOverride.objects.filter(id=existing_note).update(examiner_email_manual=request.POST.get('exm_new_email'))
 	return redirect('examiner_detail', per_sid)
+
+def case_system_view(request):
+	#Get username
+	username = None
+	if request.user.is_authenticated:
+		username = request.user
+	my_cases = models.ExaminerOverdueCases.objects.filter(task_assigned_to=username,task_completion_date__isnull=True).order_by('task_creation_date')
+	all_cases = models.ExaminerOverdueCases.objects.all().order_by('task_creation_date')
+	context = {'all_cases':all_cases, 'my_cases':my_cases}
+	return render(request, 'enquiries/examiners/case_system/case_home.html', context=context)
+
+def create_cases_view(request):
+	today = datetime.now().date()
+	tomorrow = today + timedelta(1)
+	today_start = datetime.combine(today, time())
+	today_end = datetime.combine(tomorrow, time())
+	all_cases = models.ExaminerOverdueCases.objects.all().order_by('task_creation_date')
+	exmsla_tasks = models.TaskManager.objects.filter(task_completion_date__isnull=True, task_id='EXMSLA')
+	exmsla_scripts = []
+	for task in exmsla_tasks:
+		exmsla_scripts.append(task.ec_sid.ec_sid)
+	examiner_scripts = models.ScriptApportionment.objects.filter(apportionment_invalidated=0,script_marked=1)
+	#list of all scripts valid and not marked yet, check if they are against a case
+	overdue_filtered_scripts_list = []
+	for script in examiner_scripts:
+		if script.ec_sid.ec_sid in exmsla_scripts: #has an overdue task open
+			if script.overdue_case is None: # is not assigned to a case
+				overdue_filtered_scripts_list.append([script.ec_sid.ec_sid,script.enpe_sid.enpe_sid])
+	#cycle scripts and check if avaiable case open today for that examiner:
+	for script in overdue_filtered_scripts_list:
+		examiner = script[1]
+		case_script = script[0]
+		models.ExaminerOverdueCases.objects.filter()
+		today_case_open = models.ExaminerOverdueCases.objects.filter(case_apportioned_scripts__enpe_sid=examiner,task_creation_date__lte=today_end,task_creation_date__gte=today_start).count() 
+		#If case exists, assign this script to it
+		if today_case_open > 0:
+			today_case_open = models.ExaminerOverdueCases.objects.filter(case_apportioned_scripts__enpe_sid=examiner,task_creation_date__lte=today_end,task_creation_date__gte=today_start).first()
+			models.ScriptApportionment.objects.filter(apportionment_invalidated=0,script_marked=1,ec_sid=case_script,enpe_sid=examiner).update(overdue_case=today_case_open)
+		else:
+			new_case = models.ExaminerOverdueCases.objects.create(enpe_sid=models.EnquiryPersonnel.objects.get(enpe_sid=examiner))
+			models.ScriptApportionment.objects.filter(apportionment_invalidated=0,script_marked=1,ec_sid=case_script,enpe_sid=examiner).update(overdue_case=new_case)
+
+	return redirect('case_system')
+
+def case_detail_view(request, case_id=None):
+	task_queryset = models.ExaminerOverdueCases.objects.get(pk=case_id)
+	#Check for comments on task
+	task_comments = None
+	if models.CaseComments.objects.filter(case_pk=task_queryset.pk).exists():
+		task_comments = models.CaseComments.objects.filter(case_pk=task_queryset.pk).order_by('case_comment_creation_date')
+	context = {"case_id":case_id, "case":task_queryset, "task_comments":task_comments}
+	return render(request, "enquiries/examiners/case_system/case_details.html", context=context)
 
 def panel_list_view(request):
 	search_q = ""

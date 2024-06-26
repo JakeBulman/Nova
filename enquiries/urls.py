@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     #Home view for EARs
+    path('', views.ear_home_view, name='home'),
     path('home', views.ear_home_view, name='enquiries_home'),
     path('ear_home_view_team_alpha', views.ear_home_view_team_alpha, name='ear_home_view_team_alpha'),
     path('ear_home_view_team_delta', views.ear_home_view_team_delta, name='ear_home_view_team_delta'),
@@ -18,7 +19,6 @@ urlpatterns = [
     path('server_settings_update', views.server_settings_update_view, name='server_settings_update'),
     path('server_short_reset', views.server_short_reset_view, name='server_short_reset'),
     # path('server_long_reset', views.server_long_reset_view, name='server_long_reset'), 
-    
 
     ### Task Manager Control ###
 
@@ -224,6 +224,23 @@ urlpatterns = [
     #Examiner email update endpoints
     path('examiner_email_update/<str:per_sid>/edit', views.examiner_email_edit_view, name='exm-email-edit'),
     path('examiner_email_update/<str:per_sid>/', views.examiner_email_view, name='examiner_email'),
+
+
+
+    #CASE System
+    path('case_system', views.case_system_view, name='case_system'),
+    path('case_detail/<str:case_id>/', views.case_detail_view, name='case_detail'),
+    path('case_system_create', views.create_cases_view, name='case_system_create'),
+    path('case_system/self_assign_task/<str:case_id>', views.self_assign_case_view, name='self-assign-case'),
+    path('case_system/assign_task_user/<str:user_id>/<str:case_id>', views.assign_case_user_view, name='assign-case-user'),
+    path('case_system/assign_task_user/<str:user_id>/<str:case_id>/<str:selected_user>', views.assign_case_user_selected_view, name='assign-case-user-selected'),
+
+    path('case_system/my_cases', views.my_cases_view, name='my_cases'),
+    path('case_system/set_backlog_case', views.set_backlog_case, name='set_backlog_case'),
+    path('case_system/new_case', views.new_case_view, name='new-case'),
+    path('case_system/add_new_comment', views.new_case_comment_view, name='add_case_comment'),
+    path('case_system/remove_new_comment', views.remove_case_comment_view, name='remove_case_comment'),
+
 
     ### Panel Control ###
 

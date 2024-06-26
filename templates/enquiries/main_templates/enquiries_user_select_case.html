@@ -1,0 +1,36 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center mb-5">EAR - Task Control</h1>
+
+
+
+<div class="table-responsive-xl m-5">
+    <table class="table table-sm table-bordered table-hover">
+        <tr class="text-center">
+          <th>Username</th>
+          <th>Team</th>
+          <th>Access Level</th>
+          <th>Tasks Assigned</th>
+          <th>Select</th>
+        </tr>
+        {% for x in users %}
+          <tr class="text-center">
+            <td>{{ x.username }}</td>
+            <td>{% for y in x.user_primary.all %}{{ y.primary_team.team_name }}{% endfor %}</td>
+            <td>{% for y in x.user_primary.all %}{{ y.primary_status }}{% endfor %}</td>
+            <td>{{ x.task_count }}</td>
+            <td><form method="POST" action="{% url 'assign-case-user-selected' case_id=case_id user_id=original_user selected_user=x.id %}" class="text-center">
+              <input name="username" id="username" value="{{ x.username }}" type="hidden" class="form-control">
+              <input name="page_location" id="page_location" value="{{ redirect_address }}" type="hidden" class="form-control">
+              <input name="enquiry_id" id="enquiry_id" value={{enquiry_id}} type="hidden" class="form-control">
+              <button type="submit" class="btn btn-outline-warning" style="width:200px">Select User</button>
+            </form></td>
+          </tr>
+        {% endfor %}
+        
+    </table>
+</div>
+
+{% endblock %}
