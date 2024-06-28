@@ -2941,6 +2941,9 @@ def esmcsv_create_view(request):
 		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
 		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
 		print(file_location)
+		#check validity of all rows
+		for s in ec_queryset:
+			models.ScriptApportionment.objects.get(ec_sid = s.ec_sid, apportionment_invalidated = 0)
 		username = None
 		if request.user.is_authenticated:
 			username =request.user		
