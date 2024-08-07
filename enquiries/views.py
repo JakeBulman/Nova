@@ -3225,7 +3225,8 @@ def esmsc2_create_view(request):
 			for s in ec_queryset:
 				#Find MKWAIT completion, add 24hr delay
 				mkwait_complete = models.TaskManager.objects.filter(ec_sid=s.ec_sid.ec_sid,task_id='MKWAIT').order_by('task_completion_date').first().task_completion_date
-				if timezone.now() > mkwait_complete + datetime.timedelta(days=1):
+				wait_days = 0
+				if timezone.now() > mkwait_complete + datetime.timedelta(days=wait_days):
 					syll = s.ec_sid.eps_ass_code
 					comp = s.ec_sid.eps_com_id
 					candidate = s.ec_sid.erp_sid.eps_cand_id
