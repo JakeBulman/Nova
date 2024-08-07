@@ -53,6 +53,8 @@ urlpatterns = [
     path('task_manager/misvrm_task/<str:task_id>', views.misvrm_task, name='misvrm-task'), 
     path('task_manager/misvrf_task/complete', views.misvrf_task_complete, name='misvrf-complete'),
     path('task_manager/misvrf_task/<str:task_id>', views.misvrf_task, name='misvrf-task'), 
+    path('task_manager/marche_task/complete', views.marche_task_complete, name='marche-complete'),
+    path('task_manager/marche_task/<str:task_id>', views.marche_task, name='marche-task'), 
     path('task_manager/pexmch_task/complete', views.pexmch_task_complete, name='pexmch-complete'),
     path('task_manager/pexmch_task/<str:task_id>', views.pexmch_task, name='pexmch-task'),  
     path('task_manager/locmar_task/complete', views.locmar_task_complete, name='locmar-complete'),
@@ -113,6 +115,8 @@ urlpatterns = [
     path('misvrm_list', views.misvrm_list_view, name='misvrm_list'),
     #MIS vs RM recheck main screen
     path('misvrf_list', views.misvrf_list_view, name='misvrf_list'),
+    #Mark check main screen
+    path('marche_list', views.marche_list_view, name='marche_list'),
     #Previous Exminer Checks main screen
     path('pexmch_list', views.pexmch_list_view, name='pexmch_list'),
     #Locmar Checks main screen

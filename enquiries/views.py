@@ -30,7 +30,7 @@ def ear_home_view(request,*args, **kwargs):
 		user = request.user
 
 	alpha_tasks = ['INITCH','SETBIE']
-	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF','MUPREX','NRMSCS']
+	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','MARCHE','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF','MUPREX','NRMSCS']
 	delta_tasks = ['NRMACC','S3SEND','S3CONF']
 	kappa_tasks = ['CLERIC',]
 	sigma_tasks = ['ESMSCR','ESMSC2','SCRCHE','SCRREQ','OMRSCR']
@@ -122,6 +122,8 @@ def ear_home_view_team_gamma(request,*args, **kwargs):
 	misvrma_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRM', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	misvrf_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRF', enquiry_tasks__task_completion_date__isnull=True)
 	misvrfa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MISVRF', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	marche_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MARCHE', enquiry_tasks__task_completion_date__isnull=True)
+	marchea_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MARCHE', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	locmar_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='LOCMAR', enquiry_tasks__task_completion_date__isnull=True)
 	locmara_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='LOCMAR', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	pexmch_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEXMCH', enquiry_tasks__task_completion_date__isnull=True)
@@ -307,6 +309,8 @@ def task_router_view(request, task_id):
 		return redirect('misvrm-task', task_id=task_id)
 	if task_type == "MISVRF":
 		return redirect('misvrf-task', task_id=task_id)
+	if task_type == "MARCHE":
+		return redirect('marche-task', task_id=task_id)
 	if task_type == "PEXMCH":
 		return redirect('pexmch-task', task_id=task_id)
 	if task_type == "LOCMAR":
@@ -1133,6 +1137,65 @@ def misvrf_task_complete(request):
 	return redirect('my_tasks')
 
 
+def marche_task(request, task_id=None):
+	task_queryset = models.TaskManager.objects.get(pk=task_id)
+
+	if models.TaskManager.objects.filter(task_id='MISVRM',ec_sid=task_queryset.ec_sid).exists():
+		try:
+			original_user = models.TaskManager.objects.get(task_id='MISVRM',ec_sid=task_queryset.ec_sid).task_assigned_to.username
+		except:
+			original_user = None
+	else:
+		original_user = None
+
+	#Get task_id for this enquiry if it has SETBIE
+	issue_reason = None
+	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
+		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
+	#Check for comments on task
+	task_comments = None
+	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
+		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
+	context = {"task_id":task_id, "task":task_queryset, "issue_reason":issue_reason, "task_comments":task_comments, "original_user":original_user}
+	return render(request, "enquiries/task_singles/enquiries_task_marche.html", context=context)
+
+def marche_task_complete(request):
+	script_id = request.POST.get('script_id')
+	task_id = request.POST.get('task_id')
+	enquiry_id = request.POST.get('enquiry_id')
+	new_mark = request.POST.get('new_mark')
+	new_jc = request.POST.get('new_jc')
+	new_status = request.POST.get('new_status')
+	new_jc4r = request.POST.get('new_jc4r')
+	
+	misDataQC = models.MisReturnData.objects.get(ec_sid = script_id)
+
+	if new_mark is None:
+		new_mark = misDataQC.revised_mark
+		new_jc = misDataQC.justification_code
+		new_status = misDataQC.mark_status
+		new_jc4r = misDataQC.remark_reason
+	
+	models.MisReturnData.objects.filter(ec_sid=script_id).update(final_mark=new_mark)
+	models.MisReturnData.objects.filter(ec_sid=script_id).update(final_justification_code=new_jc)
+	models.MisReturnData.objects.filter(ec_sid=script_id).update(final_mark_status=new_status)
+	models.MisReturnData.objects.filter(ec_sid=script_id).update(remark_reason=new_jc4r)
+
+	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='BOTMAR',task_completion_date = None).exists():
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+			task_id = models.TaskTypes.objects.get(task_id = 'BOTMAR'),
+			task_assigned_to = User.objects.get(username='NovaServer'),
+			task_assigned_date = timezone.now(),
+			task_completion_date = None
+		)
+
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='MARCHE').update(task_completion_date=timezone.now())    
+	return redirect('my_tasks')
+
+
 def pexmch_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 	task_ass_code = models.EnquiryComponents.objects.get(script_tasks__pk=task_id).eps_ass_code
@@ -1485,7 +1548,7 @@ def exmsla_task_complete(request):
 			else:
 				#this is for forced reapportionments
 				#close all outstanding tasks
-				models.TaskManager.objects.filter(ec_sid=models.EnquiryComponents.objects.get(ec_sid=script_id),task_id__in=['REMAPP','REMAPF','BOTAPP','ESMCSV','NRMACC','S3SEND','EXMSLA','NEWMIS','RETMIS','MISVRM','MISVRF','JUSCHE','MKWAIT','BOTMAR'],task_completion_date=None).update(task_completion_date=timezone.now())
+				models.TaskManager.objects.filter(ec_sid=models.EnquiryComponents.objects.get(ec_sid=script_id),task_id__in=['REMAPP','REMAPF','BOTAPP','ESMCSV','NRMACC','S3SEND','EXMSLA','NEWMIS','RETMIS','MISVRM','MISVRF','JUSCHE','MARCHE','MKWAIT','BOTMAR'],task_completion_date=None).update(task_completion_date=timezone.now())
 				models.ScriptApportionment.objects.filter(ec_sid=script_id).update(apportionment_invalidated=1, script_marked=0)
 				#CHECK IF REMAPP ALREADY EXISTS
 				models.TaskManager.objects.create(
@@ -2823,6 +2886,22 @@ def misvrf_list_view(request):
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
 	context = {"cer": page_obj,}
 	return render(request, "enquiries/task_lists/enquiries_misvrf.html", context=context)
+
+def marche_list_view(request):
+	# grab the model rows (ordered by id), filter to required task and where not completed.
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='MARCHE', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+	page_number = request.GET.get('page')
+	try:
+		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+	except PageNotAnInteger:
+		# if page_number is not an integer then assign the first page
+		page_obj = ec_queryset_paged.page(1)
+	except EmptyPage:
+		# if page is empty then return last page
+		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+	context = {"cer": page_obj,}
+	return render(request, "enquiries/task_lists/enquiries_marche.html", context=context)
 
 def cleric_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
