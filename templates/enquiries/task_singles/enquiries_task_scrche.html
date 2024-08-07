@@ -45,10 +45,21 @@
                     <th>Session Name</th>
                     <td>{{ task.ec_sid.eps_ses_name }}</td>
                 </tr>
-                <tr class="text-center">
-                    <th>Script Type</th>
-                    <td>{{ task.ec_sid.script_type }}</td>
-                </tr>
+                {% if task.ec_sid.script_type == "RM Assessor" %}
+                <table class="table table-primary table-sm table-bordered table-hover text-center">
+                    <tr class="text-center">
+                        <th class="text-dark">Script Type</th>
+                        <td>{{ task.ec_sid.script_type }}</td>            
+                    </tr>
+                </table>
+                {% else %}
+                <table class="table table-danger table-sm table-bordered table-hover text-center">
+                    <tr class="text-center">
+                        <th class="text-dark">Script Type</th>
+                        <td>{{ task.ec_sid.script_type }}</td>            
+                    </tr>
+                </table>
+                {% endif %}
             </table>
         </div>
 
