@@ -900,9 +900,13 @@ def misvrf_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 
 	if models.TaskManager.objects.filter(task_id='MISVRM',ec_sid=task_queryset.ec_sid).exists():
-		original_user = models.TaskManager.objects.get(task_id='MISVRM',ec_sid=task_queryset.ec_sid).task_assigned_to.username
+		try:
+			original_user = models.TaskManager.objects.get(task_id='MISVRM',ec_sid=task_queryset.ec_sid).task_assigned_to.username
+		except:
+			original_user = "Unknown"
+			pass
 	else:
-		original_user = None
+		original_user = "Unknown"
 
 	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None

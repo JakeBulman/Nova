@@ -9,7 +9,7 @@ import datetime
 from string import Template
 
 from django.conf import settings
-import csv, os
+import csv, os, time
 
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
     print('DEV')
@@ -55,6 +55,7 @@ try:
 
   print(email_list)
   for exm in examiner_list:
+      time.sleep(3)
       uc = UniqueCreditor.objects.get(exm_creditor_no=exm)
       if uc.exm_email in email_list:
           print('BAD EMAIL:'+ uc.exm_email)
@@ -228,10 +229,7 @@ try:
           email["To"] = recipient
           email["Subject"] = "Enquiry About Results – Review of Marking Worklist"
           email.set_content(HtmlBody_final, subtype='html')
-
           smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
-          #smtp.starttls()
-          #smtp.login(sender, "NwvEm&Z17b5dBNy@02T2XzHV")
           smtp.sendmail(sender, recipient, email.as_string())
           smtp.quit()
 
