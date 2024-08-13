@@ -55,8 +55,8 @@ def run_algo():
             original_exm = EnquiryComponentsHistory.objects.get(ec_sid=script_id).exm_position
             #TODO: This is dangerous as it assumes a specific apportionemtn and is part of a wider bug on duplicates
             try:
-                rev_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid).first().exm_examiner_no
-                # rev_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid,session__in=sessions).first().exm_examiner_no
+                #rev_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid).first().exm_examiner_no
+                rev_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid,session__in=sessions).first().exm_examiner_no
                 #This is all to get the scaled mark
                 scale_ass_code = app_task.ec_sid.eps_ass_code
                 scale_comp_id = app_task.ec_sid.eps_com_id

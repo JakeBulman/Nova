@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h1 class="display-5 text-center mb-5">EAR - Service 3 Reports Sending</h1>
+<h1 class="display-5 text-center mb-5">EAR - Service 3 Reports Receipt</h1>
 
     <div class="table-responsive-xl m-5">
         <table class="table table-sm table-bordered table-hover">
@@ -18,7 +18,7 @@
             </tr>
             {% for x in cer %}
                 {% for y in x.script_tasks.all %}
-                    {% if y.task_id.task_id == 'S3SEND' and y.task_completion_date == None %}
+                    {% if y.task_id.task_id == 'S3CONF' and y.task_completion_date == None %}
                     <tr class="text-center">
                       <td><a href='/enquiries/enquiries_detail/{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}'>{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}</a></td> 
                       <td>{{ y.ec_sid.ec_sid }}</td>
@@ -28,7 +28,7 @@
                       <td>{{ y.task_assigned_to }}</td>
                       <td>{{ y.task_assigned_date }}</td>
                       <td><form method="POST" action="{% url 'self-assign-task' task_id=y.id %}" class="text-center">
-                          <input name="page_location" id="page_location" value="s3send_list" type="hidden" class="form-control">
+                          <input name="page_location" id="page_location" value="s3conf_list" type="hidden" class="form-control">
                           {% if request.user.username == y.task_assigned_to.username %}
                             <button disabled type="submit" class="btn btn-outline-secondary" style="width:120px">Assign to Me</button>
                           {% else %}
@@ -36,7 +36,7 @@
                           {% endif %}
                       </form></td>
                       <td><form method="POST" action="{% url 'assign-task-user' task_id=y.id  user_id=request.user.id %}" class="text-center">
-                        <input name="page_location" id="page_location" value="s3send_list" type="hidden" class="form-control">
+                        <input name="page_location" id="page_location" value="s3conf_list" type="hidden" class="form-control">
                         <button type="submit" class="btn btn-outline-warning" style="width:120px">Assign To</button>
                     </form></td>
                     </tr>

@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     #Home view for EARs
+    path('', views.ear_home_view, name='home'),
     path('home', views.ear_home_view, name='enquiries_home'),
     path('ear_home_view_team_alpha', views.ear_home_view_team_alpha, name='ear_home_view_team_alpha'),
     path('ear_home_view_team_delta', views.ear_home_view_team_delta, name='ear_home_view_team_delta'),
@@ -18,7 +19,6 @@ urlpatterns = [
     path('server_settings_update', views.server_settings_update_view, name='server_settings_update'),
     path('server_short_reset', views.server_short_reset_view, name='server_short_reset'),
     # path('server_long_reset', views.server_long_reset_view, name='server_long_reset'), 
-    
 
     ### Task Manager Control ###
 
@@ -45,12 +45,16 @@ urlpatterns = [
     path('task_manager/nrmscs_task/<str:task_id>', views.nrmscs_task, name='nrmscs-task'), 
     path('task_manager/s3send_task/complete', views.s3send_task_complete, name='s3send-complete'),
     path('task_manager/s3send_task/<str:task_id>', views.s3send_task, name='s3send-task'), 
+    path('task_manager/s3conf_task/complete', views.s3conf_task_complete, name='s3conf-complete'),
+    path('task_manager/s3conf_task/<str:task_id>', views.s3conf_task, name='s3conf-task'), 
     path('task_manager/manual_mis', views.manual_mis, name='manual-mis'),
     path('task_manager/manual_mis_complete', views.manual_mis_complete, name='manual-mis-complete'),
     path('task_manager/misvrm_task/complete', views.misvrm_task_complete, name='misvrm-complete'),
     path('task_manager/misvrm_task/<str:task_id>', views.misvrm_task, name='misvrm-task'), 
     path('task_manager/misvrf_task/complete', views.misvrf_task_complete, name='misvrf-complete'),
     path('task_manager/misvrf_task/<str:task_id>', views.misvrf_task, name='misvrf-task'), 
+    path('task_manager/marche_task/complete', views.marche_task_complete, name='marche-complete'),
+    path('task_manager/marche_task/<str:task_id>', views.marche_task, name='marche-task'), 
     path('task_manager/pexmch_task/complete', views.pexmch_task_complete, name='pexmch-complete'),
     path('task_manager/pexmch_task/<str:task_id>', views.pexmch_task, name='pexmch-task'),  
     path('task_manager/locmar_task/complete', views.locmar_task_complete, name='locmar-complete'),
@@ -105,10 +109,14 @@ urlpatterns = [
     path('nrmscs_list', views.nrmscs_list_view, name='nrmscs_list'),
     #Service 3 main screen
     path('s3send_list', views.s3send_list_view, name='s3send_list'),
+    #Service 3 main screen 2
+    path('s3conf_list', views.s3conf_list_view, name='s3conf_list'),
     #MIS vs RM main screen
     path('misvrm_list', views.misvrm_list_view, name='misvrm_list'),
     #MIS vs RM recheck main screen
     path('misvrf_list', views.misvrf_list_view, name='misvrf_list'),
+    #Mark check main screen
+    path('marche_list', views.marche_list_view, name='marche_list'),
     #Previous Exminer Checks main screen
     path('pexmch_list', views.pexmch_list_view, name='pexmch_list'),
     #Locmar Checks main screen
@@ -220,6 +228,23 @@ urlpatterns = [
     #Examiner email update endpoints
     path('examiner_email_update/<str:per_sid>/edit', views.examiner_email_edit_view, name='exm-email-edit'),
     path('examiner_email_update/<str:per_sid>/', views.examiner_email_view, name='examiner_email'),
+
+
+
+    #CASE System
+    path('case_system', views.case_system_view, name='case_system'),
+    path('case_detail/<str:case_id>/', views.case_detail_view, name='case_detail'),
+    path('case_system_create', views.create_cases_view, name='case_system_create'),
+    path('case_system/self_assign_task/<str:case_id>', views.self_assign_case_view, name='self-assign-case'),
+    path('case_system/assign_task_user/<str:user_id>/<str:case_id>', views.assign_case_user_view, name='assign-case-user'),
+    path('case_system/assign_task_user/<str:user_id>/<str:case_id>/<str:selected_user>', views.assign_case_user_selected_view, name='assign-case-user-selected'),
+
+    path('case_system/my_cases', views.my_cases_view, name='my_cases'),
+    path('case_system/set_backlog_case', views.set_backlog_case, name='set_backlog_case'),
+    path('case_system/new_case', views.new_case_view, name='new-case'),
+    path('case_system/add_new_comment', views.new_case_comment_view, name='add_case_comment'),
+    path('case_system/remove_new_comment', views.remove_case_comment_view, name='remove_case_comment'),
+
 
     ### Panel Control ###
 

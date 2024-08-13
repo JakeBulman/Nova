@@ -22,7 +22,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, MisReturnData, TaskTypes, MarkTolerances, ScaledMarks, EnquiryComponentsExaminerChecks
+from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, MisReturnData, TaskTypes, MarkTolerances, ScaledMarks, EnquiryComponentsExaminerChecks, EnquiryComponentsHistory
 from django.contrib.auth.models import User
 
 def run_algo():
@@ -163,14 +163,26 @@ def run_algo():
                 mis_data.keyed_mark_status = 'Confirmed'
                 mis_data.keying_required = 'Y'
                 mis_data.save()
-            TaskManager.objects.create(
-                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
-                ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
-                task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
-                task_assigned_to = User.objects.get(username='NovaServer'),
-                task_assigned_date = timezone.now(),
-                task_completion_date = None
-            )
+            kbr_code = EnquiryComponentsHistory.objects.get(ec_sid=task.ec_sid.ec_sid).kbr_code
+            print(kbr_code)
+            if kbr_code in ('AM','AWGE','AWGF','AWGP','AWGR','EXMF','EXMP','EXMR','MP','PBD','PGR','REG','SC'):
+                TaskManager.objects.create(
+                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                    task_id = TaskTypes.objects.get(task_id = 'MARCHE'),
+                    task_assigned_to = User.objects.get(username='NovaServer'),
+                    task_assigned_date = timezone.now(),
+                    task_completion_date = None
+                )    
+            else:
+                TaskManager.objects.create(
+                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                    task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
+                    task_assigned_to = User.objects.get(username='NovaServer'),
+                    task_assigned_date = timezone.now(),
+                    task_completion_date = None
+                )
             TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())   
 
         else:  
@@ -183,14 +195,26 @@ def run_algo():
                 mis_data.keyed_mark_status = 'Changed'
                 mis_data.save() 
                 print(4)
-                TaskManager.objects.create(
-                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
-                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
-                    task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
-                    task_assigned_to = User.objects.get(username='NovaServer'),
-                    task_assigned_date = timezone.now(),
-                    task_completion_date = None
-                )
+                kbr_code = EnquiryComponentsHistory.objects.get(ec_sid=task.ec_sid.ec_sid).kbr_code
+                print(kbr_code)
+                if kbr_code in ('AM','AWGE','AWGF','AWGP','AWGR','EXMF','EXMP','EXMR','MP','PBD','PGR','REG','SC'):
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                        ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                        task_id = TaskTypes.objects.get(task_id = 'MARCHE'),
+                        task_assigned_to = User.objects.get(username='NovaServer'),
+                        task_assigned_date = timezone.now(),
+                        task_completion_date = None
+                    )    
+                else:
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                        ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                        task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
+                        task_assigned_to = User.objects.get(username='NovaServer'),
+                        task_assigned_date = timezone.now(),
+                        task_completion_date = None
+                    )
                 TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())   
 
             elif justification_string.find('2') != -1:
@@ -199,15 +223,26 @@ def run_algo():
                 mis_data.keyed_mark_status = 'Changed'
                 mis_data.save() 
                 print(2)
-
-                TaskManager.objects.create(
-                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
-                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
-                    task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
-                    task_assigned_to = User.objects.get(username='NovaServer'),
-                    task_assigned_date = timezone.now(),
-                    task_completion_date = None
-                )
+                kbr_code = EnquiryComponentsHistory.objects.get(ec_sid=task.ec_sid.ec_sid).kbr_code
+                print(kbr_code)
+                if kbr_code in ('AM','AWGE','AWGF','AWGP','AWGR','EXMF','EXMP','EXMR','MP','PBD','PGR','REG','SC'):
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                        ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                        task_id = TaskTypes.objects.get(task_id = 'MARCHE'),
+                        task_assigned_to = User.objects.get(username='NovaServer'),
+                        task_assigned_date = timezone.now(),
+                        task_completion_date = None
+                    )    
+                else:
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                        ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                        task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
+                        task_assigned_to = User.objects.get(username='NovaServer'),
+                        task_assigned_date = timezone.now(),
+                        task_completion_date = None
+                    )
                 TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())   
 
             elif justification_string.find('3') != -1:
@@ -216,14 +251,26 @@ def run_algo():
                 mis_data.keyed_mark_status = 'Changed'
                 mis_data.save()
                 print(3) 
-                TaskManager.objects.create(
-                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
-                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
-                    task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
-                    task_assigned_to = User.objects.get(username='NovaServer'),
-                    task_assigned_date = timezone.now(),
-                    task_completion_date = None
-                )
+                kbr_code = EnquiryComponentsHistory.objects.get(ec_sid=task.ec_sid.ec_sid).kbr_code
+                print(kbr_code)
+                if kbr_code in ('AM','AWGE','AWGF','AWGP','AWGR','EXMF','EXMP','EXMR','MP','PBD','PGR','REG','SC'):
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                        ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                        task_id = TaskTypes.objects.get(task_id = 'MARCHE'),
+                        task_assigned_to = User.objects.get(username='NovaServer'),
+                        task_assigned_date = timezone.now(),
+                        task_completion_date = None
+                    )    
+                else:
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                        ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                        task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
+                        task_assigned_to = User.objects.get(username='NovaServer'),
+                        task_assigned_date = timezone.now(),
+                        task_completion_date = None
+                    )
                 TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())   
 
             elif justification_string.find('1') != -1:
@@ -232,14 +279,26 @@ def run_algo():
                 mis_data.keyed_mark_status = 'Changed'
                 mis_data.save() 
                 print(1)
-                TaskManager.objects.create(
-                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
-                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
-                    task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
-                    task_assigned_to = User.objects.get(username='NovaServer'),
-                    task_assigned_date = timezone.now(),
-                    task_completion_date = None
-                )
+                kbr_code = EnquiryComponentsHistory.objects.get(ec_sid=task.ec_sid.ec_sid).kbr_code
+                print(kbr_code)
+                if kbr_code in ('AM','AWGE','AWGF','AWGP','AWGR','EXMF','EXMP','EXMR','MP','PBD','PGR','REG','SC'):
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                        ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                        task_id = TaskTypes.objects.get(task_id = 'MARCHE'),
+                        task_assigned_to = User.objects.get(username='NovaServer'),
+                        task_assigned_date = timezone.now(),
+                        task_completion_date = None
+                    )    
+                else:
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                        ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                        task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
+                        task_assigned_to = User.objects.get(username='NovaServer'),
+                        task_assigned_date = timezone.now(),
+                        task_completion_date = None
+                    )
                 TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
 
             else:
@@ -391,15 +450,26 @@ def run_algo():
                 print(final_justification_code)
                 print(final_keying_required)
                 print(final_keyed_mark_status)
-
-                TaskManager.objects.create(
-                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
-                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
-                    task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
-                    task_assigned_to = User.objects.get(username='NovaServer'),
-                    task_assigned_date = timezone.now(),
-                    task_completion_date = None
-                )
+                kbr_code = EnquiryComponentsHistory.objects.get(ec_sid=task.ec_sid.ec_sid).kbr_code
+                print(kbr_code)
+                if kbr_code in ('AM','AWGE','AWGF','AWGP','AWGR','EXMF','EXMP','EXMR','MP','PBD','PGR','REG','SC'):
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                        ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                        task_id = TaskTypes.objects.get(task_id = 'MARCHE'),
+                        task_assigned_to = User.objects.get(username='NovaServer'),
+                        task_assigned_date = timezone.now(),
+                        task_completion_date = None
+                    )    
+                else:
+                    TaskManager.objects.create(
+                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                        ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                        task_id = TaskTypes.objects.get(task_id = 'MKWAIT'),
+                        task_assigned_to = User.objects.get(username='NovaServer'),
+                        task_assigned_date = timezone.now(),
+                        task_completion_date = None
+                    )
                 TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
 
 

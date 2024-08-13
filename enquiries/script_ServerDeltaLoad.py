@@ -11,6 +11,7 @@ from django.utils.timezone import make_aware
 from dateutil.parser import parse
 from email.message import EmailMessage
 import smtplib
+import traceback
 
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
     print('DEV')
@@ -536,6 +537,10 @@ def load_core_tables():
                     exm_email = row['exm_email'][:50],
                 )
             else:
+                if row['exm_email']: 
+                    exm_email = row['exm_email'][:50]
+                else:
+                    exm_email = ""
                 UniqueCreditor.objects.create(
                     exm_creditor_no = row['exm_creditor_no'],
                     per_sid = row['per_sid'],
@@ -543,7 +548,7 @@ def load_core_tables():
                     exm_initials = row['exm_initials'][:50],
                     exm_surname = row['exm_surname'][:50],
                     exm_forename = row['exm_forename'][:50],
-                    exm_email = row['exm_email'][:50],
+                    exm_email = exm_email,
                 )
 
         df.apply(insert_to_model_enpe, axis=1)
@@ -1161,33 +1166,35 @@ def load_core_tables():
 
 
         print("EC loaded:" + str(datetime.datetime.now()))
+        if os.getenv('DJANGO_PRODUCTION') == 'true':
+            EarServerSettings.objects.update(delta_load_status='Delta Load completed at '+str(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S")))
+            email = EmailMessage()
+            email["From"] = "results.enquiries@cambridge.org"
+            email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,jonathon.east@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org,morgan.jones@cambridge.org"
+            email["Subject"] = "Morning Data Load - SUCCESS"
+            email.set_content("Morning load was successful, IECs are ready to be completed.", subtype='html')
 
-        EarServerSettings.objects.update(delta_load_status='Delta Load completed at '+str(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S")))
-        email = EmailMessage()
-        email["From"] = "results.enquiries@cambridge.org"
-        email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,jonathon.east@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org,morgan.jones@cambridge.org"
-        email["Subject"] = "Morning Data Load - SUCCESS"
-        email.set_content("Morning load was successful, IECs are ready to be completed.", subtype='html')
-
-        sender = "results.enquiries@cambridge.org"
-        smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
-        smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org","jonathon.east@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org","morgan.jones@cambridge.org"], email.as_string())
-        smtp.quit()
+            sender = "results.enquiries@cambridge.org"
+            smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
+            smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org","jonathon.east@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org","morgan.jones@cambridge.org"], email.as_string())
+            smtp.quit()
 
 
-        end_time = datetime.datetime.now()
-        print(end_time - start_time)
+            end_time = datetime.datetime.now()
+            print(end_time - start_time)
     except:
-        EarServerSettings.objects.update(delta_load_status='Delta Load failed at '+str(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S")))
-        email = EmailMessage()
-        email["From"] = "results.enquiries@cambridge.org"
-        email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,jonathon.east@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org,morgan.jones@cambridge.org"
-        email["Subject"] = "Morning Data Load - ERROR"
-        email.set_content("Morning load has failed, please contact the system administrator for further details.", subtype='html')
+        print(traceback.format_exc())
+        if os.getenv('DJANGO_PRODUCTION') == 'true':
+            EarServerSettings.objects.update(delta_load_status='Delta Load failed at '+str(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S")))
+            email = EmailMessage()
+            email["From"] = "results.enquiries@cambridge.org"
+            email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,jonathon.east@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org,morgan.jones@cambridge.org"
+            email["Subject"] = "Morning Data Load - ERROR"
+            email.set_content("Morning load has failed, please contact the system administrator for further details.", subtype='html')
 
-        sender = "results.enquiries@cambridge.org"
-        smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
-        smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org","jonathon.east@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org","morgan.jones@cambridge.org"], email.as_string())
-        smtp.quit()
+            sender = "results.enquiries@cambridge.org"
+            smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
+            smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org","jonathon.east@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org","morgan.jones@cambridge.org"], email.as_string())
+            smtp.quit()
 
 load_core_tables()

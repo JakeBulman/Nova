@@ -250,12 +250,28 @@ class ExaminerEmailOverride(models.Model):
     creditor = models.ManyToManyField(UniqueCreditor, related_name='exm_email_manual')
     examiner_email_manual = models.TextField(null=True)
 
+class ExaminerOverdueCases(models.Model):
+    task_creation_date = models.DateTimeField(auto_now_add=True)
+    task_assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='assigned_cases',)
+    task_assigned_date = models.DateTimeField(null=True) 
+    task_completion_date = models.DateTimeField(null=True)
+    task_queued = models.IntegerField(default=0)
+    enpe_sid = models.ForeignKey(EnquiryPersonnel, to_field='enpe_sid', on_delete=models.SET_NULL, null=True, related_name='overdue_examiner')
+
+class CaseComments(models.Model):
+    case_pk = models.ForeignKey(ExaminerOverdueCases, on_delete=models.SET_NULL, related_name='case_comments', null=True)
+    case_comment_text = models.TextField()
+    case_comment_creation_date = models.DateTimeField(auto_now_add=True)
+    case_comment_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='commented_cases')
+    case_comment_invalid = models.IntegerField(default=0)
+
 class ScriptApportionment(models.Model):
     enpe_sid = models.ForeignKey(EnquiryPersonnel, to_field='enpe_sid', on_delete=models.SET_NULL, null=True, related_name='apportion_examiner')
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='apportion_script')
     script_marked = models.IntegerField(default=1)
     script_mark_entered = models.IntegerField(default=1)
     apportionment_invalidated = models.IntegerField(default=0)
+    overdue_case = models.ForeignKey(ExaminerOverdueCases, on_delete=models.SET_NULL, null=True, related_name='case_apportioned_scripts')
 
     #Apportionment staging table
 class DjangoStagingTableAPP(models.Model):
@@ -280,7 +296,7 @@ class DjangoStagingTableMAR(models.Model):
 
 class ScriptApportionmentExtension(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='script_extension')
-    task_id = models.ForeignKey(TaskManager, on_delete=models.SET_NULL, null=True, related_name='task_extension')
+    case_id = models.ForeignKey(ExaminerOverdueCases, on_delete=models.SET_NULL, null=True, related_name='case_extension')
     extension_days = models.CharField(max_length=3, default=0)
 
 class RpaFailureAudit(models.Model):

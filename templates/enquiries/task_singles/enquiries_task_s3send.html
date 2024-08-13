@@ -84,11 +84,14 @@
     </div>
         <div class="row text-center my-5">
             <h5>Task Instruction</h5>
-            <div>1. Please request the hard copy script for the above enquiry.</div>
-            <div>2. Please complete the EPS apportionment process for the above enquiry.</div>
-            <div>3. Please send the hard copy script for the above enquiry to the examiner. If the examiner is no longer available, see below before completing the task.</div>
+            <div>If the script type above is RM Assessor, please email the examiner asking for the report part of this service. Then chose the correct examiner from the list below and complete the task.</div>
+            <div> - </div>
+            <div>If the script type is Hardcopy, you must also complete the allocation in EPS.</div>
+            <div> - </div>
+            <div class="mb-3">If the script is MU pre-emptive, special care should be taken to select the correct examiner before continuing.</div>
             {% if issue_reason %}<h2 class="text-center text-primary m-3">ISSUE REASON: {{issue_reason}}</h2>{% endif %}
             {% if remapp_check %}<h2 class="text-center text-danger mb-3">This script is undergoing a reapportionment</h2>{% endif %}
+            {% if muprem %}<h2 class="text-center text-danger mb-3">This script is MU Premptive</h2>{% endif %}
         </div>
     </div>
 
@@ -158,6 +161,7 @@
         <div class="col text-center my-4 mx-5 bg-light text-dark rounded">
             <div class="row text-center m-3">
                 <form method="POST" action="{% url 's3send-complete' %}" class="text-center">
+                <input name="script_id" id="script_id" value={{task.ec_sid.ec_sid}} type="hidden" class="form-control">
                 <input name="task_status" id="task_status" value="Pass" type="hidden" class="form-control">
                 <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
                 <button type="submit" class="btn btn-success btn-lg my-2" style="width:300px">Confirm Task Complete</button>

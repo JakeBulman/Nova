@@ -31,7 +31,7 @@ def run_algo():
         app_complete_check = None
         #check if completed apportion task is available
         #TODO: check if on an error path such as being reapped or bot failed
-        task_list = ['BOTAPP','NRMACC','REMAPF','BOTAPF']
+        task_list = ['BOTAPP','NRMACC','REMAPF','BOTAPF','S3CONF']
         script_id = task.ec_sid.ec_sid
         app_complete_check = TaskManager.objects.filter(enquiry_id=task.enquiry_id.enquiry_id,task_id__in=task_list, task_completion_date__isnull=False)
         #app_complete_check2 = TaskManager.objects.filter(enquiry_id=task.enquiry_id.enquiry_id,task_id = 'BOTAPP', task_completion_date__isnull=False) and TaskManager.objects.filter(enquiry_id=task.enquiry_id.enquiry_id,task_id = 'BOTAPF', task_completion_date__isnull=True)
@@ -67,6 +67,6 @@ def run_algo():
                             task_completion_date = None
                         )
                     
-            TaskManager.objects.filter(pk=task.pk,task_id='MKWAIT').update(task_completion_date=timezone.now())   
+            TaskManager.objects.filter(pk=task.pk,task_id='MKWAIT').update(task_completion_date=timezone.now()) 
 
 run_algo()

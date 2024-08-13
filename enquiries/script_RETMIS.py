@@ -62,8 +62,8 @@ def run_algo():
 
             task_pk = None
             try:
-                expected_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.get(ec_sid=ec_sid, apportionment_invalidated=0).enpe_sid).first()
-                # expected_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.get(ec_sid=ec_sid, apportionment_invalidated=0).enpe_sid,session__in=sessions).first()
+                #expected_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.get(ec_sid=ec_sid, apportionment_invalidated=0).enpe_sid).first()
+                expected_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.get(ec_sid=ec_sid, apportionment_invalidated=0).enpe_sid,session__in=sessions).first()
                 if TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).exists():
                     task_pk = TaskManager.objects.filter(task_id='RETMIS', ec_sid=ec_sid ,task_completion_date__isnull=True).first().pk
                 if task_pk is not None and str(expected_exm.exm_examiner_no).strip()==str(sheet["E4"].value).strip():
@@ -71,27 +71,27 @@ def run_algo():
                         MisReturnData.objects.filter(ec_sid=ec_sid).update(
                             eb_sid = EnquiryBatches.objects.get(eb_sid=eb_sid),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
-                            original_exm = sheet["D4"].value,
-                            rev_exm = sheet["E4"].value,
-                            original_mark = sheet["F4"].value,
-                            mark_status = sheet["G4"].value,
-                            revised_mark = sheet["H4"].value,
-                            justification_code = sheet["I4"].value,
-                            remark_reason = sheet["B40"].value,
-                            remark_concern_reason = sheet["B50"].value
+                            original_exm = str(sheet["D4"].value).strip(),
+                            rev_exm = str(sheet["E4"].value).strip(),
+                            original_mark = str(sheet["F4"].value).strip(),
+                            mark_status = str(sheet["G4"].value).strip(),
+                            revised_mark = str(sheet["H4"].value).strip(),
+                            justification_code = str(sheet["I4"].value).strip(),
+                            remark_reason = str(sheet["B40"].value).strip(),
+                            remark_concern_reason = str(sheet["B50"].value).strip()
                         )
                     else:
                         MisReturnData.objects.create(
                             eb_sid = EnquiryBatches.objects.get(eb_sid=eb_sid),
                             ec_sid = EnquiryComponents.objects.get(ec_sid=ec_sid),
-                            original_exm = sheet["D4"].value,
-                            rev_exm = sheet["E4"].value,
-                            original_mark = sheet["F4"].value,
-                            mark_status = sheet["G4"].value,
-                            revised_mark = sheet["H4"].value,
-                            justification_code = sheet["I4"].value,
-                            remark_reason = sheet["B40"].value,
-                            remark_concern_reason = sheet["B50"].value
+                            original_exm = str(sheet["D4"].value).strip(),
+                            rev_exm = str(sheet["E4"].value).strip(),
+                            original_mark = str(sheet["F4"].value).strip(),
+                            mark_status = str(sheet["G4"].value).strip(),
+                            revised_mark = str(sheet["H4"].value).strip(),
+                            justification_code = str(sheet["I4"].value).strip(),
+                            remark_reason = str(sheet["B40"].value).strip(),
+                            remark_concern_reason = str(sheet["B50"].value).strip()
                         )
 
                     #Move file to completed folder
