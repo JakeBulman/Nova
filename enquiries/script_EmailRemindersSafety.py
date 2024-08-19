@@ -9,7 +9,7 @@ import datetime
 from string import Template
 
 from django.conf import settings
-import csv, os
+import csv, os, time
 
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
     print('DEV')
@@ -54,6 +54,7 @@ with open(load_file, 'r') as csvfile:
 
 print(email_list)
 for exm in examiner_list:
+    time.sleep(3)
     uc = UniqueCreditor.objects.get(exm_creditor_no=exm)
     if uc.exm_email in email_list:
         print('BAD EMAIL:'+ uc.exm_email)
@@ -69,6 +70,7 @@ for exm in examiner_list:
         for enpe2 in enpe_list:
             for script in ScriptApportionment.objects.filter(enpe_sid=enpe2, apportionment_invalidated=0, script_marked=1):
                 print('Script:' + script.ec_sid.ec_sid)
+                print(datetime.datetime.now())
                 if not TaskManager.objects.filter(task_id='NRMACC', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).exists() and TaskManager.objects.filter(task_id='RETMIS', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).exists():
                     task = TaskManager.objects.filter(task_id='RETMIS', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).first()
                     extension_total = 0
