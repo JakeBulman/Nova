@@ -1,5 +1,6 @@
 {% load static %}
 {% load compress %}
+{% load tz %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -51,9 +52,10 @@
 </head>
 <body style="background-color:#F7FAFA;">
     {% include 'nova_core/base_navbar.html' %}
-
+    {% timezone "Europe/London" %}
     {% block content %}
     
     {% endblock %}
+    {% endtimezone %}
 </body>
 </html>
