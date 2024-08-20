@@ -124,6 +124,15 @@
         </div>
         <div class="card m-3 shadow-lg" style="width: 18rem; ">
           <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Special Marks Checks</h5>
+            {% if marche.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mismarchevrf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if marchea.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ marchea.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Checks on marks that have been input with special status.</p>
+            <a href="{% url 'marche_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
             <h5 class="card-title">Examiner SLA Breaches</h5>
             {% if exmsla.count > 0 %}<span class="badge rounded-pill bg-primary">{{ exmsla.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             {% if exmslaa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ exmslaa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
