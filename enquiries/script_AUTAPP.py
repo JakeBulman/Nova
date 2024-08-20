@@ -32,7 +32,7 @@ def run_algo():
     print("Start Time:" + str(datetime.datetime.now()))
 
 
-    for app_task in TaskManager.objects.filter(task_id='AUTAPP', task_completion_date__isnull=True):
+    for app_task in TaskManager.objects.filter(task_id='AUTAPP', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__created_date__isnull=False):
         task_pk = app_task.pk
         script_id = app_task.ec_sid.ec_sid
         task_enquiry_id = app_task.enquiry_id.enquiry_id
@@ -56,7 +56,7 @@ def run_algo():
                 task_completion_date = None
             )      
         else:        
-            examiner_detail_obj = EnquiryPersonnelDetails.objects.filter(ass_code=script_obj.eps_ass_code,com_id=script_obj.eps_com_id,session=app_task.enquiry_id.eps_ses_sid).order_by('exm_creditor_no')
+            examiner_detail_obj = EnquiryPersonnelDetails.objects.filter(ass_code=script_obj.eps_ass_code,com_id=script_obj.eps_com_id,session=app_task.enquiry_id.eps_ses_sid,enpe_sid__currently_valid=True).order_by('exm_creditor_no')
             exms_list = []
             for exm in examiner_detail_obj:
                 #load examiners for this script into array

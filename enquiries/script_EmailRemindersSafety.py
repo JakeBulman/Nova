@@ -75,7 +75,7 @@ for exm in examiner_list:
                     task = TaskManager.objects.filter(task_id='RETMIS', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).first()
                     extension_total = 0
                     exmsla_count = TaskManager.objects.filter(task_id='EXMSLA', ec_sid=task.ec_sid.ec_sid, task_completion_date__isnull=True).count()
-                    for e in ScriptApportionmentExtension.objects.filter(task_id=TaskManager.objects.filter(ec_sid=task.ec_sid,task_id='RETMIS', task_completion_date__isnull=True).first().pk):
+                    for e in ScriptApportionmentExtension.objects.filter(ec_sid=TaskManager.objects.filter(ec_sid=task.ec_sid,task_id='RETMIS', task_completion_date__isnull=True).first().ec_sid.ec_sid):
                         extension_total = int(e.extension_days) + extension_total
                     due_date = task.task_creation_date + datetime.timedelta(days=5) + datetime.timedelta(days=extension_total)
                     due_date = due_date.strftime('%d/%m/%Y')

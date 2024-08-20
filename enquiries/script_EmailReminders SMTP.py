@@ -80,7 +80,7 @@ try:
                           sla_days = 2
                       else:
                           sla_days = 5
-                      for e in ScriptApportionmentExtension.objects.filter(task_id=TaskManager.objects.filter(ec_sid=task.ec_sid,task_id='RETMIS', task_completion_date__isnull=True).first().pk):
+                      for e in ScriptApportionmentExtension.objects.filter(ec_sid=TaskManager.objects.filter(ec_sid=task.ec_sid,task_id='RETMIS', task_completion_date__isnull=True).first().ec_sid.ec_sid):
                           extension_total = int(e.extension_days) + extension_total
                       due_date = task.task_creation_date + datetime.timedelta(sla_days) + datetime.timedelta(days=extension_total)
                       due_date = due_date.strftime('%d/%m/%Y')

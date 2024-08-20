@@ -80,14 +80,14 @@ def run_algo():
 
                 #Marks tasks complete and continue chain
                 print(str(enquiry_id) + " passes SCRAUD")
-                TaskManager.objects.create(
-                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-                    ec_sid = None,
-                    task_id = TaskTypes.objects.get(task_id = 'LETSCR'),
-                    task_assigned_to = None,
-                    task_assigned_date = None,
-                    task_completion_date = None
-                )
+                # TaskManager.objects.create(
+                #     enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                #     ec_sid = None,
+                #     task_id = TaskTypes.objects.get(task_id = 'LETSCR'),
+                #     task_assigned_to = None,
+                #     task_assigned_date = None,
+                #     task_completion_date = None
+                # )
                     
                 TaskManager.objects.filter(pk=task.pk,task_id='SCRAUD').update(task_completion_date=timezone.now())   
 
