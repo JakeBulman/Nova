@@ -142,7 +142,7 @@ def ear_home_view_team_gamma(request,*args, **kwargs):
 	     "botapf":botapp_fail_count, "misvrm":misvrm_count, "misvrma":misvrma_count, 
 		"misvrf":misvrf_count, "misvrfa":misvrfa_count,	"pexmch":pexmch_count, "pexmcha":pexmcha_count, "locmar":locmar_count, "locmara":locmara_count, 
 		"esmcsv":esmcsv_count, "omrche":omrche_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, 
-		"remapf":remapf_count, "remapfa":remapfa_count, "muprex":muprex_count, "muprexa":muprexa_count,
+		"remapf":remapf_count, "remapfa":remapfa_count, "muprex":muprex_count, "muprexa":muprexa_count, "marche":marche_count, "marchea":marchea_count,
 		}
 
 	return render(request, "enquiries/main_templates/home_ear_gamma.html", context=context, )
