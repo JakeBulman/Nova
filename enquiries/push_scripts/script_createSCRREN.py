@@ -25,35 +25,28 @@ from enquiries.models import TaskManager, RpaFailureAudit, ScriptApportionment, 
 from django.contrib.auth.models import User
 
 ec_list = [
-
+'2062128',
 
 ]
 
 def run_algo():
-    for app_task in TaskManager.objects.filter(task_id='BOTAPP', ec_sid__in = ec_list,task_completion_date = None):
-        enquiry_id = TaskManager.objects.filter(ec_sid=app_task.ec_sid.ec_sid,task_id='BOTAPP').first().enquiry_id.enquiry_id
-        script_id = TaskManager.objects.filter(ec_sid=app_task.ec_sid.ec_sid,task_id='BOTAPP').first().ec_sid.ec_sid
+    for app_task in TaskManager.objects.filter(task_id='SCRREN', ec_sid__in = ec_list):
+        enquiry_id = TaskManager.objects.filter(ec_sid=app_task.ec_sid.ec_sid,task_id='SCRREN').first().enquiry_id.enquiry_id
+        script_id = TaskManager.objects.filter(ec_sid=app_task.ec_sid.ec_sid,task_id='SCRREN').first().ec_sid.ec_sid
         print(enquiry_id)
         #create a new task for the next step (BOTMAF)
-        if not TaskManager.objects.filter(ec_sid=script_id, task_id='BOTAPF',task_completion_date = None).exists():
+        if not TaskManager.objects.filter(ec_sid=script_id, task_id='SCRCHE',task_completion_date = None).exists():
             print("Switched")
             this_task = TaskManager.objects.create(
                 enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
                 ec_sid = EnquiryComponents.objects.get(ec_sid=app_task.ec_sid.ec_sid),
-                task_id = TaskTypes.objects.get(task_id = 'BOTAPF'),
+                task_id = TaskTypes.objects.get(task_id = 'SCRCHE'),
                 task_assigned_to = None,
                 task_assigned_date = None,
                 task_completion_date = None
             )
-            this_task.refresh_from_db()
-            RpaFailureAudit.objects.create(
-                rpa_task_key = TaskManager.objects.get(pk=this_task.pk),
-                failure_reason = "Priority Manual Keying"
-            )
-            #complete the task
-            TaskManager.objects.filter(ec_sid=app_task.ec_sid.ec_sid,task_id='BOTAPP').update(task_completion_date=timezone.now())
         else:
             print("Not Switched")
-
+        TaskManager.objects.filter(ec_sid=script_id,task_id='SCRREN').update(task_completion_date=timezone.now())
 
 run_algo()

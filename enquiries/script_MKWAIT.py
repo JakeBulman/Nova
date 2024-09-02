@@ -45,7 +45,7 @@ def run_algo():
                     task_assigned_date = timezone.now(),
                     task_completion_date = None
                 )
-            if EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id).erp_sid.service_code == '2S':
+            if EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id).erp_sid.service_code == '2S' or EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id).erp_sid.service_code == '2PS':
                 if EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id).script_type == 'RM Assessor':
                     if not TaskManager.objects.filter(ec_sid=script_id, task_id='ESMSC2',task_completion_date = None).exists():
                         TaskManager.objects.create(

@@ -70,17 +70,19 @@ def run_algo():
                                             task_assigned_date = None,
                                             task_completion_date = None
                                         )
+                                        TaskManager.objects.filter(pk=task.pk,task_id='SCRREN').update(task_completion_date=timezone.now())
                                 else:
-                                    TaskManager.objects.create(
-                                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=script.erp_sid.cer_sid.enquiry_id),
-                                        ec_sid = EnquiryComponents.objects.get(ec_sid=script.ec_sid),
-                                        task_id = TaskTypes.objects.get(task_id = 'SCRCHE'),
-                                        task_assigned_to = None,
-                                        task_assigned_date = None,
-                                        task_completion_date = None
-                                    )
-                                #Complete task
-                                TaskManager.objects.filter(pk=task.pk,task_id='SCRREN').update(task_completion_date=timezone.now())
+                                    if not TaskManager.objects.filter(ec_sid=script.ec_sid, task_id='SCRCHE',task_completion_date = None).exists():
+                                        TaskManager.objects.create(
+                                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=script.erp_sid.cer_sid.enquiry_id),
+                                            ec_sid = EnquiryComponents.objects.get(ec_sid=script.ec_sid),
+                                            task_id = TaskTypes.objects.get(task_id = 'SCRCHE'),
+                                            task_assigned_to = None,
+                                            task_assigned_date = None,
+                                            task_completion_date = None
+                                        )
+                                        TaskManager.objects.filter(pk=task.pk,task_id='SCRREN').update(task_completion_date=timezone.now())
+                                
                             else:
                                 print("No available SCRREN task")
                 else:

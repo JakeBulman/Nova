@@ -457,8 +457,8 @@ def run_algo():
                         enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
                         ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
                         task_id = TaskTypes.objects.get(task_id = 'MARCHE'),
-                        task_assigned_to = User.objects.get(username='NovaServer'),
-                        task_assigned_date = timezone.now(),
+                        task_assigned_to = None,
+                        task_assigned_date = None,
                         task_completion_date = None
                     )    
                 else:

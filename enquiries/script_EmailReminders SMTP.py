@@ -29,7 +29,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, ScriptApportionmentExtension, UniqueCreditor, EnquiryBatches, EnquiryComponentElements, MisReturnData, ScriptApportionment, EnquiryPersonnelDetails, TaskTypes, ExaminerEmailOverride
+from enquiries.models import TaskManager, ScriptApportionmentExtension, UniqueCreditor, EnquiryComponents, EnquiryComponentElements, MisReturnData, ScriptApportionment, EnquiryPersonnelDetails, TaskTypes, ExaminerEmailOverride
 from email.message import EmailMessage
 import smtplib
 
@@ -68,27 +68,35 @@ try:
               if enpe.enpe_sid.enpe_sid not in enpe_list:
                   enpe_list.append(enpe.enpe_sid.enpe_sid)
           for enpe2 in enpe_list:
-              for script in ScriptApportionment.objects.filter(enpe_sid=enpe2, apportionment_invalidated=0, script_marked=1).order_by('ec_sid'):
-                  print('Script:' + script.ec_sid.ec_sid)
-                  #if not TaskManager.objects.filter(task_id='NRMACC', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).exists() and TaskManager.objects.filter(task_id='RETMIS', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).exists():
-                  if TaskManager.objects.filter(task_id='RETMIS', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).exists(): 
+              scripts_list = []
+              for script in ScriptApportionment.objects.filter(enpe_sid=enpe2, apportionment_invalidated=0, script_marked=1):
+                  #print('Script:' + script.ec_sid.ec_sid)
+                  if not TaskManager.objects.filter(task_id='NRMACC', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).exists() and TaskManager.objects.filter(task_id='RETMIS', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).exists():
                       task = TaskManager.objects.filter(task_id='RETMIS', task_completion_date__isnull=True, ec_sid=script.ec_sid.ec_sid).first()
                       extension_total = 0
                       exmsla_count = TaskManager.objects.filter(task_id='EXMSLA', ec_sid=task.ec_sid.ec_sid, task_completion_date__isnull=True).count()
                       sla_days = 0
-                      if script.ec_sid.erp_sid.cer_sid.ministry_flag == "S":
+                      if script.ec_sid.erp_sid.cer_sid.ministry_flag == "S" or "P" in script.ec_sid.erp_sid.service_code:
                           sla_days = 2
                       else:
                           sla_days = 5
                       for e in ScriptApportionmentExtension.objects.filter(ec_sid=TaskManager.objects.filter(ec_sid=task.ec_sid,task_id='RETMIS', task_completion_date__isnull=True).first().ec_sid.ec_sid):
                           extension_total = int(e.extension_days) + extension_total
-                      due_date = task.task_creation_date + datetime.timedelta(sla_days) + datetime.timedelta(days=extension_total)
-                      due_date = due_date.strftime('%d/%m/%Y')
-                      service = script.ec_sid.erp_sid.service_code
-                      batch = EnquiryComponentElements.objects.get(ec_sid=script.ec_sid.ec_sid).eb_sid.eb_sid
-                      syll_comp = script.ec_sid.eps_ass_code + '/' + script.ec_sid.eps_com_id
-                      centre_id = script.ec_sid.erp_sid.eps_centre_id
-                      cand_id = script.ec_sid.erp_sid.eps_cand_id
+                      due_date_dt = task.task_creation_date + datetime.timedelta(sla_days) + datetime.timedelta(days=extension_total)
+                      due_date = due_date_dt.strftime('%d/%m/%Y')
+                      scripts_list.append([due_date_dt,due_date,script.ec_sid.ec_sid])
+                    
+              #need to sort script list by due date
+              scripts_list.sort()
+              for script_info in scripts_list:
+                      script = EnquiryComponents.objects.filter(ec_sid=script_info[2]).first()
+                      due_date_dt = script_info[0]
+                      due_date = script_info[1]
+                      service = script.erp_sid.service_code
+                      batch = EnquiryComponentElements.objects.get(ec_sid=script.ec_sid).eb_sid.eb_sid
+                      syll_comp = script.eps_ass_code + '/' + script.eps_com_id
+                      centre_id = script.erp_sid.eps_centre_id
+                      cand_id = script.erp_sid.eps_cand_id
 
                       table_entry = table_entry + f"""
                       <tr>
