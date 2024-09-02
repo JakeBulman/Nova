@@ -22,7 +22,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, MisReturnData, CentreEnquiryRequests, EnquiryGrades, TaskTypes, EnquiryRequestParts
+from enquiries.models import TaskManager, MisReturnData, CentreEnquiryRequests, EnquiryGrades, TaskTypes, EnquiryRequestParts, EnquiryComponentElements
 from django.contrib.auth.models import User
 
 def run_algo():
@@ -139,7 +139,56 @@ def run_algo():
                     TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
                     print('GRDCON')
                 else:
-                    print('no grade avail')
+                    if task.task_creation_date + datetime.timedelta(days=7) < timezone.now():
+                        clr_needed = []
+                        clr_complete = []
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid):
+                            clr_needed.append(clr.ec_sid.ec_sid)
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid,clerical_mark_confirmed_ind='Y'):
+                            clr_complete.append(clr.ec_sid.ec_sid)     
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid,omr_mark_confirmed_ind='Y'):
+                            clr_complete.append(clr.ec_sid.ec_sid)            
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid,clerical_mark_changed_ind='Y'):
+                            clr_complete.append(clr.ec_sid.ec_sid)  
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid,omr_mark_changed_ind='Y'):
+                            clr_complete.append(clr.ec_sid.ec_sid)  
+                        clr_needed.sort()
+                        clr_complete.sort()
+                        if clr_needed == clr_complete:
+                            #mark has changed, grade has not changed and 7 days have passed
+                            TaskManager.objects.create(
+                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                                ec_sid = None,
+                                task_id = TaskTypes.objects.get(task_id = 'GRDCON'),
+                                task_assigned_to = User.objects.get(username='NovaServer'),
+                                task_assigned_date = timezone.now(),
+                                task_completion_date = None
+                            )
+                            TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
+                            print('GRDCON')                            
+                    else:
+                        clr_needed = []
+                        clr_complete = []
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid):
+                            clr_needed.append(clr.ec_sid.ec_sid)
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid,clerical_mark_confirmed_ind='Y'):
+                            clr_complete.append(clr.ec_sid.ec_sid)     
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid,omr_mark_confirmed_ind='Y'):
+                            clr_complete.append(clr.ec_sid.ec_sid)             
+                        clr_needed.sort()
+                        clr_complete.sort()
+                        if clr_needed == clr_complete:
+                            #mark has not changed, grade has not changed
+                            TaskManager.objects.create(
+                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                                ec_sid = None,
+                                task_id = TaskTypes.objects.get(task_id = 'GRDCON'),
+                                task_assigned_to = User.objects.get(username='NovaServer'),
+                                task_assigned_date = timezone.now(),
+                                task_completion_date = None
+                            )
+                            TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
+                            print('GRDCON')  
 
         else:
             print('no MIS data')
