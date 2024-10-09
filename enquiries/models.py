@@ -154,6 +154,7 @@ class EnquiryComponentElements(models.Model):
     clerical_mark_confirmed_ind = models.CharField(max_length=1,null=True)
     mark_after_enquiry = models.CharField(max_length=5, null=True)
     justification_code = models.CharField(max_length=5, null=True)
+    me_id = models.CharField(max_length=3, null=True)
 
 class EnquiryGrades(models.Model):
     enquiry_id = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_grades',null=True)
