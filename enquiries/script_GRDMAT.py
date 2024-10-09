@@ -113,7 +113,7 @@ def run_algo():
                             task_completion_date = None
                         )
                         TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
-                        print('GRDCON - CLERIC')
+                        print('GRDCON - CLERIC grade present but no change')
                     else:
                         #mark has changed, grade has changed
                         TaskManager.objects.create(
@@ -125,7 +125,7 @@ def run_algo():
                             task_completion_date = None
                         ) 
                         TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
-                        print('GRDNEG - CLERIC')
+                        print('GRDNEG - CLERIC grade present and changed')
                 elif EnquiryRequestParts.objects.get(cer_sid=enquiry_id).grade_confirmed_ind == 'Y':
                     #mark has changed, grade has not changed
                     TaskManager.objects.create(
@@ -137,20 +137,22 @@ def run_algo():
                         task_completion_date = None
                     )
                     TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
-                    print('GRDCON')
+                    print('GRDCON Grade was confirmed')
                 else:
                     if task.task_creation_date + datetime.timedelta(days=7) < timezone.now():
                         clr_needed = []
                         clr_complete = []
-                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid):
+                        print('GOT HERE')
+                        print(task)
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid__erp_sid__cer_sid__enquiry_id=task.enquiry_id.enquiry_id):
                             clr_needed.append(clr.ec_sid.ec_sid)
-                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid,clerical_mark_confirmed_ind='Y'):
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid__erp_sid__cer_sid__enquiry_id=task.enquiry_id.enquiry_id,clerical_mark_confirmed_ind='Y'):
                             clr_complete.append(clr.ec_sid.ec_sid)     
-                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid,omr_mark_confirmed_ind='Y'):
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid__erp_sid__cer_sid__enquiry_id=task.enquiry_id.enquiry_id,omr_mark_confirmed_ind='Y'):
                             clr_complete.append(clr.ec_sid.ec_sid)            
-                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid,clerical_mark_changed_ind='Y'):
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid__erp_sid__cer_sid__enquiry_id=task.enquiry_id.enquiry_id,clerical_mark_changed_ind='Y'):
                             clr_complete.append(clr.ec_sid.ec_sid)  
-                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid,omr_mark_changed_ind='Y'):
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid__erp_sid__cer_sid__enquiry_id=task.enquiry_id.enquiry_id,omr_mark_changed_ind='Y'):
                             clr_complete.append(clr.ec_sid.ec_sid)  
                         clr_needed.sort()
                         clr_complete.sort()
@@ -165,15 +167,15 @@ def run_algo():
                                 task_completion_date = None
                             )
                             TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
-                            print('GRDCON')                            
+                            print('GRDCON - 7 days old')                            
                     else:
                         clr_needed = []
                         clr_complete = []
-                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid):
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid__erp_sid__cer_sid__enquiry_id=task.enquiry_id.enquiry_id):
                             clr_needed.append(clr.ec_sid.ec_sid)
-                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid,clerical_mark_confirmed_ind='Y'):
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid__erp_sid__cer_sid__enquiry_id=task.enquiry_id.enquiry_id,clerical_mark_confirmed_ind='Y'):
                             clr_complete.append(clr.ec_sid.ec_sid)     
-                        for clr in EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid,omr_mark_confirmed_ind='Y'):
+                        for clr in EnquiryComponentElements.objects.filter(ec_sid__erp_sid__cer_sid__enquiry_id=task.enquiry_id.enquiry_id,omr_mark_confirmed_ind='Y'):
                             clr_complete.append(clr.ec_sid.ec_sid)             
                         clr_needed.sort()
                         clr_complete.sort()
@@ -188,7 +190,7 @@ def run_algo():
                                 task_completion_date = None
                             )
                             TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
-                            print('GRDCON')  
+                            print('GRDCON - all clerics confirmed unchanged')  
 
         else:
             print('no MIS data')

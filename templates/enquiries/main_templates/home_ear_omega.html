@@ -142,18 +142,6 @@
         </div>
       </div>
     </div>
-    <div class="row mx-2">
-      <div class="col d-flex justify-content-center">
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">RPA Marks Keying Failures</h5>
-            {% if botmaf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botmaf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            <p class="card-text">Tasks awaiting completion after a bot failed to process a mark keying.</p>
-            <a href="{% url 'rpa_marks_keying_failure' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
-          </div>
-        </div>
-      </div>
-    </div>
   </body>
 </html>
 

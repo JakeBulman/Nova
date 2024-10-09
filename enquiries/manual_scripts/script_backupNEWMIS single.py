@@ -24,7 +24,7 @@ django.setup()
 from enquiries.models import TaskManager, EnquiryPersonnelDetails, ScriptApportionment, EnquiryComponentElements, CentreEnquiryRequests, EnquiryComponents, EnquiryComponentsHistory, TaskTypes, ScaledMarks
 from django.contrib.auth.models import User
 
-ec_list = ['1975422'
+ec_list = ['2145736',
 ]
 
 def run_algo():
@@ -88,7 +88,6 @@ def run_algo():
             sheet["E4"] = rev_exm
             #Scaled (prev) mark
             sheet["F4"] = original_mark
-            print("here")
-            workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound\\Examiner-" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
+            workbook.save(filename="Y:\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound Copies\\Examiner-" + cred_no + "_BATCH_" + batch_no + "_MIS.xlsx")
 
 run_algo()

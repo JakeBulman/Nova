@@ -309,11 +309,27 @@ def run_algo():
                     mark_tolerance = MarkTolerances.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id).first().mark_tolerance
 
                 if not ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id,eps_ses_sid=task.ec_sid.eps_ses_sid).exists():
-                    print("No mark available")
+                    print("No scaled mark available")
                 else:
                     scaled_mark_set = ScaledMarks.objects.filter(eps_ass_code=task.ec_sid.eps_ass_code, eps_com_id=task.ec_sid.eps_com_id, eps_cnu_id=task.ec_sid.erp_sid.eps_centre_id, eps_cand_no=task.ec_sid.erp_sid.eps_cand_id,eps_ses_sid=task.ec_sid.eps_ses_sid).first()
                     scaled_mark = int(scaled_mark_set.scaled_mark.split('.')[0])
-                    final_mark = int(final_mark.split('.')[0])
+                    print(final_mark)
+                    try:
+                        final_mark = int(final_mark.split('.')[0])
+                    except:
+                        print("MIS Mark Bad Input")
+                        mis_data.error_status = "MIS Mark Bad Input"
+                        mis_data.save()
+                        TaskManager.objects.create(
+                            enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                            ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                            task_id = TaskTypes.objects.get(task_id = 'MISVRF'),
+                            task_assigned_to = None,
+                            task_assigned_date = None,
+                            task_completion_date = None
+                        )
+                        TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
+                        continue
                     is_scaled_exm = scaled_mark_set.original_exm_scaled == 'Scaled'
                     within_tolerance = int(abs(int(final_mark)-scaled_mark)) <= int(mark_tolerance)
 
@@ -374,7 +390,7 @@ def run_algo():
                         final_keying_required = 'Y'
                         final_keyed_mark_status = 'Changed'  
 
-                final_justification_code
+                print(final_justification_code)
                 if int(final_justification_code) == 7 and not is_scaled_exm: final_justification_code = 5
                 if int(final_justification_code) == 8 and not is_scaled_exm: final_justification_code = 6
                 if int(final_justification_code) == 5 and is_scaled_exm: final_justification_code = 7

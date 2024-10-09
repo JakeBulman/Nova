@@ -935,19 +935,19 @@ def load_core_tables():
         sheet = workbook.active
 
         # Iterating through All rows with all columns...
-        for i in range(1, sheet.max_row+1):
-            row = [cell.value for cell in sheet[i]] # sheet[n] gives nth row (list of cells)
-            if str(row[0]) != 'None':
-                if MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).exists():
-                    MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).update(mark_tolerance = row[2])
-                else: 
-                    MarkTolerances.objects.create(
-                        eps_ass_code = str(row[0]).zfill(4),
-                        eps_com_id = str(row[1]).zfill(2),
-                        mark_tolerance = row[2]
-                    )
+        # for i in range(1, sheet.max_row+1):
+        #     row = [cell.value for cell in sheet[i]] # sheet[n] gives nth row (list of cells)
+        #     if str(row[0]) != 'None':
+        #         if MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).exists():
+        #             MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).update(mark_tolerance = row[2])
+        #         else: 
+        #             MarkTolerances.objects.create(
+        #                 eps_ass_code = str(row[0]).zfill(4),
+        #                 eps_com_id = str(row[1]).zfill(2),
+        #                 mark_tolerance = row[2]
+        #             )
 
-        print("Tols loaded:" + str(datetime.datetime.now()))
+        # print("Tols loaded:" + str(datetime.datetime.now()))
         EarServerSettings.objects.update(delta_load_status='Table 15 of 15 loaded, Enquiry Tolerances')
 
         for enquiry in CentreEnquiryRequests.objects.all():
@@ -1170,31 +1170,31 @@ def load_core_tables():
             EarServerSettings.objects.update(delta_load_status='Delta Load completed at '+str(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S")))
             email = EmailMessage()
             email["From"] = "results.enquiries@cambridge.org"
-            email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,jonathon.east@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org,morgan.jones@cambridge.org"
+            email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,jonathon.east@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org,morgan.jones@cambridge.org,lab.d@cambridgeassessment.org.uk"
             email["Subject"] = "Morning Data Load - SUCCESS"
             email.set_content("Morning load was successful, IECs are ready to be completed.", subtype='html')
 
             sender = "results.enquiries@cambridge.org"
             smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
-            smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org","jonathon.east@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org","morgan.jones@cambridge.org"], email.as_string())
+            smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org","jonathon.east@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org","morgan.jones@cambridge.org","lab.d@cambridgeassessment.org.uk"], email.as_string())
             smtp.quit()
 
 
             end_time = datetime.datetime.now()
             print(end_time - start_time)
-    except:
+    except Exception as e:
         print(traceback.format_exc())
         if os.getenv('DJANGO_PRODUCTION') == 'true':
             EarServerSettings.objects.update(delta_load_status='Delta Load failed at '+str(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S")))
             email = EmailMessage()
             email["From"] = "results.enquiries@cambridge.org"
-            email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,jonathon.east@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org,morgan.jones@cambridge.org"
+            email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,jonathon.east@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org,morgan.jones@cambridge.org,lab.d@cambridgeassessment.org.uk"
             email["Subject"] = "Morning Data Load - ERROR"
-            email.set_content("Morning load has failed, please contact the system administrator for further details.", subtype='html')
+            email.set_content(f"Morning load has failed, please contact the system administrator for further details. Error: {e}", subtype='html')
 
             sender = "results.enquiries@cambridge.org"
             smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
-            smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org","jonathon.east@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org","morgan.jones@cambridge.org"], email.as_string())
+            smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org","jonathon.east@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org","morgan.jones@cambridge.org","lab.d@cambridgeassessment.org.uk"], email.as_string())
             smtp.quit()
 
 load_core_tables()

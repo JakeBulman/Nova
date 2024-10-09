@@ -69,6 +69,7 @@
                         <th>New Examiner</th>
                         <th>Marks Difference</th>
                         <th>Script Type</th>
+                        <th>New Script</th>
                     </tr>
                     
                     {% for ec in task.enquiry_id.enquiries.all %}
@@ -90,6 +91,23 @@
                         {% endif %}
                     </td>
                     <td>{{ ec2.script_type }}</td>
+                    {% if ec2.ec_sid in req_scripts %}
+                    <td>
+                        <form method="POST" action="{% url 'new-scrreq' %}" class="text-center">
+                        <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                        <input name="script_id" id="script_id" value={{ec2.ec_sid}} type="hidden" class="form-control">
+                        <button disabled type="submit" class="btn btn-success btn-sm" style="width:150px">Requested</button>
+                        </form>
+                    </td>
+                    {% else %}
+                    <td>
+                        <form method="POST" action="{% url 'new-scrreq' %}" class="text-center">
+                        <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
+                        <input name="script_id" id="script_id" value={{ec2.ec_sid}} type="hidden" class="form-control">
+                        <button type="submit" class="btn btn-warning btn-sm" style="width:150px">Request New COS</button>
+                        </form>
+                    </td>
+                    {% endif %}
                     </tr>
                     {% endfor %}
                     {% endfor %}
@@ -152,14 +170,7 @@
             </table>
         </div>
     </div>
-</div>
-    <div class="row text-center mt-5">
-        <form method="POST" action="{% url 'new-scrreq' %}" class="text-center">
-        <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
-        <button type="submit" class="btn btn-warning btn-lg mt-2" style="width:300px">Request New COS</button>
-        <p>This does not complete the task.</p>
-        </form>
-    </div>  
+</div>  
     <div class="row text-center mt-3">
         <form method="POST" action="{% url 'peacon-complete' %}" class="text-center">
         <input name="task_status" id="task_status" value="Pass" type="hidden" class="form-control">

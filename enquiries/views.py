@@ -30,11 +30,11 @@ def ear_home_view(request,*args, **kwargs):
 		user = request.user
 
 	alpha_tasks = ['INITCH','SETBIE']
-	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','MARCHE','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF','MUPREX','NRMSCS']
+	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','MARCHE','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF','MUPREX','NRMSCS','BOTMAF',]
 	delta_tasks = ['NRMACC','S3SEND','S3CONF']
 	kappa_tasks = ['CLERIC',]
 	sigma_tasks = ['ESMSCR','ESMSC2','SCRCHE','SCRREQ','OMRSCR']
-	omega_tasks = ['BOTMAF','GRDREL','NEGCON','PDACON','PEACON','PUMCON','GRDREJ','MRKAMD','GRDCON','GRDCHG','OUTCON',]
+	omega_tasks = ['GRDREL','NEGCON','PDACON','PEACON','PUMCON','GRDREJ','MRKAMD','GRDCON','GRDCHG','OUTCON',]
 	lambda_tasks = ['BOTAPP','BOTMAR',]
 
 	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
@@ -136,6 +136,7 @@ def ear_home_view_team_gamma(request,*args, **kwargs):
 	remapfa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='REMAPF', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	muprex_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MUPREX', enquiry_tasks__task_completion_date__isnull=True)
 	muprexa_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MUPREX', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
+	botmar_fail_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTMAF', enquiry_tasks__task_completion_date__isnull=True)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
 	context = {"session_desc":session_desc, "mytask":mytask_count, "manapp": manapp_count, "manappa": manapp_count_assigned, "nrmscs":nrmscs_count, "nrmscsa":nrmscsa_count,
@@ -143,6 +144,7 @@ def ear_home_view_team_gamma(request,*args, **kwargs):
 		"misvrf":misvrf_count, "misvrfa":misvrfa_count,	"pexmch":pexmch_count, "pexmcha":pexmcha_count, "locmar":locmar_count, "locmara":locmara_count, 
 		"esmcsv":esmcsv_count, "omrche":omrche_count, "exmsla":exmsla_count, "exmslaa":exmslaa_count, "remapp":remapp_count, "remappa":remappa_count, 
 		"remapf":remapf_count, "remapfa":remapfa_count, "muprex":muprex_count, "muprexa":muprexa_count, "marche":marche_count, "marchea":marchea_count,
+		"botmaf":botmar_fail_count,
 		}
 
 	return render(request, "enquiries/main_templates/home_ear_gamma.html", context=context, )
@@ -202,13 +204,13 @@ def ear_home_view_team_omega(request,*args, **kwargs):
 	grdchga_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDCHG', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 	outcon_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True)
 	outcona_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='OUTCON', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
-	botmar_fail_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='BOTMAF', enquiry_tasks__task_completion_date__isnull=True)
+	
 
 	session_desc = models.EarServerSettings.objects.first().session_description
 	context = {"session_desc":session_desc, "mytask":mytask_count, "grdrel":grdrel_count, "grdrela":grdrela_count, "negcon":negcon_count, "negcona":negcona_count, "pdacon":pdacon_count, "pdacona":pdacona_count, 
 		"peacon":peacon_count, "peacona":peacona_count, "pumcon":pumcon_count, "pumcona":pumcona_count, "grdrej":grdrej_count, "grdreja":grdreja_count, "mrkamd":mrkamd_count, 
 		"mrkamda":mrkamda_count, "grdcon":grdcon_count, "grdcona":grdcona_count, "grdchg":grdchg_count, "grdchga":grdchga_count,
-		"outcon":outcon_count, "outcona":outcona_count, "botmaf":botmar_fail_count,
+		"outcon":outcon_count, "outcona":outcona_count,
 		}
 
 	return render(request, "enquiries/main_templates/home_ear_omega.html", context=context, )
@@ -1726,6 +1728,10 @@ def negcon_task_complete(request):
 
 def peacon_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
+	script_requests = models.TaskManager.objects.filter(enquiry_id=task_queryset.enquiry_id.enquiry_id,task_id='SCRREQ')
+	req_scripts = []
+	for script in script_requests:
+		req_scripts.append(script.ec_sid.ec_sid)
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
@@ -1733,7 +1739,7 @@ def peacon_task(request, task_id=None):
 	task_comments = None
 	if models.TaskComments.objects.filter(task_pk=task_queryset.pk).exists():
 		task_comments = models.TaskComments.objects.filter(task_pk=task_queryset.pk).order_by('task_comment_creation_date')
-	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments, "issue_reason":issue_reason}
+	context = {"task_id":task_id, "task":task_queryset, "task_comments":task_comments, "issue_reason":issue_reason, "req_scripts":req_scripts}
 	return render(request, "enquiries/task_singles/enquiries_task_peacon.html", context=context)
 
 def peacon_task_complete(request):
@@ -1770,12 +1776,10 @@ def peacon_task_complete(request):
 	return redirect('my_tasks')
 
 def new_scrreq(request):
-	print('Start')
 	task_id = request.POST.get('task_id')
-	print(task_id)
-	script_id = models.TaskManager.objects.get(pk=task_id).ec_sid.ec_sid
+	script_id = request.POST.get('script_id')
 	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
-	if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='SCRREQ',task_completion_date = None).exists():
+	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='SCRREQ',task_completion_date = None).exists():
 		models.TaskManager.objects.create(
 			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 			ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
@@ -2010,7 +2014,7 @@ def scrren_sendback_view(request):
 				task_assigned_to = None,
 				task_assigned_date = None,
 				task_completion_date = None
-			)
+			)  
 	else:
 		if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='ESMSC2',task_completion_date = None).exists():
 			models.TaskManager.objects.create(
