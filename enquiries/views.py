@@ -2000,18 +2000,29 @@ def scrren_sendback_view(request):
 	print(task_id)
 	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
 	script_id = models.TaskManager.objects.get(pk=task_id).ec_sid.ec_sid
-	if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='SCRREN').exclude(task_completion_date=None).exists():
-		if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='ESMCSV',task_completion_date = None).exists():
+	service_code = models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id).erp_sid.service_code
+	if service_code == 'ASC' or service_code == 'ASR' or '1' in service_code:
+		if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='ESMSCR',task_completion_date = None).exists():
 			models.TaskManager.objects.create(
 				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
 				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
-				task_id = models.TaskTypes.objects.get(task_id = 'ESMCSV'),
+				task_id = models.TaskTypes.objects.get(task_id = 'ESMSCR'),
 				task_assigned_to = None,
 				task_assigned_date = None,
 				task_completion_date = None
 			)
-		#complete the task
-		models.TaskManager.objects.filter(pk=task_id,task_id='SCRREN').update(task_completion_date=timezone.now())    
+	else:
+		if not models.TaskManager.objects.filter(ec_sid=script_id, task_id='ESMSC2',task_completion_date = None).exists():
+			models.TaskManager.objects.create(
+				enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+				ec_sid = models.EnquiryComponents.objects.get(ec_sid=script_id),
+				task_id = models.TaskTypes.objects.get(task_id = 'ESMSC2'),
+				task_assigned_to = None,
+				task_assigned_date = None,
+				task_completion_date = None
+			)
+	#complete the task
+	models.TaskManager.objects.filter(pk=task_id,task_id='SCRREN').update(task_completion_date=timezone.now())    
 	return redirect('scrren_list')
 
 def enquiries_detail(request, enquiry_id=None):
