@@ -63,16 +63,16 @@ def run_algo():
                 scale_centre_no = app_task.enquiry_id.centre_id
                 scale_cand_no = app_task.ec_sid.erp_sid.eps_cand_id
                 scale_ses_id = app_task.ec_sid.eps_ses_sid
-                print(scale_ass_code + " " + scale_comp_id + " " + scale_centre_no + " " + scale_cand_no)
+                print(scale_ass_code + " " + scale_comp_id + " " + scale_centre_no + " " + scale_cand_no + " " + scale_ses_id)
                 if ScaledMarks.objects.filter(eps_ass_code=scale_ass_code,eps_com_id=scale_comp_id,eps_cnu_id=scale_centre_no,eps_cand_no=scale_cand_no,eps_ses_sid=scale_ses_id).exists():
                     original_mark = ScaledMarks.objects.filter(eps_ass_code=scale_ass_code,eps_com_id=scale_comp_id,eps_cnu_id=scale_centre_no,eps_cand_no=scale_cand_no,eps_ses_sid=scale_ses_id).first().scaled_mark
                     if original_mark is None:
-                        print("No Valid Scaled Mark")
+                        print("No Valid Scaled Mark 1")
                         continue
                     else:
                         original_mark = int(original_mark.split('.')[0])
                 else:
-                    print("No Valid Scaled Mark")
+                    print("No Valid Scaled Mark 2")
                     continue
                 cred_no = ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid.per_sid.exm_creditor_no
 
