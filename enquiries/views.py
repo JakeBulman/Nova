@@ -13,7 +13,7 @@ from django.db.models.functions import Cast, Substr
 import dateutil.parser
 from django.db.models import OuterRef, Subquery, Max
 from datetime import datetime, timedelta, time
-
+from django.db import connection, reset_queries
 
 #special imports
 from . import script_ServerResetShort as srs
@@ -3547,7 +3547,15 @@ def mrkamd_list_view(request):
 
 def enquiries_rpa_apportion_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTAPP', script_tasks__task_completion_date__isnull=True, script_id__eb_sid__created_date__isnull=False).order_by('erp_sid__cer_sid__enquiry_deadline__enquiry_deadline')
+	session_ids_string = models.EarServerSettings.objects.first().session_id_list
+	session_ids = []
+	if ',' in session_ids_string:
+		str(session_ids_string).split(",")
+		for string in session_ids_string:
+			session_ids.append(string.strip())
+	else:
+		session_ids.append(session_ids_string)
+	ec_queryset = models.EnquiryComponents.objects.filter(eps_ses_sid__in=session_ids,script_tasks__task_id='BOTAPP', script_tasks__task_completion_date__isnull=True, script_id__eb_sid__created_date__isnull=False).order_by('erp_sid__cer_sid__enquiry_deadline__enquiry_deadline')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -3608,7 +3616,15 @@ def enquiries_rpa_apportion_failure_view(request):
 
 def enquiries_rpa_marks_keying_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTMAR', script_tasks__task_completion_date__isnull=True).order_by('erp_sid__cer_sid__enquiry_deadline__enquiry_deadline')
+	session_ids_string = models.EarServerSettings.objects.first().session_id_list
+	session_ids = []
+	if ',' in session_ids_string:
+		str(session_ids_string).split(",")
+		for string in session_ids_string:
+			session_ids.append(string.strip())
+	else:
+		session_ids.append(session_ids_string)
+	ec_queryset = models.EnquiryComponents.objects.filter(eps_ses_sid__in=session_ids,script_tasks__task_id='BOTMAR', script_tasks__task_completion_date__isnull=True).order_by('erp_sid__cer_sid__enquiry_deadline__enquiry_deadline')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
