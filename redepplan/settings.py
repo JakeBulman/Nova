@@ -49,8 +49,6 @@ INSTALLED_APPS = [
     #Handles logins and user-grouping functions
     'enquiries',
     #Represents the EAR program
-    'indianexm',
-    #represent Indian Examiner Payments
     'datareporting',
     #data being pulled into 
     
