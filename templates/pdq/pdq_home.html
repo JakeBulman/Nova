@@ -3,16 +3,15 @@
 {% block content %}
 {% load static %}
 
-<h3 class="mt-3 mx-4 my-1">PDQs</h3>
+<h1 class="mt-3 mx-4 my-1 text-center">PDQs</h1>
 
 <div class="row mx-2">
   <div class="col d-flex justify-content-center">
     <div class="card m-3 shadow-lg" style="width: 18rem; ">
       <div class="card-body d-flex flex-column">
-        <h5 class="card-title">My Tasks</h5>
-        {% if mytask.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-        <p class="card-text">A list of tasks currently assigned to me.</p>
-        <a href="" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
+        <h5 class="card-title">Session Controls</h5>
+        <p class="card-text">A list of all active sessions and there results release dates.</p>
+        <a href="{% url 'session_control' %}" class="mt-auto btn btn-outline-primary">Go to Sessions</a>
       </div>
     </div>
   </div>

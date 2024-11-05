@@ -17,3 +17,8 @@ from datetime import datetime, timedelta, time
 def pdq_home(request):
 	context = {}
 	return render(request, "pdq/pdq_home.html", context=context)
+
+def session_control(request):
+	all_sessions = models.AllSessions.objects.all()
+	context = {"all_sessions":all_sessions}
+	return render(request, "pdq/pdq_allsessions.html", context=context)
