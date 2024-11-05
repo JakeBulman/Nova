@@ -26,7 +26,7 @@ urlpatterns = [
     path('members/', include('django.contrib.auth.urls')),
     path('members/', include('members.urls')),
     path('enquiries/', include('enquiries.urls')),
-    path('indianexm/', include('indianexm.urls')),
+    path('pdq/', include('pdq.urls')),
     path('datareporting/', include('datareporting.urls')),
 ]
 if settings.DEBUG:

@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     #Represents the EAR program
     'datareporting',
     #data being pulled into 
+    'pdq',
+    #results release handling for pdqs
     
 ]
 
