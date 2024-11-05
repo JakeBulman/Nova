@@ -112,16 +112,21 @@ def run_algo():
                     if exm_available == False:
                         exm['rank'] = 4 #mark as non-viable
 
-                    #check for script overloading
+                    #count scripts the exmanier has in all panels
                     scripts = 0
                     scripts_qc = ScriptApportionment.objects.filter(enpe_sid__per_sid__exm_creditor_no = exm_creditor_no).all()
-                    scripts_dict = scripts_qc.aggregate(Sum('script_marked'))
+                    scripts_dict = scripts_qc.aggregate(Sum('script_marked')) #this is filtering onto only scripts examiner has in-hand
                     if scripts_dict['script_marked__sum'] is not None:
                         scripts = scripts_dict['script_marked__sum']
 
+                    #check for script overloading
                     if scripts > 19:
                         exm['rank'] = 4 #mark as non-viable
-                    exm['scripts'] = scripts
+                    #N24 Approved change to multiply non-PE script count by 2 to provide more scripts to PE on approx 2:1 ratio (must come after "20 scripts" check)
+                    if exm['position'] != "01.01":
+                        exm['scripts'] = scripts * 2
+                    else:
+                        exm['scripts'] = scripts
 
                 print(exms_list)
                 exms_list_filtered = []
