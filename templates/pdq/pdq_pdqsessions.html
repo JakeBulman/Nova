@@ -5,6 +5,10 @@
 
 <h1 class="mt-3 mx-4 my-1 text-center">PDQs</h1>
 
+<form method="GET" action="{% url 'add_session' %}" class=" m-5 text-center">
+  <button type="add" title="add" class="btn btn-outline-primary" style="width:500px">Add New Session</button>
+</form>
+
 <div class="row mx-2">
   <div class="col d-flex justify-content-center">
     <table class="table table-sm table-bordered table-hover">
@@ -15,14 +19,14 @@
         <th>Session Month</th>
         <th>Results Release Date</th>
       </tr>
-      {% for session in all_sessions %}
+      {% for session in pdq_sessions %}
 
       <tr class="text-center">
         <td>{{ session.session_id }}</td> 
         <td>{{ session.session_name }}</td>
         <td>{{ session.session_year }}</td>
         <td>{{ session.session_sequence }}</td>
-        <td></td>
+        <td>{{ session.results_release_datetime }}</td>
       </tr>
 
       {% endfor %}

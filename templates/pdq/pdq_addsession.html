@@ -1,0 +1,43 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+{% load static %}
+{{ form.media }}
+<script>$('.datetimepicker').datetimepicker({
+  format: 'DD-MM-YYYY hh:mm:ss'
+});</script>
+
+<h1 class="mt-3 mx-4 my-1 text-center">PDQs</h1>
+
+<div class="container">
+  <div class="card justify-content-center">
+    <form method="POST" action="{% url 'add_session_complete' %}" class=" m-5 text-center">
+
+      <select class="form-select form-select-lg mb-3 text-center " aria-label="Large select example" id="session" name="session">
+        <option selected>Select a session...</option>
+        {% for session in all_sessions %}
+        <option value="{{session.session_id}}">{{session.session_id}} - {{session.session_name}}</option>
+        {% endfor %}
+      </select>
+
+        {% for field in form %}
+        <div class="fieldWrapper d-inline-flex justify-content-evenly w-100 align-items-center p-3">
+            {{ field.errors }}
+            <label> 
+                {{ field.label_tag }}
+            </label>
+           <div>
+               {{ field }}
+           </div>
+        </div>
+        {% endfor %}
+
+        <div class="text-danger">Format is DD/MM/YYYY hh:mm:ss, please use datetime picker to be sure.</div>
+
+      <button type="add" title="add" class="btn btn-outline-primary mt-5" style="width:500px">Confirm</button>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}

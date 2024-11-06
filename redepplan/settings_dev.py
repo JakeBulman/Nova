@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'mathfilters',
     'django_htmx',
+    'bootstrap_datepicker_plus',
     # 'django_celery_beat',
     # 'django_celery',
     'pages',
@@ -55,6 +56,7 @@ INSTALLED_APPS = [
     #results release handling for pdqs
     
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
