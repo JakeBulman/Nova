@@ -77,16 +77,16 @@
             <a href="{% url 'enquiries_list' %}" class="mt-auto btn btn-outline-primary">Go to IECs</a>
           </div>
         </div>
-
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <!-- BIE tasks hidden at Alpha's request -->
+        <!-- <div class="card m-3 shadow-lg" style="width: 18rem; ">
           <div class="card-body d-flex flex-column">
             <h5 class="card-title">BIE Tasks</h5>
             {% if bie.count > 0 %}<span class="badge rounded-pill bg-primary">{{ bie.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             {% if biea.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ biea.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
             <p class="card-text">Convert WebApp cancellations to EPS BIE status</p>
-            <a href="{% url 'enquiries_setbie_list' %}" class="mt-auto btn btn-outline-primary">Go to BIE Tasks</a>
+            <a href="" class="mt-auto btn btn-outline-primary">Go to BIE Tasks</a>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </body>
