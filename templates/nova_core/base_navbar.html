@@ -5,7 +5,8 @@
       <img src="{% static 'admin/img/nova-logo.png' %}" alt="" width="30" height="24">
       Nova</a>
       <div class="navbar-nav">
-        <a class="nav-link" href="{% url 'enquiries_home' %}">Enquiries About Results</a>
+        <a class="nav-link pe-5" href="{% url 'enquiries_home' %}">EARs</a>
+        <a class="nav-link pe-5" href="{% url 'pdq_home' %}">PDQs</a>
         {% if request.user.is_authenticated %}
         <a style="border-radius: 20px; width: 200px; text-align:center" class="nav-link bg-danger border-dark mx-2" href="{% url 'logout' %}">Logout: {{ request.user.username }}</a>
         {% else %}
