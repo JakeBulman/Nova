@@ -41,7 +41,6 @@ def run_algo():
                         from cie.meps_all_sessions a
                         where a.year > YEAR(CURRENT_DATE())-2 and a.start_date is not null and a.sty_id <> 'IELTS'
                                 ''', conn)
-        print(df)
     
     def insert_to_model_allsessions(row):
         if AllSessions.objects.filter(session_id = row['session_id']).exists():
