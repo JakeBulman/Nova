@@ -2,7 +2,7 @@ from django.http import FileResponse, HttpResponseRedirect
 from . import models
 from .forms import ResultsDateForm
 from django.shortcuts import render, redirect
-from django.db.models import Q, QuerySet
+from django.db.models import Q, QuerySet, Count
 
 
 def pdq_home(request):
@@ -10,7 +10,7 @@ def pdq_home(request):
 	return render(request, "pdq/pdq_home.html", context=context)
 
 def session_control(request):
-	pdq_sessions = models.PDQSessions.objects.filter(visible_session=1)
+	pdq_sessions = models.PDQSessions.objects.filter(visible_session=1).annotate(num_entries=Count('session_entries'))
 	context = {"pdq_sessions":pdq_sessions}
 	return render(request, "pdq/pdq_pdqsessions.html", context=context)
 

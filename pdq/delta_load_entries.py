@@ -31,7 +31,7 @@ def run_algo():
     sessions = PDQSessions.objects.filter(visible_session=1)
     for session in sessions:
         session_id = session.session_id
-    # # Get datalake data - Centre Enquiry Requests
+        # # Get datalake data - Centre Enquiry Requests
         with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
             df = pd.read_sql(f'''
                 select 
@@ -48,24 +48,22 @@ def run_algo():
                 and cast(a.sessionid as string) = d.ses_sid 
                 and a.centrenumber = d.centre_id
                 and a.candidatenumber = d.cand_ses_id
-                and d.qualif = '549'
-                and d.ses_sid in ({session_id});
+                where d.ses_sid in ({session_id});
                                     ''', conn)
-        
+               
         def insert_to_model_pdqentries(row):
-            if PDQEntries.objects.filter(session_id = row['session_id']).exists():
-                PDQEntries.objects.filter(session_id = row['session_id']).update(
-                    session_id = PDQSessions.objects.only('session_id').get(session_id=row['session_id']),
+            if PDQEntries.objects.filter(session_id = row['session_id'],centre_number = row['centre_number'],candidate_id = row['candidate_id'],syllabus_code = row['syllabus_code'],component_id = row['component_id']).exists():
+                PDQEntries.objects.filter(session_id = row['session_id'],centre_number = row['centre_number'],candidate_id = row['candidate_id'],syllabus_code = row['syllabus_code'],component_id = row['component_id']).update(
+                    session_id = PDQSessions.objects.get(session_id=row['session_id']),
                     centre_number = row['centre_number'],
                     candidate_id = row['candidate_id'],
                     syllabus_code = row['syllabus_code'],
                     component_id = row['component_id'],
                     syllabus_grade = row['syllabus_grade'],
-
                 )
             else:
                 PDQEntries.objects.create(
-                    session_id = PDQSessions.objects.only('session_id').get(session_id=row['session_id']),
+                    session_id = PDQSessions.objects.get(session_id=row['session_id']),
                     centre_number = row['centre_number'],
                     candidate_id = row['candidate_id'],
                     syllabus_code = row['syllabus_code'],

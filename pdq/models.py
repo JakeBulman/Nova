@@ -32,3 +32,12 @@ class PDQEntries(models.Model):
 
     class Meta:
         ordering = ["session_id","centre_number"]
+
+class PDQStage(models.Model):
+    entry = models.OneToOneField(PDQEntries, on_delete=models.CASCADE, related_name='entry_stage')
+    #add new stages to workflow here
+    csv_download = models.BooleanField(default=False)
+
+
+    class Meta:
+        ordering = ["entry"]
