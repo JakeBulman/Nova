@@ -290,8 +290,8 @@ class DjangoStagingTableAPP(models.Model):
     eps_cand_id = models.CharField(max_length=8, null=True)
     ear_mark = models.CharField(max_length=7, null=True)
     copied_to_est = models.IntegerField(default=0)
-    error_status = models.CharField(max_length=50, null=True)
-    comments = models.CharField(max_length=50, null=True)
+    error_status = models.TextField(null=True)
+    comments = models.TextField(null=True)
 
 class DjangoStagingTableMAR(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, null=True, related_name='staging_script_mar') 
