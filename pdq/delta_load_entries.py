@@ -24,7 +24,7 @@ else:
 
 django.setup()
 
-from pdq.models import PDQSessions, PDQEntries
+from pdq.models import PDQSessions, PDQEntries, PDQStage
 from django.contrib.auth.models import User
 
 def run_algo():
@@ -71,7 +71,15 @@ def run_algo():
                     syllabus_grade = row['syllabus_grade'],
                 )
 
+            
+
         df.apply(insert_to_model_pdqentries, axis=1)
         print("PDQ Entries loaded:" + str(datetime.datetime.now()))
+
+    for entry in PDQEntries.objects.all():
+        if not PDQStage.objects.filter(entry=entry).exists():
+            PDQStage.objects.create(
+                entry=entry
+            )
 
 run_algo()

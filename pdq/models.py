@@ -41,3 +41,10 @@ class PDQStage(models.Model):
 
     class Meta:
         ordering = ["entry"]
+
+class PDQcsvDownloads(models.Model):
+    document = models.FileField(upload_to='documents/')
+    file_name = models.CharField(max_length=50, null=True)
+    download_count = models.CharField(max_length=3, null=True)
+    archive_count = models.CharField(max_length=3, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
