@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.db.models import Q, QuerySet, Count
 from django.utils import timezone
 from django.conf import settings
-import csv, os
+import csv, os, openpyxl
 from django.core.paginator import Paginator
 PageNotAnInteger = None
 EmptyPage = None
@@ -59,9 +59,8 @@ def remove_session(request, session_id):
 	return redirect('session_control')
 
 def script_requests(request):
-	pdqcsv_count = models.PDQStage.objects.filter(csv_download=False).count()
+	pdqcsv_count = models.PDQStage.objects.filter(csv_download=False).exclude(entry__syllabus_grade='Q').count()
 	queryset = models.PDQcsvDownloads.objects.order_by('-uploaded_at')
-	print(queryset)
 	queryset_paged = Paginator(queryset,20,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -76,36 +75,34 @@ def script_requests(request):
 	return render(request, "pdq/pdq_scriptrequest.html", context=context)
 
 def pdqcsv_create(request):
-	pdq_entries = models.PDQEntries.objects.filter(entry_stage__csv_download=False)
+	pdq_entries = models.PDQEntries.objects.filter(entry_stage__csv_download=False).exclude(syllabus_grade='Q')
 	if pdq_entries.count() > 0:
-		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
-		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
+		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".xlsx"
+		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')	
+		file = openpyxl.Workbook()
+		ws = file.active
+		ws.append(['Business Stream','Session Month','Session Year','Assessment Code','Component ID','Candidate ID','Candidate Name',
+				'Parent Centre','Centre Number','Aggregate Mark','Syllabus Grade','Marker ID','Release Datetime'])
+		for s in pdq_entries:
+			session_month = s.session_id.session_sequence
+			session_year = s.session_id.session_year
+			assessment_code = s.syllabus_code
+			component_id = s.component_id
+			candidate_id = s.candidate_id
+			#candidate_name = 
+			#parent_centre =
+			centre_number = s.centre_number
+			#aggregate_mark?
+			assessment_grade = s.syllabus_grade
+			#marker_id = creditor_number
+			release_datetime = s.session_id.results_release_datetime.replace(tzinfo=None)
+
+			ws.append(['02',session_month,session_year,assessment_code,component_id,candidate_id,'','',centre_number,"",assessment_grade,"",release_datetime])
+			models.PDQStage.objects.filter(entry=s.pk).update(csv_download=True)
+
+		file.save(file_location)
+		print(file)
 		print(file_location)
-		username = None
-		if request.user.is_authenticated:
-			username =request.user		
-		with open(file_location, 'w', newline='') as file:
-			file.truncate()
-			writer = csv.writer(file)
-			writer.writerow(['Business Stream','Session Month','Session Year','Assessment Code','Component ID','Candidate ID','Candidate Name',
-					'Parent Centre','Centre Number','Aggregate Mark','Syllabus Grade','Marker ID','Release Datetime'])
-			for s in pdq_entries:
-				session_month = s.session_id.session_sequence
-				session_year = s.session_id.session_year
-				assessment_code = s.syllabus_code
-				component_id = s.component_id
-				candidate_id = s.candidate_id
-				#candidate_name = 
-				#parent_centre =
-				centre_number = s.centre_number
-				#aggregate_mark?
-				assessment_grade = s.syllabus_grade
-				#marker_id = creditor_number
-				release_datetime = s.session_id.results_release_datetime
-
-				writer.writerow(['02',session_month,session_year,assessment_code,component_id,candidate_id,'','',centre_number,"",assessment_grade,"",release_datetime])
-				models.PDQStage.objects.filter(entry=s.pk).update(csv_download=True)
-
 		models.PDQcsvDownloads.objects.create(
 			document = file_location,
 			file_name = file_timestamp,
@@ -123,3 +120,9 @@ def pdqcsv_download(request, download_id=None):
 
 	return FileResponse(document, as_attachment=True)
 
+def held_scripts(request):
+	held_pdqcsv_count = models.PDQStage.objects.filter(csv_download=False,entry__syllabus_grade='Q').count()
+	held_pdq_entries = models.PDQEntries.objects.filter(entry_stage__csv_download=False,syllabus_grade='Q')
+
+	context = {"held_pdq_entries": held_pdq_entries,"held_pdqcsv_count":held_pdqcsv_count}
+	return render(request, "pdq/pdq_heldscripts.html", context=context)
