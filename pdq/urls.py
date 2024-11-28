@@ -16,6 +16,6 @@ urlpatterns = [
     path('script_requests', views.script_requests, name='script_requests'),
     path('pdqcsv_create', views.pdqcsv_create, name='pdqcsv_create'),
     path('pdqcsv_download/<str:download_id>', views.pdqcsv_download, name='pdqcsv_download'),
-
+    path('held_scripts', views.held_scripts, name='held_scripts'),
 
 ]
