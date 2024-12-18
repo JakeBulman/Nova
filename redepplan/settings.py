@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'mathfilters',
     'django_htmx',
-    # 'debug_toolbar',
+    'bootstrap_datepicker_plus',
     # 'django_celery_beat',
     # 'django_celery',
     'pages',
@@ -50,10 +50,10 @@ INSTALLED_APPS = [
     #Handles logins and user-grouping functions
     'enquiries',
     #Represents the EAR program
-    'indianexm',
-    #represent Indian Examiner Payments
     'datareporting',
     #data being pulled into 
+    'pdq',
+    #results release handling for pdqs
     
 ]
 
@@ -96,13 +96,19 @@ WSGI_APPLICATION = 'redepplan.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'myproject',
-        'USER': 'postgres',
-        'PASSWORD': 'jman',
-        'HOST': 'localhost',
+        'OPTIONS': {
+            'options' : '-c search_path=earnova'
+        },
+        'NAME': 'earnovadb',
+        'USER': 'auroraadmin',
+        'PASSWORD': '6X5Lkfy2botC4kUYur2c',
+        'HOST': 'rds-cluster-ear-nova-prod-postgre-db1-instance-1.crpk1a8lh79w.eu-west-1.rds.amazonaws.com',
         'PORT': '5432',
     }
 }
+
+
+
 
 
 # Password validation

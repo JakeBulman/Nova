@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'mathfilters',
     'django_htmx',
-    # 'debug_toolbar',
+    'bootstrap_datepicker_plus',
     # 'django_celery_beat',
     # 'django_celery',
     'pages',
@@ -49,12 +49,11 @@ INSTALLED_APPS = [
     'members',
     #Handles logins and user-grouping functions
     'enquiries',
-    #Represents the EAR program
-    'indianexm',
     #represent Indian Examiner Payments
     'datareporting',
     #data being pulled into 
-    
+    'pdq',
+    #results release handling for pdqs
 ]
 
 MIDDLEWARE = [

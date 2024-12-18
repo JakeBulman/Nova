@@ -22,42 +22,54 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, ScriptApportionment,EnquiryComponentElements, DjangoStagingTable
+from enquiries.models import TaskManager, ScriptApportionment,EnquiryComponentElements, DjangoStagingTableMAR, ScaledMarks, MisReturnData, EnquiryBatches
 from django.contrib.auth.models import User
 
 def run_algo():
     for task in TaskManager.objects.filter(task_id='APIMAR', task_completion_date__isnull=True):
-
-        script_apportion_details = ScriptApportionment.objects.get(ec_sid=task.ec_sid.ec_sid,apportionment_invalidated=0)
-
-        enpe_sid = script_apportion_details.enpe_sid
-        ec_sid = script_apportion_details.ec_sid
-        eb_sid = EnquiryComponentElements.objects.filter(ec_sid=ec_sid).first().eb_sid
-        per_sid = script_apportion_details.enpe_sid.per_sid.per_sid
-        pan_sid = script_apportion_details.enpe_sid.sp_sid
-
-        print("Start")
-        print(enpe_sid)
+        ec_object = task.ec_sid
+        ec_sid = task.ec_sid.ec_sid
         print(ec_sid)
-        print(eb_sid)
-        print(per_sid)
-        print(pan_sid)
+        eb_sid = EnquiryBatches.objects.filter(eb_sid=EnquiryComponentElements.objects.filter(ec_sid=task.ec_sid.ec_sid).first().eb_sid.eb_sid).first(),
+        print(eb_sid[0])
+        eps_centre_id = ec_object.erp_sid.eps_centre_id
+        eps_cand_id = ec_object.erp_sid.eps_cand_id
 
-        if DjangoStagingTable.objects.filter(ec_sid=ec_sid,copied_to_est=0).exists():
-            DjangoStagingTable.objects.filter(ec_sid=ec_sid,copied_to_est=0).update(
-                enpe_sid = enpe_sid,
-                ec_sid = ec_sid,
-                eb_sid = eb_sid,
-                per_sid = per_sid,
-                pan_sid = pan_sid
+        scaled_mark = ScaledMarks.objects.filter(eps_ass_code=ec_object.eps_ass_code,eps_com_id=ec_object.eps_com_id,eps_cnu_id=ec_object.erp_sid.eps_centre_id,eps_cand_no=ec_object.erp_sid.eps_cand_id,eps_ses_sid=ec_object.eps_ses_sid).first().scaled_mark
+        
+        keyed_mark_status = MisReturnData.objects.filter(ec_sid=ec_sid).first().keyed_mark_status
+        if keyed_mark_status == 'Confirmed':
+            mark_confirmed_ind = 'Y'
+        elif keyed_mark_status == 'Changed':
+            mark_confirmed_ind = 'N'
+        else:
+            mark_confirmed_ind = None
+        final_mark = MisReturnData.objects.filter(ec_sid=ec_sid).first().final_mark
+        selected_justification_code = MisReturnData.objects.filter(ec_sid=ec_sid).first().selected_justification_code
+
+
+
+        if DjangoStagingTableMAR.objects.filter(ec_sid=ec_sid,copied_to_est=0).exists():
+            DjangoStagingTableMAR.objects.filter(ec_sid=ec_sid,copied_to_est=0).update(
+                ec_sid = ec_object,
+                eb_sid = eb_sid[0],
+                eps_centre_id = eps_centre_id,
+                eps_cand_id = eps_cand_id,
+                scaled_mark = scaled_mark,
+                mark_confirmed_ind = mark_confirmed_ind,
+                final_mark = final_mark,
+                selected_justification_code = selected_justification_code
             )
         else:
-            DjangoStagingTable.objects.create(
-                enpe_sid = enpe_sid,
-                ec_sid = ec_sid,
-                eb_sid = eb_sid,
-                per_sid = per_sid,
-                pan_sid = pan_sid
+            DjangoStagingTableMAR.objects.create(
+                ec_sid = ec_object,
+                eb_sid = eb_sid[0],
+                eps_centre_id = eps_centre_id,
+                eps_cand_id = eps_cand_id,
+                scaled_mark = scaled_mark,
+                mark_confirmed_ind = mark_confirmed_ind,
+                final_mark = final_mark,
+                selected_justification_code = selected_justification_code
             )
 
 

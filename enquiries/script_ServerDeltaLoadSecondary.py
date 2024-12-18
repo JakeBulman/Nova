@@ -400,7 +400,8 @@ def load_core_tables():
                 ece.omr_mark_changed_ind as omr_mark_changed_ind,
                 ece.omr_mark_confirmed_ind as omr_mark_confirmed_ind,
                 ece.clerical_mark_changed_ind as clerical_mark_changed_ind,
-                ece.clerical_mark_confirmed_ind as clerical_mark_confirmed_ind             
+                ece.clerical_mark_confirmed_ind as clerical_mark_confirmed_ind,
+                ece.me_id as me_id             
                 from  ar_meps_req_prd.enquiry_component_elements ece
                 left join ar_meps_req_prd.enquiry_components ec
                 on ece.ec_sid = ec.sid
@@ -420,6 +421,7 @@ def load_core_tables():
                     omr_mark_confirmed_ind = row['omr_mark_confirmed_ind'],
                     clerical_mark_changed_ind = row['clerical_mark_changed_ind'],
                     clerical_mark_confirmed_ind = row['clerical_mark_confirmed_ind'],
+                    me_id = row['me_id'],
                 )   
             else:
                 try:
@@ -434,6 +436,7 @@ def load_core_tables():
                         omr_mark_confirmed_ind = row['omr_mark_confirmed_ind'],
                         clerical_mark_changed_ind = row['clerical_mark_changed_ind'],
                         clerical_mark_confirmed_ind = row['clerical_mark_confirmed_ind'],
+                        me_id = row['me_id'],
                     )   
                 except:
                     pass

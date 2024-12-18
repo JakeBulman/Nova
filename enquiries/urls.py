@@ -37,8 +37,8 @@ urlpatterns = [
     path('task_manager/assign_task_user/<str:user_id>/<str:task_id>/<str:selected_user>', views.assign_task_user_selected_view, name='assign-task-user-selected'),
     path('task_manager/manual_apportionment_task/complete', views.manual_apportionment, name='manual-apportionment-complete'),
     path('task_manager/manual_apportionment_task/<str:task_id>', views.manual_apportionment_task, name='manual-apportionment-task'),
-    path('task_manager/setbie_task/<str:task_id>', views.setbie_task, name='setbie-task'),
-    path('task_manager/setbie_task/<str:enquiry_id>/bie-complete/', views.complete_bie_view, name="bie-complete"),
+    #path('task_manager/setbie_task/<str:task_id>', views.setbie_task, name='setbie-task'),
+    #path('task_manager/setbie_task/<str:enquiry_id>/bie-complete/', views.complete_bie_view, name="bie-complete"),
     path('task_manager/nrmacc_task/complete', views.nrmacc_task_complete, name='nrmacc-complete'),
     path('task_manager/nrmacc_task/<str:task_id>', views.nrmacc_task, name='nrmacc-task'), 
     path('task_manager/nrmscs_task/complete', views.nrmscs_task_complete, name='nrmscs-complete'),
@@ -100,7 +100,7 @@ urlpatterns = [
     #Shows all intial enquiry checks (IEC) that need to be actioned
     path('enquiries_list', views.enquiries_list_view, name='enquiries_list'),
     #Shows all intial enquiry checks (IEC) that need to be actioned
-    path('enquiries_setbie_list', views.enquiries_bie_view, name='enquiries_setbie_list'),
+    #path('enquiries_setbie_list', views.enquiries_bie_view, name='enquiries_setbie_list'),
     #Manual apportioment main screen
     path('manapp_list', views.manapp_list_view, name='manapp_list'),
     #Non-RM main screen

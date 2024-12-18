@@ -1,0 +1,46 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+{% load static %}
+{{ form.media }}
+<script>$('.datetimepicker').datetimepicker({
+  format: 'DD-MM-YYYY hh:mm:ss'
+});</script>
+
+<h1 class="mt-3 mx-4 my-1 text-center">PDQs</h1>
+
+<div class="container">
+  <form method="GET" action="{% url 'session_control' %}" class=" m-5 text-center">
+    <button type="add" title="add" class="btn btn-outline-primary align-items-center justify-content-center d-inline-flex" style="width:500px">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5" style="width:30px">
+        <g clip-path="url(#a)"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.25-7.25a.75.75 0 0 0 0-1.5H8.66l2.1-1.95a.75.75 0 1 0-1.02-1.1l-3.5 3.25a.75.75 0 0 0 0 1.1l3.5 3.25a.75.75 0 0 0 1.02-1.1l-2.1-1.95h4.59Z" clip-rule="evenodd" /></g>
+        <defs><clipPath id="a"><path d="M0 0h20v20H0z" /></clipPath></defs></svg>
+      <div class="px-1" >Back to PDQ Sessions</div>  
+    </button>
+  </form>
+  
+  <div class="card justify-content-center">
+    <form method="POST" action="{% url 'add_session_complete' %}" class=" m-5 text-center">
+      Update Results release for : 
+      <h3>{{existing_session.session_id}} - {{existing_session.session_name}}</h3>
+      <input type="hidden" id="session" name="session" value="{{session_id}}">
+        {% for field in form %}
+        <div class="fieldWrapper d-inline-flex justify-content-center w-100 align-items-center p-3">
+            {{ field.errors }}
+            <label class="pe-5"> 
+                {{ field.label_tag }}
+            </label>
+           <div>
+               {{ field }}
+           </div>
+        </div>
+        {% endfor %}
+        <div class="text-danger">Format is DD/MM/YYYY hh:mm:ss, please use datetime picker for accuracy.</div>
+      <button type="add" title="add" class="btn btn-outline-primary mt-5" style="width:500px">Confirm</button>
+    </form>
+
+
+  </div>
+</div>
+
+{% endblock %}

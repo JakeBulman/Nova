@@ -29,7 +29,7 @@ def ear_home_view(request,*args, **kwargs):
 	if request.user.is_authenticated:
 		user = request.user
 
-	alpha_tasks = ['INITCH','SETBIE']
+	alpha_tasks = ['INITCH']
 	gamma_tasks = ['ESMCSV','OMRCHE','MANAPP','BOTAPF','MISVRM','MISVRF','MARCHE','LOCMAR','PEXMCH','EXMSLA','REMAPP','REMAPF','MUPREX','NRMSCS','BOTMAF',]
 	delta_tasks = ['NRMACC','S3SEND','S3CONF']
 	kappa_tasks = ['CLERIC',]
@@ -76,11 +76,9 @@ def ear_home_view_team_alpha(request,*args, **kwargs):
 	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
 	cer_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True,enquiries__enquiry_parts__isnull=False)
 	cer_count_compless = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True,enquiries__enquiry_parts__isnull=True)
-	bie_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True)
-	bie_count_assigned = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True, enquiry_tasks__task_assigned_to__isnull=False)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
-	context = {"session_desc":session_desc, "mytask":mytask_count,"cer":cer_count, "cer_count_compless":cer_count_compless, "bie":bie_count, "biea":bie_count_assigned,
+	context = {"session_desc":session_desc, "mytask":mytask_count,"cer":cer_count, "cer_count_compless":cer_count_compless, 
 		}
 
 	return render(request, "enquiries/main_templates/home_ear_alpha.html", context=context, )
@@ -278,7 +276,7 @@ def my_tasks_view(request):
 	if request.user.is_authenticated:
 		user = request.user
 
-	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR','OMRSCR']
+	excluded_task_list = ['INITCH','SETBIE','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR','OMRSCR']
 	primary_team = models.TaskUserPrimary.objects.get(task_user=user).primary_team
 	secondary_team_set = models.TaskUserSecondary.objects.filter(task_user=user)
 	secondary_teams = []
@@ -295,8 +293,6 @@ def task_router_view(request, task_id):
 		#task_type = request.POST.get('task_id')
 		task_id = request.POST.get('task_id')
 	task_type = models.TaskManager.objects.get(pk=task_id).task_id.task_id	
-	if task_type == "SETBIE":
-		return redirect('setbie-task', task_id=task_id)
 	if task_type == "MANAPP":
 		return redirect('manual-apportionment-task', task_id=task_id)
 	if task_type == "NRMACC":
@@ -361,7 +357,7 @@ def new_task_view(request):
 	username = None
 	if request.user.is_authenticated:
 		username =request.user
-	excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR','OMRSCR']
+	excluded_task_list = ['INITCH','SETBIE','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR','OMRSCR']
 	primary_team = models.TaskUserPrimary.objects.get(task_user=username).primary_team
 	secondary_team_set = models.TaskUserSecondary.objects.filter(task_user=username)
 	secondary_teams = []
@@ -599,10 +595,10 @@ def remove_case_comment_view(request):
 	return redirect('case_detail', case_id)
 		
 
-def setbie_task(request, task_id=None):
-	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	context = {"task_id":task_id, "task":task_queryset}
-	return render(request, "enquiries/task_singles/enquiries_task_setbie.html", context=context)
+# def setbie_task(request, task_id=None):
+# 	task_queryset = models.TaskManager.objects.get(pk=task_id)
+# 	context = {"task_id":task_id, "task":task_queryset}
+# 	return render(request, "enquiries/task_singles/enquiries_task_setbie.html", context=context)
 
 def manual_apportionment_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
@@ -748,8 +744,6 @@ def nrmacc_task_complete(request):
 
 def nrmscs_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-
-	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
@@ -926,7 +920,6 @@ def s3send_task_complete(request):
 
 def s3conf_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
@@ -1035,7 +1028,6 @@ def manual_mis_complete(request):
 def misvrm_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 
-	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
@@ -1095,7 +1087,6 @@ def misvrf_task(request, task_id=None):
 	else:
 		original_user = "Unknown"
 
-	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
@@ -1154,7 +1145,6 @@ def marche_task(request, task_id=None):
 	else:
 		original_user = None
 
-	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
@@ -1362,7 +1352,6 @@ def locmar_task_complete(request):
 
 def cleric_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
@@ -1426,7 +1415,6 @@ def muprex_task_complete(request):
 
 def scrche_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
@@ -1586,7 +1574,6 @@ def remapp_task(request, task_id=None):
 	panel_notes = ''
 	if models.ExaminerPanels.objects.filter(ass_code=task_ass_code,com_id=task_comp_code).exists():
 		panel_notes = models.ExaminerPanels.objects.get(ass_code=task_ass_code,com_id=task_comp_code).panel_notes
-	#Get task_id for this enquiry if it has SETBIE
 	issue_reason = None
 	if models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).exists():
 		issue_reason = models.SetIssueAudit.objects.filter(enquiry_id=task_queryset.enquiry_id).first().issue_reason
@@ -1993,11 +1980,10 @@ def outcon_create_view(request):
 
 	return redirect('enquiries_home')
 
-def complete_bie_view(request, enquiry_id=None):
-	if enquiry_id is not None and request.method == 'GET':
-		t_check = models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='SETBIE').update(task_completion_date=timezone.now())
-		print(t_check)
-	return redirect('my_tasks')
+# def complete_bie_view(request, enquiry_id=None):
+# 	if enquiry_id is not None and request.method == 'GET':
+# 		models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='SETBIE').update(task_completion_date=timezone.now())
+# 	return redirect('my_tasks')
 
 def scrren_sendback_view(request):
 	task_id = request.POST.get('task_id')
@@ -2034,7 +2020,7 @@ def enquiries_detail(request, enquiry_id=None):
 	if enquiry_id is not None:	
 		cer_queryset = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
 		task_queryset = models.TaskManager.objects.filter(enquiry_id=enquiry_id).order_by('task_creation_date')
-		excluded_task_list = ['INITCH','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR','OMRSCR','MKWAIT']
+		excluded_task_list = ['INITCH','SETBIE','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','GRDREL','OUTCON','OMRCHE','SCRREN','SCRAUD','LETSCR','OMRSCR','MKWAIT']
 		complete_list = ['COMPLT','SETBIE']
 		marking_list = ['NEWMIS','CLERIC','LOCMAR']
 		apportionment_list = ['AUTAPP','MANAPP']
@@ -2154,21 +2140,21 @@ def enquiries_list_view(request):
 	context = {"cer": page_obj, "sq":search_q, }
 	return render(request, "enquiries/task_lists/enquiries_list.html", context=context)
 
-def enquiries_bie_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_list_setbie.html", context=context)
+# def enquiries_bie_view(request):
+# 	# grab the model rows (ordered by id), filter to required task and where not completed.
+# 	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='SETBIE', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+# 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
+# 	page_number = request.GET.get('page')
+# 	try:
+# 		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
+# 	except PageNotAnInteger:
+# 		# if page_number is not an integer then assign the first page
+# 		page_obj = ec_queryset_paged.page(1)
+# 	except EmptyPage:
+# 		# if page is empty then return last page
+# 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
+# 	context = {"cer": page_obj,}
+# 	return render(request, "enquiries/task_lists/enquiries_list_setbie.html", context=context)
 
 def iec_pass_view(request, enquiry_id=None):
 	if enquiry_id is not None and request.method == 'POST':
@@ -2602,9 +2588,9 @@ def iec_fail_view(request, enquiry_id=None):
 				enquiry_id = models.CentreEnquiryRequests.objects.only('enquiry_id').get(enquiry_id=enquiry_id),
 				ec_sid = None,
 				task_id = models.TaskTypes.objects.get(task_id = 'SETBIE'),
-				task_assigned_to = None,
-				task_assigned_date = None,
-				task_completion_date = None
+				task_assigned_to = User.objects.get(username='NovaServer'),
+				task_assigned_date = timezone.now(),
+				task_completion_date = timezone.now()
 			)
 			this_task.refresh_from_db()
 			models.SetBIEAudit.objects.create(

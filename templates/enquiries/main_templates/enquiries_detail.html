@@ -147,25 +147,26 @@
 
 
                         {% else %}
-                        <form method="POST" action="{% url 'prioritise-enquiry' enquiry_id=cer.enquiry_id %}">
-                            <button disabled type="submit" title="Prioritise Enquiry" class="btn btn-outline-secondary my-2" style="width:1000px">Prioritise Enquiry</button>
-                            <input name="prioritise_reason" id="prioritise_reason" type="text" class="form-control">
-                            <input name="prioritise_status" id="prioritise_status" value="prioritise" type="hidden" class="form-control">
-                        </form>
-                        <form method="POST" action="{% url 'pause-enquiry' enquiry_id=cer.enquiry_id %}">
-                            <button disabled type="submit" title="Pause Enquiry" class="btn btn-outline-secondary my-2" style="width:1000px">Pause Enquiry</button>
-                            <input name="pause_reason" id="pause_reason" type="text" class="form-control">
-                            <input name="pause_status" id="pause_status" value="pause" type="hidden" class="form-control">
-                        </form>
-                        <form method="POST" action="{% url 'iec-fail' enquiry_id=cer.enquiry_id %}">
-                            <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
-                            <button disabled type="submit" title="Cancel Enquiry" class="btn btn-outline-secondary my-2" style="width:1000px">Cancel Enquiry</button>
-                        </form>
-                        <form method="POST" action="{% url 'set-issue' enquiry_id=cer.enquiry_id %}">
-                            <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
-                            <button disabled type="submit" title="Set Issue" class="btn btn-outline-secondary my-2" style="width:1000px">Set Issue</button>
-                        </form>
-                        
+                        <div class="row justify-content-center">
+                            <form method="POST" action="{% url 'prioritise-enquiry' enquiry_id=cer.enquiry_id %}">
+                                <button disabled type="submit" title="Prioritise Enquiry" class="btn btn-outline-secondary my-2 w-75">Prioritise Enquiry</button>
+                                <input name="prioritise_reason" id="prioritise_reason" type="text" class="form-control w-75 d-inline">
+                                <input name="prioritise_status" id="prioritise_status" value="prioritise" type="hidden" class="form-control">
+                            </form>
+                            <form method="POST" action="{% url 'pause-enquiry' enquiry_id=cer.enquiry_id %}">
+                                <button disabled type="submit" title="Pause Enquiry" class="btn btn-outline-secondary my-2 w-75">Pause Enquiry</button>
+                                <input name="pause_reason" id="pause_reason" type="text" class="form-control w-75 d-inline">
+                                <input name="pause_status" id="pause_status" value="pause" type="hidden" class="form-control">
+                            </form>
+                            <form method="POST" action="{% url 'iec-fail' enquiry_id=cer.enquiry_id %}">
+                                <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
+                                <button disabled type="submit" title="Cancel Enquiry" class="btn btn-outline-secondary my-2 w-75">Cancel Enquiry</button>
+                            </form>
+                            <form method="POST" action="{% url 'set-issue' enquiry_id=cer.enquiry_id %}">
+                                <input name="page_source" id="page_source" value="detail" type="hidden" class="form-control" placeholder="Enquiry No.">
+                                <button disabled type="submit" title="Set Issue" class="btn btn-outline-secondary my-2 w-75">Set Issue</button>
+                            </form>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
