@@ -50,7 +50,7 @@ def load_core_tables():
         print("ENQ:" + enquiry_id_list)
 
         # # Get datalake data - Centre Enquiry Requests
-        with pyodbc.connect("DSN=hive.ucles.internal", autocommit=True) as conn:
+        with pyodbc.connect("DSN=Impala DL", autocommit=True) as conn:
             df = pd.read_sql(f'''
                 select distinct
                 cer.sid as enquiry_id,

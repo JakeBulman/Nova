@@ -122,6 +122,11 @@ class TaskManager(models.Model):
     task_completion_date = models.DateTimeField(null=True)
     task_queued = models.IntegerField(default=0)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['enquiry_id','task_id'],name='enq-task')
+        ]
+
 class TaskComments(models.Model):
     task_pk = models.ForeignKey(TaskManager, on_delete=models.SET_NULL, related_name='task_comments', null=True)
     task_comment_text = models.TextField()
