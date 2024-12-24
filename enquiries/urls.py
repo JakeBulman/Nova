@@ -82,14 +82,10 @@ urlpatterns = [
     path('task_manager/peacon_task/complete', views.peacon_task_complete, name='peacon-complete'),
     path('task_manager/peacon_task/new_scrreq', views.new_scrreq, name='new-scrreq'),
     path('task_manager/peacon_task/<str:task_id>', views.peacon_task, name='peacon-task'), 
-    path('task_manager/pumcon_task/complete', views.pumcon_task_complete, name='pumcon-complete'),
-    path('task_manager/pumcon_task/<str:task_id>', views.pumcon_task, name='pumcon-task'), 
     path('task_manager/grdrej_task/complete', views.grdrej_task_complete, name='grdrej-complete'),
     path('task_manager/grdrej_task/<str:task_id>', views.grdrej_task, name='grdrej-task'), 
     path('task_manager/mrkamd_task/complete', views.mrkamd_task_complete, name='mrkamd-complete'),
     path('task_manager/mrkamd_task/<str:task_id>', views.mrkamd_task, name='mrkamd-task'), 
-    path('task_manager/grdcon_task/complete', views.grdcon_task_complete, name='grdcon-complete'),
-    path('task_manager/grdcon_task/<str:task_id>', views.grdcon_task, name='grdcon-task'), 
     path('task_manager/grdchg_task/complete', views.grdchg_task_complete, name='grdchg-complete'),
     path('task_manager/grdchg_task/<str:task_id>', views.grdchg_task, name='grdchg-task'),   
     path('task_manager/muprex_task/complete', views.muprex_task_complete, name='muprex-complete'),
@@ -156,8 +152,6 @@ urlpatterns = [
     path('remapp_list', views.remapp_list_view, name='remapp_list'),
     #Re-do Examiner SAL breaches - EPS Pickup
     path('remapf_list', views.remapf_list_view, name='remapf_list'),
-    #Release for GRDREL 
-    path('grdrel_create', views.grdrel_create_view, name='grdrel_create'),
     #Previous Exminer Checks main screen
     path('negcon_list', views.negcon_list_view, name='negcon_list'),
     #Previous Exminer Checks main screen
@@ -172,8 +166,6 @@ urlpatterns = [
     path('mrkamd_list', views.mrkamd_list_view, name='mrkamd_list'),
     #MU examiners main screen
     path('muprex_list', views.muprex_list_view, name='muprex_list'),
-    #Release for OUTCON
-    path('outcon_create', views.outcon_create_view, name='outcon_create'),
 
     ### Enquiry Detail Control ###
 

@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     #data being pulled into 
     'pdq',
     #results release handling for pdqs
+    'psqlextra',
+    'django.contrib.postgres',
 ]
 
 MIDDLEWARE = [
@@ -94,7 +96,7 @@ WSGI_APPLICATION = 'redepplan.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'psqlextra.backend',
         'OPTIONS': {
             'options' : '-c search_path=earnova_prd'
         },

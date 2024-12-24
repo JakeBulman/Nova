@@ -48,9 +48,9 @@ def run_algo():
         if SetIssueAudit.objects.filter(enquiry_id=task_enquiry_id).exists() or panel_manapp_flag:
             #AUTAPP not successful, send to manual apportionement - because there is an issue tagged to the enquiry or the panel is set to manual
             TaskManager.objects.create(
-                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                task_id = TaskTypes.objects.get(task_id = 'MANAPP'),
+                enquiry_id_id = task_enquiry_id,
+                ec_sid_id = script_id,
+                task_id_id = 'MANAPP',
                 task_assigned_to = None,
                 task_assigned_date = None,
                 task_completion_date = None
@@ -75,8 +75,8 @@ def run_algo():
 
             sorted_exms_list_rank = []
             sorted_exms_list_robin = []
-            print("exms_list:")
-            print(exms_list)
+            #print("exms_list:")
+            #print(exms_list)
             if exms_list:
                 for exm in exms_list:
                     #check for previous examiners
@@ -128,7 +128,7 @@ def run_algo():
                     else:
                         exm['scripts'] = scripts
 
-                print(exms_list)
+                #print(exms_list)
                 exms_list_filtered = []
                 exms_list_filtered[:] = [d for d in exms_list if d.get('rank') != 4]
                 #sort final list - this is a rank order 
@@ -136,7 +136,7 @@ def run_algo():
 
                 #sort final list - this is a round-robin script order 
                 sorted_exms_list_robin = sorted(exms_list_filtered, key=lambda k: (k['scripts'], k['rank'], k['position']))
-                print(sorted_exms_list_robin)
+                #print(sorted_exms_list_robin)
                 
             #get "best" examiner for apportionment
             if sorted_exms_list_robin:
@@ -149,6 +149,7 @@ def run_algo():
                     
                     #per_sid = UniqueCreditor.objects.get(exm_creditor_no=chosen_exm).per_sid
                     sessions = str(EarServerSettings.objects.get(pk=1).session_id_list).split(',')
+                    #this_exm = EnquiryPersonnelDetails.objects.filter(exm_creditor_no=chosen_exm,ass_code=script_obj.eps_ass_code,com_id=script_obj.eps_com_id).first().enpe_sid
                     this_exm = EnquiryPersonnelDetails.objects.filter(exm_creditor_no=chosen_exm,ass_code=script_obj.eps_ass_code,com_id=script_obj.eps_com_id,session__in=sessions).first().enpe_sid
                     ScriptApportionment.objects.create(
                         enpe_sid = this_exm,
@@ -158,9 +159,9 @@ def run_algo():
                     if EnquiryComponents.objects.get(ec_sid=script_id).erp_sid.service_code == '3':
                         if not TaskManager.objects.filter(ec_sid=script_id, task_id='S3SEND',task_completion_date = None).exists():
                             TaskManager.objects.create(
-                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                                ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                                task_id = TaskTypes.objects.get(task_id = 'S3SEND'),
+                                enquiry_id_id = task_enquiry_id,
+                                ec_sid_id = script_id,
+                                task_id_id = 'S3SEND',
                                 task_assigned_to = None,
                                 task_assigned_date = None,
                                 task_completion_date = None
@@ -168,34 +169,34 @@ def run_algo():
                     else:
                         if EnquiryComponents.objects.get(ec_sid=script_id).script_type == "RM Assessor":
                             TaskManager.objects.create(
-                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                                ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                                task_id = TaskTypes.objects.get(task_id = 'BOTAPP'),
+                                enquiry_id_id = task_enquiry_id,
+                                ec_sid_id = script_id,
+                                task_id_id = 'BOTAPP',
                                 task_assigned_to = User.objects.get(username='RPABOT'),
                                 task_assigned_date = timezone.now(),
                                 task_completion_date = None
                             )
                             TaskManager.objects.create(
-                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                                ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                                task_id = TaskTypes.objects.get(task_id = 'NEWMIS'),
+                                enquiry_id_id = task_enquiry_id,
+                                ec_sid_id = script_id,
+                                task_id_id = 'NEWMIS',
                                 task_assigned_to = User.objects.get(username='NovaServer'),
                                 task_assigned_date = timezone.now(),
                                 task_completion_date = None
                             )
                             TaskManager.objects.create(
-                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                                ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                                task_id = TaskTypes.objects.get(task_id = 'ESMCSV'),
+                                enquiry_id_id = task_enquiry_id,
+                                ec_sid_id = script_id,
+                                task_id_id = 'ESMCSV',
                                 task_assigned_to = None,
                                 task_assigned_date = None,
                                 task_completion_date = None
                             )
                         else:
                             TaskManager.objects.create(
-                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                                ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                                task_id = TaskTypes.objects.get(task_id = 'NRMACC'),
+                                enquiry_id_id = task_enquiry_id,
+                                ec_sid_id = script_id,
+                                task_id_id = 'NRMACC',
                                 task_assigned_to = None,
                                 task_assigned_date = None,
                                 task_completion_date = None
@@ -203,9 +204,9 @@ def run_algo():
                 else:
                     #AUTAPP not successful, send to manual apportionement
                     TaskManager.objects.create(
-                        enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                        ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                        task_id = TaskTypes.objects.get(task_id = 'MANAPP'),
+                        enquiry_id_id = task_enquiry_id,
+                        ec_sid_id = script_id,
+                        task_id_id = 'MANAPP',
                         task_assigned_to = None,
                         task_assigned_date = None,
                         task_completion_date = None
@@ -213,17 +214,13 @@ def run_algo():
             else:
                 #AUTAPP not successful, send to manual apportionement - because no examiners in panel
                 TaskManager.objects.create(
-                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task_enquiry_id),
-                    ec_sid = EnquiryComponents.objects.get(ec_sid=script_id),
-                    task_id = TaskTypes.objects.get(task_id = 'MANAPP'),
+                    enquiry_id_id = task_enquiry_id,
+                    ec_sid_id = script_id,
+                    task_id_id = 'MANAPP',
                     task_assigned_to = None,
                     task_assigned_date = None,
                     task_completion_date = None
                 )     
-
-
-
-
 
         #complete the task
         TaskManager.objects.filter(pk=task_pk,task_id='AUTAPP').update(task_completion_date=timezone.now())  

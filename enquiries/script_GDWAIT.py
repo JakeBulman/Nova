@@ -49,9 +49,9 @@ def run_algo():
         
         if app_complete_check:
             TaskManager.objects.create(
-                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                enquiry_id = enquiry_id,
                 ec_sid = None,
-                task_id = TaskTypes.objects.get(task_id = 'GRDREL'),
+                task_id = 'GRDMAT',
                 task_assigned_to = None,
                 task_assigned_date = None,
                 task_completion_date = None
