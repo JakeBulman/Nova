@@ -142,8 +142,6 @@ def run_algo():
             if sorted_exms_list_robin:
                 chosen_exm = sorted_exms_list_robin[0]['creditor']
                 print(str(script_id) + ' script id given to examiner ' + str(chosen_exm))
-                print('')
-                print('')
                 
                 if chosen_exm is not None:
                     

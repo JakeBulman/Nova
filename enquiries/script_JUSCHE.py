@@ -46,6 +46,7 @@ def run_algo():
             justification_string = re.sub("[^0-9]", "", str(mis_data.final_justification_code))
             final_mark_status = mis_data.final_mark_status
             final_mark = mis_data.final_mark
+            original_mark = mis_data.original_mark
 
         #Check for bad statuses
         if final_mark_status not in ['Confirmed','Changed']:
@@ -77,7 +78,7 @@ def run_algo():
             TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
             continue
             #New for N24, check if mark is confirmed but mark present
-        if final_mark_status == 'Confirmed' and (justification_string is not None or final_mark is not None):
+        if final_mark_status == 'Confirmed' and (justification_string is not None or final_mark is not None) and (final_mark != original_mark):
             print('Confirmed, with JC or Mark')
             mis_data.error_status = "Confirmed, with JC or Mark"
             mis_data.save()

@@ -53,7 +53,7 @@ with open(load_file, 'r') as csvfile:
 
 print(email_list)
 for exm in examiner_list:
-    time.sleep(3)
+    #time.sleep(3)
     uc = UniqueCreditor.objects.get(exm_creditor_no=exm)
     if uc.exm_email in email_list:
         print('BAD EMAIL:'+ uc.exm_email)

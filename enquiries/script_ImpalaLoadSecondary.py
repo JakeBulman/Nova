@@ -215,6 +215,8 @@ def load_core_tables():
                     from ar_meps_req_prd.enquiry_personnel enpe
                     left join ar_meps_pan_prd.vw_delta_session_panel_positions spp
                     on enpe.eper_per_sid = spp.per_sid and enpe.pan_sid = spp.stm_pan_sid
+                    inner join (select z.stm_pan_sid, z.creditor_no, max(z.mod_date) as max_date from ar_meps_pan_prd.vw_delta_session_panel_positions z group by z.stm_pan_sid, z.creditor_no) mld
+                    on spp.stm_pan_sid = mld.stm_pan_sid and spp.creditor_no = mld.creditor_no and spp.mod_date = mld.max_date
                     left join  ar_meps_pan_prd.vw_delta_session_panels sp
                     on sp.sid = spp.stm_pan_sid
                     left join (select stm_pan_sid, count(*) as panel_size from ar_meps_pan_prd.session_panel_positions spp where spp.creditor_no is not null

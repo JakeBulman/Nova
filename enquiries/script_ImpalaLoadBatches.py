@@ -67,17 +67,21 @@ def load_core_tables():
 
         rolling_insert = []
         def insert_to_model(row):
+            try:
+                eper_per_sid = int(row['eper_per_sid'])
+            except:
+                eper_per_sid = None
             rolling_insert.append(
-                ExaminerPanels(
+                EnquiryBatches(
                     eb_sid = int(row['eb_sid']),
                     created_date = row['created_date'],
-                    enpe_eper_per_sid = int(row['eper_per_sid']),
+                    enpe_eper_per_sid = eper_per_sid,
                 )
             )
 
         df.apply(insert_to_model, axis=1)
-        ExaminerPanels.objects.bulk_create(rolling_insert,update_conflicts=True,unique_fields=['eb_sid'],
-                                                update_fields=['created_date','eper_per_sid']
+        EnquiryBatches.objects.bulk_create(rolling_insert,update_conflicts=True,unique_fields=['eb_sid'],
+                                                update_fields=['created_date','enpe_eper_per_sid']
                                                 )
         
         print("Enquiry Batches loaded:" + str(datetime.datetime.now()))
@@ -111,21 +115,24 @@ def load_core_tables():
                 eb = int(row['eb_sid'])
             except:
                 eb = None
-            rolling_insert.append(
-                EnquiryComponentElements(
-                    ec_sid_id = int(row['ec_sid']),
-                    ece_status = row['ece_status'][:20],
-                    eb_sid_id = eb,
-                    clerical_mark = row['clerical_mark'],
-                    mark_after_enquiry = row['mark_after_enquiry'],
-                    justification_code = row['justification_code'],
-                    omr_mark_changed_ind = row['omr_mark_changed_ind'],
-                    omr_mark_confirmed_ind = row['omr_mark_confirmed_ind'],
-                    clerical_mark_changed_ind = row['clerical_mark_changed_ind'],
-                    clerical_mark_confirmed_ind = row['clerical_mark_confirmed_ind'],
-                    me_id = row['me_id'],
+            try:
+                rolling_insert.append(
+                    EnquiryComponentElements(
+                        ec_sid_id = EnquiryComponents.objects.get(ec_sid = int(row['ec_sid'])).ec_sid,
+                        ece_status = row['ece_status'][:20],
+                        eb_sid_id = eb,
+                        clerical_mark = row['clerical_mark'],
+                        mark_after_enquiry = row['mark_after_enquiry'],
+                        justification_code = row['justification_code'],
+                        omr_mark_changed_ind = row['omr_mark_changed_ind'],
+                        omr_mark_confirmed_ind = row['omr_mark_confirmed_ind'],
+                        clerical_mark_changed_ind = row['clerical_mark_changed_ind'],
+                        clerical_mark_confirmed_ind = row['clerical_mark_confirmed_ind'],
+                        me_id = row['me_id'],
+                    )
                 )
-            )
+            except:
+                pass
 
         df.apply(insert_to_model, axis=1)
         EnquiryComponentElements.objects.all().delete()
@@ -137,8 +144,8 @@ def load_core_tables():
             email = EmailMessage()
             email["From"] = "results.enquiries@cambridge.org"
             email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,jonathon.east@cambridge.org,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org,morgan.jones@cambridge.org,lab.d@cambridgeassessment.org.uk"
-            email["Subject"] = "Batches Data Load - Batches - SUCCESS"
-            email.set_content("Batches load was successful, Panel data updated.", subtype='html')
+            email["Subject"] = "Batches Data Load- SUCCESS"
+            email.set_content("Batches load was successful, batches data updated.", subtype='html')
 
             sender = "results.enquiries@cambridge.org"
             smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
@@ -164,8 +171,6 @@ def load_core_tables():
             smtp.quit()
             end_time = datetime.datetime.now()
             print(end_time - start_time)
-
-
 
     end_time = datetime.datetime.now()
     print(end_time - start_time)

@@ -68,7 +68,7 @@ def load_core_tables():
                 --and erp.es_service_code in ('1','1S','2','2P','2PS','2S','ASC','ASR','3')
                 {enquiry_id_list}
                                     ''', conn)
-
+        print(df)
         rolling_insert = []
         def insert_to_model(row):
             centre_id = row['centre_id'][:5]
@@ -77,12 +77,16 @@ def load_core_tables():
                 ministry_flag = 'S'
             if re.search("^MU",centre_id):
                 ministry_flag = 'MU'
+            try:
+                completion_date = make_aware(parse(str(row['eps_completion_date'])))
+            except:
+                completion_date = None
             rolling_insert.append(
                 CentreEnquiryRequests(
                         enquiry_id = int(row['enquiry_id']),
                         enquiry_status = row['enquiry_status'],
                         eps_creation_date = make_aware(parse(str(row['eps_creation_date']))),
-                        eps_completion_date = make_aware(parse(str(row['eps_completion_date']))),
+                        eps_completion_date = completion_date,
                         eps_ack_letter_ind = row['eps_ack_letter_ind'],
                         eps_ses_sid = str(row['eps_ses_sid'])[:5],
                         centre_id = row['centre_id'][:5],
@@ -125,6 +129,8 @@ def load_core_tables():
                 from ar_meps_req_prd.enquiry_request_parts erp
                 left join cie.ca_candidates can
                 on erp.caom_can_unique_identifier = can.unique_id
+                inner join ar_meps_req_prd.centre_enquiry_requests cer
+                on erp.cer_sid = cer.sid
                 where caom_ses_sid in ({session_id})
                 and erp.cer_sid is not null 
                                     ''', conn)
@@ -183,13 +189,15 @@ def load_core_tables():
                     prod.component_text as eps_comp_name,
                     ec.ccm_measure as ccm_measure
                     from ar_meps_req_prd.enquiry_components ec
-                    left join ar_meps_req_prd.enquiry_request_parts erp
+                    inner join ar_meps_req_prd.enquiry_request_parts erp
                     on ec.erp_sid = erp.sid
                     left join cie.ca_products prod
                     on cast(ec.ccm_ass_code as string) = prod.assessment
                     and cast(ec.ccm_asv_ver_no as string) = prod.assessment_version_no
                     and ec.ccm_com_id = prod.component
                     and erp.caom_opt_code = prod.option_code
+                    inner join ar_meps_req_prd.centre_enquiry_requests cer
+                    on erp.cer_sid = cer.sid
                     left join cie.ods_sessions ses
                     on ec.ccm_ses_sid = ses.sessionid
                     where ccm_ses_sid in ({session_id}) 
@@ -300,8 +308,8 @@ def load_core_tables():
         def insert_to_model(row):
             rolling_insert.append(
             ScaledMarks(
-                eps_ass_code = row['eps_ass_code'],
-                eps_com_id = int(row['eps_com_id']),
+                eps_ass_code = str(row['eps_ass_code']).zfill(4),
+                eps_com_id = str(int(row['eps_com_id'])).zfill(2),
                 eps_cnu_id = row['eps_cnu_id'],
                 eps_cand_no = row['eps_cand_no'],
                 eps_ses_sid = row['eps_ses_id'],
@@ -428,9 +436,9 @@ def load_core_tables():
                             mld.batch as omr_batch,
                             mld.position as omr_position
                             from ar_meps_req_prd.enquiry_components ec
-                            left join ar_meps_req_prd.enquiry_request_parts erp
+                            inner join ar_meps_req_prd.enquiry_request_parts erp
                             on erp.sid = ec.erp_sid
-                            left join ar_meps_req_prd.centre_enquiry_requests cer
+                            inner join ar_meps_req_prd.centre_enquiry_requests cer
                             on cer.sid = erp.cer_sid
                             left join ar_meps_mark_prd.working_raw_marks wrm
                             on wrm.ses_sid = ec.ccm_ses_sid
@@ -495,9 +503,9 @@ def load_core_tables():
                         wrm.kbr_code as kbr_code,
                         kbr.reason as kbr_reason
                         from ar_meps_req_prd.enquiry_components ec
-                        left join ar_meps_req_prd.enquiry_request_parts erp
+                        inner join ar_meps_req_prd.enquiry_request_parts erp
                         on erp.sid = ec.erp_sid
-                        left join ar_meps_req_prd.centre_enquiry_requests cer
+                        inner join ar_meps_req_prd.centre_enquiry_requests cer
                         on cer.sid = erp.cer_sid
                         left join (select ses_sid,ass_code,com_id,cnu_id,cand_no,kbr_code,mark,spp_sid from ar_meps_mark_prd.working_raw_marks where ses_sid in ({session_id}) 
                         union select ses_sid,ass_code,com_id,cnu_id,cand_no,kbr_code,mark,spp_sid from ar_meps_mark_prd.historical_raw_marks where ses_sid in ({session_id})) wrm
@@ -555,7 +563,7 @@ def load_core_tables():
                 qgrn.seq_no as new_seq
                             
                 from ar_meps_req_prd.centre_enquiry_requests cer
-                left join ar_meps_req_prd.enquiry_request_parts erp
+                inner join ar_meps_req_prd.enquiry_request_parts erp
                 on cer.sid = erp.cer_sid
                 left join ar_meps_ord_prd.audit_changes ac
                 on cer.ses_sid = ac.ses_sid
@@ -652,7 +660,7 @@ def load_core_tables():
         # Iterating through All rows with all columns...
         for i in range(1, sheet.max_row+1):
             row = [cell.value for cell in sheet[i]] # sheet[n] gives nth row (list of cells)
-            if str(row[0]) != 'None':
+            if str(row[0]) != 'None' and str(row[1]) != 'None':
                 if MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).exists():
                     MarkTolerances.objects.filter(eps_ass_code = str(row[0]).zfill(4),eps_com_id = str(row[1]).zfill(2)).update(mark_tolerance = row[2])
                 else: 
