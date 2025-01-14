@@ -46,11 +46,11 @@ def run_algo():
                     #fetch out ids based on cent/syll/comp/cand
                     scripts = EnquiryComponents.objects.filter(erp_sid__eps_centre_id=centre,eps_ass_code=syll,eps_com_id=comp,erp_sid__eps_cand_id=cand,eps_ses_sid__in=sessions)
                     for script in scripts:
-                        if not TaskManager.objects.filter(ec_sid=script.ec_sid,task_id='SETBIE').exists():
+                        enquiry_id = script.erp_sid.cer_sid.enquiry_id
+                        if not TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='SETBIE').exists():
                             print("Script:" + script.ec_sid + "// Enq:" + script.erp_sid.cer_sid.enquiry_id)
                             if TaskManager.objects.filter(ec_sid=script.ec_sid,task_id='SCRREN', task_completion_date__isnull=True).exists():
                                 task = TaskManager.objects.get(ec_sid=script.ec_sid,task_id='SCRREN', task_completion_date__isnull=True)
-                                enquiry_id = script.erp_sid.cer_sid.enquiry_id
                                 #take backup copy of the file
                                 shutil.copy(os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\From ESM\\", file), os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\From ESM\Completed\\", file))
                                 #copy file to next location with new name
@@ -83,7 +83,6 @@ def run_algo():
                                         )
                                         TaskManager.objects.filter(pk=task.pk,task_id='SCRREN').update(task_completion_date=timezone.now())
                             else:
-                                enquiry_id = script.erp_sid.cer_sid.enquiry_id
                                 print("No available SCRREN task:" + enquiry_id)
                                 #take backup copy of the file
                                 shutil.copy(os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\From ESM\\", file), os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\From ESM\Completed\\", file))

@@ -8,6 +8,8 @@ def main():
     """Run administrative tasks."""
     if os.getenv('DJANGO_DEVELOPMENT') == 'true':
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'redepplan.settings_dev')
+    elif os.getenv('DJANGO_PRODUCTION') == 'true':
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'redepplan.settings_prod')
     else:
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'redepplan.settings')
     try:

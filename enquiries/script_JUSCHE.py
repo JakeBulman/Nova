@@ -76,6 +76,21 @@ def run_algo():
             )
             TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
             continue
+            #New for N24, check if mark is confirmed but mark present
+        if final_mark_status == 'Confirmed' and (justification_string is not None or final_mark is not None):
+            print('Confirmed, with JC or Mark')
+            mis_data.error_status = "Confirmed, with JC or Mark"
+            mis_data.save()
+            TaskManager.objects.create(
+                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                task_id = TaskTypes.objects.get(task_id = 'MISVRF'),
+                task_assigned_to = None,
+                task_assigned_date = None,
+                task_completion_date = None
+            )
+            TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
+            continue
         
 
         #Check MIS has scaling applied

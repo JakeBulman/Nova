@@ -8,7 +8,7 @@
     }
 </style>
 
-<h1 class="display-5 mb-4 mt-3 mx-5 text-center">EAR Task - MU Pre-emptive Exminer Updates</h1>
+<h1 class="display-5 mb-4 mt-3 mx-5 text-center">EAR Task - MU Pre-emptive Examiner Updates</h1>
 
 <div class="container-fluid">
     <div class="row text-center">
@@ -58,6 +58,12 @@
                         <td>{{ task.ec_sid.script_type }}</td></td>
                         <th></th>
                         <td></td>
+                    </tr>
+                    <tr class="text-center">
+                        <th>Assigned Examiner</th>
+                        <td>{% for exm in task.ec_sid.apportion_script.all %}{{ exm.enpe_sid.per_sid.exm_title }} {{ exm.enpe_sid.per_sid.exm_forename }} {{ exm.enpe_sid.per_sid.exm_surname }}{% endfor %}</td>
+                        <th>Assigned Creditor</th>
+                        <td>{% for exm in task.ec_sid.apportion_script.all %}{{ exm.enpe_sid.per_sid.exm_creditor_no }} {% endfor %}</td>
                     </tr>
                 </table>  
                 <h5>Task Instruction</h5>

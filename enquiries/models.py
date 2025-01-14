@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from psqlextra.indexes import UniqueIndex, ConditionalUniqueIndex
 
 # Create your models here. DO NOT USE
 class Enquiries(models.Model):
@@ -122,6 +123,11 @@ class TaskManager(models.Model):
     task_completion_date = models.DateTimeField(null=True)
     task_queued = models.IntegerField(default=0)
 
+    class Meta:
+        indexes = [
+            ConditionalUniqueIndex(fields=['enquiry_id','task_id'],name='enq-task',condition='"task_id"="INITCH"')
+        ]
+
 class TaskComments(models.Model):
     task_pk = models.ForeignKey(TaskManager, on_delete=models.SET_NULL, related_name='task_comments', null=True)
     task_comment_text = models.TextField()
@@ -184,6 +190,7 @@ class ScaledMarks(models.Model):
     original_exm_scaled = models.CharField(max_length=10,null=True)
 
 class ExaminerPanels(models.Model):
+    ses_ass_com = models.CharField(max_length=30, null=True, unique=True)
     ses_sid = models.CharField(max_length=8, null=True)
     ass_code = models.CharField(max_length=8, null=True)
     com_id = models.CharField(max_length=8, null=True)
@@ -400,6 +407,7 @@ class PriorityEnquiry(models.Model):
 
 class EnquiryDeadline(models.Model):
     enquiry_id = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.CASCADE, related_name='enquiry_deadline')
+    unique_enquiry_id = models.CharField(max_length=10, unique=True, null=True)
     enquiry_deadline = models.DateTimeField(null=True) 
     original_enquiry_deadline = models.DateTimeField(null=True) 
 

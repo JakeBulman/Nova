@@ -27,6 +27,7 @@ django.setup()
 from enquiries.models import CentreEnquiryRequests, EnquiryRequestParts, EnquiryComponents, EnquiryPersonnel, EnquiryPersonnelDetails, EnquiryBatches, EnquiryComponentElements, TaskManager, UniqueCreditor, ScriptApportionment, EnquiryComponentsHistory, EnquiryComponentsExaminerChecks, EnquiryComponentsPreviousExaminers, MisReturnData, ScriptApportionmentExtension, EsmcsvDownloads, EarServerSettings, TaskTypes, EnquiryGrades, EnquiryDeadline, ExaminerPanels, MarkTolerances, ScaledMarks
 
 def clear_tables():
+    print('Tables Clearing')
     CentreEnquiryRequests.objects.all().delete()
     #Cascades to EnquiryRequestParts, EnquiryComponents, EnquiryComponentElements
 

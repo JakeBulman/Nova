@@ -28,7 +28,7 @@ DEBUG = True
 
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost','*']
-
+INTERNAL_IPS = ['127.0.0.1',]
 
 # Application definition
 
@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     #data being pulled into 
     'pdq',
     #results release handling for pdqs
+    'psqlextra',
+    'django.contrib.postgres',
 ]
 
 MIDDLEWARE = [
@@ -65,6 +67,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'redepplan.urls'
@@ -93,11 +96,14 @@ WSGI_APPLICATION = 'redepplan.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'myproject',
-        'USER': 'postgres',
-        'PASSWORD': 'jman',
-        'HOST': 'localhost',
+        'ENGINE': 'psqlextra.backend',
+        'OPTIONS': {
+            'options' : '-c search_path=earnova_prd'
+        },
+        'NAME': 'earnovadb',
+        'USER': 'auroraadmin',
+        'PASSWORD': '6X5Lkfy2botC4kUYur2c',
+        'HOST': 'rds-cluster-ear-nova-prod-postgre-db1-instance-1.crpk1a8lh79w.eu-west-1.rds.amazonaws.com',
         'PORT': '5432',
     }
 }
@@ -176,3 +182,20 @@ COMPRESS_PRECOMPILERS = (
     ('text/x-scss', 'django_libsass.SassCompiler'),
 )
 COMPRESS_ENABLED = True
+
+
+import mimetypes
+mimetypes.add_type("application/javascript", ".js", True)
+
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
+def show_toolbar(request):
+    return True
+    
+DEBUG_TOOLBAR_CONFIG = {
+'INTERCEPT_REDIRECTS': False,
+"SHOW_TOOLBAR_CALLBACK": show_toolbar,
+'INSERT_BEFORE': '</head>',
+'INTERCEPT_REDIRECTS': False,
+'RENDER_PANELS': True,
+}
