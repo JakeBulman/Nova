@@ -16,8 +16,8 @@ elif os.getenv('DJANGO_PRODUCTION') == 'true':
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
 else:
     print('UAT')
-    #sys.path.append('C:/Dev/redepplan') -- Jake Local
-    sys.path.append('C:/Users/rfrancisco/Desktop/Dev Folder/EAR/Nova/')
+    sys.path.append('C:/Dev/nova') #Jake Local
+    #sys.path.append('C:/Users/rfrancisco/Desktop/Dev Folder/EAR/Nova/')
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
     #os.environ.setdefault('DJANGO_SETTINGS_MODULE','redepplan.settings')
     
