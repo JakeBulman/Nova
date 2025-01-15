@@ -131,7 +131,7 @@
             <a href="{% url 'marche_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
           </div>
         </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <!-- <div class="card m-3 shadow-lg" style="width: 18rem; ">
           <div class="card-body d-flex flex-column">
             <h5 class="card-title">Examiner SLA Breaches</h5>
             {% if exmsla.count > 0 %}<span class="badge rounded-pill bg-primary">{{ exmsla.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
@@ -139,13 +139,13 @@
             <p class="card-text">Checks on examiner breaches leading to extension or reapportionment.</p>
             <a href="{% url 'exmsla_list' %}" class="mt-auto btn btn-outline-primary">Go to Breaches</a>
           </div>
-        </div>
+        </div> -->
         <div class="card m-3 shadow-lg" style="width: 18rem; ">
           <div class="card-body d-flex flex-column">
-            <h5 class="card-title">SLA Breach Reapportionment</h5>
+            <h5 class="card-title">Script Reapportionment</h5>
             {% if remapp.count > 0 %}<span class="badge rounded-pill bg-primary">{{ remapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             {% if remappa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ remappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-            <p class="card-text">Reapportionment when an examiner SLA is breached.</p>
+            <p class="card-text">Reapportionment of scripts to new examiners.</p>
             <a href="{% url 'remapp_list' %}" class="mt-auto btn btn-outline-primary">Go to Breaches</a>
           </div>
         </div>
