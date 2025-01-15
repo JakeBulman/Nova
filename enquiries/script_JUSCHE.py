@@ -78,7 +78,9 @@ def run_algo():
             TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
             continue
             #New for N24, check if mark is confirmed but mark present
-        if final_mark_status == 'Confirmed' and (justification_string is not None or final_mark is not None) and (final_mark != original_mark):
+        if final_mark_status == 'Confirmed' and ((justification_string is not None and justification_string != '') or (final_mark is not None and final_mark != 'None')) and (int(final_mark) != int(float(original_mark))):
+            print(final_mark)
+            print(original_mark)
             print('Confirmed, with JC or Mark')
             mis_data.error_status = "Confirmed, with JC or Mark"
             mis_data.save()

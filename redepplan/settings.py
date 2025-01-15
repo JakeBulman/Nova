@@ -97,7 +97,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'OPTIONS': {
-            'options' : '-c search_path=earnova'
+            'options' : '-c search_path=earnova_uat'
         },
         'NAME': 'earnovadb',
         'USER': 'auroraadmin',

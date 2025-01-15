@@ -32,6 +32,7 @@ def run_algo():
         app_complete_check = False
         #check if completed apportion task is available
         enquiry_id = task.enquiry_id.enquiry_id
+        enquiry_obj = task.enquiry_id
         comp_list_newmis = []
         for comp in EnquiryComponents.objects.filter(erp_sid__cer_sid=enquiry_id):
             comp_list_newmis.append(comp.ec_sid)
@@ -49,9 +50,9 @@ def run_algo():
         
         if app_complete_check:
             TaskManager.objects.create(
-                enquiry_id = enquiry_id,
+                enquiry_id_id = enquiry_id,
                 ec_sid = None,
-                task_id = 'GRDMAT',
+                task_id_id = 'GRDMAT',
                 task_assigned_to = None,
                 task_assigned_date = None,
                 task_completion_date = None

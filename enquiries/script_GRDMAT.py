@@ -41,9 +41,9 @@ def run_algo():
             if mark_changed_check == 0:
                 #mark has not changed, grade has not changed
                 TaskManager.objects.create(
-                    enquiry_id = enquiry_id,
+                    enquiry_id_id = enquiry_id,
                     ec_sid = None,
-                    task_id = 'COMPLT',
+                    task_id_id = 'COMPLT',
                     task_assigned_to = User.objects.get(username='NovaServer'),
                     task_assigned_date = timezone.now(),
                     task_completion_date = timezone.now()
@@ -57,9 +57,9 @@ def run_algo():
                     if previous_grade == new_grade:
                         #mark has changed, grade has not changed
                         TaskManager.objects.create(
-                            enquiry_id = enquiry_id,
+                            enquiry_id_id = enquiry_id,
                             ec_sid = None,
-                            task_id = 'COMPLT',
+                            task_id_id = 'COMPLT',
                             task_assigned_to = User.objects.get(username='NovaServer'),
                             task_assigned_date = timezone.now(),
                             task_completion_date = timezone.now()
@@ -67,13 +67,17 @@ def run_algo():
                         TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
                     else:
                         previous_seq = EnquiryGrades.objects.get(enquiry_id=enquiry_id).previous_seq
+                        if previous_seq is None:
+                            previous_seq = ''
                         new_seq = EnquiryGrades.objects.get(enquiry_id=enquiry_id).new_seq
+                        if new_seq is None:
+                            new_seq = ''
                         if previous_seq < new_seq:
                             #mark has changed, grade has changed, grade is negative
                             TaskManager.objects.create(
-                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                                enquiry_id_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
                                 ec_sid = None,
-                                task_id = TaskTypes.objects.get(task_id = 'GRDREJ'),
+                                task_id_id = TaskTypes.objects.get(task_id = 'GRDREJ'),
                                 task_assigned_to = None,
                                 task_assigned_date = None,
                                 task_completion_date = None
@@ -81,7 +85,7 @@ def run_algo():
                         else:
                             #mark has changed, grade has changed, grade is positive
                             #check if any script was marked by PE
-                            if EnquiryComponentsPreviousExaminers.objects.filter(enquiry_id=enquiry_id,exm_position='01.01').exists():
+                            if EnquiryComponentsPreviousExaminers.objects.filter(cer_sid=enquiry_id,exm_position='01.01').exists():
                                 TaskManager.objects.create(
                                 enquiry_id_id = enquiry_id,
                                 ec_sid = None,
@@ -103,9 +107,9 @@ def run_algo():
                 elif EnquiryRequestParts.objects.get(cer_sid=enquiry_id).grade_confirmed_ind == 'Y':
                     #mark has changed, grade has not changed
                     TaskManager.objects.create(
-                        enquiry_id = enquiry_id,
+                        enquiry_id_id = enquiry_id,
                         ec_sid = None,
-                        task_id = 'COMPLT',
+                        task_id_id = 'COMPLT',
                         task_assigned_to = User.objects.get(username='NovaServer'),
                         task_assigned_date = timezone.now(),
                         task_completion_date = timezone.now()
@@ -121,9 +125,9 @@ def run_algo():
                     if previous_grade == new_grade:
                         #mark has changed, grade has not changed
                         TaskManager.objects.create(
-                            enquiry_id = enquiry_id,
+                            enquiry_id_id = enquiry_id,
                             ec_sid = None,
-                            task_id = 'COMPLT',
+                            task_id_id = 'COMPLT',
                             task_assigned_to = User.objects.get(username='NovaServer'),
                             task_assigned_date = timezone.now(),
                             task_completion_date = timezone.now()
@@ -135,9 +139,9 @@ def run_algo():
                         if previous_seq < new_seq:
                             #mark has changed, grade has changed, grade is negative
                             TaskManager.objects.create(
-                                enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                                enquiry_id_id = enquiry_id,
                                 ec_sid = None,
-                                task_id = TaskTypes.objects.get(task_id = 'GRDREJ'),
+                                task_id_id = 'GRDREJ',
                                 task_assigned_to = None,
                                 task_assigned_date = None,
                                 task_completion_date = None
@@ -169,9 +173,9 @@ def run_algo():
                 elif EnquiryRequestParts.objects.get(cer_sid=enquiry_id).grade_confirmed_ind == 'Y':
                     #mark has changed, grade has not changed
                     TaskManager.objects.create(
-                            enquiry_id = enquiry_id,
+                            enquiry_id_id = enquiry_id,
                             ec_sid = None,
-                            task_id = 'COMPLT',
+                            task_id_id = 'COMPLT',
                             task_assigned_to = User.objects.get(username='NovaServer'),
                             task_assigned_date = timezone.now(),
                             task_completion_date = timezone.now()
@@ -196,9 +200,9 @@ def run_algo():
                         if clr_needed == clr_complete:
                             #mark has changed, grade has not changed and 7 days have passed
                             TaskManager.objects.create(
-                                enquiry_id = enquiry_id,
+                                enquiry_id_id = enquiry_id,
                                 ec_sid = None,
-                                task_id = 'COMPLT',
+                                task_id_id = 'COMPLT',
                                 task_assigned_to = User.objects.get(username='NovaServer'),
                                 task_assigned_date = timezone.now(),
                                 task_completion_date = timezone.now()
@@ -218,9 +222,9 @@ def run_algo():
                         if clr_needed == clr_complete:
                             #mark has not changed, grade has not changed
                             TaskManager.objects.create(
-                                enquiry_id = enquiry_id,
+                                enquiry_id_id = enquiry_id,
                                 ec_sid = None,
-                                task_id = 'COMPLT',
+                                task_id_id = 'COMPLT',
                                 task_assigned_to = User.objects.get(username='NovaServer'),
                                 task_assigned_date = timezone.now(),
                                 task_completion_date = timezone.now()

@@ -74,7 +74,7 @@ def ear_home_view_team_alpha(request,*args, **kwargs):
 		user = request.user
 	
 	mytask_count = models.TaskManager.objects.filter(task_assigned_to=user, task_completion_date__isnull=True)
-	cer_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True,enquiries__enquiry_parts__isnull=False)
+	cer_count = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True,enquiries__enquiry_parts__isnull=False).distinct()
 	cer_count_compless = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='INITCH', enquiry_tasks__task_completion_date__isnull=True,enquiries__enquiry_parts__isnull=True)
 
 	session_desc = models.EarServerSettings.objects.first().session_description
@@ -1878,9 +1878,9 @@ def grdchg_task_complete(request):
 	if task_status == "Pass":
 		if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='COMPLT',task_completion_date = None).exists():
 			models.TaskManager.objects.create(
-				enquiry_id = enquiry_id,
+				enquiry_id_id = enquiry_id,
 				ec_sid = None,
-				task_id = 'COMPLT',
+				task_id_id = 'COMPLT',
 				task_assigned_to = User.objects.get(username='NovaServer'),
 				task_assigned_date = timezone.now(),
 				task_completion_date = timezone.now()
