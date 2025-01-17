@@ -28,7 +28,20 @@ from django.contrib.auth.models import User
 def run_algo():
     for task in TaskManager.objects.filter(task_id='GRDMAT', task_completion_date__isnull=True):
         enquiry_id = task.enquiry_id.enquiry_id
-
+        print(enquiry_id)
+        
+        if EnquiryRequestParts.objects.get(cer_sid=enquiry_id).service_code in ['ASC','ASR']:
+            #script request only
+            TaskManager.objects.create(
+                enquiry_id_id = enquiry_id,
+                ec_sid = None,
+                task_id_id = 'COMPLT',
+                task_assigned_to = User.objects.get(username='NovaServer'),
+                task_assigned_date = timezone.now(),
+                task_completion_date = timezone.now()
+            )
+            TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
+            continue            
         #check if grade confirmed, if so skip checks
         if MisReturnData.objects.filter(ec_sid__erp_sid__cer_sid__enquiry_id=enquiry_id).exists():
             script_marks = MisReturnData.objects.filter(ec_sid__erp_sid__cer_sid__enquiry_id=enquiry_id)
@@ -75,13 +88,14 @@ def run_algo():
                         if previous_seq < new_seq:
                             #mark has changed, grade has changed, grade is negative
                             TaskManager.objects.create(
-                                enquiry_id_id = CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+                                enquiry_id_id = enquiry_id,
                                 ec_sid = None,
-                                task_id_id = TaskTypes.objects.get(task_id = 'GRDREJ'),
+                                task_id_id = 'GRDREJ',
                                 task_assigned_to = None,
                                 task_assigned_date = None,
                                 task_completion_date = None
                             ) 
+                            TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())  
                         else:
                             #mark has changed, grade has changed, grade is positive
                             #check if any script was marked by PE
@@ -94,6 +108,7 @@ def run_algo():
                                 task_assigned_date = None,
                                 task_completion_date = None
                                 )  
+                                TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())  
                             else:
                                 TaskManager.objects.create(
                                 enquiry_id_id = enquiry_id,
@@ -103,7 +118,7 @@ def run_algo():
                                 task_assigned_date = None,
                                 task_completion_date = None
                                 )
-
+                                TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())  
                 elif EnquiryRequestParts.objects.get(cer_sid=enquiry_id).grade_confirmed_ind == 'Y':
                     #mark has changed, grade has not changed
                     TaskManager.objects.create(
