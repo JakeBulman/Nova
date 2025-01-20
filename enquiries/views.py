@@ -1,6 +1,7 @@
 from django.http import FileResponse, HttpResponseRedirect
 from . import models
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.paginator import Paginator
@@ -417,8 +418,13 @@ def remove_task_comment_view(request):
 	models.TaskComments.objects.filter(pk=comment_id).update(task_comment_invalid=1)
 	return redirect('task-router', task_id)
 
-def task_completion_view(request):
-	a = 1
+def task_completer(request, task_pk, task_id):
+	current_assignee = models.TaskManager.objects.get(pk=task_pk,task_id=task_id).task_assigned_to
+	task_complete_user = request.user
+	if current_assignee is not None:
+		models.TaskManager.objects.filter(pk=task_pk,task_id=task_id).update(task_completion_date=timezone.now()) 
+	else:
+		models.TaskManager.objects.filter(pk=task_pk,task_id=task_id).update(task_completion_date=timezone.now(),task_assigned_to=task_complete_user,task_assigned_date=timezone.now())
 
 def user_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -451,13 +457,21 @@ def self_assign_task_view(request, task_id=None):
 		models.TaskManager.objects.filter(id=task_id).update(task_assigned_to=username)
 		models.TaskManager.objects.filter(id=task_id).update(task_assigned_date=timezone.now())
 	redirect_address = request.POST.get('page_location')
+	current_page = request.POST.get('current_page')
 	if redirect_address == 'task_assignment':
 		return redirect('my_tasks')
 	if redirect_address == 'enquiry_detail':
 		enquiry_id = request.POST.get('enquiry_id')
 		return redirect('enquiries_detail', enquiry_id)
 	else:
-		return redirect(redirect_address)
+		if redirect_address.split('_')[0].upper() in ['PEACON','PDACON','GRDCHG','MRKAMD','GRDREJ']:
+			return redirect(f"{reverse('task_list_enq', kwargs={'task_id':redirect_address.split('_')[0].upper()})}?page={current_page}")
+			#return redirect('task_list_enq', redirect_address.split('_')[0].upper())
+		elif redirect_address.split('_')[0].upper() in ['NRMACC','S3SEND','S3CONF']:
+			return redirect('task_list_unpaged', redirect_address.split('_')[0].upper())
+		else:
+			return redirect(f"{reverse('task_list', kwargs={'task_id':redirect_address.split('_')[0].upper()})}?page={current_page}")
+	# + '?page=%s' + current_page
 	
 def assign_task_user_view(request, user_id=None, task_id=None):
 	#grab the model rows (ordered by id), filter to required task and where not completed.
@@ -673,7 +687,7 @@ def manual_apportionment(request):
 					)		
 
 		#complete the task
-		models.TaskManager.objects.filter(pk=apportion_task_id,task_id='MANAPP').update(task_completion_date=timezone.now())    
+		task_completer(request,apportion_task_id,'MANAPP') 
 		return redirect('my_tasks')
 
 def nrmacc_task(request, task_id=None):
@@ -699,12 +713,9 @@ def nrmacc_task(request, task_id=None):
 
 def nrmacc_task_complete(request):
 	task_id = request.POST.get('task_id')
-
 	apportion_enpe_sid = request.POST.get('enpe_sid')
 	apportion_script_id = request.POST.get('script_id')
-
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-
 	if apportion_enpe_sid:
 		examiner_obj = models.EnquiryPersonnel.objects.get(enpe_sid=apportion_enpe_sid)
 		script_obj = models.EnquiryComponents.objects.get(ec_sid=apportion_script_id)
@@ -713,7 +724,6 @@ def nrmacc_task_complete(request):
 			enpe_sid = examiner_obj,
 		)
 		return redirect('nrmacc-task',task_id=task_id)
-
 	else:
 		if not models.TaskManager.objects.filter(ec_sid=apportion_script_id, task_id='NEWMIS',task_completion_date = None).exists():
 			models.TaskManager.objects.create(
@@ -725,7 +735,7 @@ def nrmacc_task_complete(request):
 				task_completion_date = None
 			)
 		#complete the task
-		models.TaskManager.objects.filter(pk=task_id,task_id='NRMACC').update(task_completion_date=timezone.now())    
+		task_completer(request,task_id,'NRMACC')
 		return redirect('my_tasks')
 	
 
@@ -756,7 +766,7 @@ def nrmscs_task_complete(request):
 			task_completion_date = None
 		)
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='NRMSCS').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'NRMSCS')    
 	return redirect('my_tasks')
 
 
@@ -902,7 +912,7 @@ def s3send_task_complete(request):
 				)	
 
 		#complete the task
-		models.TaskManager.objects.filter(pk=task_id,task_id='S3SEND').update(task_completion_date=timezone.now())    
+		task_completer(request,task_id,'S3SEND')    
 		return redirect('my_tasks')
 
 def s3conf_task(request, task_id=None):
@@ -920,7 +930,7 @@ def s3conf_task(request, task_id=None):
 def s3conf_task_complete(request):
 	task_id = request.POST.get('task_id')
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='S3CONF').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'S3CONF')    
 	return redirect('my_tasks')
 	
 def manual_mis(request):
@@ -1000,7 +1010,7 @@ def manual_mis_complete(request):
 						task_completion_date = None
 					)
 				#complete the task
-				models.TaskManager.objects.filter(ec_sid=ec_sid,task_id='RETMIS').update(task_completion_date=timezone.now())
+				task_completer(request,task_pk,'RETMIS')
 				models.ScriptApportionment.objects.filter(ec_sid=ec_sid).update(script_marked=0)
 
 		else:
@@ -1058,7 +1068,7 @@ def misvrm_task_complete(request):
 		)
 
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='MISVRM').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'MISVRM')    
 	return redirect('my_tasks')
 
 
@@ -1117,7 +1127,7 @@ def misvrf_task_complete(request):
 		)
 
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='MISVRF').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'MISVRF')   
 	return redirect('my_tasks')
 
 
@@ -1175,7 +1185,7 @@ def marche_task_complete(request):
 		)
 
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='MARCHE').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'MARCHE')    
 	return redirect('my_tasks')
 
 
@@ -1221,7 +1231,7 @@ def pexmch_task_complete(request):
 		)
 
 		#complete the task
-		models.TaskManager.objects.filter(pk=task_id,task_id='PEXMCH').update(task_completion_date=timezone.now())    
+		task_completer(request,task_id,'PEXMCH')    
 	return redirect('my_tasks')
 
 
@@ -1334,7 +1344,7 @@ def locmar_task_complete(request):
 					error_status = "Locally Marked Component",
 				)
 		#complete the task
-		models.TaskManager.objects.filter(pk=task_id,task_id='LOCMAR').update(task_completion_date=timezone.now())    
+		task_completer(request,task_id,'LOCMAR')    
 	return redirect('my_tasks')
 
 def cleric_task(request, task_id=None):
@@ -1376,7 +1386,7 @@ def cleric_task_complete(request):
 			task_completion_date = None
 			)
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='CLERIC').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'CLERIC')    
 	return redirect('my_tasks')
 
 def muprex_task(request, task_id=None):
@@ -1397,7 +1407,7 @@ def muprex_task(request, task_id=None):
 def muprex_task_complete(request):
 	task_id = request.POST.get('task_id')
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='MUPREX').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'MUPREX')   
 	return redirect('my_tasks')
 
 def scrche_task(request, task_id=None):
@@ -1426,7 +1436,7 @@ def scrche_task_complete(request):
 			task_completion_date = None
 			)
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='SCRCHE').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'SCRCHE')    
 	return redirect('my_tasks')
 
 def scrreq_task(request, task_id=None):
@@ -1440,7 +1450,7 @@ def scrreq_task(request, task_id=None):
 def scrreq_task_complete(request):
 	task_id = request.POST.get('task_id')
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='SCRREQ').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'SCRREQ')  
 	return redirect('my_tasks')
 
 def botapf_task(request, task_id=None):
@@ -1451,7 +1461,7 @@ def botapf_task(request, task_id=None):
 def botapf_task_complete(request):
 	task_id = request.POST.get('task_id')
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='BOTAPF').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'BOTAPF')    
 	return redirect('my_tasks')
 
 def botmaf_task(request, task_id=None):
@@ -1479,7 +1489,7 @@ def botmaf_task_complete(request):
 					task_completion_date = None
 				)
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='BOTMAF').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'BOTMAF')   
 	models.ScriptApportionment.objects.filter(ec_sid=script_id,script_marked=0,apportionment_invalidated=0).update(script_mark_entered=0)
 	return redirect('my_tasks')
 
@@ -1511,7 +1521,7 @@ def exmsla_task_complete(request):
 			models.TaskManager.objects.filter(pk=models.TaskManager.objects.get(ec_sid=script_id,task_id='RETMIS').pk,task_id='RETMIS').update(
 				task_completion_date = None
 			)
-		models.TaskManager.objects.filter(pk=task_id,task_id='EXMSLA').update(task_completion_date=timezone.now())   
+		task_completer(request,task_id,'EXMSLA')  
 	else:
 		if not models.TaskManager.objects.filter(ec_sid=models.EnquiryComponents.objects.only('ec_sid').get(ec_sid=script_id), task_id='REMAPP',task_completion_date = None).exists():
 			if task_id:
@@ -1525,7 +1535,7 @@ def exmsla_task_complete(request):
 				)
 				#invalidate current apportionement
 				models.ScriptApportionment.objects.filter(ec_sid=script_id).update(apportionment_invalidated=1, script_marked=0)
-				models.TaskManager.objects.filter(pk=task_id,task_id='EXMSLA').update(task_completion_date=timezone.now())   
+				task_completer(request,task_id,'EXMSLA')  
 			else:
 				#this is for forced reapportionments
 				#close all outstanding tasks
@@ -1635,9 +1645,8 @@ def remapp_task_complete(request):
 				)		
 
 	#complete the task
-	models.TaskManager.objects.filter(pk=apportion_task_id,task_id='REMAPP').update(task_completion_date=timezone.now())    
+	task_completer(request,apportion_task_id,'REMAPP')    
 	return redirect('my_tasks')
-
 
 def remapf_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
@@ -1651,7 +1660,7 @@ def remapf_task(request, task_id=None):
 def remapf_task_complete(request):
 	apportion_task_id = request.POST.get('task_id')
 	#complete the task
-	models.TaskManager.objects.filter(pk=apportion_task_id,task_id='REMAPF').update(task_completion_date=timezone.now())    
+	task_completer(request,apportion_task_id,'REMAPF')   
 	return redirect('my_tasks')
 
 
@@ -1697,7 +1706,7 @@ def negcon_task_complete(request):
 				failure_reason = request.POST.get('rpa_fail')
 			)		
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='NEGCON').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'NEGCON')    
 	return redirect('my_tasks')
 
 def peacon_task(request, task_id=None):
@@ -1746,7 +1755,7 @@ def peacon_task_complete(request):
 				failure_reason = request.POST.get('rpa_fail')
 			)
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='PEACON').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'PEACON')   
 	return redirect('my_tasks')
 
 def new_scrreq(request):
@@ -1806,7 +1815,7 @@ def pdacon_task_complete(request):
 				failure_reason = request.POST.get('rpa_fail')
 			)
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='PDACON').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'PDACON')   
 	return redirect('my_tasks')
 
 def grdrej_task(request, task_id=None):
@@ -1833,7 +1842,7 @@ def grdrej_task_complete(request):
 			task_completion_date = None
 		)
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='GRDREJ').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'GRDREJ')    
 	return redirect('my_tasks')
 
 def mrkamd_task(request, task_id=None):
@@ -1859,7 +1868,7 @@ def mrkamd_task_complete(request):
 			task_completion_date = None
 		)
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='MRKAMD').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'MRKAMD') 
 	return redirect('my_tasks')
 
 def grdchg_task(request, task_id=None):
@@ -1886,7 +1895,7 @@ def grdchg_task_complete(request):
 				task_completion_date = timezone.now()
 			)
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='GRDCHG').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'GRDCHG')    
 	return redirect('my_tasks')
 
 def scrren_sendback_view(request):
@@ -1916,7 +1925,7 @@ def scrren_sendback_view(request):
 				task_completion_date = None
 			)
 	#complete the task
-	models.TaskManager.objects.filter(pk=task_id,task_id='SCRREN').update(task_completion_date=timezone.now())    
+	task_completer(request,task_id,'SCRREN')   
 	return redirect('scrren_list')
 
 def enquiries_detail(request, enquiry_id=None):

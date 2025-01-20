@@ -79,6 +79,7 @@
                       <td>{{ y.task_assigned_date }}</td>
                       <td><form method="POST" action="{% url 'self-assign-task' task_id=y.id %}" class="text-center">
                           <input name="page_location" id="page_location" value="{{task_qs.task_id|lower}}_list" type="hidden" class="form-control">
+                          <input type="hidden" name="current_page" id="current_page" value="{{ qs.number }}">
                           {% if request.user.username == y.task_assigned_to.username %}
                             <button disabled type="submit" class="btn btn-outline-secondary" style="width:120px">Assign to Me</button>
                           {% else %}
