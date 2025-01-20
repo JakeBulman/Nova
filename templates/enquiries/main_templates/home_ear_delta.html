@@ -54,7 +54,7 @@
             {% if nrmacc.count > 0 %}<span class="badge rounded-pill bg-primary">{{ nrmacc.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             {% if nrmacca.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ nrmacca.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
             <p class="card-text">Scripts awaiting manual apportionment.</p>
-            <a href="{% url 'nrmacc_list' %}" class="mt-auto btn btn-outline-primary">Go to Scripts</a>
+            <a href="{% url 'task_list_unpaged' 'NRMACC' %}" class="mt-auto btn btn-outline-primary">Go to Scripts</a>
           </div>
         </div>  
         <div class="card m-3 shadow-lg" style="width: 18rem; ">
@@ -63,7 +63,7 @@
             {% if s3send.count > 0 %}<span class="badge rounded-pill bg-primary">{{ s3send.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             {% if s3senda.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ s3senda.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
             <p class="card-text">Scripts awaiting apportionment for Service 3.</p>
-            <a href="{% url 's3send_list' %}" class="mt-auto btn btn-outline-primary">Go to Scripts</a>
+            <a href="{% url 'task_list_unpaged' 'S3SEND' %}" class="mt-auto btn btn-outline-primary">Go to Scripts</a>
           </div>
         </div>  
         <div class="card m-3 shadow-lg" style="width: 18rem; ">
@@ -72,7 +72,7 @@
             {% if s3conf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ s3conf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             {% if s3confa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ s3confa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
             <p class="card-text">Scripts awaiting receipt of report for Service 3.</p>
-            <a href="{% url 's3conf_list' %}" class="mt-auto btn btn-outline-primary">Go to Scripts</a>
+            <a href="{% url 'task_list_unpaged' 'S3CONF' %}" class="mt-auto btn btn-outline-primary">Go to Scripts</a>
           </div>
         </div>  
       </div>

@@ -22,7 +22,7 @@ else:
 
 django.setup()
 
-from enquiries.models import TaskManager, MisReturnData, CentreEnquiryRequests, EnquiryGrades, TaskTypes, EnquiryRequestParts, EnquiryComponentElements, EnquiryComponentsPreviousExaminers
+from enquiries.models import TaskManager, MisReturnData, GradeFailureAudit, EnquiryGrades, TaskTypes, EnquiryRequestParts, EnquiryComponentElements, EnquiryComponentsPreviousExaminers
 from django.contrib.auth.models import User
 
 def run_algo():
@@ -41,6 +41,7 @@ def run_algo():
                 task_completion_date = timezone.now()
             )
             TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
+            print('ASC/ASR')
             continue            
         #check if grade confirmed, if so skip checks
         if MisReturnData.objects.filter(ec_sid__erp_sid__cer_sid__enquiry_id=enquiry_id).exists():
@@ -85,9 +86,15 @@ def run_algo():
                         new_seq = EnquiryGrades.objects.get(enquiry_id=enquiry_id).new_seq
                         if new_seq is None:
                             new_seq = ''
-                        if previous_seq < new_seq:
+                        try:
+                            previous_seq_int = int(previous_seq)
+                            new_seq_int = int(new_seq)
+                        except:
+                            pass
+                        print(previous_seq + ' ' +  new_seq)
+                        if previous_seq_int <= new_seq_int:
                             #mark has changed, grade has changed, grade is negative
-                            TaskManager.objects.create(
+                            new_task = TaskManager.objects.create(
                                 enquiry_id_id = enquiry_id,
                                 ec_sid = None,
                                 task_id_id = 'GRDREJ',
@@ -95,6 +102,11 @@ def run_algo():
                                 task_assigned_date = None,
                                 task_completion_date = None
                             ) 
+                            GradeFailureAudit.objects.create(
+                            task_key = TaskManager.objects.get(pk=new_task.pk),
+                            failure_stage = TaskTypes.objects.get(task_id='NEGCON'),
+                            failure_reason = 'Negative Grade'
+			                )	
                             TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())  
                         else:
                             #mark has changed, grade has changed, grade is positive
@@ -153,7 +165,7 @@ def run_algo():
                         new_seq = EnquiryGrades.objects.get(enquiry_id=enquiry_id).new_seq
                         if previous_seq < new_seq:
                             #mark has changed, grade has changed, grade is negative
-                            TaskManager.objects.create(
+                            new_task = TaskManager.objects.create(
                                 enquiry_id_id = enquiry_id,
                                 ec_sid = None,
                                 task_id_id = 'GRDREJ',
@@ -161,6 +173,12 @@ def run_algo():
                                 task_assigned_date = None,
                                 task_completion_date = None
                             ) 
+                            GradeFailureAudit.objects.create(
+                            task_key = TaskManager.objects.get(pk=new_task.pk),
+                            failure_stage = TaskTypes.objects.get(task_id='NEGCON'),
+                            failure_reason = 'Negative Grade'
+			                )	
+                            TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
                         else:
                             #mark has changed, grade has changed, grade is positive
                             #check if any script was marked by PE
@@ -173,6 +191,7 @@ def run_algo():
                                 task_assigned_date = None,
                                 task_completion_date = None
                                 )  
+                                TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
                             else:
                                 TaskManager.objects.create(
                                 enquiry_id_id = enquiry_id,
@@ -182,9 +201,7 @@ def run_algo():
                                 task_assigned_date = None,
                                 task_completion_date = None
                                 )
-
-                        TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
-                        print('GRDNEG - CLERIC grade present and changed')
+                                TaskManager.objects.filter(pk=task.pk,task_id='GRDMAT').update(task_completion_date=timezone.now())
                 elif EnquiryRequestParts.objects.get(cer_sid=enquiry_id).grade_confirmed_ind == 'Y':
                     #mark has changed, grade has not changed
                     TaskManager.objects.create(
