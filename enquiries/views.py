@@ -2767,10 +2767,11 @@ def iec_issue_view(request, enquiry_id=None):
 		models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
 
 		return redirect('enquiries_list')
-
-def manapp_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='MANAPP', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	
+def task_list_view(request, task_id):
+	task_type = task_id.upper()
+	task_qs = models.TaskTypes.objects.get(task_id=task_type)
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id=task_type, script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -2781,36 +2782,14 @@ def manapp_list_view(request):
 	except EmptyPage:
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_manual_apportionment.html", context=context)
+	context = {"qs": page_obj, "task_qs":task_qs}
+	return render(request, "enquiries/task_lists/task_list.html", context=context)
 
-def nrmacc_list_view(request):
+def task_list_enq_view(request, task_id):
+	task_type = task_id.upper()
+	task_qs = models.TaskTypes.objects.get(task_id=task_type)
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='NRMACC', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')	
-	context = {"cer": ec_queryset,}
-	return render(request, "enquiries/task_lists/enquiries_nrmacc.html", context=context)
-
-def nrmscs_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='NRMSCS', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')	
-	context = {"cer": ec_queryset,}
-	return render(request, "enquiries/task_lists/enquiries_nrmscs.html", context=context)
-
-def s3send_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='S3SEND', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')	
-	context = {"cer": ec_queryset,}
-	return render(request, "enquiries/task_lists/enquiries_s3send.html", context=context)
-
-def s3conf_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='S3CONF', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')	
-	context = {"cer": ec_queryset,}
-	return render(request, "enquiries/task_lists/enquiries_s3conf.html", context=context)
-
-def misvrm_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='MISVRM', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id=task_type, enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -2821,136 +2800,16 @@ def misvrm_list_view(request):
 	except EmptyPage:
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_misvrm.html", context=context)
+	context = {"qs": page_obj, "task_qs":task_qs}
+	return render(request, "enquiries/task_lists/task_list_enq.html", context=context)
 
-def misvrf_list_view(request):
+def task_list_unpaged_view(request, task_id):
+	task_type = task_id.upper()
+	task_qs = models.TaskTypes.objects.get(task_id=task_type)
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='MISVRF', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_misvrf.html", context=context)
-
-def marche_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='MARCHE', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_marche.html", context=context)
-
-def cleric_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='CLERIC', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_cleric.html", context=context)
-
-def muprex_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='MUPREX', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_muprex.html", context=context)
-
-def scrche_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='SCRCHE', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_scrche.html", context=context)
-
-def scrreq_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='SCRREQ', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_scrreq.html", context=context)
-
-def locmar_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='LOCMAR', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_locmar.html", context=context)
-
-def pexmch_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='PEXMCH', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_pexmch.html", context=context)
+	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id=task_type, script_tasks__task_completion_date__isnull=True).order_by('ec_sid')	
+	context = {"qs": ec_queryset, "task_qs":task_qs}
+	return render(request, "enquiries/task_lists/task_list_unpaged.html", context=context)
 
 def esmcsv_list_view(request):
 	ec_queryset = models.EsmcsvDownloads.objects.order_by('-uploaded_at')
@@ -3018,9 +2877,6 @@ def esmcsv_download_view(request, download_id=None):
 	models.EsmcsvDownloads.objects.filter(pk=download_id).update(download_count = str(downloads))
 
 	return FileResponse(document, as_attachment=True)
-
-
-
 
 def omrche_list_view(request):
 	ec_queryset = models.OmrcheDownloads.objects.order_by('-uploaded_at')
@@ -3155,8 +3011,6 @@ def omrscr_download_view(request, download_id=None):
 	models.OmrscrDownloads.objects.filter(pk=download_id).update(download_count = str(downloads))
 
 	return FileResponse(document, as_attachment=True)
-
-
 
 def esmscr_list_view(request):
 	ec_queryset = models.EsmscrDownloads.objects.order_by('-uploaded_at')
@@ -3296,162 +3150,12 @@ def esmsc2_download_view(request, download_id=None):
 
 	return FileResponse(document, as_attachment=True)
 
-
-
-
-
 def scrren_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	comment = models.TaskComments.objects.filter(task_pk_id=OuterRef('pk'))
 	ec_queryset = models.TaskManager.objects.annotate(comment_field=Subquery(comment.values('task_comment_text'))).filter(task_id='SCRREN', task_completion_date__isnull=True).order_by('task_creation_date')
 	context = {"cer": ec_queryset,}
 	return render(request, "enquiries/task_lists/enquiries_scrren.html", context=context)
-
-
-def exmsla_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='EXMSLA', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_exmsla.html", context=context)
-
-def remapp_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='REMAPP', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_remapp.html", context=context)
-
-def remapf_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='REMAPF', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_remapf.html", context=context)
-
-
-def negcon_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='NEGCON', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_negcon.html", context=context)
-
-def pdacon_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PDACON', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_pdacon.html", context=context)
-
-def peacon_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='PEACON', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_peacon.html", context=context)
-
-def grdchg_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDCHG', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_grdchg.html", context=context)
-
-def grdrej_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='GRDREJ', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_grdrej.html", context=context)
-
-def mrkamd_list_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id='MRKAMD', enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/task_lists/enquiries_mrkamd.html", context=context)
 
 def enquiries_rpa_apportion_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -3502,22 +3206,6 @@ def rpa_apportion_fail_view(request, script_id=None):
 		#complete the task
 		models.TaskManager.objects.filter(ec_sid=script_id,task_id='BOTAPP').update(task_completion_date=timezone.now())
 		return redirect('rpa_apportionment')
-
-def enquiries_rpa_apportion_failure_view(request):
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTAPF', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/rpa/rpa_apportionment_failure.html", context=context)
-
 
 def enquiries_rpa_marks_keying_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
@@ -3582,23 +3270,6 @@ def rpa_marks_keying_fail_view(request, script_id=None):
 		#complete the task
 		models.TaskManager.objects.filter(ec_sid=script_id,task_id='BOTMAR').update(task_completion_date=timezone.now())
 		return redirect('rpa_marks_keying')
-
-def enquiries_rpa_marks_keying_failure_view(request):
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id='BOTMAF', script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
-	page_number = request.GET.get('page')
-	try:
-		page_obj = ec_queryset_paged.get_page(page_number)  # returns the desired page object
-	except PageNotAnInteger:
-		# if page_number is not an integer then assign the first page
-		page_obj = ec_queryset_paged.page(1)
-	except EmptyPage:
-		# if page is empty then return last page
-		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"cer": page_obj,}
-	return render(request, "enquiries/rpa/rpa_marks_keying_failure.html", context=context)
-
 
 def reload_tolerance_view(request):
 	if not models.ManualTaskQueue.objects.filter(task_type = 'MARTOL', task_queued=1).exists():
@@ -3962,3 +3633,57 @@ def user_change_secondary(request):
 
 
 	return redirect('edit_user', userid)
+
+# def new_mis_request(request):
+# 	sessions = str(EarServerSettings.objects.get(pk=1).session_id_list).split(',')
+# 	#rev_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid).first().exm_examiner_no
+# 	rev_exm = EnquiryPersonnelDetails.objects.filter(enpe_sid=ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid,session__in=sessions).first().exm_examiner_no
+# 	#This is all to get the scaled mark
+# 	scale_ass_code = app_task.ec_sid.eps_ass_code
+# 	scale_comp_id = app_task.ec_sid.eps_com_id
+# 	scale_centre_no = app_task.enquiry_id.centre_id
+# 	scale_cand_no = app_task.ec_sid.erp_sid.eps_cand_id
+# 	scale_ses_id = app_task.ec_sid.eps_ses_sid
+# 	print(scale_ass_code + " " + scale_comp_id + " " + scale_centre_no + " " + scale_cand_no + " " + scale_ses_id)
+# 	if ScaledMarks.objects.filter(eps_ass_code=scale_ass_code,eps_com_id=scale_comp_id,eps_cnu_id=scale_centre_no,eps_cand_no=scale_cand_no,eps_ses_sid=scale_ses_id).exists():
+# 		original_mark = ScaledMarks.objects.filter(eps_ass_code=scale_ass_code,eps_com_id=scale_comp_id,eps_cnu_id=scale_centre_no,eps_cand_no=scale_cand_no,eps_ses_sid=scale_ses_id).first().scaled_mark
+# 		if original_mark is None:
+# 			print("No Valid Scaled Mark 1")
+# 		else:
+# 			original_mark = int(original_mark.split('.')[0])
+# 	else:
+# 		print("No Valid Scaled Mark 2")
+# 	cred_no = ScriptApportionment.objects.filter(ec_sid=script_id, apportionment_invalidated=0).first().enpe_sid.per_sid.exm_creditor_no
+
+# 	#Work to be done by NEWMIS done here 
+# 	# new_filename = os.path.realpath("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\EARTemplate1.xlsx")
+# 	# print(os.path.dirname(new_filename))
+
+# 	new_filename = os.path.realpath("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\EARTemplate1.xlsx")
+# 	print(new_filename)
+
+# 	workbook = load_workbook(filename=new_filename)
+# 	sheet = workbook.active
+
+# 	#Syll/Comp
+# 	sheet["A2"] = syll_comp
+# 	#Batch
+# 	sheet["I2"] = batch_no
+# 	#Centre
+# 	sheet["A4"] = centre_no
+# 	#Cand no
+# 	sheet["B4"] = cand_no
+# 	#Cand name
+# 	sheet["C4"] = cand_name
+# 	#Orig Exm
+# 	sheet["D4"] = original_exm
+# 	#Rev Exm
+# 	sheet["E4"] = rev_exm
+# 	#Scaled (prev) mark
+# 	sheet["F4"] = original_mark
+
+# 	new_filename2 = os.path.realpath("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\" + mis_folder + "\Outbound\\Examiner-" + cred_no + "_" + batch_no + "_" + centre_no + "_" + cand_no + "_" + syll_comp.split('/')[0] + "_" + syll_comp.split('/')[1] + "_MIS.xlsx")
+# 	print(new_filename2)
+# 	workbook.save(filename=new_filename2)
+
+

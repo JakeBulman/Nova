@@ -54,7 +54,7 @@
             {% if cleric.count > 0 %}<span class="badge rounded-pill bg-primary">{{ cleric.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             {% if clerica.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ clerica.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
             <p class="card-text">Service 1 and 1s clerical check on script marks.</p>
-            <a href="{% url 'cleric_list' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+            <a href="{% url 'task_list' 'CLERIC' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
           </div>
         </div>
       </div>

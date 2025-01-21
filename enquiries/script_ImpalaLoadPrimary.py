@@ -570,12 +570,30 @@ def load_core_tables():
                 and cer.cnu_id = ac.co_centre_id
                 and erp.caom_ass_code = ac.ass_code
                 and erp.caom_cand_no = ac.coc_cand_no
+                inner join  (
+                  select ses_sid,
+                  co_centre_id,
+                  coc_cand_no,
+                  ass_code,
+                  field_name,
+                  max(mod_timestamp) as MaxMod
+                  from ar_meps_ord_prd.audit_changes
+                  where field_name = "QGR_SEQ_NO_DERIVED"
+                  and com_id is null
+                  group by ses_sid, co_centre_id, coc_cand_no, ass_code, field_name    
+                ) b
+                on ac.ses_sid = b.ses_sid
+                and ac.co_centre_id = b.co_centre_id
+                and ac.coc_cand_no = b.coc_cand_no
+                and ac.ass_code = b.ass_code
+                and ac.mod_timestamp = b.MaxMod
+                and ac.field_name = b.field_name
                 left join ar_meps_prod_prd.qualification_grades qgr
                 on qgr.qgs_sid = erp.qgr_qgs_sid and qgr.seq_no = erp.qgr_seq_no_derived
                 left join ar_meps_prod_prd.qualification_grades qgrp
                 on erp.qgr_qgs_sid = qgrp.qgs_sid and cast(qgrp.seq_no as string) = ac.previous_value
                 left join ar_meps_prod_prd.qualification_grades qgrn
-                on erp.qgr_qgs_sid = qgrn.qgs_sid and cast(qgrp.seq_no as string) = ac.new_value
+                on erp.qgr_qgs_sid = qgrn.qgs_sid and cast(qgrn.seq_no as string) = ac.new_value
                 where ac.record_type = "CAOM"
                 --and ac.confirmation_status = "UNC"
                 and ac.field_name in ("QGR_SEQ_NO_DERIVED","QGR_SEQ_NO_MANUAL")

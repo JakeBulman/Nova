@@ -91,7 +91,7 @@ def run_algo():
                         shutil.copy(os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\\", file), os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\Backup\\", file))
                         #copy file to next location with new name
                         new_name = '_'.join([centre,'COS',enquiry_id,syll,comp,cand]) + '.pdf'
-                        shutil.move(os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\\", file), os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\1.Series Folders\November 2024\\5. Scripts\\3. Ready for Upload\\", new_name))
+                        shutil.move(os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.ScriptServices\Ready To Upload\\", file), os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\1.Series Folders\\November 2024\\5. Scripts\\3. Ready for Upload\\", new_name))
 
             #Marks tasks complete and continue chain
             print(str(enquiry_id) + " passes SCRAUD")

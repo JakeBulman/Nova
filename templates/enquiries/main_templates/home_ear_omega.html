@@ -55,7 +55,7 @@
             {% if peacon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ peacon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             {% if peacona.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ peacona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
             <p class="card-text">Confirm grade change with principle examiner.</p>
-            <a href="{% url 'peacon_list' %}" class="mt-auto btn btn-outline-primary">Go to Approvals</a>
+            <a href="{% url 'task_list_enq' 'PEACON' %}" class="mt-auto btn btn-outline-primary">Go to Approvals</a>
           </div>
         </div>
         <div class="card m-3 shadow-lg" style="width: 18rem; ">
@@ -64,7 +64,7 @@
             {% if pdacon.count > 0 %}<span class="badge rounded-pill bg-primary">{{ pdacon.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             {% if pdacona.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ pdacona.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
             <p class="card-text">Confirm grade change with product owner.</p>
-            <a href="{% url 'pdacon_list' %}" class="mt-auto btn btn-outline-primary">Go to Approvals</a>
+            <a href="{% url 'task_list_enq' 'PDACON' %}" class="mt-auto btn btn-outline-primary">Go to Approvals</a>
           </div>
         </div>
         <div class="card m-3 shadow-lg" style="width: 18rem; ">
@@ -73,7 +73,7 @@
             {% if grdchg.count > 0 %}<span class="badge rounded-pill bg-primary">{{ grdchg.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             {% if grdchga.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ grdchga.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
             <p class="card-text">Action a grade change.</p>
-            <a href="{% url 'grdchg_list' %}" class="mt-auto btn btn-outline-primary">Go to Changes</a>
+            <a href="{% url 'task_list_enq' 'GRDCHG' %}" class="mt-auto btn btn-outline-primary">Go to Changes</a>
           </div>
         </div>
         <div class="card m-3 shadow-lg" style="width: 18rem; ">
@@ -82,7 +82,7 @@
             {% if grdrej.count > 0 %}<span class="badge rounded-pill bg-primary">{{ grdrej.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             {% if grdreja.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ grdreja.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
             <p class="card-text">Finalise grade rejections.</p>
-            <a href="{% url 'grdrej_list' %}" class="mt-auto btn btn-outline-primary">Go to Rejections</a>
+            <a href="{% url 'task_list_enq' 'GRDREJ' %}" class="mt-auto btn btn-outline-primary">Go to Rejections</a>
           </div>
         </div>
         <div class="card m-3 shadow-lg" style="width: 18rem; ">
@@ -91,7 +91,7 @@
             {% if mrkamd.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mrkamd.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
             {% if mrkamda.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ mrkamda.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
             <p class="card-text">Finalise mark amendments for rejected grades.</p>
-            <a href="{% url 'mrkamd_list' %}" class="mt-auto btn btn-outline-primary">Go to Amendments</a>
+            <a href="{% url 'task_list_enq' 'MRKAMD' %}" class="mt-auto btn btn-outline-primary">Go to Amendments</a>
           </div>
         </div>
       </div>

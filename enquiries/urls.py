@@ -95,34 +95,10 @@ urlpatterns = [
 
     #Shows all intial enquiry checks (IEC) that need to be actioned
     path('enquiries_list', views.enquiries_list_view, name='enquiries_list'),
-    #Shows all intial enquiry checks (IEC) that need to be actioned
-    #path('enquiries_setbie_list', views.enquiries_bie_view, name='enquiries_setbie_list'),
-    #Manual apportioment main screen
-    path('manapp_list', views.manapp_list_view, name='manapp_list'),
-    #Non-RM main screen
-    path('nrmacc_list', views.nrmacc_list_view, name='nrmacc_list'),
-    #Non-RM main screen
-    path('nrmscs_list', views.nrmscs_list_view, name='nrmscs_list'),
-    #Service 3 main screen
-    path('s3send_list', views.s3send_list_view, name='s3send_list'),
-    #Service 3 main screen 2
-    path('s3conf_list', views.s3conf_list_view, name='s3conf_list'),
-    #MIS vs RM main screen
-    path('misvrm_list', views.misvrm_list_view, name='misvrm_list'),
-    #MIS vs RM recheck main screen
-    path('misvrf_list', views.misvrf_list_view, name='misvrf_list'),
-    #Mark check main screen
-    path('marche_list', views.marche_list_view, name='marche_list'),
-    #Previous Exminer Checks main screen
-    path('pexmch_list', views.pexmch_list_view, name='pexmch_list'),
-    #Locmar Checks main screen
-    path('locmar_list', views.locmar_list_view, name='locmar_list'),
-    #Clerical Checks main screen
-    path('cleric_list', views.cleric_list_view, name='cleric_list'),
-    #Script Checks main screen
-    path('scrche_list', views.scrche_list_view, name='scrche_list'),
-    #Script Re-requests main screen
-    path('scrreq_list', views.scrreq_list_view, name='scrreq_list'),
+    #Task list views, dependent on task type passed in 
+    path('task_list/<str:task_id>', views.task_list_view, name='task_list'),
+    path('task_list_enq/<str:task_id>', views.task_list_enq_view, name='task_list_enq'),
+    path('task_list_unpaged/<str:task_id>', views.task_list_unpaged_view, name='task_list_unpaged'),
     #Download ESMCSV to file location
     path('esmcsv_list', views.esmcsv_list_view, name='esmcsv_list'),
     path('exmsla_create', views.esmcsv_create_view, name='exmsla_create'),
@@ -146,26 +122,7 @@ urlpatterns = [
     #Script waiting list
     path('scrren_list', views.scrren_list_view, name='scrren_list'),
     path('scrren_sendback', views.scrren_sendback_view, name='scrren_sendback'),
-    #Control Examiner SAL breaches
-    path('exmsla_list', views.exmsla_list_view, name='exmsla_list'),
-    #Re-do Examiner SAL breaches
-    path('remapp_list', views.remapp_list_view, name='remapp_list'),
-    #Re-do Examiner SAL breaches - EPS Pickup
-    path('remapf_list', views.remapf_list_view, name='remapf_list'),
-    #Previous Exminer Checks main screen
-    path('negcon_list', views.negcon_list_view, name='negcon_list'),
-    #Previous Exminer Checks main screen
-    path('peacon_list', views.peacon_list_view, name='peacon_list'),
-    #Previous Exminer Checks main screen
-    path('pdacon_list', views.pdacon_list_view, name='pdacon_list'),
-    #Grade Changes main screen
-    path('grdchg_list', views.grdchg_list_view, name='grdchg_list'),
-    #Grade Rejections main screen
-    path('grdrej_list', views.grdrej_list_view, name='grdrej_list'),
-    #Mark Amendments main screen
-    path('mrkamd_list', views.mrkamd_list_view, name='mrkamd_list'),
-    #MU examiners main screen
-    path('muprex_list', views.muprex_list_view, name='muprex_list'),
+
 
     ### Enquiry Detail Control ###
 
@@ -187,12 +144,10 @@ urlpatterns = [
 
     #RPA apportionment views
     path('rpa_apportionment', views.enquiries_rpa_apportion_view, name='rpa_apportionment'),
-    path('rpa_apportionment_failure', views.enquiries_rpa_apportion_failure_view, name='rpa_apportionment_failure'),
     path('rpa_apportionment/<str:script_id>/rpa-pass/', views.rpa_apportion_pass_view, name="rpa_apportion_pass"),
     path('rpa_apportionment/<str:script_id>/rpa-fail/', views.rpa_apportion_fail_view, name="rpa_apportion_fail"),
     #RPA marks keying views
     path('rpa_marks_keying', views.enquiries_rpa_marks_keying_view, name='rpa_marks_keying'),
-    path('rpa_marks_keying_failure', views.enquiries_rpa_marks_keying_failure_view, name='rpa_marks_keying_failure'),
     path('rpa_marks_keying/<str:script_id>/rpa-pass/', views.rpa_marks_keying_pass_view, name="rpa_marks_keying_pass"),
     path('rpa_marks_keying/<str:script_id>/rpa-fail/', views.rpa_marks_keying_fail_view, name="rpa_marks_keying_fail"),
 
