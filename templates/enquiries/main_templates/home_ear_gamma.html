@@ -98,10 +98,26 @@
       <div class="col d-flex justify-content-center">
         <div class="card m-3 shadow-lg" style="width: 18rem; ">
           <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Tolerances</h5>
+            <span class="badge rounded-pill bg-success"></span>
+            <p class="card-text">View Tolerance Status</p>
+            <a href="{% url 'reload-tolerance' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
             <h5 class="card-title">Manual MIS Entry</h5>
             <span class="badge rounded-pill bg-success"></span>
             <p class="card-text">Manually fill an MIS after examiner return.</p>
             <a href="{% url 'manual-mis' %}" class="mt-auto btn btn-outline-primary">Go to Form</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Request MIS</h5>
+            <span class="badge rounded-pill bg-success"></span>
+            <p class="card-text">Create a new MIS for a batch.</p>
+            <a href="{% url 'request-mis' %}" class="mt-auto btn btn-outline-primary">Go to Form</a>
           </div>
         </div>
         <div class="card m-3 shadow-lg" style="width: 18rem; ">
@@ -131,55 +147,53 @@
             <a href="{% url 'task_list' 'MARCHE' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
           </div>
         </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">Script Reapportionment</h5>
-            {% if remapp.count > 0 %}<span class="badge rounded-pill bg-primary">{{ remapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            {% if remappa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ remappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-            <p class="card-text">Reapportionment of scripts to new examiners.</p>
-            <a href="{% url 'task_list' 'REMAPP' %}" class="mt-auto btn btn-outline-primary">Go to Breaches</a>
-          </div>
-        </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">EPS Reapportionment</h5>
-            {% if remapf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ remapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            {% if remapfa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ remapfa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-            <p class="card-text">Reapportionment when an examiner SLA is breached.</p>
-            <a href="{% url 'task_list' 'REMAPF' %}" class="mt-auto btn btn-outline-primary">Go to Apportionment</a>
-          </div>
-        </div> 
       </div>
     </div>
     <div class="row mx-2">
       <div class="col d-flex justify-content-center">
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">RPA Apportion Failures</h5>
-            {% if botapf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            <p class="card-text">Tasks awaiting completion after a bot failed to process an apportionment.</p>
-            <a href="{% url 'task_list' 'BOTAPF' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
-          </div>
-        </div>
         <div class="row mx-2">
-          <div class="col d-flex justify-content-center">
-            <div class="card m-3 shadow-lg" style="width: 18rem; ">
-              <div class="card-body d-flex flex-column">
-                <h5 class="card-title">RPA Marks Keying Failures</h5>
-                {% if botmaf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botmaf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-                <p class="card-text">Tasks awaiting completion after a bot failed to process a mark keying.</p>
-                <a href="{% url 'task_list' 'BOTMAF' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
-              </div>
+          <div class="card m-3 shadow-lg" style="width: 18rem; ">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">Script Reapportionment</h5>
+              {% if remapp.count > 0 %}<span class="badge rounded-pill bg-primary">{{ remapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+              {% if remappa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ remappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+              <p class="card-text">Reapportionment of scripts to new examiners.</p>
+              <a href="{% url 'task_list' 'REMAPP' %}" class="mt-auto btn btn-outline-primary">Go to Breaches</a>
             </div>
           </div>
-        </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">MU Prempt Exm Checks</h5>
-            {% if muprex.count > 0 %}<span class="badge rounded-pill bg-primary">{{ muprex.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            {% if muprexa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ muprexa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-            <p class="card-text">Tasks awaiting updates to the examiner payment log.</p>
-            <a href="{% url 'task_list' 'MUPREX' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+          <div class="card m-3 shadow-lg" style="width: 18rem; ">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">EPS Reapportionment</h5>
+              {% if remapf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ remapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+              {% if remapfa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ remapfa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+              <p class="card-text">Reapportionment when an examiner SLA is breached.</p>
+              <a href="{% url 'task_list' 'REMAPF' %}" class="mt-auto btn btn-outline-primary">Go to Apportionment</a>
+            </div>
+          </div> 
+          <div class="card m-3 shadow-lg" style="width: 18rem; ">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">RPA Apportion Failures</h5>
+              {% if botapf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+              <p class="card-text">Tasks awaiting completion after a bot failed to process an apportionment.</p>
+              <a href="{% url 'task_list' 'BOTAPF' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+            </div>
+          </div>
+          <div class="card m-3 shadow-lg" style="width: 18rem; ">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">RPA Marks Keying Failures</h5>
+              {% if botmaf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botmaf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+              <p class="card-text">Tasks awaiting completion after a bot failed to process a mark keying.</p>
+              <a href="{% url 'task_list' 'BOTMAF' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+            </div>
+          </div>
+          <div class="card m-3 shadow-lg" style="width: 18rem; ">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">MU Prempt Exm Checks</h5>
+              {% if muprex.count > 0 %}<span class="badge rounded-pill bg-primary">{{ muprex.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+              {% if muprexa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ muprexa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+              <p class="card-text">Tasks awaiting updates to the examiner payment log.</p>
+              <a href="{% url 'task_list' 'MUPREX' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+            </div>
           </div>
         </div>
       </div>

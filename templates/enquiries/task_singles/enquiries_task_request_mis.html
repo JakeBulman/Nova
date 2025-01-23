@@ -1,0 +1,42 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center mb-5">EAR Task - Request MIS</h1>
+
+<div class="container">
+    <div class="row text-center">
+        <a class="btn btn-secondary btn-lg my-2" href='/enquiries/ear_home_view_team_gamma'>Back to Gamma</a>
+    </div>
+    <div class="row text-center my-3">
+        <h5>Task Instruction</h5>
+        <div>Please enter the details for this MIS.</div>
+
+        <h5 class="my-3">Current Status</h5>
+        <div style="color:red">
+                {{ current_status }}
+        </div>
+    </div>
+    <div class="row text-center m-5">
+        <div class="col-lg-3 align-self-center"></div>
+        <div class="col-lg-6 align-self-center">
+            <form method="POST" action="{% url 'request-mis-complete' %}" class="text-center">
+                <div class="row mb-2 g-3 align-items-center">
+                    <div class="col-4">
+                        <label for="batch_id" class="form-label">Batch ID</label>
+                    </div>
+                    <div class="col-8">
+                        <input name="batch_id" id="batch_id" type="text" class="form-control">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success btn-lg my-4" style="width:300px">Complete Form</button>
+            </form>
+        </div>
+        <div class="col-lg-3 align-self-center"></div>
+        </div>  
+
+</div>
+
+
+
+{% endblock %}

@@ -15,6 +15,7 @@ import dateutil.parser
 from django.db.models import OuterRef, Subquery, Max
 from datetime import datetime, timedelta, time
 from django.db import connection, reset_queries
+from openpyxl import load_workbook
 
 #special imports
 from . import script_ServerResetShort as srs
@@ -932,9 +933,90 @@ def s3conf_task_complete(request):
 	#complete the task
 	task_completer(request,task_id,'S3CONF')    
 	return redirect('my_tasks')
+
+def request_mis(request):
+	return render(request, "enquiries/task_singles/enquiries_task_request_mis.html")
+
+def request_mis_complete(request):
+	sessions = str(models.EarServerSettings.objects.get(pk=1).session_id_list).split(',')
+	batch_id = request.POST.get('batch_id')
+	error = ""
+	try:
+		script_obj = models.EnquiryComponentElements.objects.get(eb_sid_id=batch_id).ec_sid
+	except Exception as e:
+		context = {"current_status":"Batch could not be found"}
+		return render(request, "enquiries/task_singles/enquiries_task_request_mis.html", context=context)
+	try:
+		if models.ScriptApportionment.objects.filter(ec_sid=script_obj.ec_sid, apportionment_invalidated=0).exists():
+			syll = script_obj.eps_ass_code
+			comp = script_obj.eps_com_id
+			centre_no = script_obj.erp_sid.cer_sid.centre_id
+			cand_no = script_obj.erp_sid.eps_cand_id
+			cand_name = script_obj.erp_sid.stud_name
+			original_exm = models.EnquiryComponentsHistory.objects.get(ec_sid=script_obj.ec_sid).exm_position
+			rev_exm = models.EnquiryPersonnelDetails.objects.filter(enpe_sid=models.ScriptApportionment.objects.filter(ec_sid=script_obj.ec_sid, apportionment_invalidated=0).first().enpe_sid,session__in=sessions).first().exm_examiner_no
+			#This is all to get the scaled mark
+			scale_ass_code = script_obj.eps_ass_code
+			scale_comp_id = script_obj.eps_com_id
+			scale_centre_no = script_obj.erp_sid.eps_centre_id
+			scale_cand_no = script_obj.erp_sid.eps_cand_id
+			scale_ses_id = script_obj.eps_ses_sid
+			print(scale_ass_code + " " + scale_comp_id + " " + scale_centre_no + " " + scale_cand_no + " " + scale_ses_id)
+			if models.ScaledMarks.objects.filter(eps_ass_code=scale_ass_code,eps_com_id=scale_comp_id,eps_cnu_id=scale_centre_no,eps_cand_no=scale_cand_no,eps_ses_sid=scale_ses_id).exists():
+				original_mark = models.ScaledMarks.objects.filter(eps_ass_code=scale_ass_code,eps_com_id=scale_comp_id,eps_cnu_id=scale_centre_no,eps_cand_no=scale_cand_no,eps_ses_sid=scale_ses_id).first().scaled_mark
+				if original_mark is None:
+					error = "No Valid Scaled Mark"
+				else:
+					original_mark = int(original_mark.split('.')[0])
+			else:
+				error = "No Valid Scaled Mark"
+		else:
+			error = "Batch has no valid apportionment"
+		if error == "":
+			cred_no = models.ScriptApportionment.objects.filter(ec_sid=script_obj.ec_sid, apportionment_invalidated=0).first().enpe_sid.per_sid.exm_creditor_no
+
+			new_filename = os.path.realpath("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\EARTemplate1.xlsx")
+
+			workbook = load_workbook(filename=new_filename)
+			sheet = workbook.active
+
+			#Syll/Comp
+			sheet["A2"] = syll + "/" + comp
+			#Batch
+			sheet["I2"] = batch_id
+			#Centre
+			sheet["A4"] = centre_no
+			#Cand no
+			sheet["B4"] = cand_no
+			#Cand name
+			sheet["C4"] = cand_name
+			#Orig Exm
+			sheet["D4"] = original_exm
+			#Rev Exm
+			sheet["E4"] = rev_exm
+			#Scaled (prev) mark
+			sheet["F4"] = original_mark
+
+			#Examiners-956955_BATCH_836680_MIS
+			new_filename2 = os.path.realpath("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.RPA_MIS Returns\Outbound Copies\\Examiner-" + cred_no + "_" + batch_id + "_" + centre_no + "_" + cand_no + "_" + syll + "_" + comp + "_MIS.xlsx")
+			print(new_filename2)
+			workbook.save(filename=new_filename2)
+
+			context = {"current_status":"Mis created for " + batch_id}
+			return render(request, "enquiries/task_singles/enquiries_task_request_mis.html", context=context)
+		else:
+			context = {"current_status":error}
+			return render(request, "enquiries/task_singles/enquiries_task_request_mis.html", context=context)
+
+	except Exception as e:
+		print(f"{e}")
+		context = {"current_status":f"{e}"}
+		return render(request, "enquiries/task_singles/enquiries_task_request_mis.html", context=context)
+
+
 	
 def manual_mis(request):
-	return render(request, "enquiries/task_singles/enquiries_task_manual_mis.html")
+	return render(request, "enquiries/task_singles/enquiries_task_request_mis.html")
 
 def manual_mis_complete(request):
 	batch_id = request.POST.get('batch_id')
@@ -3281,11 +3363,40 @@ def rpa_marks_keying_fail_view(request, script_id=None):
 		return redirect('rpa_marks_keying')
 
 def reload_tolerance_view(request):
-	if not models.ManualTaskQueue.objects.filter(task_type = 'MARTOL', task_queued=1).exists():
-		models.ManualTaskQueue.objects.create(
-		task_type = 'MARTOL',
-		)
-	return redirect('enquiries_home')
+	qs = models.MarkTolerances.objects.all().order_by('eps_ass_code','eps_com_id')
+	context = {"qs":qs}
+	return render(request, "enquiries/task_singles/enquiries_tolerances.html", context=context)
+
+def reload_tolerance(request):
+	try:
+		filename=os.path.join("\\\\filestorage\cie\Operations\Results Team\Enquiries About Results\\0.Nova Downloads\\Tolerances.xlsx")
+		workbook = load_workbook(filename)
+		sheet = workbook.active
+		row_num = 1
+		models.MarkTolerances.objects.all().delete()
+		# Iterating through All rows with all columns...
+		for i in range(2, sheet.max_row+1):
+			row_num += 1
+			row = [cell.value for cell in sheet[i]] # sheet[n] gives nth row (list of cells)
+			if str(row[0]) == "None":
+				raise Exception("Syllabus missing from row")
+			elif str(row[1]) == "None":
+				raise Exception("Component missing from row")
+			elif str(row[2]) == "None":
+				raise Exception("Tolerance missing from row")
+			else:
+				models.MarkTolerances.objects.create(
+					eps_ass_code = str(row[0]).zfill(4),
+					eps_com_id = str(row[1]).zfill(2),
+					mark_tolerance = row[2]
+				)
+		qs = models.MarkTolerances.objects.all().order_by('eps_ass_code','eps_com_id')
+		context = {"current_status":f"Tolerances reloaded successfully.","qs":qs}
+		return render(request, "enquiries/task_singles/enquiries_tolerances.html", context=context)
+	except Exception as e:
+		print(f"{e}")
+		context = {"current_status":f"{e}, Row: {row_num}"}
+		return render(request, "enquiries/task_singles/enquiries_tolerances.html", context=context)
 
 def examiner_list_view(request):
 	search_q = ""
