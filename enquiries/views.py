@@ -2376,7 +2376,7 @@ def iec_pass_all_view(request):
 		for batch in range(batches):
 			task_set = []
 			batch_start = batch * batch_size
-			batch_end = (batch + 1) * batch_size - 1
+			batch_end = (batch + 1) * batch_size
 			print(batch_start)
 			print(batch_end)
 			batch_items = list(itertools.islice(all_initch, batch_start, batch_end))
@@ -3251,10 +3251,7 @@ def scrren_list_view(request):
 def enquiries_rpa_apportion_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	session_ids_string = str(models.EarServerSettings.objects.first().session_id_list)
-	if ',' in session_ids_string:
-		session_ids = (str(session_ids_string).split(','))
-	else:
-		session_ids = session_ids_string
+	session_ids = (str(session_ids_string).split(','))
 	ec_queryset = models.EnquiryComponents.objects.filter(eps_ses_sid__in=session_ids,script_tasks__task_id='BOTAPP', script_tasks__task_completion_date__isnull=True, script_id__eb_sid__created_date__isnull=False).order_by('erp_sid__cer_sid__enquiry_deadline__enquiry_deadline')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
@@ -3301,10 +3298,7 @@ def rpa_apportion_fail_view(request, script_id=None):
 def enquiries_rpa_marks_keying_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	session_ids_string = models.EarServerSettings.objects.first().session_id_list
-	if ',' in session_ids_string:
-		session_ids = (str(session_ids_string).split(','))
-	else:
-		session_ids = session_ids_string
+	session_ids = (str(session_ids_string).split(','))
 	ec_queryset = models.EnquiryComponents.objects.filter(eps_ses_sid__in=session_ids,script_tasks__task_id='BOTMAR', script_tasks__task_completion_date__isnull=True).order_by('erp_sid__cer_sid__enquiry_deadline__enquiry_deadline')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
