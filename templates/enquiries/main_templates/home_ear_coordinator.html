@@ -122,7 +122,7 @@
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">Checks & Examiners</h5>          
           <p class="card-text">Alpha</p>
-          <div id="alpha-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 5s" hx-swap="innerHTML"  hx-swap-oob="true">
+          <div id="alpha-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 30s" hx-swap="innerHTML"  hx-swap-oob="true">
               {% if alpha_count.count > 0 %}
               <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ alpha_count.count }} Tasks Waiting</span>
               {% else %}

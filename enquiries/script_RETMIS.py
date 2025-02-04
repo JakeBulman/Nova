@@ -4,25 +4,24 @@ import os
 import shutil
 import django
 from django.utils import timezone
-import win32com.client as win32
 
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
-    print('DEV')
-    path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
+    print('UAT')
+    path = os.path.join('C:\\Dev\\Nova')
     sys.path.append(path)
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
     mis_folder = '0.UAT_MIS Returns'
 elif os.getenv('DJANGO_PRODUCTION') == 'true':
-    print('PROD')
+    print('PRD')
     path = os.path.join('C:\\Dev\\Nova')
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
     mis_folder = '0.RPA_MIS Returns'
 else:
-    print('UAT - Check')
-    path = os.path.join('C:\\Dev\\nova')
+    print('DEV')
+    path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
     sys.path.append(path)
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
     mis_folder = '0.UAT_MIS Returns'
 
 django.setup()

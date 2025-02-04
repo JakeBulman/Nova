@@ -28,7 +28,9 @@ DEBUG = True
 
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost','*']
-
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 # Application definition
 
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
     'mathfilters',
     'django_htmx',
     'bootstrap_datepicker_plus',
@@ -67,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'redepplan.urls'
@@ -89,21 +93,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'redepplan.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'myproject',
-        'USER': 'postgres',
-        'PASSWORD': 'jman',
-        'HOST': 'localhost',
+        'OPTIONS': {
+            'options' : '-c search_path=earnova_dev'
+        },
+        'NAME': 'earnovadb',
+        'USER': 'auroraadmin',
+        'PASSWORD': '6X5Lkfy2botC4kUYur2c',
+        'HOST': 'rds-cluster-ear-nova-prod-postgre-db1-instance-1.crpk1a8lh79w.eu-west-1.rds.amazonaws.com',
         'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

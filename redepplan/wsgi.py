@@ -10,20 +10,21 @@ import site
 
 # Add the app's directory to the PYTHONPATH
 
-if os.getenv('DJANGO_DEVELOPMENT') == 'true':
-    print('DEV')
-elif os.getenv('DJANGO_PRODUCTION') == 'true':
+
+if os.getenv('DJANGO_PRODUCTION') == 'true':
     print('PROD')
     sys.path.append('C:/Dev/nova')
     sys.path.append('C:/Dev/nova/redepplan')
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "redepplan.settings_prod")
-else:
+elif os.getenv('DJANGO_DEVELOPMENT') == 'true':
     print('UAT - Check')
     sys.path.append('C:/Dev/nova')
     sys.path.append('C:/Dev/nova/redepplan')
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "redepplan.settings")
+else :
+    print('DEV')
 
 
 from django.core.wsgi import get_wsgi_application

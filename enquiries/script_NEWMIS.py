@@ -4,23 +4,24 @@ import os
 import django
 from django.utils import timezone
 
+
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
-    print('DEV')
-    path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
+    print('UAT')
+    path = os.path.join('C:\\Dev\\Nova')
     sys.path.append(path)
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
     mis_folder = '0.UAT_MIS Returns'
 elif os.getenv('DJANGO_PRODUCTION') == 'true':
-    print('PROD')
+    print('PRD')
     path = os.path.join('C:\\Dev\\Nova')
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
     mis_folder = '0.RPA_MIS Returns'
 else:
-    print('UAT - Check')
-    path = os.path.join('C:\\Dev\\nova')
+    print('DEV')
+    path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
     sys.path.append(path)
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
     mis_folder = '0.UAT_MIS Returns'
 
 django.setup()
@@ -30,7 +31,7 @@ from django.contrib.auth.models import User
 
 def run_algo():
     sessions = str(EarServerSettings.objects.get(pk=1).session_id_list).split(',')
-    for app_task in TaskManager.objects.filter(task_id='NEWMIS', task_completion_date__isnull=True):
+    for app_task in TaskManager.objects.select_related('ec_sid__erp_sid__cer_sid','enquiry_id').filter(task_id='NEWMIS', task_completion_date__isnull=True):
         if ScriptApportionment.objects.filter(ec_sid=app_task.ec_sid.ec_sid, apportionment_invalidated=0).exists():
             #task data pulled in here
             task_pk = app_task.pk

@@ -35,6 +35,10 @@ class CentreEnquiryRequests(models.Model):
     cie_direct_id = models.CharField(max_length=7, null=True)
     ministry_flag = models.CharField(max_length=3,null=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['enquiry_id']),
+        ]
 
 class EnquiryRequestParts(models.Model):
     erp_sid = models.CharField(max_length=8, unique=True, default=0)
@@ -54,6 +58,12 @@ class EnquiryRequestParts(models.Model):
     grade_confirmed_ind = models.CharField(max_length=1,null=True)
     grade_changed_ind = models.CharField(max_length=1,null=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['erp_sid']),
+            models.Index(fields=['cer_sid']),
+        ]
+
 
 class EnquiryComponents(models.Model):
     ec_sid = models.CharField(max_length=8, unique=True, default=0)
@@ -69,6 +79,12 @@ class EnquiryComponents(models.Model):
     eps_comp_name = models.CharField(max_length=50,null=True) #from cie.ca_products
     ccm_measure = models.CharField(max_length=5,null=True)
     script_type = models.CharField(max_length=50,null=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['ec_sid']),
+            models.Index(fields=['erp_sid']),
+        ]
 
 class EnquiryComponentsHistory(models.Model):
     cer_sid = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_original_marks',null=True)
@@ -87,6 +103,12 @@ class EnquiryComponentsHistory(models.Model):
     omr_batch = models.CharField(max_length=10,null=True)
     omr_position = models.CharField(max_length=10,null=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['cer_sid']),
+            models.Index(fields=['ec_sid']),
+        ]
+
 class EnquiryComponentsExaminerChecks(models.Model):
     cer_sid = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_pexmch',null=True)
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, related_name='script_pexmch',null=True) 
@@ -99,10 +121,22 @@ class EnquiryComponentsExaminerChecks(models.Model):
     kbr_code = models.CharField(max_length=4,null=True)
     kbr_reason = models.CharField(max_length=50,null=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['cer_sid']),
+            models.Index(fields=['ec_sid']),
+        ]
+
 class EnquiryComponentsPreviousExaminers(models.Model):
     cer_sid = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_prev_exm',null=True)
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, related_name='script_prev_exm',null=True) 
     exm_position = models.CharField(max_length=10,null=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['cer_sid']),
+            models.Index(fields=['ec_sid']),
+        ]
 
 class TaskTeams(models.Model):
     team_name = models.CharField(max_length=20, unique=True, default='')
@@ -125,7 +159,9 @@ class TaskManager(models.Model):
 
     class Meta:
         indexes = [
-            ConditionalUniqueIndex(fields=['enquiry_id','task_id'],name='enq-task',condition='"task_id"="INITCH"')
+            models.Index(fields=['enquiry_id']),
+            models.Index(fields=['ec_sid']),
+            models.Index(fields=['task_id']),
         ]
 
 class TaskComments(models.Model):
@@ -148,6 +184,11 @@ class EnquiryBatches(models.Model):
     eb_sid = models.CharField(max_length=8, unique=True, default=0)
     created_date = models.DateTimeField(null=True)
     enpe_eper_per_sid = models.CharField(max_length=8, null=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['eb_sid']),
+        ]
     
 class EnquiryComponentElements(models.Model):
     ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', related_name='script_id', on_delete=models.CASCADE)
@@ -161,6 +202,12 @@ class EnquiryComponentElements(models.Model):
     mark_after_enquiry = models.CharField(max_length=5, null=True)
     justification_code = models.CharField(max_length=5, null=True)
     me_id = models.CharField(max_length=3, null=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['ec_sid']),
+            models.Index(fields=['eb_sid']),
+        ]
 
 class EnquiryGrades(models.Model):
     enquiry_id = models.ForeignKey(CentreEnquiryRequests, to_field='enquiry_id', on_delete=models.SET_NULL, related_name='enquiry_grades',null=True)
@@ -281,6 +328,11 @@ class ScriptApportionment(models.Model):
     apportionment_invalidated = models.IntegerField(default=0)
     overdue_case = models.ForeignKey(ExaminerOverdueCases, on_delete=models.SET_NULL, null=True, related_name='case_apportioned_scripts')
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['ec_sid']),
+        ]
+
     #Apportionment staging table
 class DjangoStagingTableAPP(models.Model):
     enpe_sid = models.ForeignKey(EnquiryPersonnel, to_field='enpe_sid', on_delete=models.SET_NULL, null=True, related_name='staging_examiner')
@@ -354,6 +406,12 @@ class MisReturnData(models.Model):
     remark_reason = models.TextField(null=True)
     remark_concern_reason = models.TextField(null=True)
     error_status = models.CharField(max_length=50, null=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['ec_sid']),
+            models.Index(fields=['eb_sid']),
+        ]
 
 class EsmcsvDownloads(models.Model):
     document = models.FileField(upload_to='documents/')

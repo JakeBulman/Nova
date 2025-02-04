@@ -5,20 +5,20 @@ from django.utils import timezone
 import datetime
 
 if os.getenv('DJANGO_DEVELOPMENT') == 'true':
-    print('DEV')
-    path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
+    print('UAT')
+    path = os.path.join('C:\\Dev\\Nova')
     sys.path.append(path)
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
 elif os.getenv('DJANGO_PRODUCTION') == 'true':
-    print('PROD')
+    print('PRD')
     path = os.path.join('C:\\Dev\\Nova')
     sys.path.append(path)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
 else:
-    print('UAT - Check')
-    path = os.path.join('C:\\Dev\\nova')
+    print('DEV')
+    path = os.path.join('C:\\Users\\bulmaj\\OneDrive - Cambridge\\Desktop\\Dev\\Nova')
     sys.path.append(path)
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
 
 django.setup()
 
@@ -32,7 +32,6 @@ def run_algo():
         app_complete_check = False
         #check if completed apportion task is available
         enquiry_id = task.enquiry_id.enquiry_id
-        enquiry_obj = task.enquiry_id
         comp_list_newmis = []
         for comp in EnquiryComponents.objects.filter(erp_sid__cer_sid=enquiry_id):
             comp_list_newmis.append(comp.ec_sid)
@@ -44,8 +43,6 @@ def run_algo():
 
         comp_list_newmis.sort()
         comp_list_gdwait.sort()
-
-        print(comp_list_newmis,comp_list_gdwait)
         app_complete_check = comp_list_newmis == comp_list_gdwait
         
         if app_complete_check:
