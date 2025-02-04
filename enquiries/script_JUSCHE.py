@@ -25,6 +25,14 @@ django.setup()
 from enquiries.models import TaskManager, EnquiryComponents, CentreEnquiryRequests, MisReturnData, TaskTypes, MarkTolerances, ScaledMarks, EnquiryComponentsExaminerChecks, EnquiryComponentsHistory
 from django.contrib.auth.models import User
 
+def return_int(possible_int):
+    try:
+        int(possible_int)
+        return possible_int
+    except:
+        pass
+        return None
+
 def run_algo():
     for task in TaskManager.objects.filter(task_id='JUSCHE', task_completion_date__isnull=True):
         print(task.ec_sid.ec_sid)
@@ -78,11 +86,26 @@ def run_algo():
             TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
             continue
             #New for N24, check if mark is confirmed but mark present
-        if final_mark_status == 'Confirmed' and ((justification_string is not None and justification_string != '') or (final_mark is not None and final_mark != 'None')) and (int(final_mark) != int(float(original_mark))):
-            print(final_mark)
-            print(original_mark)
-            print('Confirmed, with JC or Mark')
-            mis_data.error_status = "Confirmed, with JC or Mark"
+        try:
+            if final_mark_status == 'Confirmed' and ((justification_string is not None and justification_string != '') or (final_mark is not None and final_mark != 'None')) and (int(final_mark) != int(float(original_mark))):
+                print(final_mark)
+                print(original_mark)
+                print('Confirmed, with JC or Mark')
+                mis_data.error_status = "Confirmed, with JC or Mark"
+                mis_data.save()
+                TaskManager.objects.create(
+                    enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
+                    ec_sid = EnquiryComponents.objects.get(ec_sid=task.ec_sid.ec_sid),
+                    task_id = TaskTypes.objects.get(task_id = 'MISVRF'),
+                    task_assigned_to = None,
+                    task_assigned_date = None,
+                    task_completion_date = None
+                )
+                TaskManager.objects.filter(pk=task.pk,task_id='JUSCHE').update(task_completion_date=timezone.now())  
+                continue
+        except:
+            pass
+            mis_data.error_status = "MIS Configuration issue"
             mis_data.save()
             TaskManager.objects.create(
                 enquiry_id = CentreEnquiryRequests.objects.get(enquiry_id=task.enquiry_id.enquiry_id),
