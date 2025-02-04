@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 urlpatterns = [
     #Home view for EARs
@@ -213,4 +214,4 @@ urlpatterns = [
     path('update_user', views.update_user_view, name='update_user'),
     path('user_change_secondary', views.user_change_secondary, name='user_change_secondary'),
     path('reload_tolerance', views.reload_tolerance_view, name='reload_tolerance')
-]
+] + debug_toolbar_urls()

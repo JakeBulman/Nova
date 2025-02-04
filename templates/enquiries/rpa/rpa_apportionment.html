@@ -72,12 +72,12 @@
                 <th>RPA Fail</th>
             </tr>
             {% for x in ec_queryset %}
-                {% for y in x.apportion_script.all %}
+                {% for y in x.ec_sid.apportion_script.all %}
                 <tr>
                     <td><a href='/enquiries/enquiries_detail/{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}'>{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}</a></td> 
                     <td>{{ y.ec_sid.ec_sid }}</td>
-                    <td>{{ x.eps_ses_name }}</td>
-                    {% for s in x.script_id.all %}<td>{{ s.eb_sid.eb_sid }}</td>{% empty %}<td>None</td>{% endfor %}
+                    <td>{{ x.ec_sid.eps_ses_name }}</td>
+                    <td>{{ x.eb_sid.eb_sid }}</td>
                     <td>{{ y.enpe_sid.per_sid.exm_surname|upper }} {{ y.enpe_sid.per_sid.exm_initials }}</td>
                     <td><form method="POST" action="{% url 'rpa_apportion_pass' script_id=y.ec_sid.ec_sid %}" class="text-center">
                         <button type="submit" title="Pass" class="btn btn-outline-success" style="width:70px">Pass</button>

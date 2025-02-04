@@ -31,7 +31,7 @@ from django.contrib.auth.models import User
 
 def run_algo():
     sessions = str(EarServerSettings.objects.get(pk=1).session_id_list).split(',')
-    for app_task in TaskManager.objects.filter(task_id='NEWMIS', task_completion_date__isnull=True):
+    for app_task in TaskManager.objects.select_related('ec_sid__erp_sid__cer_sid','enquiry_id').filter(task_id='NEWMIS', task_completion_date__isnull=True):
         if ScriptApportionment.objects.filter(ec_sid=app_task.ec_sid.ec_sid, apportionment_invalidated=0).exists():
             #task data pulled in here
             task_pk = app_task.pk

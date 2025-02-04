@@ -1,7 +1,7 @@
 <div id="alpha-pill" 
 hx-target="#alpha-pill" 
 hx-get="{% url 'enquiries_home' %}" 
-hx-trigger="every 5s" 
+hx-trigger="every 30s" 
 hx-swap="outerHTML">
 {% if alpha_count.count > 0 %}
 <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ alpha_count.count }} Tasks Waiting</span>

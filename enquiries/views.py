@@ -2013,8 +2013,8 @@ def scrren_sendback_view(request):
 def enquiries_detail(request, enquiry_id=None):
 	cer_queryset = None
 	if enquiry_id is not None:	
-		cer_queryset = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id)
-		task_queryset = models.TaskManager.objects.filter(enquiry_id=enquiry_id).order_by('task_creation_date')
+		cer_queryset = models.CentreEnquiryRequests.objects.prefetch_related('enquiries__enquiry_parts__script_id__eb_sid','enquiries__enquiry_parts__apportion_script__enpe_sid__per_sid').get(enquiry_id=enquiry_id)
+		task_queryset = models.TaskManager.objects.select_related('task_id','ec_sid','enquiry_id','task_assigned_to').filter(enquiry_id=enquiry_id).order_by('task_creation_date')
 		excluded_task_list = ['INITCH','SETBIE','AUTAPP','BOTAPP','NEWMIS','RETMIS','JUSCHE','BOTMAR','GRDMAT','ESMCSV','ESMSCR','ESMSC2','OMRCHE','SCRREN','SCRAUD','LETSCR','OMRSCR','MKWAIT']
 		complete_list = ['COMPLT','SETBIE']
 		marking_list = ['NEWMIS','CLERIC','LOCMAR']
@@ -2858,11 +2858,10 @@ def iec_issue_view(request, enquiry_id=None):
 		models.TaskManager.objects.filter(enquiry_id=enquiry_id,task_id='INITCH').update(task_completion_date=timezone.now())
 
 		return redirect('enquiries_list')
-	
+
 def task_list_view(request, task_id):
-	task_type = task_id.upper()
-	task_qs = models.TaskTypes.objects.get(task_id=task_type)
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id=task_type, script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	task_qs = task_id.upper()
+	ec_queryset = models.EnquiryComponentElements.objects.prefetch_related('ec_sid__script_tasks__task_id','ec_sid__script_tasks__task_assigned_to').select_related('ec_sid__erp_sid__cer_sid','eb_sid').filter(ec_sid__script_tasks__task_id=task_qs, ec_sid__script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -2877,10 +2876,10 @@ def task_list_view(request, task_id):
 	return render(request, "enquiries/task_lists/task_list.html", context=context)
 
 def task_list_enq_view(request, task_id):
-	task_type = task_id.upper()
-	task_qs = models.TaskTypes.objects.get(task_id=task_type)
+	task_qs = task_id.upper()
 	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.CentreEnquiryRequests.objects.filter(enquiry_tasks__task_id=task_type, enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+	ec_queryset = models.TaskManager.objects.select_related('ec_sid__erp_sid__cer_sid','enquiry_id').filter(task_id=task_qs, task_completion_date__isnull=True).order_by('enquiry_id')
+	#ec_queryset = models.CentreEnquiryRequests.objects.prefetch_related('enquiry_id__enquiry_tasks__task_id','enquiry_id__enquiry_tasks__task_id__task_id','enquiry_id__enquiry_tasks__task_assigned_to').filter(enquiry_tasks__task_id=task_qs, enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -2895,10 +2894,8 @@ def task_list_enq_view(request, task_id):
 	return render(request, "enquiries/task_lists/task_list_enq.html", context=context)
 
 def task_list_unpaged_view(request, task_id):
-	task_type = task_id.upper()
-	task_qs = models.TaskTypes.objects.get(task_id=task_type)
-	# grab the model rows (ordered by id), filter to required task and where not completed.
-	ec_queryset = models.EnquiryComponents.objects.filter(script_tasks__task_id=task_type, script_tasks__task_completion_date__isnull=True).order_by('ec_sid')	
+	task_qs = task_id.upper()
+	ec_queryset = models.EnquiryComponentElements.objects.prefetch_related('ec_sid__script_tasks__task_id','ec_sid__script_tasks__task_assigned_to').select_related('ec_sid__erp_sid__cer_sid','eb_sid').filter(ec_sid__script_tasks__task_id=task_qs, ec_sid__script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
 	context = {"qs": ec_queryset, "task_qs":task_qs}
 	return render(request, "enquiries/task_lists/task_list_unpaged.html", context=context)
 
@@ -3244,7 +3241,7 @@ def esmsc2_download_view(request, download_id=None):
 def scrren_list_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	comment = models.TaskComments.objects.filter(task_pk_id=OuterRef('pk'))
-	ec_queryset = models.TaskManager.objects.annotate(comment_field=Subquery(comment.values('task_comment_text'))).filter(task_id='SCRREN', task_completion_date__isnull=True).order_by('task_creation_date')
+	ec_queryset = models.TaskManager.objects.select_related('task_id','ec_sid__erp_sid__cer_sid').prefetch_related('ec_sid__script_id__eb_sid').annotate(comment_field=Subquery(comment.values('task_comment_text'))).filter(task_id='SCRREN', task_completion_date__isnull=True).order_by('task_creation_date')
 	context = {"cer": ec_queryset,}
 	return render(request, "enquiries/task_lists/enquiries_scrren.html", context=context)
 
@@ -3252,7 +3249,7 @@ def enquiries_rpa_apportion_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	session_ids_string = str(models.EarServerSettings.objects.first().session_id_list)
 	session_ids = (str(session_ids_string).split(','))
-	ec_queryset = models.EnquiryComponents.objects.filter(eps_ses_sid__in=session_ids,script_tasks__task_id='BOTAPP', script_tasks__task_completion_date__isnull=True, script_id__eb_sid__created_date__isnull=False).order_by('erp_sid__cer_sid__enquiry_deadline__enquiry_deadline')
+	ec_queryset = models.EnquiryComponentElements.objects.select_related('ec_sid__erp_sid__cer_sid','eb_sid').prefetch_related('ec_sid__apportion_script__enpe_sid__per_sid').filter(ec_sid__eps_ses_sid__in=session_ids,ec_sid__script_tasks__task_id='BOTAPP',ec_sid__script_tasks__task_completion_date__isnull=True,eb_sid__created_date__isnull=False).order_by('ec_sid__erp_sid__cer_sid__enquiry_deadline__enquiry_deadline')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -3299,7 +3296,7 @@ def enquiries_rpa_marks_keying_view(request):
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	session_ids_string = models.EarServerSettings.objects.first().session_id_list
 	session_ids = (str(session_ids_string).split(','))
-	ec_queryset = models.EnquiryComponents.objects.filter(eps_ses_sid__in=session_ids,script_tasks__task_id='BOTMAR', script_tasks__task_completion_date__isnull=True).order_by('erp_sid__cer_sid__enquiry_deadline__enquiry_deadline')
+	ec_queryset = models.EnquiryComponentElements.objects.select_related('ec_sid__erp_sid__cer_sid','eb_sid').prefetch_related('ec_sid__apportion_script__enpe_sid__per_sid','ec_sid__script_mis').filter(ec_sid__eps_ses_sid__in=session_ids,ec_sid__script_tasks__task_id='BOTMAR',ec_sid__script_tasks__task_completion_date__isnull=True,eb_sid__created_date__isnull=False).order_by('ec_sid__erp_sid__cer_sid__enquiry_deadline__enquiry_deadline')
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -3401,7 +3398,7 @@ def examiner_list_view(request):
 	if search_q.find("/") > -1:
 		split_search_q_1 = search_q.split("/")[0]
 		split_search_q_2 = search_q.split("/")[1]
-	ep_queryset = models.UniqueCreditor.objects.filter(Q(exm_creditor_no__icontains = search_q) | Q(exm_surname__icontains = search_q) | Q(creditors__exm_per_details__ass_code__icontains = split_search_q_1) & Q(creditors__exm_per_details__com_id__icontains = split_search_q_2)).order_by('exm_creditor_no').distinct()
+	ep_queryset = models.UniqueCreditor.objects.prefetch_related('creditors__exm_per_details','exm_availability','exm_notes','exm_conflicts','exm_email_manual').filter(Q(exm_creditor_no__icontains = search_q) | Q(exm_surname__icontains = search_q) | Q(creditors__exm_per_details__ass_code__icontains = split_search_q_1) & Q(creditors__exm_per_details__com_id__icontains = split_search_q_2)).order_by('exm_creditor_no').distinct()
 	ep_queryset = ep_queryset.filter(creditors__currently_valid=1)
 	ep_queryset_paged = Paginator(ep_queryset,10,0,True)
 	page_number = request.GET.get('page')
@@ -3427,7 +3424,7 @@ def examiner_detail(request, per_sid=None):
 		try:
 			email_new = models.ExaminerEmailOverride.objects.get(creditor__per_sid = per_sid).examiner_email_manual
 		except:
-			email_new = models.UniqueCreditor.objects.get(per_sid=per_sid).exm_email
+			email_new = uc_queryset.exm_email
 
 
 	context = {"uc": uc_queryset, "exm": exm_queryset, "exm2": exm_queryset2, "exm_email": email_new}

@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h1 class="display-5 text-center mb-5">EAR - {{task_qs.task_id}}</h1>
+<h1 class="display-5 text-center mb-5">EAR - {{task_qs}}</h1>
 
     <div class="table-responsive-xl m-5">
         <table class="table table-sm table-bordered table-hover">
@@ -19,20 +19,20 @@
               <th colspan="2">Assignment</th>
             </tr>
             {% for x in qs %}
-                {% for y in x.script_tasks.all %}
-                    {% if y.task_id.task_id == task_qs.task_id and y.task_completion_date == None %}
+                {% for y in x.ec_sid.script_tasks.all %}
+                    {% if y.task_id.task_id == task_qs and y.task_completion_date == None %}
                     <tr class="text-center">
                       <td><a href='/enquiries/enquiries_detail/{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}'>{{ y.ec_sid.erp_sid.cer_sid.enquiry_id }}</a></td> 
-                      <td>{{ x.erp_sid.service_code }}</td>
+                      <td>{{ x.ec_sid.erp_sid.service_code }}</td>
                       <td>{{ y.ec_sid.ec_sid }}</td>
-                      <td>{{ x.script_type }}</td>
-                      <td>{{ x.eps_ses_name }}</td>
-                      {% for s in x.script_id.all %}<td>{{ s.eb_sid.eb_sid }}</td>{% empty %}<td>None</td>{% endfor %}
+                      <td>{{ x.ec_sid.script_type }}</td>
+                      <td>{{ x.ec_sid.eps_ses_name }}</td>
+                      <td>{{ x.eb_sid.eb_sid }}</td>
                       <td>{{ y.task_creation_date }}</td>
                       <td>{{ y.task_assigned_to }}</td>
                       <td>{{ y.task_assigned_date }}</td>
                       <td><form method="POST" action="{% url 'self-assign-task' task_id=y.id %}" class="text-center">
-                          <input name="page_location" id="page_location" value="{{task_qs.task_id|lower}}_list" type="hidden" class="form-control">
+                          <input name="page_location" id="page_location" value="{{task_qs|lower}}_list" type="hidden" class="form-control">
                           {% if request.user.username == y.task_assigned_to.username %}
                             <button disabled type="submit" class="btn btn-outline-secondary" style="width:120px">Assign to Me</button>
                           {% else %}
@@ -40,7 +40,7 @@
                           {% endif %}
                       </form></td>
                       <td><form method="POST" action="{% url 'assign-task-user' task_id=y.id  user_id=request.user.id %}" class="text-center">
-                        <input name="page_location" id="page_location" value="{{task_qs.task_id|lower}}_list" type="hidden" class="form-control">
+                        <input name="page_location" id="page_location" value="{{task_qs|lower}}_list" type="hidden" class="form-control">
                         <button type="submit" class="btn btn-outline-warning" style="width:120px">Assign To</button>
                     </form></td>
                     </tr>

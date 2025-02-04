@@ -41,7 +41,7 @@
         </div>
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">My Tasks</h5>
-          <div id="mytask-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 10s" hx-swap="innerHTML"  hx-swap-oob="true">
+          <div id="mytask-pill" hx-get="{% url 'enquiries_home' %}" hx-trigger="every 30s" hx-swap="innerHTML"  hx-swap-oob="true">
             {% if mytask_count.count > 0 %}
             <span class="badge rounded-pill bg-primary d-flex justify-content-center">{{ mytask_count.count }} Tasks Waiting</span>
             {% else %}
