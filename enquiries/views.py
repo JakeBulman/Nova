@@ -1016,7 +1016,7 @@ def request_mis_complete(request):
 
 	
 def manual_mis(request):
-	return render(request, "enquiries/task_singles/enquiries_task_request_mis.html")
+	return render(request, "enquiries/task_singles/enquiries_task_manual_mis.html")
 
 def manual_mis_complete(request):
 	batch_id = request.POST.get('batch_id')
