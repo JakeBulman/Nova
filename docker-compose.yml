@@ -1,0 +1,12 @@
+services:
+  web:
+    build: .
+    restart: always
+    volumes:
+      - .:/code
+    environment:
+     - DJANGO_SETTINGS_MODULE=redepplan.settings_dev
+    env_file:
+      - .env
+    ports:
+      - '8000:8000'
