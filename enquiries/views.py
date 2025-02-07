@@ -1104,6 +1104,44 @@ def manual_mis_complete(request):
 	
 	return render(request, "enquiries/task_singles/enquiries_task_manual_mis.html", context=context)
 
+def scaled_mark_entry(request):
+	return render(request, "enquiries/task_singles/enquiries_task_scaled_mark_entry.html")
+
+def scaled_mark_entry_complete(request):
+	eps_ass_code = request.POST.get('eps_ass_code')
+	eps_com_id = request.POST.get('eps_com_id')
+	eps_cnu_id = request.POST.get('eps_cnu_id')
+	eps_cand_no = request.POST.get('eps_cand_no')
+	eps_ses_sid = request.POST.get('eps_ses_sid')
+	scaled_mark = request.POST.get('scaled_mark')
+	exm_examiner_no = request.POST.get('exm_examiner_no')
+	original_exm_scaled = request.POST.get('original_exm_scaled')
+
+	if eps_ass_code != '' and eps_com_id !='' and eps_cnu_id !='' and eps_cand_no !='' and eps_ses_sid !='' and scaled_mark !='' and exm_examiner_no !='' and original_exm_scaled !='':
+		models.ScaledMarks.objects.create(
+			eps_ass_code = eps_ass_code,
+			eps_com_id = eps_com_id,
+			eps_cnu_id = eps_cnu_id,
+			eps_cand_no = eps_cand_no,
+			eps_ses_sid = eps_ses_sid,
+			raw_mark = None,
+			assessor_mark  = None,
+			final_mark = None,
+			exm_examiner_no = exm_examiner_no,
+			scaled_mark = scaled_mark,
+			original_exm_scaled = original_exm_scaled,
+		)
+
+		context = {"current_status":f'Successfully added scaled mark - {eps_ass_code} {eps_com_id} {eps_cnu_id} {eps_cand_no}'}
+
+	else:
+		context = {"current_status":f'Missing details, please try again.'}
+
+	#CHANGE THIS TO RENDER SO CAN PASS ERROR CODES
+	
+	return render(request, "enquiries/task_singles/enquiries_task_scaled_mark_entry.html", context=context)
+
+
 def misvrm_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
 
