@@ -420,6 +420,8 @@ def remove_task_comment_view(request):
 	return redirect('task-router', task_id)
 
 def task_completer(request, task_pk, task_id):
+	print(task_pk)
+	print(task_id)
 	current_assignee = models.TaskManager.objects.get(pk=task_pk,task_id=task_id).task_assigned_to
 	task_complete_user = request.user
 	if current_assignee is not None:
@@ -1941,6 +1943,7 @@ def pdacon_task_complete(request):
 def pdacon_task_sendback(request):
 	print('sendback')
 	task_id = request.POST.get('task_id')
+	task_type = request.POST.get('task_type')
 	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
 	if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='PEACON',task_completion_date = None).exists():
 		models.TaskManager.objects.create(
@@ -1952,7 +1955,7 @@ def pdacon_task_sendback(request):
 			task_completion_date = None
 		)
 	#complete the task
-	task_completer(request,task_id,'PDACON')   
+	task_completer(request,task_id,task_type)   
 	return redirect('my_tasks')
 
 def grdrej_task(request, task_id=None):

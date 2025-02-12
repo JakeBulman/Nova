@@ -186,6 +186,7 @@
     </div>  
     <div class="row text-center mt-4">
         <form method="POST" action="{% url 'pdacon-sendback' %}" class="text-center">
+        <input name="task_type" id="task_status" value="PDACON" type="hidden" class="form-control">
         <input name="task_id" id="task_id" value={{task.id}} type="hidden" class="form-control">
         <button type="submit" class="btn btn-warning btn-lg my-2" style="width:300px">Send back to PEACON</button>
         </form>
