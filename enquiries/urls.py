@@ -84,6 +84,7 @@ urlpatterns = [
     path('task_manager/negcon_task/complete', views.negcon_task_complete, name='negcon-complete'),
     path('task_manager/negcon_task/<str:task_id>', views.negcon_task, name='negcon-task'), 
     path('task_manager/pdacon_task/complete', views.pdacon_task_complete, name='pdacon-complete'),
+    path('task_manager/pdacon_task/sendback', views.pdacon_task_sendback, name='pdacon-sendback'),
     path('task_manager/pdacon_task/<str:task_id>', views.pdacon_task, name='pdacon-task'), 
     path('task_manager/peacon_task/complete', views.peacon_task_complete, name='peacon-complete'),
     path('task_manager/peacon_task/new_scrreq', views.new_scrreq, name='new-scrreq'),

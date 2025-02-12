@@ -276,7 +276,7 @@ def my_tasks_view(request):
 	for team in secondary_team_set:
 		secondary_teams.append(team.secondary_team)
 	#Get task objects for this user
-	task_queryset = models.TaskManager.objects.filter(task_assigned_to=user,task_completion_date__isnull=True).order_by('enquiry_id__enquiry_deadline__enquiry_deadline')
+	task_queryset = models.TaskManager.objects.select_related('ec_sid__erp_sid__cer_sid','enquiry_id').prefetch_related('ec_sid__script_id__eb_sid','enquiry_id__enquiry_deadline').filter(task_assigned_to=user,task_completion_date__isnull=True).order_by('enquiry_id__enquiry_deadline__enquiry_deadline')
 	task_count = models.TaskManager.objects.filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team=primary_team).exclude(task_id__in=excluded_task_list).count() + models.TaskManager.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True,task_id__task_team__in=secondary_teams).exclude(task_id__in=excluded_task_list).count() 
 	context = {"tasks": task_queryset, "task_count": task_count}
 	return render(request, "enquiries/main_templates/my_tasks.html", context=context)
@@ -1934,6 +1934,23 @@ def pdacon_task_complete(request):
 				failure_stage = models.TaskTypes.objects.get(task_id='PDACON'),
 				failure_reason = request.POST.get('rpa_fail')
 			)
+	#complete the task
+	task_completer(request,task_id,'PDACON')   
+	return redirect('my_tasks')
+
+def pdacon_task_sendback(request):
+	print('sendback')
+	task_id = request.POST.get('task_id')
+	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
+	if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='PEACON',task_completion_date = None).exists():
+		models.TaskManager.objects.create(
+			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+			ec_sid = None,
+			task_id = models.TaskTypes.objects.get(task_id = 'PEACON'),
+			task_assigned_to = User.objects.get(id=models.TaskManager.objects.get(pk=task_id).task_assigned_to.pk),
+			task_assigned_date = None,
+			task_completion_date = None
+		)
 	#complete the task
 	task_completer(request,task_id,'PDACON')   
 	return redirect('my_tasks')
