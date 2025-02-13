@@ -253,16 +253,17 @@ try:
   smtp.quit()
 
   print('Finished Successfully')
-except:
+except Exception as e:
   sender = "results.enquiries@cambridge.org"
   email = EmailMessage()
   email["From"] = "results.enquiries@cambridge.org"
   email["To"] = "results.enquiries@cambridge.org, jacob.bulman@cambridge.org,,ben.herbert@cambridge.org,charlotte.weedon@cambridge.org,lab.d@cambridgeassessment.org.uk"
   email["Subject"] = "Review of Marking Worklist Emails - ERROR"
-  email.set_content("Emails have not been sent successfully, please contact the system administrator for further details.", subtype='html')
+  email.set_content(f"Emails have not been sent successfully, please contact the system administrator for further details. {e}", subtype='html')
 
   smtp = smtplib.SMTP("smtp0.ucles.internal", port=25) 
   smtp.sendmail(sender, ["results.enquiries@cambridge.org", "jacob.bulman@cambridge.org","ben.herbert@cambridge.org","charlotte.weedon@cambridge.org","lab.d@cambridgeassessment.org.uk"], email.as_string())
   smtp.quit()
 
   print('Did not finish')
+  print(e)

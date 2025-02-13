@@ -1617,7 +1617,7 @@ def exmsla_task_complete(request):
 				)
 				#invalidate current apportionement
 				models.ScriptApportionment.objects.filter(ec_sid=script_id).update(apportionment_invalidated=1, script_marked=0)
-				task_completer(request,task_id,'EXMSLA')  
+				models.TaskManager.objects.filter(ec_sid=models.EnquiryComponents.objects.get(ec_sid=script_id),task_id__in=['REMAPP','REMAPF','BOTAPP','ESMCSV','NRMACC','S3SEND','EXMSLA','NEWMIS','RETMIS','MISVRM','MISVRF','JUSCHE','MARCHE','MKWAIT','BOTMAR'],task_completion_date=None).update(task_completion_date=timezone.now())
 			else:
 				#this is for forced reapportionments
 				#close all outstanding tasks
