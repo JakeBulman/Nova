@@ -37,8 +37,6 @@ urlpatterns = [
     path('task_manager/assign_task_user/<str:user_id>/<str:task_id>/<str:selected_user>', views.assign_task_user_selected_view, name='assign-task-user-selected'),
     path('task_manager/manual_apportionment_task/complete', views.manual_apportionment, name='manual-apportionment-complete'),
     path('task_manager/manual_apportionment_task/<str:task_id>', views.manual_apportionment_task, name='manual-apportionment-task'),
-    #path('task_manager/setbie_task/<str:task_id>', views.setbie_task, name='setbie-task'),
-    #path('task_manager/setbie_task/<str:enquiry_id>/bie-complete/', views.complete_bie_view, name="bie-complete"),
     path('task_manager/nrmacc_task/complete', views.nrmacc_task_complete, name='nrmacc-complete'),
     path('task_manager/nrmacc_task/<str:task_id>', views.nrmacc_task, name='nrmacc-task'), 
     path('task_manager/nrmscs_task/complete', views.nrmscs_task_complete, name='nrmscs-complete'),
@@ -182,22 +180,6 @@ urlpatterns = [
     #Examiner email update endpoints
     path('examiner_email_update/<str:per_sid>/edit', views.examiner_email_edit_view, name='exm-email-edit'),
     path('examiner_email_update/<str:per_sid>/', views.examiner_email_view, name='examiner_email'),
-
-
-
-    #CASE System
-    path('case_system', views.case_system_view, name='case_system'),
-    path('case_detail/<str:case_id>/', views.case_detail_view, name='case_detail'),
-    path('case_system_create', views.create_cases_view, name='case_system_create'),
-    path('case_system/self_assign_task/<str:case_id>', views.self_assign_case_view, name='self-assign-case'),
-    path('case_system/assign_task_user/<str:user_id>/<str:case_id>', views.assign_case_user_view, name='assign-case-user'),
-    path('case_system/assign_task_user/<str:user_id>/<str:case_id>/<str:selected_user>', views.assign_case_user_selected_view, name='assign-case-user-selected'),
-
-    path('case_system/my_cases', views.my_cases_view, name='my_cases'),
-    path('case_system/set_backlog_case', views.set_backlog_case, name='set_backlog_case'),
-    path('case_system/new_case', views.new_case_view, name='new-case'),
-    path('case_system/add_new_comment', views.new_case_comment_view, name='add_case_comment'),
-    path('case_system/remove_new_comment', views.remove_case_comment_view, name='remove_case_comment'),
 
 
     ### Panel Control ###

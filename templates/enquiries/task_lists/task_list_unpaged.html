@@ -4,6 +4,17 @@
 
 <h1 class="display-5 text-center mb-5">EAR - {{task_qs}}</h1>
 
+<div class="row justify-content-center">
+  <div class="col-md-auto">
+      <form class="text-center" style="width:500px" method="GET" action='/enquiries/task_list_unpaged/{{task_qs}}'>
+          <div>
+          <input name="search_query" id="search_query" type="text" class="form-control mb-1 text-center" placeholder="Enquiry ID" value={{sq}}>
+          </div>
+          <button type="submit" class="btn btn-outline-primary text-center" style="width:200px">Search</button>
+      </form>
+  </div>
+</div>
+
     <div class="table-responsive-xl m-5">
         <table class="table table-sm table-bordered table-hover">
             <tr class="text-center">

@@ -497,112 +497,6 @@ def assign_task_user_selected_view(request, user_id=None, task_id=None, selected
 		return redirect('enquiries_detail', enquiry_id)
 	else:
 		return redirect(redirect_address)
-	
-def my_cases_view(request):
-		#Get username to filter cases
-	user = None
-	if request.user.is_authenticated:
-		user = request.user
-	#Get task objects for this user
-	task_queryset = models.ExaminerOverdueCases.objects.filter(task_assigned_to=user,task_completion_date__isnull=True).order_by('task_creation_date')
-	task_count = models.ExaminerOverdueCases.objects.filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).count()
-	context = {"cases": task_queryset, "case_count": task_count}
-	return render(request, "enquiries/examiners/case_system/my_cases.html", context=context)
-	
-def self_assign_case_view(request, case_id=None):
-	#Get username to filter tasks
-	print(case_id)
-	username = None
-	if request.user.is_authenticated:
-		username =request.user
-	#Set the  task to this user
-	if case_id is not None:
-		models.ExaminerOverdueCases.objects.filter(id=case_id).update(task_assigned_to=username)
-		models.ExaminerOverdueCases.objects.filter(id=case_id).update(task_assigned_date=timezone.now())
-
-	return redirect('case_system')
-	
-def assign_case_user_view(request, user_id=None, case_id=None):
-	#grab the model rows (ordered by id), filter to required task and where not completed.
-	queryset = models.User.objects.filter(assigned_cases__task_completion_date__isnull=True).exclude(user_primary__primary_team__team_name='Server').annotate(task_count=Count("assigned_tasks",distinct=True)).order_by('username','user_primary__primary_team__team_name')
-	redirect_address = request.POST.get('page_location')
-	enquiry_id = request.POST.get('enquiry_id')
-	context = {"users": queryset, "original_user":user_id, "case_id":case_id, "redirect_address":redirect_address, "enquiry_id":enquiry_id}	
-	return render(request, "enquiries/main_templates/enquiries_user_select_case.html", context=context)
-	#return redirect('user_tasks', user_id)
-
-def assign_case_user_selected_view(request, user_id=None, case_id=None, selected_user=None):
-	models.ExaminerOverdueCases.objects.filter(pk=case_id).update(task_assigned_to=User.objects.get(pk=selected_user),task_queued=0,task_assigned_date=timezone.now())
-	redirect_address = request.POST.get('page_location')
-
-	return redirect('case_system')
-	# if redirect_address == 'my_tasks':
-	# 	return redirect('my_tasks')
-	# elif redirect_address == 'task_assignment':
-	# 	return redirect('user_tasks', user_id)
-	# elif redirect_address == 'enquiry_detail':
-	# 	enquiry_id = request.POST.get('enquiry_id')
-	# 	return redirect('enquiries_detail', enquiry_id)
-	# else:
-	# 	return redirect(redirect_address)
-
-def new_case_view(request):
-	#Get username to filter tasks
-	username = None
-	if request.user.is_authenticated:
-		username =request.user
-	#Caclulate next task in the queue
-	if models.ExaminerOverdueCases.objects.filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).exists():
-		print('primary')
-		next_task_id = models.ExaminerOverdueCases.objects.order_by('task_creation_date').filter(task_assigned_to__isnull=True,task_completion_date__isnull=True).first().pk
-	else:
-		print('none')
-		next_task_id = None
-	#Set the newest task to this user
-	if next_task_id is not None:
-		models.ExaminerOverdueCases.objects.filter(id=next_task_id).update(task_assigned_to=username,task_assigned_date=timezone.now())
-	return redirect('my_cases')
-
-def set_backlog_case(request):
-	task_id = request.POST.get('task_id')
-	task_val = request.POST.get('task_val')
-	if task_val == '0': 
-		set_val = 1
-	else: 
-		set_val = 0
-	models.ExaminerOverdueCases.objects.filter(id=task_id).update(task_queued=set_val)
-	return redirect('my_cases')
-
-def new_case_comment_view(request):
-	case_id = request.POST.get('case_id')
-	case_comment = request.POST.get('case_comment')
-	#get current user
-	username = None
-	if request.user.is_authenticated:
-		username =request.user
-
-	#get this task, assuming valid
-	case = models.ExaminerOverdueCases.objects.get(pk=case_id)
-	if case_id is not None:
-		models.CaseComments.objects.create(
-			case_pk = case,
-			case_comment_text = case_comment,
-			case_comment_user = username
-		)
-
-	return redirect('case_detail', case_id)
-
-def remove_case_comment_view(request):
-	case_id = request.POST.get('case_id')
-	comment_id = request.POST.get('comment_id')
-	models.CaseComments.objects.filter(pk=comment_id).update(case_comment_invalid=1)
-	return redirect('case_detail', case_id)
-		
-
-# def setbie_task(request, task_id=None):
-# 	task_queryset = models.TaskManager.objects.get(pk=task_id)
-# 	context = {"task_id":task_id, "task":task_queryset}
-# 	return render(request, "enquiries/task_singles/enquiries_task_setbie.html", context=context)
 
 def manual_apportionment_task(request, task_id=None):
 	task_queryset = models.TaskManager.objects.get(pk=task_id)
@@ -2918,8 +2812,12 @@ def iec_issue_view(request, enquiry_id=None):
 		return redirect('enquiries_list')
 
 def task_list_view(request, task_id):
+	search_q = ""
+	if request.GET.get('search_query') is not None:
+		search_q = request.GET.get('search_query')
 	task_qs = task_id.upper()
 	ec_queryset = models.EnquiryComponentElements.objects.prefetch_related('ec_sid__script_tasks__task_id','ec_sid__script_tasks__task_assigned_to').select_related('ec_sid__erp_sid__cer_sid','eb_sid').filter(ec_sid__script_tasks__task_id=task_qs, ec_sid__script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
+	ec_queryset = ec_queryset.filter(Q(ec_sid__erp_sid__cer_sid__enquiry_id__icontains = search_q))
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -2930,14 +2828,19 @@ def task_list_view(request, task_id):
 	except EmptyPage:
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"qs": page_obj, "task_qs":task_qs}
+	context = {"qs": page_obj, "task_qs":task_qs, "sq":search_q}
 	return render(request, "enquiries/task_lists/task_list.html", context=context)
 
 def task_list_enq_view(request, task_id):
+	search_q = ""
+	if request.GET.get('search_query') is not None:
+		search_q = request.GET.get('search_query')
 	task_qs = task_id.upper()
 	# grab the model rows (ordered by id), filter to required task and where not completed.
 	ec_queryset = models.TaskManager.objects.select_related('ec_sid__erp_sid__cer_sid','enquiry_id').filter(task_id=task_qs, task_completion_date__isnull=True).order_by('enquiry_id')
-	#ec_queryset = models.CentreEnquiryRequests.objects.prefetch_related('enquiry_id__enquiry_tasks__task_id','enquiry_id__enquiry_tasks__task_id__task_id','enquiry_id__enquiry_tasks__task_assigned_to').filter(enquiry_tasks__task_id=task_qs, enquiry_tasks__task_completion_date__isnull=True).order_by('enquiry_id')
+	print(ec_queryset)
+	ec_queryset = ec_queryset.filter(Q(enquiry_id__enquiry_id__icontains = search_q))
+	print(ec_queryset)
 	ec_queryset_paged = Paginator(ec_queryset,10,0,True)
 	page_number = request.GET.get('page')
 	try:
@@ -2948,13 +2851,17 @@ def task_list_enq_view(request, task_id):
 	except EmptyPage:
 		# if page is empty then return last page
 		page_obj = ec_queryset_paged.page(ec_queryset_paged.num_pages)	
-	context = {"qs": page_obj, "task_qs":task_qs}
+	context = {"qs": page_obj, "task_qs":task_qs, "sq":search_q}
 	return render(request, "enquiries/task_lists/task_list_enq.html", context=context)
 
 def task_list_unpaged_view(request, task_id):
+	search_q = ""
+	if request.GET.get('search_query') is not None:
+		search_q = request.GET.get('search_query')
 	task_qs = task_id.upper()
 	ec_queryset = models.EnquiryComponentElements.objects.prefetch_related('ec_sid__script_tasks__task_id','ec_sid__script_tasks__task_assigned_to').select_related('ec_sid__erp_sid__cer_sid','eb_sid').filter(ec_sid__script_tasks__task_id=task_qs, ec_sid__script_tasks__task_completion_date__isnull=True).order_by('ec_sid')
-	context = {"qs": ec_queryset, "task_qs":task_qs}
+	ec_queryset = ec_queryset.filter(Q(ec_sid__erp_sid__cer_sid__enquiry_id__icontains = search_q))
+	context = {"qs": ec_queryset, "task_qs":task_qs, "sq":search_q}
 	return render(request, "enquiries/task_lists/task_list_unpaged.html", context=context)
 
 def esmcsv_list_view(request):
