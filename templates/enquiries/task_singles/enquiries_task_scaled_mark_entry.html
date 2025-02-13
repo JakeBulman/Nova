@@ -1,0 +1,102 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center mb-5">EAR Task - Manual MIS</h1>
+
+<div class="container">
+    <div class="row text-center">
+        <a class="btn btn-secondary btn-lg my-2" href='/enquiries/ear_home_view_team_gamma'>Back to Gamma</a>
+    </div>
+    <div class="row text-center my-3">
+        <h5>Task Instruction</h5>
+        <div>Please enter the details for this Scaled Mark.</div>
+
+        <h5 class="my-3">Current Status</h5>
+        <div style="color:red">
+                {{ current_status }}
+        </div>
+    </div>
+    <div class="row text-center m-5">
+        <div class="col-lg-3 align-self-center"></div>
+        <div class="col-lg-6 align-self-center">
+            <form method="POST" action="{% url 'scaled-mark-entry-complete' %}" class="text-center">
+                <div class="row mb-2 g-3 align-items-center">
+                    <div class="col-4">
+                        <label for="eps_ass_code" class="form-label">Syllabus</label>
+                    </div>
+                    <div class="col-8">
+                        <input name="eps_ass_code" id="eps_ass_code" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="row mb-2 g-3 align-items-center">
+                    <div class="col-4">
+                        <label for="eps_com_id" class="form-label">Component</label>
+                    </div>
+                    <div class="col-8">
+                        <input name="eps_com_id" id="eps_com_id" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="row mb-2 g-3 align-items-center">
+                    <div class="col-4">
+                        <label for="eps_cnu_id" class="form-label">Centre</label>
+                    </div>
+                    <div class="col-8">
+                        <input name="eps_cnu_id" id="eps_cnu_id"  type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="row mb-2 g-3 align-items-center">
+                    <div class="col-4">
+                        <label for="eps_cand_no" class="form-label">Candidate ID</label>
+                    </div>
+                    <div class="col-8">
+                        <input name="eps_cand_no" id="eps_cand_no"  type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="row mb-2 g-3 align-items-center">
+                    <div class="col-4">
+                        <label for="eps_ses_sid" class="form-label">Session ID</label>
+                    </div>
+                    <div class="col-8">
+                        <input name="eps_ses_sid" id="eps_ses_sid"  type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="row mb-2 g-3 align-items-center">
+                    <div class="col-4">
+                        <label for="exm_examiner_no" class="form-label">Original Examiner</label>
+                    </div>
+                    <div class="col-8">
+                        <input name="exm_examiner_no" id="exm_examiner_no"  type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="row mb-2 g-3 align-items-center">
+                    <div class="col-4">
+                        <label for="original_exm_scaled" class="form-label">Scaled Type</label>
+                    </div>
+                    <div class="col-8">
+                        <select name="original_exm_scaled" id="original_exm_scaled"  type="text" class="form-control">
+                            <option selected value="">Please choose...</option>
+                            <option value="No Scaling">No Scaling</option>
+                            <option value="Scaled">Scaled</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-2 g-3 align-items-center">
+                    <div class="col-4">
+                        <label for="scaled_mark" class="form-label">Final Mark</label>
+                    </div>
+                    <div class="col-8">
+                        <input name="scaled_mark" id="scaled_mark"  type="text" class="form-control">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success btn-lg my-4" style="width:300px">Complete Form</button>
+            </form>
+        </div>
+        <div class="col-lg-3 align-self-center"></div>
+        </div>  
+
+</div>
+
+
+
+{% endblock %}

@@ -28,9 +28,14 @@ DEBUG = True
 
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost','*']
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
+INTERNAL_IPS = ['127.0.0.1', 'localhost','*']
+
+def show_toolbar(request):
+        return True
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+}
 
 # Application definition
 

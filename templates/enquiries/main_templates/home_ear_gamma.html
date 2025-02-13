@@ -2,142 +2,154 @@
 {% load compress %}
 <!DOCTYPE html>
 <html>
-  <head>
-      
+<head>
+    
 
-      {% compress css %}
-          <link href="{% static 'admin/css/custom.scss' %}" rel="stylesheet" type="text/x-scss">
-      {% endcompress %}
-      <script type="text/javascript">
-          function preventBack() {
-              window.history.forward(); 
-          }
-            
-          setTimeout("preventBack()", 0);
-            
-          window.onunload = function () { null };
-      </script>
-      <title>Nova</title>
-      <link rel="icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
-  </head>
-  <body style="background-color:#ffffff;" onload="javascript:setTimeout(function(){ location.reload(); },15000);">
-    {% include 'nova_core/base_navbar.html' %}
+    {% compress css %}
+        <link href="{% static 'admin/css/custom.scss' %}" rel="stylesheet" type="text/x-scss">
+    {% endcompress %}
+    <script type="text/javascript">
+        function preventBack() {
+            window.history.forward(); 
+        }
+          
+        setTimeout("preventBack()", 0);
+          
+        window.onunload = function () { null };
+    </script>
+    <title>Nova</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'admin/img/favicon.ico' %}">
+</head>
+<body style="background-color:#ffffff;" onload="javascript:setTimeout(function(){ location.reload(); },60000);">
+  {% include 'nova_core/base_navbar.html' %}
 
-    <div class="row mx-2 justify-content-between align-items-end">
-      <div class="col-4">
-        <h3 class="display-3 mt-3 mx-4 my-1"> </h3>
-      </div>
-
-      <div class="col-4">
-        <h2 class="display-3 mt-3 mx-4 my-1" style="color: rgb(150, 0, 0);">{{ session_desc }}</h2>
-      </div>
+  <div class="row mx-2 justify-content-between align-items-end">
+    <div class="col-4">
+      <h3 class="display-3 mt-3 mx-4 my-1"> </h3>
     </div>
 
-    <div class="row mx-2 justify-content-between text-center">
-      <div class="col">
-        <h3 class="display-3 mt-3 mx-4 my-1">Gamma</h3>
-      </div>
+    <div class="col-4">
+      <h2 class="display-3 mt-3 mx-4 my-1" style="color: rgb(150, 0, 0);">{{ session_desc }}</h2>
     </div>
+  </div>
 
-    <div class="row mx-2"> 
-      <div class="col d-flex justify-content-center">
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">My Tasks</h5>
-            {% if mytask.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            <p class="card-text">A list of tasks currently assigned to me.</p>
-            <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
-          </div>
+  <div class="row mx-2 justify-content-between text-center">
+    <div class="col">
+      <h3 class="display-3 mt-3 mx-4 my-1">Gamma</h3>
+    </div>
+  </div>
+
+  <div class="row mx-2"> 
+    <div class="col d-flex justify-content-center">
+      <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">My Tasks</h5>
+          {% if mytask.count > 0 %}<span class="badge rounded-pill bg-primary">{{ mytask.count }} Tasks Assigned To Me</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          <p class="card-text">A list of tasks currently assigned to me.</p>
+          <a href="{% url 'my_tasks' %}" class="mt-auto btn btn-outline-primary">Go to My Tasks</a>
         </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">ESM CSV Download</h5>
-            {% if esmcsv.count > 0 %}<span class="badge rounded-pill bg-primary">{{ esmcsv.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            <p class="card-text">Download for examiner access to RM</p>
-            <a href="{% url 'esmcsv_list' %}" class="mt-auto btn btn-outline-primary">ESM Downloads</a>
-          </div>
+      </div>
+      <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">ESM CSV Download</h5>
+          {% if esmcsv.count > 0 %}<span class="badge rounded-pill bg-primary">{{ esmcsv.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          <p class="card-text">Download for examiner access to RM</p>
+          <a href="{% url 'esmcsv_list' %}" class="mt-auto btn btn-outline-primary">ESM Downloads</a>
         </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">OMR CSV Download</h5>
-            {% if omrche.count > 0 %}<span class="badge rounded-pill bg-primary">{{ omrche.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            <p class="card-text">Download for examiner access to RM</p>
-            <a href="{% url 'omrche_list' %}" class="mt-auto btn btn-outline-primary">OMR Downloads</a>
-          </div>
+      </div>
+      <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">OMR CSV Download</h5>
+          {% if omrche.count > 0 %}<span class="badge rounded-pill bg-primary">{{ omrche.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          <p class="card-text">Download for examiner access to RM</p>
+          <a href="{% url 'omrche_list' %}" class="mt-auto btn btn-outline-primary">OMR Downloads</a>
         </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">Local Marking Checks</h5>
-            {% if locmar.count > 0 %}<span class="badge rounded-pill bg-primary">{{ locmar.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            {% if locmara.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ locmara.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-            <p class="card-text">Local marking control and apportionment.</p>
-            <a href="{% url 'task_list' 'LOCMAR' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
-          </div>
+      </div>
+      <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Local Marking Checks</h5>
+          {% if locmar.count > 0 %}<span class="badge rounded-pill bg-primary">{{ locmar.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          {% if locmara.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ locmara.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+          <p class="card-text">Local marking control and apportionment.</p>
+          <a href="{% url 'task_list' 'LOCMAR' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
         </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">Previous Examiner Checks</h5>
-            {% if pexmch.count > 0 %}<span class="badge rounded-pill bg-primary">{{ pexmch.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            {% if pexmcha.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ pexmcha.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-            <p class="card-text">Checks on previous examiners when a GR or TL Adjustment has taken place.</p>
-            <a href="{% url 'task_list' 'PEXMCH' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
-          </div>
+      </div>
+      <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Previous Examiner Checks</h5>
+          {% if pexmch.count > 0 %}<span class="badge rounded-pill bg-primary">{{ pexmch.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          {% if pexmcha.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ pexmcha.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+          <p class="card-text">Checks on previous examiners when a GR or TL Adjustment has taken place.</p>
+          <a href="{% url 'task_list' 'PEXMCH' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
         </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">Manual Apportionment</h5>
-            {% if manapp.count > 0 %}<span class="badge rounded-pill bg-primary">{{ manapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            {% if manappa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ manappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-            <p class="card-text">Scripts awaiting manual apportionment.</p>
-            <a href="{% url 'task_list' 'MANAPP' %}" class="mt-auto btn btn-outline-primary">Go to Apportionment</a>
-          </div>
+      </div>
+      <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Manual Apportionment</h5>
+          {% if manapp.count > 0 %}<span class="badge rounded-pill bg-primary">{{ manapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          {% if manappa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ manappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+          <p class="card-text">Scripts awaiting manual apportionment.</p>
+          <a href="{% url 'task_list' 'MANAPP' %}" class="mt-auto btn btn-outline-primary">Go to Apportionment</a>
         </div>
       </div>
     </div>
-    <div class="row mx-2">
-      <div class="col d-flex justify-content-center">
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">Tolerances</h5>
-            <span class="badge rounded-pill bg-success"></span>
-            <p class="card-text">View Tolerance Status</p>
-            <a href="{% url 'reload-tolerance' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
-          </div>
+  </div>
+  <div class="row mx-2">
+    <div class="col d-flex justify-content-center">
+      <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Scaled Marks Input</h5>
+          <p class="card-text">Form for entering scaled marks missing from ODS.</p>
+          <a href="{% url 'scaled-mark-entry' %}" class="mt-auto btn btn-outline-primary">Go to Form</a>
         </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">Manual MIS Entry</h5>
-            <span class="badge rounded-pill bg-success"></span>
-            <p class="card-text">Manually fill an MIS after examiner return.</p>
-            <a href="{% url 'manual-mis' %}" class="mt-auto btn btn-outline-primary">Go to Form</a>
-          </div>
+      </div>
+      <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Tolerances</h5>
+          <span class="badge rounded-pill bg-success"></span>
+          <p class="card-text">View Tolerance Status</p>
+          <a href="{% url 'reload-tolerance' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
         </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">Request MIS</h5>
-            <span class="badge rounded-pill bg-success"></span>
-            <p class="card-text">Create a new MIS for a batch.</p>
-            <a href="{% url 'request-mis' %}" class="mt-auto btn btn-outline-primary">Go to Form</a>
-          </div>
+      </div>
+      <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Manual MIS Entry</h5>
+          <span class="badge rounded-pill bg-success"></span>
+          <p class="card-text">Manually fill an MIS after examiner return.</p>
+          <a href="{% url 'manual-mis' %}" class="mt-auto btn btn-outline-primary">Go to Form</a>
         </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">MIS RM Checks</h5>
-            {% if misvrm.count > 0 %}<span class="badge rounded-pill bg-primary">{{ misvrm.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            {% if misvrma.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ misvrma.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-            <p class="card-text">Checks between returned MIS forms and RM.</p>
-            <a href="{% url 'task_list' 'MISVRM' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
-          </div>
+      </div>
+      <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Request MIS</h5>
+          <span class="badge rounded-pill bg-success"></span>
+          <p class="card-text">Create a new MIS for a batch.</p>
+          <a href="{% url 'request-mis' %}" class="mt-auto btn btn-outline-primary">Go to Form</a>
         </div>
-        <div class="card m-3 shadow-lg" style="width: 18rem; ">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">MIS RM Re-checks</h5>
-            {% if misvrf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ misvrf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-            {% if misvrfa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ misvrfa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-            <p class="card-text">Checks between returned MIS forms and RM.</p>
-            <a href="{% url 'task_list' 'MISVRF' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
-          </div>
+      </div>
+      <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">MIS RM Checks</h5>
+          {% if misvrm.count > 0 %}<span class="badge rounded-pill bg-primary">{{ misvrm.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          {% if misvrma.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ misvrma.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+          <p class="card-text">Checks between returned MIS forms and RM.</p>
+          <a href="{% url 'task_list' 'MISVRM' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
         </div>
+      </div>
+      <div class="card m-3 shadow-lg" style="width: 18rem; ">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">MIS RM Re-checks</h5>
+          {% if misvrf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ misvrf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+          {% if misvrfa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ misvrfa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+          <p class="card-text">Checks between returned MIS forms and RM.</p>
+          <a href="{% url 'task_list' 'MISVRF' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mx-2">
+    <div class="col d-flex justify-content-center">
+      <div class="row mx-2">
         <div class="card m-3 shadow-lg" style="width: 18rem; ">
           <div class="card-body d-flex flex-column">
             <h5 class="card-title">Special Marks Checks</h5>
@@ -147,58 +159,53 @@
             <a href="{% url 'task_list' 'MARCHE' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="row mx-2">
-      <div class="col d-flex justify-content-center">
-        <div class="row mx-2">
-          <div class="card m-3 shadow-lg" style="width: 18rem; ">
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">Script Reapportionment</h5>
-              {% if remapp.count > 0 %}<span class="badge rounded-pill bg-primary">{{ remapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-              {% if remappa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ remappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-              <p class="card-text">Reapportionment of scripts to new examiners.</p>
-              <a href="{% url 'task_list' 'REMAPP' %}" class="mt-auto btn btn-outline-primary">Go to Breaches</a>
-            </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">Script Reapportionment</h5>
+            {% if remapp.count > 0 %}<span class="badge rounded-pill bg-primary">{{ remapp.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if remappa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ remappa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Reapportionment of scripts to new examiners.</p>
+            <a href="{% url 'task_list' 'REMAPP' %}" class="mt-auto btn btn-outline-primary">Go to Breaches</a>
           </div>
-          <div class="card m-3 shadow-lg" style="width: 18rem; ">
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">EPS Reapportionment</h5>
-              {% if remapf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ remapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-              {% if remapfa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ remapfa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-              <p class="card-text">Reapportionment when an examiner SLA is breached.</p>
-              <a href="{% url 'task_list' 'REMAPF' %}" class="mt-auto btn btn-outline-primary">Go to Apportionment</a>
-            </div>
-          </div> 
-          <div class="card m-3 shadow-lg" style="width: 18rem; ">
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">RPA Apportion Failures</h5>
-              {% if botapf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-              <p class="card-text">Tasks awaiting completion after a bot failed to process an apportionment.</p>
-              <a href="{% url 'task_list' 'BOTAPF' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
-            </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">EPS Reapportionment</h5>
+            {% if remapf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ remapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if remapfa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ remapfa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Reapportionment when an examiner SLA is breached.</p>
+            <a href="{% url 'task_list' 'REMAPF' %}" class="mt-auto btn btn-outline-primary">Go to Apportionment</a>
           </div>
-          <div class="card m-3 shadow-lg" style="width: 18rem; ">
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">RPA Marks Keying Failures</h5>
-              {% if botmaf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botmaf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-              <p class="card-text">Tasks awaiting completion after a bot failed to process a mark keying.</p>
-              <a href="{% url 'task_list' 'BOTMAF' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
-            </div>
+        </div> 
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">RPA Apportion Failures</h5>
+            {% if botapf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botapf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            <p class="card-text">Tasks awaiting completion after a bot failed to process an apportionment.</p>
+            <a href="{% url 'task_list' 'BOTAPF' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
           </div>
-          <div class="card m-3 shadow-lg" style="width: 18rem; ">
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">MU Prempt Exm Checks</h5>
-              {% if muprex.count > 0 %}<span class="badge rounded-pill bg-primary">{{ muprex.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
-              {% if muprexa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ muprexa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
-              <p class="card-text">Tasks awaiting updates to the examiner payment log.</p>
-              <a href="{% url 'task_list' 'MUPREX' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
-            </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">RPA Marks Keying Failures</h5>
+            {% if botmaf.count > 0 %}<span class="badge rounded-pill bg-primary">{{ botmaf.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            <p class="card-text">Tasks awaiting completion after a bot failed to process a mark keying.</p>
+            <a href="{% url 'task_list' 'BOTMAF' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
+          </div>
+        </div>
+        <div class="card m-3 shadow-lg" style="width: 18rem; ">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">MU Prempt Exm Checks</h5>
+            {% if muprex.count > 0 %}<span class="badge rounded-pill bg-primary">{{ muprex.count }} Tasks Waiting</span>{% else %}<span class="badge rounded-pill bg-success">All Tasks Completed</span>{% endif %}
+            {% if muprexa.count > 0 %}<span class="badge rounded-pill bg-secondary mt-1">{{ muprexa.count }} Tasks Assigned</span>{% else %}<span class="badge rounded-pill bg-success mt-1">No Tasks Assigned</span>{% endif %}
+            <p class="card-text">Tasks awaiting updates to the examiner payment log.</p>
+            <a href="{% url 'task_list' 'MUPREX' %}" class="mt-auto btn btn-outline-primary">Go to Checks</a>
           </div>
         </div>
       </div>
     </div>
-  </body>
+  </div>
+</body>
 </html>
 
 
