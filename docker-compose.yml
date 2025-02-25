@@ -1,7 +1,10 @@
 services:
   web:
+    tty: true
     build: .
-    command: [  "uwsgi", "--ini", "/code/config/uwsgi/uwsgi.ini"]
+    ports:           # to access the container from outside
+      - "8000:8000"
+    #command: [  "uwsgi", "--ini", "/code/config/uwsgi/uwsgi.ini"]
     restart: always
     volumes:
       - .:/code
@@ -10,11 +13,12 @@ services:
     env_file:
       - .env
   apache:
-    image: httpd:2.4
+    tty: true
+    build: ./apache
     restart: always
     volumes:
-      - ./config/apache:/etc/httpd/
+      - ./apache/apache_django.conf:/etc/apache2/sites-available/000-default.conf
       - .:/code
     ports:
-      - "80:80"
+      - "81:80"
       - "443:443"
