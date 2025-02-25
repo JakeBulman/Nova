@@ -18,7 +18,7 @@ from django.db import connection, reset_queries
 from openpyxl import load_workbook
 
 #special imports
-from . import script_ServerResetShort as srs
+#from . import script_ServerResetShort as srs
 #from . import script_ServerResetFull as srf
 
 PageNotAnInteger = None
@@ -1890,17 +1890,16 @@ def mrkamd_task(request, task_id=None):
 
 def mrkamd_task_complete(request):
 	task_id = request.POST.get('task_id')
-	task_status = request.POST.get('task_status')
 	enquiry_id = models.TaskManager.objects.get(pk=task_id).enquiry_id.enquiry_id
-	if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='PUMMAT',task_completion_date = None).exists():
+	if not models.TaskManager.objects.filter(enquiry_id=enquiry_id, task_id='COMPLT',task_completion_date = None).exists():
 		models.TaskManager.objects.create(
-			enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
-			ec_sid = None,
-			task_id = models.TaskTypes.objects.get(task_id = 'PUMMAT'),
-			task_assigned_to = None,
-			task_assigned_date = None,
-			task_completion_date = None
-		)
+            enquiry_id = models.CentreEnquiryRequests.objects.get(enquiry_id=enquiry_id),
+            ec_sid = None,
+            task_id = models.TaskTypes.objects.get(task_id = 'COMPLT'),
+            task_assigned_to = User.objects.get(username='NovaServer'),
+            task_assigned_date = timezone.now(),
+            task_completion_date = None
+        )
 	#complete the task
 	task_completer(request,task_id,'MRKAMD') 
 	return redirect('my_tasks')
@@ -1961,6 +1960,12 @@ def scrren_sendback_view(request):
 	#complete the task
 	task_completer(request,task_id,'SCRREN')   
 	return redirect('scrren_list')
+
+def mailing_list(request):
+	mailing_list = models.MailingList.objects.all().select_related('exm_creditor_no').order_by('-send_date','exm_creditor_no__exm_surname')
+	context = {'mailing_list':mailing_list}
+	return render(request,'enquiries/main_templates/mailing_list.html',context=context)
+
 
 def enquiries_detail(request, enquiry_id=None):
 	cer_queryset = None

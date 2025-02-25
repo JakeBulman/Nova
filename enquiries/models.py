@@ -521,3 +521,20 @@ class ManualTaskQueue(models.Model):
     task_completion_date = models.DateTimeField(null=True)
     task_queued = models.IntegerField(default=1)
     task_running = models.IntegerField(default=0)
+
+class MailingList(models.Model):
+    exm_creditor_no = models.ForeignKey(UniqueCreditor, to_field='exm_creditor_no', on_delete=models.SET_NULL, related_name='exm_emails_sent',null=True)
+    email_address = models.CharField(max_length=200)
+    email_name = models.CharField(max_length=200)
+    send_date = models.DateField(auto_now_add=True)
+    email_sent = models.IntegerField(default=0)
+
+class MailingListScripts(models.Model):
+    mailing_list = models.ForeignKey(MailingList, on_delete=models.SET_NULL,related_name='exm_email_scripts',null=True)
+    ec_sid = models.ForeignKey(EnquiryComponents, to_field='ec_sid', on_delete=models.SET_NULL, related_name='script_emails',null=True)
+    eb_sid = models.ForeignKey(EnquiryBatches, to_field='eb_sid', on_delete=models.SET_NULL, related_name='batch_emails',null=True)
+    due_date = models.DateField()
+    service_code = models.CharField(max_length=4)
+    syll_comp = models.CharField(max_length=7)
+    centre_id = models.CharField(max_length=5)
+    candidate_id = models.CharField(max_length=5)

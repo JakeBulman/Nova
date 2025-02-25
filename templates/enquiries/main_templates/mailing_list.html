@@ -1,0 +1,31 @@
+{% extends 'nova_core/base.html' %}
+
+{% block content %}
+
+<h1 class="display-5 text-center mb-5">EAR - Mailing List</h1>
+
+    <div class="table-responsive-xl m-5">
+        <table class="table table-sm table-bordered table-hover">
+            <tr class="text-center">
+              <th>Examiner Creditor Number</th>
+              <th>Email Address</th>
+              <th>Email Name</th>
+              <th>Send Date</th>
+              <th>Email Sent</th>
+            </tr>
+            {% for ml in mailing_list %}
+                <tr class="text-center">
+                    <td>{{ ml.exm_creditor_no.exm_creditor_no }}</td>
+                    <td>{{ ml.email_address }}</td>
+                    <td>{{ ml.email_name }}</td>
+                    <td>{{ ml.send_date }}</td>
+                    <td>{{ ml.email_sent }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+
+
+
+{% endblock %}

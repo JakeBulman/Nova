@@ -128,6 +128,10 @@ urlpatterns = [
     path('scrren_list', views.scrren_list_view, name='scrren_list'),
     path('scrren_sendback', views.scrren_sendback_view, name='scrren_sendback'),
 
+    ### Daily mailing list URLs ###
+
+    path('mailing_list', views.mailing_list, name='mailing_listing'),
+
 
     ### Enquiry Detail Control ###
 
