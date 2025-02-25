@@ -34,6 +34,7 @@ RUN apt-get update && apt-get install -y apache2 \
     && apt-get autoremove \
     && rm -rf /var/lib/apt/lists/*
 
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 # Expose port 80 on the container
 EXPOSE 80
 # Make directory for base_site
