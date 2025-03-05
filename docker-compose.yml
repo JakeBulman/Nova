@@ -1,24 +1,31 @@
 services:
-  web:
+  # web:
+  #   tty: true
+  #   build: .
+  #   ports:           # to access the container from outside
+  #     - "8000:8000"
+  #   #command: [  "uwsgi", "--ini", "/code/config/uwsgi/uwsgi.ini"]
+  #   restart: always
+  #   volumes:
+  #     - .:/code
+  #   environment:
+  #    - DJANGO_SETTINGS_MODULE=redepplan.settings
+  #   env_file:
+  #     - .env
+  webserver:
     tty: true
     build: .
-    ports:           # to access the container from outside
-      - "8000:8000"
-    #command: [  "uwsgi", "--ini", "/code/config/uwsgi/uwsgi.ini"]
     restart: always
     volumes:
-      - .:/code
+      - .:/var/www/redepplan
+      - ./apache/apache_django.conf:/etc/apache2/sites-available/000-default.conf
+      - ./startup.sh:/var/www/startup.sh
+    ports:
+      - "8080:80"
+      - "443:443"
+      - "8000:8000"
     environment:
      - DJANGO_SETTINGS_MODULE=redepplan.settings
     env_file:
       - .env
-  apache:
-    tty: true
-    build: ./apache
-    restart: always
-    volumes:
-      - ./apache/apache_django.conf:/etc/apache2/sites-available/000-default.conf
-      - .:/code
-    ports:
-      - "80:80"
-      - "443:443"
+    command: server
