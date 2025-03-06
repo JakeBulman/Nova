@@ -49,9 +49,7 @@ INSTALLED_APPS = [
     'members',
     #Handles logins and user-grouping functions
     'enquiries',
-    #Represents the EAR program
-    'datareporting',
-    #data being pulled into 
+    #EARs
     'pdq',
     #results release handling for pdqs
     

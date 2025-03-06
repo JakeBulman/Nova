@@ -28,7 +28,6 @@ urlpatterns = [
     path('members/', include('members.urls')),
     path('enquiries/', include('enquiries.urls')),
     path('pdq/', include('pdq.urls')),
-    path('datareporting/', include('datareporting.urls')),
 ]
 
 urlpatterns.extend(debug_toolbar_urls())

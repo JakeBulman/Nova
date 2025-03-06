@@ -1,17 +1,4 @@
 services:
-  # web:
-  #   tty: true
-  #   build: .
-  #   ports:           # to access the container from outside
-  #     - "8000:8000"
-  #   #command: [  "uwsgi", "--ini", "/code/config/uwsgi/uwsgi.ini"]
-  #   restart: always
-  #   volumes:
-  #     - .:/code
-  #   environment:
-  #    - DJANGO_SETTINGS_MODULE=redepplan.settings
-  #   env_file:
-  #     - .env
   webserver:
     tty: true
     build: .
