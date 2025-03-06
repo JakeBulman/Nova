@@ -23,9 +23,11 @@ elif os.getenv('DJANGO_DEVELOPMENT') == 'true':
     sys.path.append('C:/Dev/nova/redepplan')
     os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "redepplan.settings")
-else :
+else:
     print('DEV')
-
+    sys.path.append('/var/www/redepplan')
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_dev'
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "redepplan.settings_dev")
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()

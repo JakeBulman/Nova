@@ -37,6 +37,7 @@ ENV DJANGO_SETTINGS_MODULE='redepplan.settings'
 
 # Add apache2, mod_wsgi, python3.8 libraries
 RUN apt-get update -y && apt-get upgrade -y
+RUN apt-get install unixodbc-dev -y
 RUN apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y && DEBIAN_FRONTEND=noninteractive apt-get install apache2-dev -y
 RUN DEBIAN_FRONTEND=noninteractive apt-get install libapache2-mod-wsgi-py3 -y
 RUN apt-get install build-essential -y
