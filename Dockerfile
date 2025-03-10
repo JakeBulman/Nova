@@ -6,8 +6,10 @@ ARG WEBSITE_NAME=redepplan
 ENV WEBSITE_NAME=${WEBSITE_NAME}
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV DJANGO_DEVELOPMENT='true'
-ENV DJANGO_SETTINGS_MODULE='redepplan.settings'
+# ENV DJANGO_DEVELOPMENT='true'
+# ENV DJANGO_SETTINGS_MODULE='redepplan.settings'
+
+RUN env
 
 # Add apache2, mod_wsgi, python3.8 libraries
 RUN apt-get update -y && apt-get upgrade -y

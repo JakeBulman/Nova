@@ -13,8 +13,9 @@ case $1 in
     # Change to $BASE_PATH
     cd $BASE_PATH
     # Startup apache2 server
+    ENV_VAR_TEST="$(printenv DJANGO_DEVELOPMENT)"
+    echo $ENV_VAR_TEST
     sudo apache2ctl -D FOREGROUND
     ;;
-
 
 esac

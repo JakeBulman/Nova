@@ -11,8 +11,8 @@ services:
       - "8080:80"
       - "443:443"
       - "8000:8000"
-    environment:
-     - DJANGO_SETTINGS_MODULE=redepplan.settings
+    # environment:
+    #  - DJANGO_SETTINGS_MODULE=redepplan.settings
     env_file:
       - .env
     command: server

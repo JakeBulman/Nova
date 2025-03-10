@@ -10,7 +10,8 @@ import site
 
 # Add the app's directory to the PYTHONPATH
 
-
+print(os.getenv('DJANGO_PRODUCTION'))
+print(os.getenv('DJANGO_DEVELOPMENT'))
 if os.getenv('DJANGO_PRODUCTION') == 'true':
     print('PROD')
     sys.path.append('C:/Dev/nova')
