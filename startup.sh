@@ -13,8 +13,9 @@ case $1 in
     # Change to $BASE_PATH
     cd $BASE_PATH
     # Startup apache2 server
-    ENV_VAR_TEST="$(printenv DJANGO_DEVELOPMENT)"
-    echo $ENV_VAR_TEST
+    echo "export DJANGO_DEVELOPMENT=${DJANGO_DEVELOPMENT}" >> /etc/environment
+    echo "export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}" >> /etc/environment
+    sudo python3 manage.py collectstatic --no-input
     sudo apache2ctl -D FOREGROUND
     ;;
 
