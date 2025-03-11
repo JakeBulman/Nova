@@ -152,7 +152,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
     "/s3earnova/UAT",
 )
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_collected')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
