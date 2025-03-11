@@ -13,8 +13,7 @@ case $1 in
     # Change to $BASE_PATH
     cd $BASE_PATH
     # Startup apache2 server
-    echo "export DJANGO_DEVELOPMENT=${DJANGO_DEVELOPMENT}" >> /etc/environment
-    echo "export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}" >> /etc/environment
+    echo "export DJANGO_ENV=${DJANGO_ENV}" >> /etc/environment
     sudo python3 manage.py collectstatic --no-input
     sudo apache2ctl -D FOREGROUND
     ;;
