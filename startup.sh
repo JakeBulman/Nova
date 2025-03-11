@@ -13,6 +13,10 @@ case $1 in
     # Change to $BASE_PATH
     cd $BASE_PATH
     # Startup apache2 server
+    sudo groupadd varwwwusers
+    sudo adduser www-data varwwwusers
+    sudo chgrp -R varwwwusers /var/www/
+    sudo chmod -R 770 /var/www/
     echo "export DJANGO_ENV=${DJANGO_ENV}" >> /etc/environment
     sudo python3 manage.py collectstatic --no-input
     sudo apache2ctl -D FOREGROUND
