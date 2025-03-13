@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'mathfilters',
     'django_htmx',
     'bootstrap_datepicker_plus',
+    'storages',
     # 'django_celery_beat',
     # 'django_celery',
     'pages',
@@ -145,11 +146,34 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+AWS_ACCESS_KEY_ID = 'AKIATLW5XSRV3XPUHT2Z'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'cdp-prd-ear-nova'
+AWS_S3_SIGNATURE_NAME = 's3v4'
+AWS_S3_REGION_NAME = 'eu-west-1'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+STORAGES = {
+    "default": {
+        "BACKEND" : "redepplan.storage_backends_prd.PublicMediaStorage",
+    },
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')
+    "staticfiles":  {
+        "BACKEND" : "redepplan.storage_backends_prd.StaticStorage",
+    },
+}
+# s3 static settings
+STATIC_LOCATION = 'PRD/static'
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+
+print(STATIC_URL)
+
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static').replace('\\', '/'),)
+
+PUBLIC_MEDIA_LOCATION = 'PRD/media'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+
+COMPRESS_ROOT = STATIC_LOCATION
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -163,6 +187,8 @@ INSTALLED_APPS += (
 )
 
 STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
 

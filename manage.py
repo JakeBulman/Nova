@@ -6,12 +6,17 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    if os.getenv('DJANGO_PRODUCTION') == 'true':
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'redepplan.settings_prod')
-    elif os.getenv('DJANGO_DEVELOPMENT') == 'true':
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'redepplan.settings')
-    else:
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'redepplan.settings_dev')
+if os.getenv('DJANGO_ENV') == 'PRD':
+    print('PROD')
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings_prod'
+
+elif os.getenv('DJANGO_ENV') == 'UAT':
+    print('UAT - Check')
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
+
+else:
+    print('DEV')
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'redepplan.settings'
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

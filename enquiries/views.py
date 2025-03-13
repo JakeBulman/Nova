@@ -2888,7 +2888,7 @@ def esmcsv_create_view(request):
 	ec_queryset = models.TaskManager.objects.filter(task_id='ESMCSV', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__eb_sid__isnull=False)
 	if ec_queryset.count() > 0:
 		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
-		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
+		file_location = os.path.join("downloads", file_timestamp).replace('\\', '/')
 		print(file_location)
 		#check validity of all rows
 		for s in ec_queryset:
@@ -2955,7 +2955,7 @@ def omrche_create_view(request):
 	ec_queryset = models.TaskManager.objects.filter(task_id='OMRCHE', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__eb_sid__isnull=False)
 	if ec_queryset.count() > 0:
 		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + "_OMR.csv"
-		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
+		file_location = os.path.join("downloads", file_timestamp).replace('\\', '/')
 		print(file_location)
 		username = None
 		if request.user.is_authenticated:
@@ -3015,7 +3015,7 @@ def omrscr_create_view(request):
 	ec_queryset = models.TaskManager.objects.order_by('enquiry_id__enquiry_deadline__enquiry_deadline').filter(task_id='OMRSCR', task_completion_date__isnull=True, ec_sid__script_id__eb_sid__eb_sid__isnull=False)
 	if ec_queryset.count() > 0:
 		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + "_OMRSCR.csv"
-		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
+		file_location = os.path.join(settings.MEDIA_URL, "downloads", file_timestamp).replace('\\', '/')
 		print(file_location)
 		username = None
 		if request.user.is_authenticated:
@@ -3090,7 +3090,7 @@ def esmscr_create_view(request):
 	ec_queryset = models.TaskManager.objects.order_by('enquiry_id__enquiry_deadline__enquiry_deadline').filter(task_id='ESMSCR', task_completion_date__isnull=True)[:50]
 	if ec_queryset.count() > 0:
 		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
-		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
+		file_location = os.path.join("downloads", file_timestamp).replace('\\', '/')
 		print(file_location)
 		username = None
 		if request.user.is_authenticated:
@@ -3157,7 +3157,7 @@ def esmsc2_create_view(request):
 	ec_queryset = models.TaskManager.objects.order_by('enquiry_id__enquiry_deadline__enquiry_deadline').filter(task_id='ESMSC2', task_completion_date__isnull=True)[:50]
 	if ec_queryset.count() > 0:
 		file_timestamp = timezone.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
-		file_location = os.path.join(settings.MEDIA_ROOT, "downloads", file_timestamp).replace('\\', '/')
+		file_location = os.path.join("downloads", file_timestamp).replace('\\', '/')
 		print(file_location)
 		username = None
 		if request.user.is_authenticated:
