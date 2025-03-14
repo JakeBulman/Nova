@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'mathfilters',
     'django_htmx',
     'bootstrap_datepicker_plus',
-    'storages',
     # 'django_celery_beat',
     # 'django_celery',
     'pages',
