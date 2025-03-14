@@ -5,6 +5,7 @@ services:
     restart: always
     volumes:
       - .:/var/www/redepplan
+      - ./../../../s3earnova:/s3static
       - ./apache/apache_django.conf:/etc/apache2/sites-available/000-default.conf
       - ./startup.sh:/var/www/startup.sh
     ports:
