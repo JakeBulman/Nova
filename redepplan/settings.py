@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-2__1mxyi+oga6whbk^wi-+=-c_ao80da)vjie#-s$lqcgi+xj-
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost','*']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','*','10.175.16.89']
 
 
 # Application definition
@@ -148,33 +148,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-AWS_ACCESS_KEY_ID = 'AKIATLW5XSRV3XPUHT2Z'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'cdp-prd-ear-nova'
-AWS_S3_SIGNATURE_NAME = 's3v4'
-AWS_S3_REGION_NAME = 'eu-west-1'
-AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-STORAGES = {
-    "default": {
-        "BACKEND" : "redepplan.storage_backends_uat.PublicMediaStorage",
-    },
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-    "staticfiles":  {
-        "BACKEND" : "redepplan.storage_backends_uat.StaticStorage",
-    },
-}
-# s3 static settings
-STATIC_LOCATION = 'UAT/static'
-STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 's3earnova/UAT/static')
 
-print(STATIC_URL)
-
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static').replace('\\', '/'),)
-
-PUBLIC_MEDIA_LOCATION = 'UAT/media'
-MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
-
-COMPRESS_ROOT = STATIC_LOCATION
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 's3earnova/UAT/media').replace('\\', '/')
 
 
 # Default primary key field type
