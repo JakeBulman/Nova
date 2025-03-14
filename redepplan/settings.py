@@ -157,7 +157,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static').replace('\\', '/'),)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 's3earnova/UAT/media')
 
-COMPRESS_ROOT = STATIC_ROOT
+COMPRESS_ROOT = STATIC_URL
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
