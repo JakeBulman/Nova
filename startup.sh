@@ -19,7 +19,7 @@ case $1 in
     sudo chmod -R 770 /var/www/
     echo "export DJANGO_ENV=${DJANGO_ENV}" >> /etc/environment
     echo "Starting Apache"
-    sudo python3 manage.py collectstatic --no-input
+    #sudo python3 manage.py collectstatic --no-input
     sudo apache2ctl -D FOREGROUND
     echo "Apache started"
     ;;
